@@ -280,7 +280,7 @@ class MenstrualDashboardView(FemaleMenstrualOnlyMixin, LoginRequiredMixin, Templ
         return context
 
 
-class MenstrualSettingsView(FemaleMenstrualOnlyMixin, LoginRequiredMixin, TemplateView):
+class MenstrualSettingsView(LoginRequiredMixin, TemplateView):
     template_name = 'menstrual/settings.html'
 
     def get(self, request, *args, **kwargs):

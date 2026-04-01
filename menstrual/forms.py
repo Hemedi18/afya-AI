@@ -1,4 +1,5 @@
 from django import forms
+import re
 from datetime import timedelta
 from .models import DailyLog, MenstrualCycle, MenstrualUserSetting, DailyTip
 
@@ -116,6 +117,12 @@ class MenstrualUserSettingForm(forms.ModelForm):
             'reminder_period',
             'reminder_ovulation',
             'reminder_fertile_window',
+            'color_theme',
+            'use_custom_palette',
+            'custom_primary',
+            'custom_secondary',
+            'background_style',
+            'background_intensity',
         ]
         widgets = {
             'privacy_mode': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
@@ -124,7 +131,30 @@ class MenstrualUserSettingForm(forms.ModelForm):
             'reminder_period': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'reminder_ovulation': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'reminder_fertile_window': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'color_theme': forms.Select(attrs={'class': 'form-select'}),
+            'use_custom_palette': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'custom_primary': forms.TextInput(attrs={'class': 'form-control', 'type': 'color'}),
+            'custom_secondary': forms.TextInput(attrs={'class': 'form-control', 'type': 'color'}),
+            'background_style': forms.Select(attrs={'class': 'form-select'}),
+            'background_intensity': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'max': 100}),
         }
+
+    def clean_background_intensity(self):
+        value = self.cleaned_data.get('background_intensity', 24)
+        return min(max(value, 0), 100)
+
+    def _validate_hex(self, value):
+        if not value:
+            return value
+        if not re.fullmatch(r"#([0-9a-fA-F]{6})", value):
+            raise forms.ValidationError('Tafadhali tumia hex color sahihi, mfano #D4AF37')
+        return value
+
+    def clean_custom_primary(self):
+        return self._validate_hex(self.cleaned_data.get('custom_primary'))
+
+    def clean_custom_secondary(self):
+        return self._validate_hex(self.cleaned_data.get('custom_secondary'))
 
 
 class DailyTipForm(forms.ModelForm):

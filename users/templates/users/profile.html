@@ -209,6 +209,7 @@
                 {% else %}
                     <span class="badge text-bg-secondary">AI Persona incomplete</span>
                 {% endif %}
+                <span class="badge text-bg-primary">Quality {{ persona.profile_completeness_score }}%</span>
             </div>
         </div>
     </div>
@@ -376,6 +377,57 @@
                 {% if persona_form.errors %}
                     <div class="alert alert-danger mt-3 small">Angalia makosa kwenye fomu.</div>
                 {% endif %}
+            </div>
+
+            <div class="profile-card">
+                <h6><i class="bi bi-database-check me-1"></i>Data Quality & Verification</h6>
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <label class="form-label">Emergency Contact Name</label>
+                        {{ persona_form.emergency_contact_name }}
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="form-label">Emergency Contact Phone</label>
+                        {{ persona_form.emergency_contact_phone }}
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="form-label">Region</label>
+                        {{ persona_form.location_region }}
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="form-label">Preferred Language</label>
+                        {{ persona_form.language_preference }}
+                    </div>
+
+                    <div class="col-12">
+                        <div class="form-check">
+                            {{ persona_form.ai_data_consent }}
+                            <label class="form-check-label" for="{{ persona_form.ai_data_consent.id_for_label }}">
+                                Nakubali data yangu itumike kwa AI personalization salama
+                            </label>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-check">
+                            {{ persona_form.identity_verified }}
+                            <label class="form-check-label" for="{{ persona_form.identity_verified.id_for_label }}">Identity verified</label>
+                        </div>
+                    </div>
+                    <div class="col-sm-6">
+                        <div class="form-check">
+                            {{ persona_form.medical_info_verified }}
+                            <label class="form-check-label" for="{{ persona_form.medical_info_verified.id_for_label }}">Medical info verified</label>
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Verification Notes</label>
+                        {{ persona_form.verification_notes }}
+                    </div>
+                </div>
+                <div class="small text-muted mt-2">
+                    Completeness score: <strong>{{ persona.profile_completeness_score }}%</strong>
+                    {% if persona.last_data_reviewed_at %}• last review {{ persona.last_data_reviewed_at|date:'Y-m-d H:i' }}{% endif %}
+                </div>
             </div>
 
             <button type="submit" class="btn btn-primary w-100 rounded-pill fw-bold py-2">

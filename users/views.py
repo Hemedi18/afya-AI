@@ -13,8 +13,27 @@ from .forms import (
     PersonaFullEditForm,
     ZanzPasswordChangeForm,
 )
-from .models import UserAIPersona
+from .models import UserAIPersona, PersonaDataSnapshot
 from .utils import get_user_gender
+
+
+def _store_persona_snapshot(user, persona, source='profile_update'):
+    PersonaDataSnapshot.objects.create(
+        user=user,
+        persona=persona,
+        source=source,
+        completeness_score=persona.profile_completeness_score,
+        identity_verified=persona.identity_verified,
+        medical_info_verified=persona.medical_info_verified,
+        payload={
+            'onboarding_complete': persona.onboarding_complete,
+            'language_preference': persona.language_preference,
+            'region': persona.location_region,
+            'stress_level': persona.stress_level,
+            'exercise_frequency': persona.exercise_frequency,
+            'ai_data_consent': persona.ai_data_consent,
+        },
+    )
 
 def register(request):
     if request.method == 'POST':
@@ -45,7 +64,9 @@ def onboarding(request, step=1):
     if request.method == 'POST':
         form = form_class(request.POST, instance=persona)
         if form.is_valid():
-            form.save()
+            persona = form.save()
+            persona.update_quality_metrics(save=True)
+            _store_persona_snapshot(request.user, persona, source='onboarding')
             if step < 3:
                 return redirect('users:onboarding', step=step + 1)
             messages.success(request, 'Asante! AI persona yako imekamilika na sasa majibu yatakuwa personalized zaidi.')
@@ -93,7 +114,9 @@ def profile(request):
         elif action == 'update_persona':
             persona_form = PersonaFullEditForm(request.POST, instance=persona)
             if persona_form.is_valid():
-                persona_form.save()
+                persona = persona_form.save()
+                persona.update_quality_metrics(save=True)
+                _store_persona_snapshot(request.user, persona, source='profile_update')
                 messages.success(request, 'AI Persona yako imesasishwa!')
                 return redirect(f'{request.path}?tab=persona')
             active_tab = 'persona'

@@ -2,43 +2,147 @@
 
 {% block title %}Card Details{% endblock %}
 
+{% block extra_head %}
+<style>
+  .card-details-shell { max-width: 980px; margin: 0 auto; }
+  .card-details-form {
+    border: 1px solid var(--line-soft);
+    background: color-mix(in srgb, var(--card-bg) 94%, transparent);
+    box-shadow: var(--shadow-soft);
+  }
+  .details-section {
+    border: 1px solid var(--line-soft);
+    border-radius: 16px;
+    padding: .9rem;
+    background: color-mix(in srgb, var(--card-bg) 90%, transparent);
+    margin-bottom: .9rem;
+  }
+  .details-title {
+    font-weight: 800;
+    font-size: .83rem;
+    letter-spacing: .04em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: .65rem;
+  }
+  .card-details-form label { font-size: .8rem; font-weight: 700; margin-bottom: .3rem; color: var(--text-main); }
+  .card-details-form .form-control,
+  .card-details-form .form-select {
+    min-height: 42px;
+    border-radius: 12px;
+  }
+  .checks-grid .col-md-4 {
+    padding-top: .25rem;
+    padding-bottom: .25rem;
+  }
+  .checks-grid input[type='checkbox'] { margin-right: .4rem; }
+
+  .pick-item {
+    display: flex;
+    gap: .55rem;
+    align-items: center;
+    border: 1px solid var(--line-soft);
+    border-radius: 12px;
+    padding: .55rem .65rem;
+    background: color-mix(in srgb, var(--card-bg) 92%, transparent);
+    min-height: 46px;
+  }
+  .pick-item .form-check-input {
+    margin-top: 0;
+    width: 1.08rem;
+    height: 1.08rem;
+    accent-color: var(--primary);
+  }
+  .pick-item label {
+    margin: 0;
+    font-size: .79rem;
+    font-weight: 700;
+    line-height: 1.25;
+    cursor: pointer;
+  }
+  .hint {
+    font-size: .74rem;
+    color: var(--text-muted);
+    margin-top: .4rem;
+  }
+
+  @media (max-width: 991.98px) {
+    .card-details-form,
+    .details-section,
+    .pick-item {
+      background: var(--mobile-solid) !important;
+      color: var(--mobile-text) !important;
+      border-color: var(--mobile-border) !important;
+      box-shadow: 8px 8px 18px var(--neo-out-a), -8px -8px 18px var(--neo-out-b) !important;
+    }
+
+    .card-details-form .form-control,
+    .card-details-form .form-select {
+      background: var(--mobile-input) !important;
+      color: var(--mobile-text) !important;
+      border: 1px solid var(--mobile-border) !important;
+      box-shadow: inset 4px 4px 8px var(--neo-in-a), inset -4px -4px 8px var(--neo-in-b) !important;
+    }
+
+    .pick-item .form-check-input {
+      accent-color: var(--primary);
+    }
+  }
+</style>
+{% endblock %}
+
 {% block content %}
-<div class="container py-3" style="max-width:980px;">
+<div class="container py-3 card-details-shell">
   <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
     <h4 class="mb-0 fw-bold"><i class="bi bi-sliders me-2"></i>Update Card Details</h4>
     <a href="{% url 'card:home' %}" class="btn btn-outline-secondary rounded-pill"><i class="bi bi-arrow-left me-1"></i>Back to Card</a>
   </div>
 
-  <form method="post" enctype="multipart/form-data" class="card-custom p-3 p-lg-4">
+  <form method="post" enctype="multipart/form-data" class="card-custom p-3 p-lg-4 card-details-form">
     {% csrf_token %}
 
-    <h6 class="fw-bold mb-3">Front Side</h6>
-    <div class="row g-3 mb-3">
-      <div class="col-md-6">{{ form.full_name_override.label_tag }} {{ form.full_name_override }}</div>
-      <div class="col-md-6">{{ form.gender_override.label_tag }} {{ form.gender_override }}</div>
-      <div class="col-md-6">{{ form.birth_date.label_tag }} {{ form.birth_date }}</div>
-      <div class="col-md-6">{{ form.photo.label_tag }} {{ form.photo }}</div>
-      <div class="col-md-6">{{ form.style_theme.label_tag }} {{ form.style_theme }}</div>
-      <div class="col-md-6 d-flex align-items-end">{{ form.show_watermark }} {{ form.show_watermark.label_tag }}</div>
-      <div class="col-12">{{ form.watermark_text.label_tag }} {{ form.watermark_text }}</div>
+    <div class="details-section">
+      <div class="details-title">Front Side</div>
+      <div class="row g-3 mb-1">
+        <div class="col-md-6">{{ form.full_name_override.label_tag }} {{ form.full_name_override }}</div>
+        <div class="col-md-6">{{ form.gender_override.label_tag }} {{ form.gender_override }}</div>
+        <div class="col-md-6">{{ form.birth_date.label_tag }} {{ form.birth_date }}</div>
+        <div class="col-md-6">{{ form.photo.label_tag }} {{ form.photo }}</div>
+        <div class="col-md-6">{{ form.style_theme.label_tag }} {{ form.style_theme }}</div>
+        <div class="col-md-6 d-flex align-items-end">
+          <div class="pick-item w-100">
+            {{ form.show_watermark }} {{ form.show_watermark.label_tag }}
+          </div>
+        </div>
+        <div class="col-12">{{ form.watermark_text.label_tag }} {{ form.watermark_text }}</div>
+      </div>
     </div>
 
-    <h6 class="fw-bold mb-3">Data to show after QR scan</h6>
-    <div class="row g-2 mb-4 small">
-      <div class="col-md-4">{{ form.show_name }} {{ form.show_name.label_tag }}</div>
-      <div class="col-md-4">{{ form.show_gender }} {{ form.show_gender.label_tag }}</div>
-      <div class="col-md-4">{{ form.show_birth_date }} {{ form.show_birth_date.label_tag }}</div>
-      <div class="col-md-4">{{ form.show_age }} {{ form.show_age.label_tag }}</div>
-      <div class="col-md-4">{{ form.show_health_notes }} {{ form.show_health_notes.label_tag }}</div>
-      <div class="col-md-4">{{ form.show_permanent_diseases }} {{ form.show_permanent_diseases.label_tag }}</div>
-      <div class="col-md-4">{{ form.show_medications }} {{ form.show_medications.label_tag }}</div>
-      <div class="col-md-4">{{ form.show_goals }} {{ form.show_goals.label_tag }}</div>
+    <div class="details-section">
+      <div class="details-title">Data to show after QR scan</div>
+      <div class="row g-2 mb-1 small checks-grid">
+        <div class="col-md-4"><div class="pick-item">{{ form.show_name }} {{ form.show_name.label_tag }}</div></div>
+        <div class="col-md-4"><div class="pick-item">{{ form.show_gender }} {{ form.show_gender.label_tag }}</div></div>
+        <div class="col-md-4"><div class="pick-item">{{ form.show_birth_date }} {{ form.show_birth_date.label_tag }}</div></div>
+        <div class="col-md-4"><div class="pick-item">{{ form.show_age }} {{ form.show_age.label_tag }}</div></div>
+        <div class="col-md-4"><div class="pick-item">{{ form.show_health_notes }} {{ form.show_health_notes.label_tag }}</div></div>
+        <div class="col-md-4"><div class="pick-item">{{ form.show_permanent_diseases }} {{ form.show_permanent_diseases.label_tag }}</div></div>
+        <div class="col-md-4"><div class="pick-item">{{ form.show_medications }} {{ form.show_medications.label_tag }}</div></div>
+        <div class="col-md-4"><div class="pick-item">{{ form.show_goals }} {{ form.show_goals.label_tag }}</div></div>
+        <div class="col-md-4"><div class="pick-item">{{ form.show_lifestyle }} {{ form.show_lifestyle.label_tag }}</div></div>
+        <div class="col-md-4"><div class="pick-item">{{ form.show_menstrual_logs }} {{ form.show_menstrual_logs.label_tag }}</div></div>
+        <div class="col-md-4"><div class="pick-item">{{ form.show_menstrual_chart }} {{ form.show_menstrual_chart.label_tag }}</div></div>
+        <div class="col-md-4"><div class="pick-item">{{ form.show_ai_summary }} {{ form.show_ai_summary.label_tag }}</div></div>
+      </div>
+      <div class="hint">Chagua data unazotaka zionekane baada ya QR scan. Mfumo utaonyesha kwa mpangilio mzuri kulingana na selections zako.</div>
     </div>
 
-    <h6 class="fw-bold mb-3">Persona Reminder Schedule</h6>
-    <div class="row g-3 mb-3">
-      <div class="col-md-6">{{ config_form.interval_days.label_tag }} {{ config_form.interval_days }}</div>
-      <div class="col-md-6">{{ config_form.reminder_cooldown_days.label_tag }} {{ config_form.reminder_cooldown_days }}</div>
+    <div class="details-section">
+      <div class="details-title">Persona Reminder Schedule</div>
+      <div class="row g-3 mb-1">
+        <div class="col-md-6">{{ config_form.interval_days.label_tag }} {{ config_form.interval_days }}</div>
+        <div class="col-md-6">{{ config_form.reminder_cooldown_days.label_tag }} {{ config_form.reminder_cooldown_days }}</div>
+      </div>
     </div>
 
     <button class="btn btn-danger rounded-pill" type="submit"><i class="bi bi-save me-1"></i>Save Details</button>

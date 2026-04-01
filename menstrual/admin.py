@@ -188,7 +188,7 @@ class ReminderAdmin(admin.ModelAdmin):
 
 @admin.register(MenstrualUserSetting)
 class MenstrualUserSettingAdmin(admin.ModelAdmin):
-    list_display = ('user', 'privacy_mode', 'anonymous_mode', 'emergency_alerts_enabled', 'reminder_period', 'reminder_ovulation', 'reminder_fertile_window', 'updated_at')
-    list_filter = ('privacy_mode', 'anonymous_mode', 'emergency_alerts_enabled', 'reminder_period', 'reminder_ovulation', 'reminder_fertile_window')
+    list_display = ('user', 'color_theme', 'privacy_mode', 'anonymous_mode', 'emergency_alerts_enabled', 'reminder_period', 'reminder_ovulation', 'reminder_fertile_window', 'updated_at')
+    list_filter = ('color_theme', 'privacy_mode', 'anonymous_mode', 'emergency_alerts_enabled', 'reminder_period', 'reminder_ovulation', 'reminder_fertile_window')
     search_fields = ('user__username', 'user__email')
     autocomplete_fields = ('user',)

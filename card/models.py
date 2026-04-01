@@ -74,6 +74,10 @@ class HealthCard(models.Model):
 	show_permanent_diseases = models.BooleanField(default=False)
 	show_medications = models.BooleanField(default=False)
 	show_goals = models.BooleanField(default=False)
+	show_menstrual_logs = models.BooleanField(default=False)
+	show_menstrual_chart = models.BooleanField(default=False)
+	show_ai_summary = models.BooleanField(default=False)
+	show_lifestyle = models.BooleanField(default=False)
 
 	updated_at = models.DateTimeField(auto_now=True)
 
@@ -140,6 +144,8 @@ class HealthCard(models.Model):
 				payload['medications'] = persona.medications
 			if self.show_goals and persona.goals.strip():
 				payload['goals'] = persona.goals
+			if self.show_lifestyle and persona.lifestyle_notes.strip():
+				payload['lifestyle_notes'] = persona.lifestyle_notes
 		return payload
 
 

@@ -2,6 +2,7 @@ import base64
 from io import BytesIO
 import json
 from urllib.parse import quote
+from collections import Counter
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
@@ -12,6 +13,7 @@ from django.utils import timezone
 
 from .forms import HealthCardForm, PersonaReminderConfigForm
 from .models import CardNotification, HealthCard, PersonaReminderConfig, ensure_persona_update_notification
+from menstrual.models import DailyLog
 
 try:
 	import qrcode
@@ -30,6 +32,85 @@ def _build_qr_image_data_uri(data: str) -> str:
 	img.save(buffer, format='PNG')
 	encoded = base64.b64encode(buffer.getvalue()).decode('ascii')
 	return f"data:image/png;base64,{encoded}"
+
+
+def _build_selected_health_data(card: HealthCard):
+	persona = getattr(card.user, 'ai_persona', None)
+	logs_qs = DailyLog.objects.filter(cycle__user=card.user).order_by('-date')
+	recent_logs = list(logs_qs[:30])
+
+	selected = {
+		'basic_identity': {},
+		'persona_health': {},
+		'menstrual': {},
+		'ai_summary': None,
+	}
+
+	if card.show_name:
+		selected['basic_identity']['full_name'] = card.display_name
+	if card.show_gender:
+		selected['basic_identity']['gender'] = card.display_gender
+	if card.show_birth_date and card.birth_date:
+		selected['basic_identity']['birth_date'] = card.birth_date.isoformat()
+	if card.show_age and card.display_age is not None:
+		selected['basic_identity']['age'] = card.display_age
+
+	if persona:
+		if card.show_health_notes and persona.health_notes.strip():
+			selected['persona_health']['health_notes'] = persona.health_notes
+		if card.show_permanent_diseases and persona.permanent_diseases.strip():
+			selected['persona_health']['permanent_diseases'] = persona.permanent_diseases
+		if card.show_medications and persona.medications.strip():
+			selected['persona_health']['medications'] = persona.medications
+		if card.show_goals and persona.goals.strip():
+			selected['persona_health']['goals'] = persona.goals
+		if card.show_lifestyle and persona.lifestyle_notes.strip():
+			selected['persona_health']['lifestyle_notes'] = persona.lifestyle_notes
+
+	if card.show_menstrual_logs and recent_logs:
+		selected['menstrual']['recent_logs'] = [
+			{
+				'date': log.date.isoformat(),
+				'flow_intensity': int(log.flow_intensity or 0),
+				'physical_symptoms': log.physical_symptoms or [],
+				'emotional_changes': log.emotional_changes or [],
+				'sleep_patterns': log.sleep_patterns or [],
+				'ai_suggestion': log.ai_suggestion or '',
+			}
+			for log in recent_logs
+		]
+
+	if (card.show_menstrual_chart or card.show_ai_summary) and recent_logs:
+		chronological = list(reversed(recent_logs))
+		flow_values = [int(log.flow_intensity or 0) for log in chronological]
+		labels = [log.date.strftime('%d %b') for log in chronological]
+		all_symptoms = []
+		for log in recent_logs:
+			for item in (log.physical_symptoms or []):
+				if isinstance(item, str) and item.strip():
+					all_symptoms.append(item.strip())
+		top_symptoms = [name for name, _ in Counter(all_symptoms).most_common(5)]
+		avg_flow = round(sum(flow_values) / len(flow_values), 2) if flow_values else 0
+
+		if card.show_menstrual_chart:
+			selected['menstrual']['chart'] = {
+				'labels': labels,
+				'flow': flow_values,
+			}
+
+		if card.show_ai_summary:
+			selected['ai_summary'] = {
+				'title': 'AI Health Summary',
+				'text': (
+					f"Kwa logs {len(recent_logs)} za karibuni, wastani wa flow ni {avg_flow}/5. "
+					f"Dalili zinazoonekana zaidi: {', '.join(top_symptoms) if top_symptoms else 'hakuna data ya kutosha'}."
+				),
+				'avg_flow': avg_flow,
+				'top_symptoms': top_symptoms,
+				'logs_count': len(recent_logs),
+			}
+
+	return selected
 
 
 @login_required
@@ -94,11 +175,21 @@ def card_notifications(request):
 
 def public_profile(request, token):
 	card = get_object_or_404(HealthCard, public_token=token)
-	payload = card.build_public_payload()
+	selected_data = _build_selected_health_data(card)
+	payload = {
+		'meta': {
+			'username': card.user.username,
+			'generated_at': timezone.now().isoformat(),
+			'card_updated_at': card.updated_at.isoformat(),
+		},
+		'selected_data': selected_data,
+	}
 	if request.headers.get('accept', '').lower().find('application/json') >= 0 or request.GET.get('format') == 'json':
 		return JsonResponse(payload)
 	return render(request, 'card/public_profile.html', {
 		'payload': payload,
+		'selected_data': selected_data,
+		'chart_json': json.dumps((selected_data.get('menstrual') or {}).get('chart') or {'labels': [], 'flow': []}),
 		'owner': card.user,
 		'generated_at': timezone.now(),
 		'payload_pretty': json.dumps(payload, indent=2, ensure_ascii=False),

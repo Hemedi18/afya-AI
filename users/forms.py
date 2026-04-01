@@ -33,6 +33,9 @@ class PersonaFullEditForm(forms.ModelForm):
             'health_notes', 'permanent_diseases', 'medications',
             'lifestyle_notes', 'sleep_hours', 'stress_level', 'exercise_frequency',
             'diet', 'goals', 'mental_health',
+            'emergency_contact_name', 'emergency_contact_phone', 'location_region',
+            'language_preference', 'ai_data_consent', 'identity_verified',
+            'medical_info_verified', 'verification_notes',
         ]
         widgets = {
             'age': forms.NumberInput(attrs={'class': 'form-control', 'min': 10, 'max': 90}),
@@ -49,6 +52,17 @@ class PersonaFullEditForm(forms.ModelForm):
             'diet': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
             'goals': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
             'mental_health': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
+            'emergency_contact_name': forms.TextInput(attrs={'class': 'form-control'}),
+            'emergency_contact_phone': forms.TextInput(attrs={'class': 'form-control', 'placeholder': '+255...'}),
+            'location_region': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Mfano: Dar es Salaam'}),
+            'language_preference': forms.Select(
+                attrs={'class': 'form-select'},
+                choices=[('sw', 'Swahili'), ('en', 'English')],
+            ),
+            'ai_data_consent': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'identity_verified': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'medical_info_verified': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'verification_notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 2}),
         }
 
 
@@ -147,6 +161,7 @@ class PersonaStepThreeForm(forms.ModelForm):
             'diet',
             'goals',
             'mental_health',
+            'ai_data_consent',
         ]
         widgets = {
             'lifestyle_notes': forms.Textarea(attrs={'class': 'form-control', 'rows': 3, 'placeholder': 'Eleza maisha yako ya kila siku kwa ufupi...'}),
@@ -156,6 +171,7 @@ class PersonaStepThreeForm(forms.ModelForm):
             'diet': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Optional: vegan, mixed, high-protein...'}),
             'goals': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Optional: lose weight, reduce pain, regular cycle...'}),
             'mental_health': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Optional: anxiety, low mood, panic history...'}),
+            'ai_data_consent': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
 
     def __init__(self, *args, **kwargs):
@@ -164,3 +180,4 @@ class PersonaStepThreeForm(forms.ModelForm):
         self.fields['sleep_hours'].required = True
         self.fields['stress_level'].required = True
         self.fields['exercise_frequency'].required = True
+        self.fields['ai_data_consent'].required = True

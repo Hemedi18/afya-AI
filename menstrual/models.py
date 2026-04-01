@@ -196,6 +196,29 @@ class Reminder(models.Model):
 
 
 class MenstrualUserSetting(models.Model):
+    THEME_DEFAULT = 'default'
+    THEME_GOLD = 'gold'
+    THEME_ROSE = 'rose'
+    THEME_OCEAN = 'ocean'
+    THEME_LAVENDER = 'lavender'
+
+    COLOR_THEME_CHOICES = [
+        (THEME_DEFAULT, _('Default Green')),
+        (THEME_GOLD, _('Gold')),
+        (THEME_ROSE, _('Rose')),
+        (THEME_OCEAN, _('Ocean')),
+        (THEME_LAVENDER, _('Lavender')),
+    ]
+
+    BG_SOLID = 'solid'
+    BG_LINEAR = 'linear'
+    BG_RADIAL = 'radial'
+    BACKGROUND_STYLE_CHOICES = [
+        (BG_SOLID, _('Solid')),
+        (BG_LINEAR, _('Linear Gradient')),
+        (BG_RADIAL, _('Radial Gradient')),
+    ]
+
     user = models.OneToOneField(User, on_delete=models.CASCADE, related_name='menstrual_settings')
     privacy_mode = models.BooleanField(default=True, help_text=_("Hide sensitive details on dashboard"))
     anonymous_mode = models.BooleanField(default=False, help_text=_("Post to community anonymously by default"))
@@ -203,6 +226,12 @@ class MenstrualUserSetting(models.Model):
     reminder_period = models.BooleanField(default=True)
     reminder_ovulation = models.BooleanField(default=True)
     reminder_fertile_window = models.BooleanField(default=True)
+    color_theme = models.CharField(max_length=20, choices=COLOR_THEME_CHOICES, default=THEME_DEFAULT)
+    use_custom_palette = models.BooleanField(default=False)
+    custom_primary = models.CharField(max_length=7, default='#2F6B3F')
+    custom_secondary = models.CharField(max_length=7, default='#7FB77E')
+    background_style = models.CharField(max_length=20, choices=BACKGROUND_STYLE_CHOICES, default=BG_LINEAR)
+    background_intensity = models.PositiveSmallIntegerField(default=24)
     updated_at = models.DateTimeField(auto_now=True)
 
     def __str__(self):

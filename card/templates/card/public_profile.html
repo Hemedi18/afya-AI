@@ -5,33 +5,157 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Scanned Health Card</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+  <style>
+    body { background: #eef2f7; }
+    .shell { max-width: 980px; }
+    .section-card {
+      border: 1px solid rgba(0,0,0,.08);
+      border-radius: 18px;
+      background: #fff;
+      box-shadow: 0 12px 28px rgba(0,0,0,.08);
+    }
+    .section-title {
+      font-size: .83rem;
+      font-weight: 800;
+      letter-spacing: .05em;
+      text-transform: uppercase;
+      color: #566375;
+      margin-bottom: .65rem;
+    }
+    .kpi { border: 1px solid rgba(0,0,0,.08); border-radius: 12px; padding: .55rem .65rem; background: #f8fafc; }
+    .kpi .k { font-size: .73rem; color: #667085; }
+    .kpi .v { font-weight: 700; color: #111827; }
+    .log-table th { font-size: .74rem; color: #6b7280; text-transform: uppercase; letter-spacing: .04em; }
+    .log-table td { font-size: .86rem; }
+    .badge-soft { background: #eef2ff; color: #3730a3; border: 1px solid #c7d2fe; }
+  </style>
 </head>
 <body class="bg-light">
-  <main class="container py-4" style="max-width:780px;">
-    <div class="card shadow-sm border-0 rounded-4">
-      <div class="card-body p-4">
-        <h4 class="fw-bold mb-2">Scanned afya-AI Card</h4>
-        <p class="text-muted mb-3">Owner: {{ owner.username }} • Generated {{ generated_at|date:"d M Y H:i" }}</p>
+  <main class="container py-4 shell">
+    <div class="section-card p-4 mb-3">
+      <h4 class="fw-bold mb-1">Scanned afya-AI Card</h4>
+      <p class="text-muted mb-0">Owner: {{ owner.username }} • Generated {{ generated_at|date:"d M Y H:i" }}</p>
+    </div>
 
-        <div class="table-responsive mb-3">
-          <table class="table table-sm align-middle">
-            <tbody>
-            {% for key, value in payload.items %}
-              <tr>
-                <th style="width:240px;">{{ key|title|cut:"_" }}</th>
-                <td>{{ value }}</td>
-              </tr>
-            {% endfor %}
-            </tbody>
-          </table>
+    <div class="section-card p-4 mb-3">
+      <div class="section-title">Basic Identity</div>
+      <div class="row g-2">
+        {% for key, value in selected_data.basic_identity.items %}
+        <div class="col-md-4">
+          <div class="kpi">
+            <div class="k">{{ key|title|cut:"_" }}</div>
+            <div class="v">{{ value }}</div>
+          </div>
         </div>
-
-        <details>
-          <summary class="text-primary">View raw JSON</summary>
-          <pre class="bg-dark text-white p-3 rounded-3 mt-2 small">{{ payload_pretty }}</pre>
-        </details>
+        {% empty %}
+        <div class="col-12"><span class="text-muted small">No basic identity fields selected.</span></div>
+        {% endfor %}
       </div>
     </div>
+
+    {% if selected_data.persona_health %}
+    <div class="section-card p-4 mb-3">
+      <div class="section-title">Persona Health Data</div>
+      <div class="row g-3">
+        {% for key, value in selected_data.persona_health.items %}
+        <div class="col-md-6">
+          <div class="kpi h-100">
+            <div class="k">{{ key|title|cut:"_" }}</div>
+            <div class="v fw-normal" style="white-space:pre-wrap;">{{ value }}</div>
+          </div>
+        </div>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    {% if selected_data.ai_summary %}
+    <div class="section-card p-4 mb-3">
+      <div class="section-title">AI Summarisation</div>
+      <p class="mb-2">{{ selected_data.ai_summary.text }}</p>
+      <div class="d-flex flex-wrap gap-2">
+        <span class="badge badge-soft">Logs: {{ selected_data.ai_summary.logs_count }}</span>
+        <span class="badge badge-soft">Avg flow: {{ selected_data.ai_summary.avg_flow }}/5</span>
+        {% for symptom in selected_data.ai_summary.top_symptoms %}
+          <span class="badge text-bg-secondary">{{ symptom }}</span>
+        {% endfor %}
+      </div>
+    </div>
+    {% endif %}
+
+    {% if selected_data.menstrual.chart.labels %}
+    <div class="section-card p-4 mb-3">
+      <div class="section-title">Menstrual Flow Chart</div>
+      <canvas id="flowChart" height="120"></canvas>
+    </div>
+    {% endif %}
+
+    {% if selected_data.menstrual.recent_logs %}
+    <div class="section-card p-4 mb-3">
+      <div class="section-title">Recent Menstrual Logs</div>
+      <div class="table-responsive">
+        <table class="table table-sm align-middle log-table mb-0">
+          <thead>
+            <tr>
+              <th>Date</th>
+              <th>Flow</th>
+              <th>Symptoms</th>
+              <th>AI Suggestion</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for log in selected_data.menstrual.recent_logs %}
+            <tr>
+              <td>{{ log.date }}</td>
+              <td>{{ log.flow_intensity }}/5</td>
+              <td>{{ log.physical_symptoms|join:", "|default:"-" }}</td>
+              <td>{{ log.ai_suggestion|default:"-" }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+    {% endif %}
+
+    <div class="section-card p-4">
+      <details>
+        <summary class="text-primary">View raw JSON</summary>
+        <pre class="bg-dark text-white p-3 rounded-3 mt-2 small mb-0">{{ payload_pretty }}</pre>
+      </details>
+    </div>
   </main>
+
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script>
+    (function () {
+      const el = document.getElementById('flowChart');
+      if (!el) return;
+      const chartData = {{ chart_json|safe }};
+      if (!chartData || !chartData.labels || !chartData.labels.length) return;
+      new Chart(el, {
+        type: 'line',
+        data: {
+          labels: chartData.labels,
+          datasets: [{
+            label: 'Flow Intensity',
+            data: chartData.flow,
+            borderColor: '#dc3545',
+            backgroundColor: 'rgba(220,53,69,.12)',
+            fill: true,
+            tension: 0.35,
+            pointRadius: 3,
+          }],
+        },
+        options: {
+          responsive: true,
+          plugins: { legend: { display: false } },
+          scales: {
+            y: { min: 0, max: 5, ticks: { stepSize: 1 } },
+          },
+        },
+      });
+    })();
+  </script>
 </body>
 </html>

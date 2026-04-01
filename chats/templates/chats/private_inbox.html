@@ -4,12 +4,12 @@
 <style>
 @media (max-width: 991.98px) {
     body {
-        background: linear-gradient(145deg,#1c2128,#0f141a) !important;
+        background: var(--mobile-page-bg) !important;
         min-height: 100dvh;
     }
 
     body.inbox-light-mode {
-        background: #f3f5f8 !important;
+        background: var(--mobile-page-bg) !important;
     }
 
     .navbar,
@@ -30,14 +30,14 @@
     .py-4 {
         padding: 14px !important;
         min-height: 100dvh;
-        color: #fff;
+        color: var(--mobile-text);
     }
 
     .card-custom.p-4.mb-4 {
-        background: #1c222a !important;
+        background: var(--mobile-solid) !important;
         border-radius: 0 !important;
-        border: none !important;
-        box-shadow: 20px 20px 40px #0b0e12, -20px -20px 40px #2a3038 !important;
+        border: 1px solid var(--mobile-border) !important;
+        box-shadow: 20px 20px 40px var(--neo-out-a), -20px -20px 40px var(--neo-out-b) !important;
         padding: 16px !important;
         margin-bottom: 14px !important;
         position: relative;
@@ -49,7 +49,7 @@
     .card-custom.p-4.mb-4 h4 {
         font-size: 24px !important;
         margin-bottom: 12px !important;
-        color: #fff !important;
+        color: var(--mobile-text) !important;
     }
 
     .card-custom.p-4.mb-4 p {
@@ -63,9 +63,10 @@
         border-radius: 50% !important;
         padding: 0 !important;
         font-size: 0 !important;
-        background: #1c222a !important;
-        border: none !important;
-        box-shadow: 5px 5px 10px #0b0e12, -5px -5px 10px #2a3038 !important;
+        background: var(--mobile-solid) !important;
+        color: var(--mobile-text) !important;
+        border: 1px solid var(--mobile-border) !important;
+        box-shadow: 5px 5px 10px var(--neo-out-a), -5px -5px 10px var(--neo-out-b) !important;
         position: absolute;
         top: 18px;
         right: 16px;
@@ -75,7 +76,7 @@
         content: '+';
         font-size: 22px;
         line-height: 40px;
-        color: #fff;
+        color: var(--mobile-text);
         display: block;
         text-align: center;
     }
@@ -88,9 +89,10 @@
         height: 40px;
         border-radius: 50%;
         border: none;
-        background: #1c222a;
-        color: #fff;
-        box-shadow: 5px 5px 10px #0b0e12, -5px -5px 10px #2a3038;
+        background: var(--mobile-solid);
+        color: var(--mobile-text);
+        border: 1px solid var(--mobile-border);
+        box-shadow: 5px 5px 10px var(--neo-out-a), -5px -5px 10px var(--neo-out-b);
         display: inline-flex;
         align-items: center;
         justify-content: center;
@@ -104,9 +106,9 @@
         width: 100%;
         padding: 14px 20px;
         border-radius: 30px;
-        color: rgba(255,255,255,.65);
-        background: #1c222a;
-        box-shadow: inset 5px 5px 10px #0b0e12, inset -5px -5px 10px #2a3038;
+        color: color-mix(in srgb, var(--mobile-text) 70%, transparent);
+        background: var(--mobile-input);
+        box-shadow: inset 5px 5px 10px var(--neo-in-a), inset -5px -5px 10px var(--neo-in-b);
         font-size: 14px;
     }
 
@@ -198,9 +200,9 @@
     body.inbox-light-mode .card-custom.p-4.text-center.text-muted,
     body.inbox-light-mode .card-custom.p-4.mb-4 .btn,
     body.inbox-light-mode .inbox-theme-toggle {
-        background: #eef1f5 !important;
-        color: #1f2937 !important;
-        box-shadow: 8px 8px 16px #d7dbe1, -8px -8px 16px #ffffff !important;
+        background: var(--mobile-solid) !important;
+        color: var(--mobile-text) !important;
+        box-shadow: 8px 8px 16px var(--neo-out-a), -8px -8px 16px var(--neo-out-b) !important;
     }
 
     body.inbox-light-mode .card-custom.p-4.mb-4 h4,
@@ -213,9 +215,9 @@
     }
 
     body.inbox-light-mode .card-custom.p-4.mb-4::after {
-        background: #eef1f5;
-        color: #6b7280;
-        box-shadow: inset 4px 4px 8px #d7dbe1, inset -4px -4px 8px #ffffff;
+        background: var(--mobile-input);
+        color: color-mix(in srgb, var(--mobile-text) 70%, transparent);
+        box-shadow: inset 4px 4px 8px var(--neo-in-a), inset -4px -4px 8px var(--neo-in-b);
     }
 }
 </style>

@@ -48,6 +48,41 @@
                 <label class="form-check-label" for="{{ form.reminder_fertile_window.id_for_label }}">Fertile window reminder</label>
             </div>
 
+            <hr>
+            <div class="small text-muted mb-2">Theme color ya app yote</div>
+            <div class="mb-2">
+                <label class="form-label fw-semibold" for="{{ form.color_theme.id_for_label }}">Chagua color palette</label>
+                {{ form.color_theme }}
+            </div>
+            <div class="form-check mb-2">
+                {{ form.use_custom_palette }}
+                <label class="form-check-label" for="{{ form.use_custom_palette.id_for_label }}">Tumia rangi zangu mwenyewe</label>
+            </div>
+            <div class="row g-2 mb-2">
+                <div class="col-md-6">
+                    <label class="form-label small" for="{{ form.custom_primary.id_for_label }}">Primary color</label>
+                    {{ form.custom_primary }}
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label small" for="{{ form.custom_secondary.id_for_label }}">Secondary color</label>
+                    {{ form.custom_secondary }}
+                </div>
+            </div>
+            <div class="row g-2 mb-2">
+                <div class="col-md-7">
+                    <label class="form-label small" for="{{ form.background_style.id_for_label }}">Background style</label>
+                    {{ form.background_style }}
+                </div>
+                <div class="col-md-5">
+                    <label class="form-label small" for="{{ form.background_intensity.id_for_label }}">Intensity (0-100)</label>
+                    {{ form.background_intensity }}
+                </div>
+            </div>
+            <div class="small text-muted mb-4">
+                Ukichagua mfano <strong>Gold</strong>, mfumo wote utabaki na style zilezile (elevated buttons, depressed inputs)
+                lakini rangi kuu zitabadilika kwenye web nzima.
+            </div>
+
             <button type="submit" class="btn btn-danger rounded-pill px-4">Save settings</button>
         </form>
     </div>

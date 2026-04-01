@@ -49,23 +49,46 @@
         z-index: 1;
     }
 
-    .welcome-tag {
-        display: inline-flex;
-        align-items: center;
-        gap: .45rem;
-        border-radius: 999px;
-        padding: .45rem .8rem;
-        font-size: .82rem;
-        font-weight: 700;
-        color: var(--text-main);
-        background: color-mix(in srgb, var(--primary) 12%, var(--card-bg));
-        border: 1px solid color-mix(in srgb, var(--primary) 24%, var(--line-soft));
+    .hero-welcome {
+        margin-bottom: .6rem;
+    }
+
+    .hero-kicker {
+        margin: 0 0 .35rem;
+        font-size: clamp(.86rem, 1.7vw, 1.02rem);
+        font-weight: 800;
+        letter-spacing: .06em;
+        text-transform: uppercase;
+        background: linear-gradient(90deg, var(--primary), var(--secondary), var(--primary));
+        background-size: 220% 100%;
+        -webkit-background-clip: text;
+        background-clip: text;
+        color: transparent;
+        animation: welcomeShift 4.2s linear infinite;
     }
 
     .hero-title {
-        font-size: clamp(1.6rem, 3vw, 2.5rem);
+        margin: 0;
+        font-size: clamp(1.55rem, 3vw, 2.45rem);
         font-weight: 900;
         letter-spacing: -.02em;
+    }
+
+    .hero-title .tone-a {
+        color: var(--text-main);
+        text-shadow: 0 1px 0 color-mix(in srgb, var(--text-main) 10%, transparent);
+    }
+
+    .hero-title .tone-b {
+        color: var(--primary);
+        display: inline-block;
+        transform: translateY(-1px);
+    }
+
+    .hero-title .tone-c {
+        color: var(--secondary);
+        display: inline-block;
+        font-style: italic;
     }
 
     .hero-sub {
@@ -203,6 +226,11 @@
         50% { transform: scale(1.08); opacity: .58; }
     }
 
+    @keyframes welcomeShift {
+        0% { background-position: 0% 50%; }
+        100% { background-position: 220% 50%; }
+    }
+
     @media (max-width: 991px) {
         .hero-image { height: 240px; }
     }
@@ -211,6 +239,42 @@
         .landing-hero { padding: 1.2rem; }
         .hero-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
         .float-chip { display: none; }
+
+        .landing-hero,
+        .landing-card,
+        .landing-glass,
+        .step-item,
+        .hero-stat,
+        .faq-item,
+        .welcome-tag {
+            background: var(--mobile-solid) !important;
+            background-image: none !important;
+            color: var(--mobile-text) !important;
+            border-color: var(--mobile-border) !important;
+            box-shadow: 8px 8px 18px var(--neo-out-a), -8px -8px 18px var(--neo-out-b) !important;
+        }
+
+        .landing-card p,
+        .hero-sub,
+        .hero-stat .lbl,
+        .faq-item .small,
+        .step-item .text-muted,
+        .landing-card .text-muted {
+            color: color-mix(in srgb, var(--mobile-text) 72%, transparent) !important;
+        }
+
+        .service-icon {
+            background: color-mix(in srgb, var(--mobile-text) 10%, var(--mobile-solid)) !important;
+            color: var(--mobile-text) !important;
+            border-color: var(--mobile-border) !important;
+            box-shadow: inset 2px 2px 5px var(--neo-in-a), inset -2px -2px 5px var(--neo-in-b) !important;
+        }
+
+        .service-thumb,
+        .hero-image {
+            border-color: var(--mobile-border) !important;
+            box-shadow: none !important;
+        }
 
         .container.py-3.pb-5 {
             max-width: 99vw !important;
@@ -243,13 +307,16 @@
 
             <div class="row g-4 align-items-center">
                 <div class="col-lg-7 hero-content">
-                    <span class="welcome-tag mb-3">
-                        <i class="bi bi-stars"></i>
-                        <span>{{ welcome_tag }}</span>
-                    </span>
-                    <h1 class="hero-title mb-2">Karibu ZanzHub AI Health Assistant</h1>
+                    <div class="hero-welcome">
+                        <h3 class="hero-kicker">{{ welcome_tag }}</h3>
+                        <h2 class="hero-title mb-2">
+                            <span class="tone-a">Karibu</span>
+                            <span class="tone-b">afya-AI</span>
+                            <span class="tone-c">Health Assistant</span>
+                        </h2>
+                    </div>
                     <p class="hero-sub mb-4">
-                        ZanzHub ni platform ya afya ya uzazi na ustawi wa kila siku. Hapa utapata mfumo wa ku-track mzunguko,
+                        afya-AI ni platform ya afya ya uzazi na ustawi wa kila siku. Hapa utapata mfumo wa ku-track mzunguko,
                         AI chat kwa majibu ya haraka, support ya jamii, na mwongozo wa wataalamu. Mtumiaji mpya anayejisajili
                         ataelekezwa hapa kwanza ili apate maelezo kamili ya huduma, documentation, na njia za mawasiliano.
                     </p>
@@ -394,7 +461,7 @@
                 </div>
                 <div class="col-md-5">
                     <div class="landing-card">
-                        <h6><i class="bi bi-info-circle me-1"></i>Kuhusu ZanzHub AI</h6>
+                        <h6><i class="bi bi-info-circle me-1"></i>Kuhusu afya-AI</h6>
                         <p class="mb-3">Fahamu dhamira, usalama wa data, na mwelekeo wa huduma zetu za afya kidigitali kwa muda mrefu.</p>
                         <a href="{% url 'main:about' %}" class="btn btn-outline-secondary rounded-pill px-4">Soma About</a>
                     </div>

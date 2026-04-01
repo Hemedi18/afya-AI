@@ -1,6 +1,7 @@
 import base64
 import re
 import uuid
+from os.path import basename
 
 import bleach
 from django.contrib import messages
@@ -261,6 +262,20 @@ def _notification_context_for_user(user, limit=5):
 		'recent_clarification_requests': recent_clarification_requests,
 		'recent_report_updates': recent_report_updates,
 		'unread_private_count': unread_private_count,
+	}
+
+
+def _serialize_private_message(msg):
+	return {
+		'id': msg.id,
+		'sender_id': msg.sender_id,
+		'sender_name': msg.sender.get_full_name() or msg.sender.username,
+		'content': msg.content,
+		'has_attachment': bool(msg.attachment),
+		'attachment_url': msg.attachment.url if msg.attachment else None,
+		'attachment_name': basename(msg.attachment.name) if msg.attachment else '',
+		'is_read': bool(msg.is_read),
+		'created_at': msg.created_at.strftime('%d %b %Y %H:%M'),
 	}
 
 
@@ -1000,14 +1015,18 @@ class ConversationDetailView(LoginRequiredMixin, View):
 
 		form = PrivateMessageForm(request.POST, request.FILES)
 		if form.is_valid():
-			PrivateMessage.objects.create(
+			message = PrivateMessage.objects.create(
 				conversation=conversation,
 				sender=request.user,
 				content=form.cleaned_data['content'],
 				attachment=form.cleaned_data.get('attachment'),
 			)
+			if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+				return JsonResponse({'ok': True, 'message': _serialize_private_message(message)})
 			messages.success(request, 'Ujumbe umetumwa.')
 			return redirect('chats:conversation_detail', conversation_id=conversation.id)
+		if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+			return JsonResponse({'ok': False, 'errors': form.errors.get_json_data(), 'error': 'Ujumbe haujatumwa.'}, status=400)
 		return render(request, self.template_name, {'conversation': conversation, 'form': form})
 
 
@@ -1038,16 +1057,7 @@ class ConversationMessagesPollView(LoginRequiredMixin, View):
 
 		data = []
 		for msg in qs:
-			data.append({
-				'id': msg.id,
-				'sender_id': msg.sender_id,
-				'sender_name': msg.sender.get_full_name() or msg.sender.username,
-				'content': msg.content,
-				'has_attachment': bool(msg.attachment),
-				'attachment_url': msg.attachment.url if msg.attachment else None,
-				'is_read': bool(msg.is_read),
-				'created_at': msg.created_at.strftime('%d %b %Y %H:%M'),
-			})
+			data.append(_serialize_private_message(msg))
 
 		return JsonResponse({'ok': True, 'messages': data})
 

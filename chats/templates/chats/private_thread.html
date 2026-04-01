@@ -18,37 +18,37 @@ main.container  { padding: 0 !important; margin: 0 !important; display: flex; fl
    WHATSAPP COLOUR TOKENS
 ═══════════════════════════════ */
 :root {
-  --wa-header-bg:    #1c222a;
-  --wa-header-text:  #ffffff;
-  --wa-send-btn:     #ff4b4b;
-  --wa-sent-bg:      linear-gradient(135deg,#ff4b4b,#f43f5e);
-  --wa-sent-text:    #ffffff;
-  --wa-recv-bg:      #1c222a;
-  --wa-recv-text:    #eef4ff;
-  --wa-wall-bg:      #0f141a;
-  --wa-wall-pattern: radial-gradient(circle at 18% 12%, rgba(255,255,255,.03), transparent 24%), radial-gradient(circle at 82% 84%, rgba(255,255,255,.03), transparent 24%);
-  --wa-bar-bg:       #1c222a;
-  --wa-input-bg:     #1c222a;
-  --wa-time-color:   #a7b1c0;
-  --wa-tick-read:    #53bdeb;
-  --wa-tail-sent:    #f43f5e;
-  --wa-tail-recv:    #1c222a;
+  --wa-header-bg:    var(--card-bg);
+  --wa-header-text:  var(--text-main);
+  --wa-send-btn:     var(--primary);
+  --wa-sent-bg:      linear-gradient(135deg,var(--primary),var(--secondary));
+  --wa-sent-text:    var(--seed-on-color);
+  --wa-recv-bg:      var(--card-bg);
+  --wa-recv-text:    var(--text-main);
+  --wa-wall-bg:      var(--app-bg);
+  --wa-wall-pattern: radial-gradient(circle at 18% 12%, color-mix(in srgb, var(--text-main) 8%, transparent), transparent 24%), radial-gradient(circle at 82% 84%, color-mix(in srgb, var(--text-main) 8%, transparent), transparent 24%);
+  --wa-bar-bg:       var(--card-bg);
+  --wa-input-bg:     var(--mobile-input);
+  --wa-time-color:   var(--text-muted);
+  --wa-tick-read:    var(--secondary);
+  --wa-tail-sent:    var(--primary);
+  --wa-tail-recv:    var(--card-bg);
 }
 html[data-theme='dark'] {
-  --wa-header-bg:    #1c222a;
-  --wa-header-text:  #ffffff;
-  --wa-send-btn:     #ff4b4b;
-  --wa-sent-bg:      linear-gradient(135deg,#ff4b4b,#f43f5e);
-  --wa-sent-text:    #ffffff;
-  --wa-recv-bg:      #1c222a;
-  --wa-recv-text:    #eef4ff;
-  --wa-wall-bg:      #0f141a;
-  --wa-wall-pattern: radial-gradient(circle at 18% 12%, rgba(255,255,255,.03), transparent 24%), radial-gradient(circle at 82% 84%, rgba(255,255,255,.03), transparent 24%);
-  --wa-bar-bg:       #1c222a;
-  --wa-input-bg:     #1c222a;
-  --wa-time-color:   #a7b1c0;
-  --wa-tail-sent:    #f43f5e;
-  --wa-tail-recv:    #1c222a;
+  --wa-header-bg:    var(--card-bg);
+  --wa-header-text:  var(--text-main);
+  --wa-send-btn:     var(--primary);
+  --wa-sent-bg:      linear-gradient(135deg,var(--primary),var(--secondary));
+  --wa-sent-text:    var(--seed-on-color);
+  --wa-recv-bg:      var(--card-bg);
+  --wa-recv-text:    var(--text-main);
+  --wa-wall-bg:      var(--app-bg);
+  --wa-wall-pattern: radial-gradient(circle at 18% 12%, color-mix(in srgb, var(--text-main) 8%, transparent), transparent 24%), radial-gradient(circle at 82% 84%, color-mix(in srgb, var(--text-main) 8%, transparent), transparent 24%);
+  --wa-bar-bg:       var(--card-bg);
+  --wa-input-bg:     var(--mobile-input);
+  --wa-time-color:   var(--text-muted);
+  --wa-tail-sent:    var(--primary);
+  --wa-tail-recv:    var(--card-bg);
 }
 
 /* ═══════════════════════════════ WRAPPER ═══════════════════════════════ */
@@ -64,9 +64,9 @@ html[data-theme='dark'] {
 .wa-header-back { color:var(--wa-header-text); text-decoration:none; font-size:1.3rem; line-height:1; padding:.2rem; flex-shrink:0; }
 .wa-avatar {
   width:40px; height:40px; border-radius:50%;
-  background:linear-gradient(135deg,#25d366,#075e54);
+  background:linear-gradient(135deg,var(--primary),var(--secondary));
   display:flex; align-items:center; justify-content:center;
-  font-weight:800; font-size:1rem; color:#fff; flex-shrink:0;
+  font-weight:800; font-size:1rem; color:var(--seed-on-color); flex-shrink:0;
 }
 .wa-header-info { flex:1; min-width:0; }
 .wa-header-name  { font-weight:600; font-size:.92rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; line-height:1.2; }
@@ -114,7 +114,7 @@ html[data-theme='dark'] .wa-date-chip { background:rgba(31,44,52,.9); color:#869
   word-break:break-word;
 }
 .wa-msg-row.sent .wa-bubble  { background:var(--wa-sent-bg); color:var(--wa-sent-text); border-top-right-radius:6px; }
-.wa-msg-row.recv .wa-bubble  { background:#00a60742; color:var(--wa-recv-text); border-top-left-radius:6px; }
+.wa-msg-row.recv .wa-bubble  { background:color-mix(in srgb, var(--card-bg) 86%, transparent); color:var(--wa-recv-text); border-top-left-radius:6px; }
 
 /* Tails */
 .wa-msg-row.sent .wa-bubble::after  { content:''; position:absolute; top:0; right:-8px; border:8px solid transparent; border-top-color:var(--wa-tail-sent); border-right:0; }
@@ -130,6 +130,142 @@ html[data-theme='dark'] .wa-date-chip { background:rgba(31,44,52,.9); color:#869
 .wa-attach-link  { display:inline-flex; align-items:center; gap:.35rem; margin-top:.3rem; padding:.3rem .55rem; border-radius:6px; font-size:.8rem; text-decoration:none; font-weight:500; }
 .wa-msg-row.sent .wa-attach-link { background:rgba(0,0,0,.12); color:var(--wa-sent-text); }
 .wa-msg-row.recv .wa-attach-link { background:rgba(0,0,0,.07); color:var(--wa-recv-text); }
+
+.wa-attachment-wrap {
+  margin-top: .52rem;
+  display: flex;
+  flex-direction: column;
+  gap: .45rem;
+}
+.wa-attachment-wrap.is-pending {
+  opacity: .92;
+}
+.wa-media-trigger {
+  display: block;
+  width: min(320px, 72vw);
+  max-width: 100%;
+  border: 0;
+  padding: 0;
+  background: transparent;
+  cursor: pointer;
+  text-align: left;
+}
+.wa-media-frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 4 / 5;
+  max-height: min(360px, 56vh);
+  border-radius: 16px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: color-mix(in srgb, var(--wa-recv-bg) 90%, #000 10%);
+  border: 1px solid color-mix(in srgb, var(--wa-time-color) 18%, transparent);
+}
+.wa-msg-row.sent .wa-media-frame {
+  background: color-mix(in srgb, var(--primary) 26%, var(--card-bg));
+}
+.wa-msg-row.recv .wa-media-frame {
+  background: color-mix(in srgb, var(--wa-recv-bg) 88%, var(--app-bg));
+}
+.wa-media-frame img,
+.wa-media-frame video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
+.wa-media-frame video {
+  background: rgba(0,0,0,.3);
+}
+.wa-media-badge,
+.wa-media-pending {
+  position: absolute;
+  left: .7rem;
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  padding: .35rem .62rem;
+  border-radius: 999px;
+  font-size: .72rem;
+  font-weight: 700;
+  backdrop-filter: blur(12px);
+}
+.wa-media-badge {
+  top: .7rem;
+  background: rgba(15, 23, 42, .58);
+  color: #fff;
+}
+.wa-media-pending {
+  bottom: .7rem;
+  background: rgba(15, 23, 42, .68);
+  color: #fff;
+}
+.wa-spinner {
+  width: .82rem;
+  height: .82rem;
+  border-radius: 50%;
+  border: 2px solid rgba(255,255,255,.34);
+  border-top-color: #fff;
+  animation: waSpin .75s linear infinite;
+}
+@keyframes waSpin {
+  to { transform: rotate(360deg); }
+}
+.wa-attachment-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .35rem;
+}
+.wa-file-card {
+  display: flex;
+  align-items: center;
+  gap: .75rem;
+  width: min(320px, 72vw);
+  max-width: 100%;
+  padding: .8rem .9rem;
+  border-radius: 15px;
+  border: 1px solid color-mix(in srgb, var(--wa-time-color) 18%, transparent);
+  background: color-mix(in srgb, var(--wa-recv-bg) 90%, transparent);
+}
+.wa-msg-row.sent .wa-file-card {
+  background: color-mix(in srgb, var(--primary) 18%, transparent);
+}
+.wa-file-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.15rem;
+  background: color-mix(in srgb, var(--wa-header-bg) 18%, transparent);
+}
+.wa-file-meta {
+  min-width: 0;
+  flex: 1;
+}
+.wa-file-name {
+  font-size: .86rem;
+  font-weight: 700;
+  line-height: 1.3;
+  word-break: break-word;
+}
+.wa-file-kind {
+  font-size: .72rem;
+  opacity: .8;
+  margin-top: .15rem;
+}
+.wa-text.is-empty {
+  display: none;
+}
+.wa-msg-row.pending .wa-bubble {
+  opacity: .9;
+}
+.wa-msg-row.pending .wa-meta {
+  justify-content: flex-start;
+}
 
 .wa-empty { align-self:center; margin:auto; background:rgba(255,255,255,.85); color:#667781; padding:.5rem 1.1rem; border-radius:9px; font-size:.82rem; box-shadow:0 1px 2px rgba(0,0,0,.13); }
 html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0; }
@@ -285,6 +421,96 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
 .wa-reply-text { font-size: .76rem; color: var(--wa-time-color); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 70vw; }
 .wa-reply-cancel { border: 0; background: transparent; color: #ef4444; font-size: 1rem; }
 
+.wa-media-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 5000;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(2, 6, 23, .82);
+  backdrop-filter: blur(12px);
+}
+.wa-media-modal.show {
+  display: flex;
+}
+.wa-media-modal-dialog {
+  width: min(100%, 960px);
+  max-height: calc(100vh - 2rem);
+  border-radius: 24px;
+  overflow: hidden;
+  background: color-mix(in srgb, var(--card-bg) 92%, transparent);
+  border: 1px solid color-mix(in srgb, var(--wa-time-color) 18%, transparent);
+  box-shadow: 0 24px 60px rgba(0,0,0,.32);
+  display: flex;
+  flex-direction: column;
+}
+.wa-media-modal-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  padding: .9rem 1rem;
+  border-bottom: 1px solid color-mix(in srgb, var(--wa-time-color) 14%, transparent);
+}
+.wa-media-modal-title {
+  min-width: 0;
+  font-size: .92rem;
+  font-weight: 700;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.wa-media-modal-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: .45rem;
+}
+.wa-media-modal-btn {
+  border: 0;
+  padding: .55rem .85rem;
+  border-radius: 12px;
+  text-decoration: none;
+  font-size: .82rem;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  background: color-mix(in srgb, var(--primary) 14%, transparent);
+  color: var(--text-main);
+}
+.wa-media-modal-close {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 0;
+  background: color-mix(in srgb, var(--wa-recv-bg) 90%, transparent);
+  color: var(--text-main);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1rem;
+}
+.wa-media-modal-body {
+  flex: 1;
+  min-height: 0;
+  padding: 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(0,0,0,.22);
+}
+.wa-media-modal-body img,
+.wa-media-modal-body video {
+  max-width: 100%;
+  max-height: calc(100vh - 11rem);
+  width: auto;
+  height: auto;
+  object-fit: contain;
+  border-radius: 18px;
+}
+
 /* local light mode for this chat only */
 .wa.wa-light {
   --wa-header-bg: #eef1f5;
@@ -363,16 +589,47 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
   }
   .wa-body {
     min-height: 0;
-    padding-bottom: 1.3rem;
+    padding: .9rem 1.1rem 1.4rem;
+  }
+  .wa-msg-row {
+    margin: .34rem 0;
+  }
+  .wa-msg-wrap {
+    width: auto;
+    max-width: min(72%, 760px);
+  }
+  .wa-bubble {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: .08rem;
+  }
+  .wa-attachment-wrap,
+  .wa-attachment-actions {
+    width: 100%;
+  }
+  .wa-media-trigger,
+  .wa-file-card {
+    width: 100%;
+  }
+  .wa-attachment-actions {
+    align-items: center;
+  }
+  .wa-msg-row.sent .wa-attachment-actions {
+    justify-content: flex-end;
+  }
+  .wa-msg-row.recv .wa-attachment-actions {
+    justify-content: flex-start;
+  }
+  .wa-attach-link {
+    position: relative;
+    z-index: 1;
   }
 }
 
 @media (max-width: 991.98px) {
   body {
-    background: linear-gradient(145deg,#1c2128,#0f141a) !important;
-  }
-  body.wa-global-light {
-    background: #f3f5f8 !important;
+    background: var(--mobile-page-bg) !important;
   }
   .wa-shell {
     width: 100%;
@@ -393,18 +650,20 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
   .wa-header {
     margin: 0;
     border-radius: 0;
-    background: #1c222a;
-    box-shadow: 10px 10px 20px #0b0e12, -10px -10px 20px #2a3038;
+    background: var(--wa-header-bg);
+    box-shadow: 10px 10px 20px var(--neo-out-a), -10px -10px 20px var(--neo-out-b);
     padding: 10px 12px;
     position: relative;
+    border-bottom: 1px solid var(--mobile-border);
   }
   .wa-header-back,
   .wa-header-menu {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: #1c222a;
-    box-shadow: 5px 5px 10px #0b0e12, -5px -5px 10px #2a3038;
+    background: var(--mobile-solid);
+    color: var(--mobile-text);
+    box-shadow: 5px 5px 10px var(--neo-out-a), -5px -5px 10px var(--neo-out-b);
     display: inline-flex;
     align-items: center;
     justify-content: center;
@@ -415,14 +674,14 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
     height: 40px;
     border-radius: 50%;
     border: none;
-    background: #1c222a;
-    color: #fff;
-    box-shadow: 5px 5px 10px #0b0e12, -5px -5px 10px #2a3038;
+    background: var(--mobile-solid);
+    color: var(--mobile-text);
+    box-shadow: 5px 5px 10px var(--neo-out-a), -5px -5px 10px var(--neo-out-b);
   }
   .wa-avatar {
     width: 38px;
     height: 38px;
-    box-shadow: 5px 5px 10px #0b0e12, -5px -5px 10px #2a3038;
+    box-shadow: 5px 5px 10px var(--neo-out-a), -5px -5px 10px var(--neo-out-b);
   }
   .wa-header-name { font-size: 18px; font-weight: 600; }
   .wa-header-status { font-size: 12px; opacity: .7; }
@@ -444,18 +703,19 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
     padding: 12px 16px;
     font-size: 13px;
     line-height: 1.5;
-    box-shadow: 5px 5px 10px #0b0e12, -5px -5px 10px #2a3038;
+    box-shadow: 5px 5px 10px var(--neo-out-a), -5px -5px 10px var(--neo-out-b);
     max-width: 100%;
+    border: 1px solid var(--mobile-border);
   }
   .wa-msg-row.sent .wa-bubble {
-    background: #ff4b4b;
+    background: linear-gradient(135deg,var(--primary),var(--secondary));
     border-top-right-radius: 20px;
-    color: #fff;
+    color: var(--seed-on-color);
   }
   .wa-msg-row.recv .wa-bubble {
-    background: #1c222a;
+    background: var(--mobile-solid);
     border-top-left-radius: 20px;
-    color: #eef4ff;
+    color: var(--mobile-text);
   }
   .wa-msg-row.sent .wa-bubble::after,
   .wa-msg-row.recv .wa-bubble::before {
@@ -466,6 +726,21 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
   .wa-meta {
     margin-top: 6px;
     font-size: 11px;
+  }
+
+  .wa-media-trigger,
+  .wa-file-card {
+    width: min(100%, 66vw);
+  }
+  .wa-media-frame {
+    aspect-ratio: 1 / 1;
+    max-height: min(260px, 42vh);
+    border-radius: 18px;
+  }
+  .wa-media-badge,
+  .wa-media-pending {
+    font-size: .68rem;
+    padding: .32rem .52rem;
   }
 
   .wa-footer {
@@ -479,9 +754,9 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
   .wa-input-wrap {
     border-radius: 24px;
     padding: 10px 12px;
-    background: #1c222a;
-    border: 1px solid rgba(255,255,255,.08);
-    box-shadow: inset 6px 6px 12px #12161b, inset -6px -6px 12px #262d36;
+    background: var(--mobile-input);
+    border: 1px solid var(--mobile-border);
+    box-shadow: inset 6px 6px 12px var(--neo-in-a), inset -6px -6px 12px var(--neo-in-b);
     min-height: 44px;
     flex: 1;
   }
@@ -490,15 +765,16 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
   }
   #wa-text-input {
     font-size: 14px;
-    color: #fff;
+    color: var(--mobile-text);
     max-height: 96px;
   }
   .wa-send-btn {
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: #ff4b4b;
-    box-shadow: 5px 5px 10px #0b0e12, -5px -5px 10px #2a3038;
+    background: linear-gradient(135deg,var(--primary),var(--secondary));
+    color: var(--seed-on-color);
+    box-shadow: 5px 5px 10px var(--neo-out-a), -5px -5px 10px var(--neo-out-b);
     font-size: 1rem;
   }
 
@@ -506,9 +782,9 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
     width: 40px;
     height: 40px;
     border-radius: 50%;
-    background: #1c222a;
-    color: #fff;
-    box-shadow: 5px 5px 10px #0b0e12, -5px -5px 10px #2a3038;
+    background: var(--mobile-solid);
+    color: var(--mobile-text);
+    box-shadow: 5px 5px 10px var(--neo-out-a), -5px -5px 10px var(--neo-out-b);
     font-size: 1rem;
     margin-left: 2px;
   }
@@ -518,36 +794,38 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
     margin: 0 12px;
     border-radius: 14px;
     border: 0;
-    background: #1c222a;
-    box-shadow: 5px 5px 10px #0b0e12, -5px -5px 10px #2a3038;
+    background: var(--mobile-solid);
+    box-shadow: 5px 5px 10px var(--neo-out-a), -5px -5px 10px var(--neo-out-b);
   }
 
   .wa-context-menu {
     min-width: 160px;
     border-radius: 14px;
-    background: #1c222a;
-    box-shadow: 10px 10px 20px #0b0e12, -6px -6px 14px #2a3038;
+    background: var(--mobile-solid);
+    color: var(--mobile-text);
+    box-shadow: 10px 10px 20px var(--neo-out-a), -6px -6px 14px var(--neo-out-b);
   }
 
-  .wa.wa-light .wa-header,
-  .wa.wa-light .wa-header-back,
-  .wa.wa-light .wa-header-menu,
-  .wa.wa-light .wa-theme-toggle,
-  .wa.wa-light .wa-bubble,
-  .wa.wa-light .wa-attach-btn {
-    background: #eef1f5 !important;
-    color: #1f2937 !important;
-    box-shadow: 8px 8px 16px #d7dbe1, -8px -8px 16px #ffffff !important;
+  .wa-media-modal {
+    padding: .65rem;
   }
-  .wa.wa-light .wa-input-wrap {
-    background: #eef1f5 !important;
-    color: #1f2937 !important;
-    border: 1px solid rgba(0,0,0,.08) !important;
-    box-shadow: inset 6px 6px 12px #d7dbe1, inset -6px -6px 12px #ffffff !important;
+  .wa-media-modal-dialog {
+    border-radius: 20px;
+    max-height: calc(100vh - 1.3rem);
   }
-  .wa.wa-light .wa-main,
-  .wa.wa-light .wa-body {
-    background: #f3f5f8 !important;
+  .wa-media-modal-head {
+    padding: .75rem .8rem;
+    align-items: flex-start;
+  }
+  .wa-media-modal-actions {
+    width: 100%;
+  }
+  .wa-media-modal-btn {
+    flex: 1 1 calc(50% - .3rem);
+    justify-content: center;
+  }
+  .wa-media-modal-body {
+    padding: .7rem;
   }
 }
 </style>
@@ -629,9 +907,9 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
           <span class="wa-sender-name">{{ message.sender.get_full_name|default:message.sender.username }}</span>
           <div class="wa-text">{{ message.content }}</div>
           {% if message.attachment %}
-          <div>
-            <a href="{{ message.attachment.url }}" target="_blank" class="wa-attach-link"><i class="bi bi-paperclip"></i> Fungua faili</a>
-            <a href="{{ message.attachment.url }}" download class="wa-attach-link"><i class="bi bi-download"></i> Pakua</a>
+          <div class="wa-attachment-host"
+               data-attachment-url="{{ message.attachment.url }}"
+               data-attachment-name="{{ message.attachment.name|default:'' }}">
           </div>
           {% endif %}
           <div class="wa-meta">
@@ -676,7 +954,7 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
       <textarea id="wa-text-input" rows="1" placeholder="Andika ujumbe..." autocomplete="off"></textarea>
     </div>
     <button class="wa-send-btn" id="waSendBtn" type="button"><i class="bi bi-send-fill"></i></button>
-    <input type="file" id="waFileInput" style="display:none" accept="image/*,application/pdf,.doc,.docx,.txt">
+    <input type="file" id="waFileInput" style="display:none" accept="image/*,video/*,application/pdf,.doc,.docx,.txt,.xls,.xlsx,.ppt,.pptx,.zip,.rar">
     <form id="waPostForm" method="post" action="{% url 'chats:conversation_detail' conversation.id %}" enctype="multipart/form-data" style="display:none">
       {% csrf_token %}
     </form>
@@ -700,6 +978,26 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
     <button class="wa-context-btn" type="button" data-action="reply"><i class="bi bi-reply"></i></button>
     <button class="wa-context-btn" type="button" data-action="copy"><i class="bi bi-clipboard"></i>Copy</button>
     <button class="wa-context-btn danger" type="button" data-action="delete"><i class="bi bi-trash"></i>Delete</button>
+  </div>
+
+  <div class="wa-media-modal" id="waMediaModal" aria-hidden="true">
+    <div class="wa-media-modal-dialog" role="dialog" aria-modal="true" aria-label="Media preview">
+      <div class="wa-media-modal-head">
+        <div class="wa-media-modal-title" id="waMediaModalTitle">Media</div>
+        <div class="wa-media-modal-actions">
+          <a href="#" class="wa-media-modal-btn" id="waMediaOpenBtn" target="_blank" rel="noopener">
+            <i class="bi bi-box-arrow-up-right"></i> Fungua
+          </a>
+          <a href="#" class="wa-media-modal-btn" id="waMediaDownloadBtn" download>
+            <i class="bi bi-download"></i> Pakua
+          </a>
+          <button type="button" class="wa-media-modal-close" id="waMediaCloseBtn" aria-label="Funga">
+            <i class="bi bi-x-lg"></i>
+          </button>
+        </div>
+      </div>
+      <div class="wa-media-modal-body" id="waMediaModalBody"></div>
+    </div>
   </div>
 
 </div>
@@ -739,11 +1037,18 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
   const replyTextEl = document.getElementById('waReplyText');
   const replyCancel = document.getElementById('waReplyCancel');
   const contextMenu = document.getElementById('waContextMenu');
+  const mediaModal  = document.getElementById('waMediaModal');
+  const mediaModalBody = document.getElementById('waMediaModalBody');
+  const mediaModalTitle = document.getElementById('waMediaModalTitle');
+  const mediaOpenBtn = document.getElementById('waMediaOpenBtn');
+  const mediaDownloadBtn = document.getElementById('waMediaDownloadBtn');
+  const mediaCloseBtn = document.getElementById('waMediaCloseBtn');
 
   let lastId = 0, pollTimer = null, socket = null, wsRetries = 0, pendingFile = null;
   let replyState = null;
   let contextTarget = null;
   let holdTimer = null;
+  let pendingUploads = new Map();
   const MAX_WS = 5;
   const REPLY_RE = /^\[\[reply:(.*?)\|(.*?)\]\]\n?([\s\S]*)$/;
 
@@ -770,6 +1075,250 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
       replyText: (match[2] || '').trim(),
       body: (match[3] || '').trim(),
     };
+  }
+
+  function basename(value) {
+    return String(value || '').split('/').pop();
+  }
+
+  function detectAttachmentKind({ name = '', url = '', mime = '' } = {}) {
+    const sample = `${name} ${url}`.toLowerCase();
+    if ((mime || '').startsWith('image/') || /\.(png|jpe?g|gif|webp|bmp|svg|avif)$/i.test(sample)) {
+      return 'image';
+    }
+    if ((mime || '').startsWith('video/') || /\.(mp4|webm|mov|m4v|avi|mkv|ogg)$/i.test(sample)) {
+      return 'video';
+    }
+    return 'file';
+  }
+
+  function attachmentKindLabel(kind) {
+    if (kind === 'image') return 'Picha';
+    if (kind === 'video') return 'Video';
+    return 'Faili';
+  }
+
+  function attachmentIcon(name = '') {
+    const lower = String(name || '').toLowerCase();
+    if (/\.(pdf)$/i.test(lower)) return 'bi-filetype-pdf';
+    if (/\.(doc|docx)$/i.test(lower)) return 'bi-file-earmark-word';
+    if (/\.(xls|xlsx|csv)$/i.test(lower)) return 'bi-file-earmark-spreadsheet';
+    if (/\.(ppt|pptx)$/i.test(lower)) return 'bi-file-earmark-ppt';
+    if (/\.(zip|rar|7z)$/i.test(lower)) return 'bi-file-earmark-zip';
+    if (/\.(txt|md)$/i.test(lower)) return 'bi-file-earmark-text';
+    return 'bi-file-earmark';
+  }
+
+  function buildAttachmentHtml({ url = '', name = '', mime = '', pending = false } = {}) {
+    if (!url) return '';
+    const safeUrl = esc(url);
+    const safeName = esc(basename(name || url));
+    const kind = detectAttachmentKind({ name, url, mime });
+    const pendingBadge = pending ? `<div class="wa-media-pending"><span class="wa-spinner"></span> Inapakiwa...</div>` : '';
+
+    if (kind === 'image') {
+      return `<div class="wa-attachment-wrap${pending ? ' is-pending' : ''}" data-attachment-url="${safeUrl}" data-attachment-name="${safeName}" data-attachment-kind="image">
+        <button type="button" class="wa-media-trigger" data-media-url="${safeUrl}" data-media-kind="image" data-media-name="${safeName}">
+          <span class="wa-media-frame">
+            <img src="${safeUrl}" alt="${safeName}" loading="lazy">
+            <span class="wa-media-badge"><i class="bi bi-image"></i> Picha</span>
+            ${pendingBadge}
+          </span>
+        </button>
+        <div class="wa-attachment-actions">
+          <a href="${safeUrl}" target="_blank" rel="noopener" class="wa-attach-link"><i class="bi bi-arrows-fullscreen"></i> Tazama</a>
+          <a href="${safeUrl}" download class="wa-attach-link"><i class="bi bi-download"></i> Pakua</a>
+        </div>
+      </div>`;
+    }
+
+    if (kind === 'video') {
+      return `<div class="wa-attachment-wrap${pending ? ' is-pending' : ''}" data-attachment-url="${safeUrl}" data-attachment-name="${safeName}" data-attachment-kind="video">
+        <button type="button" class="wa-media-trigger" data-media-url="${safeUrl}" data-media-kind="video" data-media-name="${safeName}">
+          <span class="wa-media-frame">
+            <video preload="metadata" playsinline muted>
+              <source src="${safeUrl}">
+            </video>
+            <span class="wa-media-badge"><i class="bi bi-camera-reels"></i> Video</span>
+            ${pendingBadge}
+          </span>
+        </button>
+        <div class="wa-attachment-actions">
+          <a href="${safeUrl}" target="_blank" rel="noopener" class="wa-attach-link"><i class="bi bi-play-circle"></i> Fungua</a>
+          <a href="${safeUrl}" download class="wa-attach-link"><i class="bi bi-download"></i> Pakua</a>
+        </div>
+      </div>`;
+    }
+
+    return `<div class="wa-attachment-wrap${pending ? ' is-pending' : ''}" data-attachment-url="${safeUrl}" data-attachment-name="${safeName}" data-attachment-kind="file">
+      <div class="wa-file-card">
+        <span class="wa-file-icon"><i class="bi ${attachmentIcon(name)}"></i></span>
+        <div class="wa-file-meta">
+          <div class="wa-file-name">${safeName}</div>
+          <div class="wa-file-kind">${attachmentKindLabel(kind)}</div>
+        </div>
+      </div>
+      <div class="wa-attachment-actions">
+        <a href="${safeUrl}" target="_blank" rel="noopener" class="wa-attach-link"><i class="bi bi-paperclip"></i> Fungua faili</a>
+        <a href="${safeUrl}" download class="wa-attach-link"><i class="bi bi-download"></i> Pakua</a>
+      </div>
+    </div>`;
+  }
+
+  function hydrateAttachmentNode(holder) {
+    if (!holder || holder.dataset.hydrated === '1') return;
+    const url = holder.dataset.attachmentUrl || '';
+    const name = basename(holder.dataset.attachmentName || url);
+    if (!url) return;
+    holder.innerHTML = buildAttachmentHtml({ url, name });
+    holder.dataset.hydrated = '1';
+  }
+
+  function refreshRowPresentation(row, parsed) {
+    const textEl = row.querySelector('.wa-text');
+    if (textEl) {
+      textEl.textContent = parsed.body;
+      textEl.classList.toggle('is-empty', !parsed.body);
+    }
+
+    const existingSnippet = row.querySelector('.wa-reply-snippet');
+    if (existingSnippet) existingSnippet.remove();
+    if (parsed.replyName || parsed.replyText) {
+      const snippet = document.createElement('div');
+      snippet.className = 'wa-reply-snippet';
+      snippet.innerHTML = `<div class="name">${esc(parsed.replyName)}</div><div class="text">${esc(parsed.replyText)}</div>`;
+      textEl.parentNode.insertBefore(snippet, textEl);
+    }
+
+    row.querySelectorAll('.wa-attachment-host[data-attachment-url]').forEach(hydrateAttachmentNode);
+  }
+
+  function openMediaModal({ url = '', kind = 'image', name = '' } = {}) {
+    if (!url || !mediaModal) return;
+    const safeUrl = String(url);
+    const cleanName = basename(name || url) || 'Media';
+    mediaModalTitle.textContent = cleanName;
+    mediaOpenBtn.href = safeUrl;
+    mediaDownloadBtn.href = safeUrl;
+    mediaDownloadBtn.setAttribute('download', cleanName);
+    mediaModalBody.innerHTML = kind === 'video'
+      ? `<video controls playsinline autoplay>
+          <source src="${esc(safeUrl)}">
+        </video>`
+      : `<img src="${esc(safeUrl)}" alt="${esc(cleanName)}">`;
+    mediaModal.classList.add('show');
+    mediaModal.setAttribute('aria-hidden', 'false');
+    document.body.style.overflow = 'hidden';
+  }
+
+  function closeMediaModal() {
+    if (!mediaModal) return;
+    mediaModal.classList.remove('show');
+    mediaModal.setAttribute('aria-hidden', 'true');
+    mediaModalBody.innerHTML = '';
+    document.body.style.overflow = '';
+  }
+
+  function buildMessageRow(msg, options = {}) {
+    const mine = options.mine ?? msg.sender_id === MY_UID;
+    const parsed = parseReplyPayload(msg.content || '');
+    const row = document.createElement('div');
+    row.className = `wa-msg-row ${mine ? 'sent' : 'recv'}${options.pending ? ' pending' : ''}`;
+    if (options.tempId) {
+      row.dataset.tempId = options.tempId;
+    } else if (msg.id) {
+      row.dataset.messageId = msg.id;
+    }
+
+    const attachmentHtml = msg.has_attachment && msg.attachment_url
+      ? buildAttachmentHtml({
+          url: msg.attachment_url,
+          name: msg.attachment_name || msg.attachment_url,
+          mime: msg.attachment_type || '',
+          pending: !!options.pending,
+        })
+      : '';
+
+    row.innerHTML = `<div class="wa-msg-wrap">
+      <div class="wa-bubble">
+        ${mine ? '' : `<span class="wa-sender-name">${esc(msg.sender_name || 'User')}</span>`}
+        <div class="wa-text${parsed.body ? '' : ' is-empty'}">${esc(parsed.body)}</div>
+        ${attachmentHtml}
+        <div class="wa-meta">
+          <span>${esc(msg.created_at || 'Inatuma...')}</span>
+          ${options.pending ? '<span><span class="wa-spinner"></span></span>' : mine ? `<span class="${msg.is_read ? 'wa-ticks read' : 'wa-ticks'}"><i class="bi bi-check${msg.is_read ? '-all' : ''}"></i></span>` : ''}
+        </div>
+      </div>
+    </div>`;
+
+    refreshRowPresentation(row, parsed);
+    return row;
+  }
+
+  function insertMessageRow(row, smooth = true) {
+    bindLongPress(row);
+    body.insertBefore(row, typingEl);
+    body.scrollTo({ top: body.scrollHeight, behavior: smooth ? 'smooth' : 'auto' });
+  }
+
+  function renderPendingUpload(file, outbound, senderName) {
+    const tempId = `temp-${Date.now()}-${Math.random().toString(16).slice(2)}`;
+    const objectUrl = URL.createObjectURL(file);
+    const row = buildMessageRow({
+      sender_id: MY_UID,
+      sender_name: senderName,
+      content: outbound,
+      has_attachment: true,
+      attachment_url: objectUrl,
+      attachment_name: file.name,
+      attachment_type: file.type || '',
+      created_at: 'Inapakiwa...',
+      is_read: false,
+    }, { mine: true, pending: true, tempId });
+    pendingUploads.set(tempId, { objectUrl });
+    insertMessageRow(row);
+    return tempId;
+  }
+
+  function cleanupPendingUpload(tempId) {
+    const record = pendingUploads.get(tempId);
+    if (record?.objectUrl) {
+      URL.revokeObjectURL(record.objectUrl);
+    }
+    pendingUploads.delete(tempId);
+  }
+
+  function replacePendingUpload(tempId, msg) {
+    const pendingRow = document.querySelector(`[data-temp-id="${tempId}"]`);
+    if (document.querySelector(`[data-message-id="${msg.id}"]`)) {
+      pendingRow?.remove();
+      cleanupPendingUpload(tempId);
+      return;
+    }
+    const row = buildMessageRow(msg);
+    if (pendingRow) {
+      pendingRow.replaceWith(row);
+      bindLongPress(row);
+      body.scrollTo({ top: body.scrollHeight, behavior: 'smooth' });
+    } else {
+      insertMessageRow(row);
+    }
+    cleanupPendingUpload(tempId);
+    if (msg.id > lastId) lastId = msg.id;
+  }
+
+  function markPendingUploadFailed(tempId, errorMessage) {
+    const row = document.querySelector(`[data-temp-id="${tempId}"]`);
+    if (!row) return;
+    row.classList.remove('pending');
+    const meta = row.querySelector('.wa-meta');
+    if (meta) {
+      meta.innerHTML = `<span>${esc(errorMessage || 'Imeshindwa kupakia')}</span>`;
+    }
+    const pendingBadge = row.querySelector('.wa-media-pending');
+    if (pendingBadge) {
+      pendingBadge.innerHTML = '<i class="bi bi-exclamation-triangle"></i> Imeshindwa';
+    }
   }
 
   function buildReplyMarker() {
@@ -878,14 +1427,7 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
       const textEl = row.querySelector('.wa-text');
       if (!textEl) return;
       const parsed = parseReplyPayload(textEl.textContent || '');
-      textEl.textContent = parsed.body;
-
-      if (parsed.replyName || parsed.replyText) {
-        const snippet = document.createElement('div');
-        snippet.className = 'wa-reply-snippet';
-        snippet.innerHTML = `<div class="name">${esc(parsed.replyName)}</div><div class="text">${esc(parsed.replyText)}</div>`;
-        textEl.parentNode.insertBefore(snippet, textEl);
-      }
+      refreshRowPresentation(row, parsed);
 
       const senderEl = row.querySelector('.wa-sender-name');
       if (senderEl && !senderEl.textContent.trim()) {
@@ -898,38 +1440,8 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
   function renderMessage(msg) {
     if (document.querySelector(`[data-message-id="${msg.id}"]`)) return;
     if (msg.id > lastId) lastId = msg.id;
-    const mine = msg.sender_id === MY_UID;
-    const parsed = parseReplyPayload(msg.content || '');
-    let attachHtml = '';
-    if (msg.has_attachment && msg.attachment_url) {
-      const url = esc(msg.attachment_url);
-      attachHtml = `<div>
-        <a href="${url}" target="_blank" class="wa-attach-link"><i class="bi bi-paperclip"></i> Fungua faili</a>
-        <a href="${url}" download class="wa-attach-link"><i class="bi bi-download"></i> Pakua</a>
-      </div>`;
-    }
-    const replySnippet = (parsed.replyName || parsed.replyText)
-      ? `<div class="wa-reply-snippet"><div class="name">${esc(parsed.replyName)}</div><div class="text">${esc(parsed.replyText)}</div></div>`
-      : '';
-    const tickClass = msg.is_read ? 'wa-ticks read' : 'wa-ticks';
-    const row = document.createElement('div');
-    row.className = `wa-msg-row ${mine ? 'sent' : 'recv'}`;
-    row.setAttribute('data-message-id', msg.id);
-    row.innerHTML = `<div class="wa-msg-wrap">
-      <div class="wa-bubble">
-        ${mine ? '' : `<span class="wa-sender-name">${esc(msg.sender_name)}</span>`}
-        ${replySnippet}
-        <div class="wa-text">${esc(parsed.body)}</div>
-        ${attachHtml}
-        <div class="wa-meta">
-          <span>${esc(msg.created_at)}</span>
-          ${mine ? `<span class="${tickClass}"><i class="bi bi-check-all"></i></span>` : ''}
-        </div>
-      </div>
-    </div>`;
-    bindLongPress(row);
-    body.insertBefore(row, typingEl);
-    body.scrollTo({ top: body.scrollHeight, behavior: 'smooth' });
+    const row = buildMessageRow(msg);
+    insertMessageRow(row);
   }
 
   /* ── Status bar ── */
@@ -992,13 +1504,35 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
     if (!content && !pendingFile) return;
     const outbound = `${buildReplyMarker()}${content}`.trim();
     if (pendingFile) {
+      const sendingFile = pendingFile;
+      const senderName = '{{ user.get_full_name|default:user.username|escapejs }}';
+      const tempId = renderPendingUpload(sendingFile, outbound, senderName);
+      clearPendingFile();
+      clearReply();
+      textInput.value = ''; textInput.style.height = 'auto';
       const fd = new FormData();
       fd.append('content', outbound || ' ');
-      fd.append('attachment', pendingFile);
+      fd.append('attachment', sendingFile);
       fd.append('csrfmiddlewaretoken', CSRF);
-      fetch(POST_URL, { method: 'POST', body: fd, credentials: 'same-origin' })
-        .then(() => { clearPendingFile(); clearReply(); textInput.value = ''; textInput.style.height = 'auto'; clearTimeout(pollTimer); poll(); })
-        .catch(() => showStatus('Imeshindwa kutuma faili', 'err', true));
+      fetch(POST_URL, {
+        method: 'POST',
+        body: fd,
+        credentials: 'same-origin',
+        headers: { 'X-Requested-With': 'XMLHttpRequest' },
+      })
+        .then(async (res) => {
+          const data = await res.json().catch(() => ({}));
+          if (!res.ok || !data.ok || !data.message) {
+            throw new Error(data.error || 'Imeshindwa kutuma faili');
+          }
+          replacePendingUpload(tempId, data.message);
+          clearTimeout(pollTimer);
+          poll();
+        })
+        .catch((error) => {
+          markPendingUploadFailed(tempId, error.message);
+          showStatus(error.message || 'Imeshindwa kutuma faili', 'err', true);
+        });
     } else if (socket && socket.readyState === WebSocket.OPEN) {
       socket.send(JSON.stringify({ content: outbound }));
       clearReply();
@@ -1076,6 +1610,24 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
   });
 
   replyCancel.addEventListener('click', clearReply);
+  body.addEventListener('click', (e) => {
+    const trigger = e.target.closest('.wa-media-trigger');
+    if (!trigger) return;
+    openMediaModal({
+      url: trigger.dataset.mediaUrl,
+      kind: trigger.dataset.mediaKind,
+      name: trigger.dataset.mediaName,
+    });
+  });
+  mediaCloseBtn?.addEventListener('click', closeMediaModal);
+  mediaModal?.addEventListener('click', (e) => {
+    if (e.target === mediaModal) closeMediaModal();
+  });
+  document.addEventListener('keydown', (e) => {
+    if (e.key === 'Escape' && mediaModal?.classList.contains('show')) {
+      closeMediaModal();
+    }
+  });
   if (localStorage.getItem('wa-chat-light') === '1') {
     appEl.classList.add('wa-light');
     document.body.classList.add('wa-global-light');

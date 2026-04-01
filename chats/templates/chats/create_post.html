@@ -253,6 +253,66 @@
     margin-bottom: .2rem;
 }
 .cropper-container { max-width: 100%; }
+
+@media (max-width: 767px) {
+    .create-post-shell {
+        width: 99vw;
+        margin: 0 auto;
+        padding: .5rem 0 5.6rem;
+    }
+    .create-post-shell .row {
+        --bs-gutter-x: .55rem;
+    }
+    .create-post-card,
+    .toolbar-wrap,
+    .option-card,
+    .multi-picker,
+    .multi-option,
+    .clarify-box,
+    .doctor-picker,
+    .doctor-option,
+    .media-card,
+    .media-preview-shell,
+    .editor-surface {
+        background: var(--mobile-solid) !important;
+        background-image: none !important;
+        color: var(--mobile-text) !important;
+        border-color: var(--mobile-border) !important;
+        box-shadow: 8px 8px 18px var(--neo-out-a), -8px -8px 18px var(--neo-out-b) !important;
+    }
+    .toolbar-row {
+        background: color-mix(in srgb, var(--mobile-text) 4%, var(--mobile-solid)) !important;
+        border-bottom-color: var(--mobile-border) !important;
+    }
+    .tool-btn,
+    .tool-select,
+    .tool-color {
+        background: var(--mobile-solid) !important;
+        color: var(--mobile-text) !important;
+        border-color: var(--mobile-border) !important;
+        box-shadow: inset 2px 2px 5px var(--neo-in-a), inset -2px -2px 5px var(--neo-in-b) !important;
+    }
+    .editor-surface:empty::before,
+    .create-post-sub,
+    .form-note,
+    .word-meter,
+    .multi-option-meta,
+    .doctor-option-spec,
+    .media-empty,
+    .media-range-label {
+        color: color-mix(in srgb, var(--mobile-text) 70%, transparent) !important;
+    }
+    .media-preview-shell {
+        min-height: 230px;
+    }
+    .post-options-grid,
+    .media-grid {
+        grid-template-columns: 1fr;
+    }
+    .create-post-head {
+        align-items: flex-start;
+    }
+}
 </style>
 
 <div class="create-post-shell">
@@ -275,9 +335,9 @@
                             <button class="tool-btn" type="button" data-editor-cmd="bold"><b>B</b></button>
                             <button class="tool-btn" type="button" data-editor-cmd="italic"><i>I</i></button>
                             <button class="tool-btn" type="button" data-editor-cmd="underline"><u>U</u></button>
-                            <button class="tool-btn" type="button" data-editor-cmd="insertUnorderedList">• List</button>
-                            <button class="tool-btn" type="button" data-editor-cmd="insertOrderedList">1. List</button>
-                            <button class="tool-btn" type="button" data-editor-block="blockquote">❝</button>
+                            <button class="tool-btn" type="button" data-editor-cmd="insertUnorderedList"><i class="bi bi-list-ul"></i></button>
+                            <button class="tool-btn" type="button" data-editor-cmd="insertOrderedList"><i class="bi bi-list-ol"></i></button>
+                            <button class="tool-btn" type="button" data-editor-block="blockquote"><i class="bi bi-chat-quote"></i></button>
                             <button class="tool-btn" type="button" data-editor-link><i class="bi bi-link-45deg"></i></button>
                             <select class="tool-select" data-editor-font-size>
                                 <option value="3">Font</option>

@@ -8,8 +8,14 @@
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232f6b3f'/%3E%3Cpath d='M32 12l5.6 11.3L50 25.1l-9 8.8 2.1 12.3L32 40.1 20.9 46.2 23 33.9l-9-8.8 12.4-1.8L32 12z' fill='%23fff6c0'/%3E%3C/svg%3E">
     <script>
         (function () {
-            const savedTheme = localStorage.getItem('zh-theme') || 'dark';
-            document.documentElement.setAttribute('data-theme', savedTheme);
+            const hasCustomColor = '{{ ui_color_theme|default:"default" }}' !== 'default';
+            const savedTheme = localStorage.getItem('zh-theme');
+            let initialTheme = savedTheme || (hasCustomColor ? 'color' : 'dark');
+            if (!hasCustomColor && initialTheme === 'color') {
+                initialTheme = 'dark';
+            }
+            document.documentElement.setAttribute('data-theme', initialTheme);
+            document.documentElement.setAttribute('data-has-custom-color', hasCustomColor ? '1' : '0');
         })();
     </script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.10.5/font/bootstrap-icons.css">
@@ -19,51 +25,115 @@
     
     <style>
         :root {
-            --primary: #2F6B3F;
-            --secondary: #7FB77E;
-            --bg-soft: #FFF6C0;
-            --glass: rgba(255, 246, 192, 0.92);
-            --app-bg: #FFF6C0;
-            --bg-image: radial-gradient(circle at 14% 10%, rgba(47,107,63,.18), transparent 28%), radial-gradient(circle at 82% 82%, rgba(127,183,126,.16), transparent 26%);
-            --card-bg: #ffffff;
-            --text-main: #1a2e1c;
-            --text-muted: #3d6b42;
-            --line-soft: rgba(47, 107, 63, 0.20);
-            --shadow-soft: 0 14px 34px rgba(47, 107, 63, 0.14);
-            --accent: #F7C85C;
-            --mobile-solid: #eef1f5;
-            --mobile-input: #f4f6f9;
-            --mobile-text: #1f2937;
-            --mobile-border: rgba(0,0,0,.08);
-            --mobile-page-bg: #f3f5f8;
-            --neo-out-a: #d7dbe1;
+            /* Single source of truth for website colors */
+            --seed-primary: {{ ui_palette.primary|default:'#2F6B3F' }};
+            --seed-secondary: {{ ui_palette.secondary|default:'#7FB77E' }};
+            --seed-accent: {{ ui_palette.accent|default:'#F7C85C' }};
+            --seed-on-color: {{ ui_palette.on_color|default:'#102617' }};
+            --seed-bg-intensity: {{ ui_bg_intensity|default:24 }};
+
+            --primary: var(--seed-primary);
+            --secondary: var(--seed-secondary);
+            --accent: var(--seed-accent);
+
+            --bg-soft: color-mix(in srgb, var(--seed-secondary) 16%, #fff6e8);
+            --glass: color-mix(in srgb, var(--bg-soft) 90%, transparent);
+            --app-bg: color-mix(in srgb, var(--seed-secondary) 14%, #fff8ee);
+            --bg-image: radial-gradient(circle at 14% 10%, color-mix(in srgb, var(--seed-primary) {{ ui_bg_intensity|default:24 }}%, transparent), transparent 28%), radial-gradient(circle at 82% 82%, color-mix(in srgb, var(--seed-secondary) {{ ui_bg_intensity|default:24 }}%, transparent), transparent 26%);
+            --card-bg: color-mix(in srgb, #ffffff 90%, var(--seed-secondary) 10%);
+            --text-main: color-mix(in srgb, #121826 82%, var(--seed-primary) 18%);
+            --text-muted: color-mix(in srgb, #4b5563 55%, var(--seed-primary) 45%);
+            --line-soft: color-mix(in srgb, var(--seed-primary) 28%, transparent);
+            --shadow-soft: 0 14px 34px color-mix(in srgb, var(--seed-primary) 20%, transparent);
+
+            --mobile-solid: color-mix(in srgb, var(--seed-secondary) 16%, #eef1f5);
+            --mobile-input: color-mix(in srgb, var(--seed-secondary) 10%, #f4f6f9);
+            --mobile-text: color-mix(in srgb, #1f2937 80%, var(--seed-primary) 20%);
+            --mobile-border: color-mix(in srgb, var(--seed-primary) 20%, rgba(0,0,0,.08));
+            --mobile-page-bg: color-mix(in srgb, var(--seed-secondary) 14%, #f3f5f8);
+            --neo-out-a: color-mix(in srgb, #cdd3db 78%, var(--seed-primary) 22%);
             --neo-out-b: #ffffff;
-            --neo-in-a: #d8dde6;
+            --neo-in-a: color-mix(in srgb, #d6dbe5 78%, var(--seed-primary) 22%);
             --neo-in-b: #ffffff;
+
+            --body-overlay-light: color-mix(in srgb, var(--bg-soft) 84%, transparent);
         }
 
+        html[data-theme='color'] {
+            --primary: var(--seed-primary);
+            --secondary: var(--seed-secondary);
+            --accent: var(--seed-accent);
+
+            --bg-soft: var(--seed-secondary);
+            --glass: color-mix(in srgb, var(--seed-secondary) 92%, transparent);
+            --app-bg: var(--seed-primary);
+            --bg-image: linear-gradient(135deg, var(--seed-primary), var(--seed-secondary));
+            --card-bg: color-mix(in srgb, var(--seed-secondary) 92%, #ffffff 8%);
+            --text-main: var(--seed-on-color);
+            --text-muted: color-mix(in srgb, var(--seed-on-color) 72%, #ffffff 28%);
+            --line-soft: color-mix(in srgb, var(--seed-on-color) 22%, transparent);
+            --shadow-soft: 0 14px 34px color-mix(in srgb, var(--seed-primary) 42%, transparent);
+
+            --mobile-solid: var(--seed-secondary);
+            --mobile-input: color-mix(in srgb, var(--seed-secondary) 90%, #ffffff 10%);
+            --mobile-text: var(--seed-on-color);
+            --mobile-border: color-mix(in srgb, var(--seed-on-color) 18%, transparent);
+            --mobile-page-bg: var(--seed-primary);
+            --neo-out-a: color-mix(in srgb, var(--seed-primary) 60%, #000000 40%);
+            --neo-out-b: color-mix(in srgb, var(--seed-secondary) 82%, #ffffff 18%);
+            --neo-in-a: color-mix(in srgb, var(--seed-primary) 55%, #000000 45%);
+            --neo-in-b: color-mix(in srgb, var(--seed-secondary) 80%, #ffffff 20%);
+
+            --body-overlay-light: transparent;
+            --body-overlay-dark: transparent;
+        }
+
+        {% if ui_bg_style == 'solid' %}
+        :root,
+        html[data-theme='dark'],
+        html[data-theme='color'] {
+            --bg-image: none;
+        }
+        {% elif ui_bg_style == 'radial' %}
+        :root,
+        html[data-theme='dark'],
+        html[data-theme='color'] {
+            --bg-image: radial-gradient(circle at 20% 20%, color-mix(in srgb, var(--seed-primary) {{ ui_bg_intensity|default:24 }}%, transparent), transparent 36%), radial-gradient(circle at 80% 80%, color-mix(in srgb, var(--seed-secondary) {{ ui_bg_intensity|default:24 }}%, transparent), transparent 32%);
+        }
+        {% else %}
+        :root,
+        html[data-theme='dark'],
+        html[data-theme='color'] {
+            --bg-image: linear-gradient(135deg, color-mix(in srgb, var(--seed-primary) {{ ui_bg_intensity|default:24 }}%, transparent), color-mix(in srgb, var(--seed-secondary) {{ ui_bg_intensity|default:24 }}%, transparent));
+        }
+        {% endif %}
+
         html[data-theme='dark'] {
-            --primary: #456882;
-            --secondary: #D2C1B6;
-            --bg-soft: #1B3C53;
-            --glass: rgba(27, 60, 83, 0.90);
-            --app-bg: #1B3C53;
-            --bg-image: radial-gradient(circle at 12% 12%, rgba(69,104,130,.30), transparent 30%), radial-gradient(circle at 82% 16%, rgba(210,193,182,.14), transparent 28%), radial-gradient(circle at 52% 86%, rgba(35,76,106,.40), transparent 30%);
-            --card-bg: #234C6A;
-            --text-main: #D2C1B6;
-            --text-muted: #a09488;
-            --line-soft: rgba(69, 104, 130, 0.38);
-            --shadow-soft: 0 16px 40px rgba(0, 0, 0, 0.42);
-            --accent: #D2C1B6;
-            --mobile-solid: #1c222a;
-            --mobile-input: #1c222a;
-            --mobile-text: #e9eef8;
-            --mobile-border: rgba(255,255,255,.10);
-            --mobile-page-bg: #0f141a;
-            --neo-out-a: #0b0e12;
-            --neo-out-b: #2a3038;
-            --neo-in-a: #12161b;
-            --neo-in-b: #262d36;
+            --primary: color-mix(in srgb, var(--seed-primary) 78%, #a8c5ff);
+            --secondary: color-mix(in srgb, var(--seed-secondary) 78%, #dbeafe);
+            --accent: color-mix(in srgb, var(--seed-accent) 72%, #f8fafc);
+
+            --bg-soft: color-mix(in srgb, var(--seed-primary) 22%, #0f1620);
+            --glass: color-mix(in srgb, var(--bg-soft) 88%, transparent);
+            --app-bg: color-mix(in srgb, var(--seed-primary) 18%, #0f141a);
+            --bg-image: radial-gradient(circle at 12% 12%, color-mix(in srgb, var(--primary) 40%, transparent), transparent 30%), radial-gradient(circle at 82% 16%, color-mix(in srgb, var(--secondary) 25%, transparent), transparent 28%), radial-gradient(circle at 52% 86%, color-mix(in srgb, var(--primary) 38%, transparent), transparent 30%);
+            --card-bg: color-mix(in srgb, var(--seed-primary) 30%, #192231);
+            --text-main: color-mix(in srgb, #eef4ff 82%, var(--secondary) 18%);
+            --text-muted: color-mix(in srgb, #cbd5e1 65%, var(--secondary) 35%);
+            --line-soft: color-mix(in srgb, var(--primary) 45%, transparent);
+            --shadow-soft: 0 16px 40px color-mix(in srgb, #000 65%, transparent);
+
+            --mobile-solid: color-mix(in srgb, var(--seed-primary) 18%, #1b2430);
+            --mobile-input: color-mix(in srgb, var(--seed-primary) 15%, #161d27);
+            --mobile-text: color-mix(in srgb, #eef3ff 88%, var(--secondary) 12%);
+            --mobile-border: color-mix(in srgb, var(--primary) 36%, rgba(255,255,255,.12));
+            --mobile-page-bg: color-mix(in srgb, var(--seed-primary) 15%, #0e131a);
+            --neo-out-a: color-mix(in srgb, #080b10 72%, var(--seed-primary) 28%);
+            --neo-out-b: color-mix(in srgb, #2a3038 75%, var(--seed-secondary) 25%);
+            --neo-in-a: color-mix(in srgb, #0f141b 78%, var(--seed-primary) 22%);
+            --neo-in-b: color-mix(in srgb, #2d3440 74%, var(--seed-secondary) 26%);
+
+            --body-overlay-dark: color-mix(in srgb, var(--app-bg) 82%, transparent);
         }
 
         html, body {
@@ -71,7 +141,7 @@
         }
 
         body {
-            background-image: linear-gradient(rgba(255, 246, 192, 0.88), rgba(255, 246, 192, 0.88)), var(--bg-image);
+            background-image: linear-gradient(var(--body-overlay-light), var(--body-overlay-light)), var(--bg-image);
             background-color: var(--app-bg);
             background-position: center;
             background-size: cover;
@@ -91,7 +161,7 @@
         }
 
         html[data-theme='dark'] body {
-            background-image: linear-gradient(rgba(27, 60, 83, 0.84), rgba(27, 60, 83, 0.88)), var(--bg-image);
+            background-image: linear-gradient(var(--body-overlay-dark), var(--body-overlay-dark)), var(--bg-image);
         }
 
         /* ── Space starfield canvas ── */
@@ -108,6 +178,10 @@
 
         html[data-theme='dark'] #space-canvas {
             opacity: 1;
+        }
+
+        html[data-theme='color'] #space-canvas {
+            opacity: 0 !important;
         }
 
         .btn-danger,
@@ -140,6 +214,87 @@
             margin: 0;
             border-radius: 0;
             box-shadow: 0 2px 18px rgba(0,0,0,.14);
+        }
+
+        /* ── Global inheritance enforcement layer (single-point color system) ── */
+        html[data-theme] .card,
+        html[data-theme] .card-custom,
+        html[data-theme] [class*="card"],
+        html[data-theme] .modal-content,
+        html[data-theme] .offcanvas,
+        html[data-theme] .dropdown-menu,
+        html[data-theme] .accordion-item,
+        html[data-theme] .list-group-item,
+        html[data-theme] .table,
+        html[data-theme] .details-section,
+        html[data-theme] .pick-item {
+            background: var(--card-bg) !important;
+            color: var(--text-main) !important;
+            border-color: var(--line-soft) !important;
+        }
+
+        html[data-theme] .btn,
+        html[data-theme] button,
+        html[data-theme] [class*="btn"] {
+            border-color: var(--line-soft) !important;
+        }
+
+        html[data-theme] .btn-danger,
+        html[data-theme] .btn-primary {
+            background: linear-gradient(135deg, var(--primary), var(--secondary)) !important;
+            border-color: var(--primary) !important;
+            color: var(--seed-on-color) !important;
+            box-shadow: 0 10px 24px color-mix(in srgb, var(--primary) 40%, transparent) !important;
+        }
+
+        html[data-theme] .form-control,
+        html[data-theme] .form-select,
+        html[data-theme] textarea,
+        html[data-theme] input[type="text"],
+        html[data-theme] input[type="number"],
+        html[data-theme] input[type="date"],
+        html[data-theme] input[type="email"],
+        html[data-theme] input[type="password"] {
+            background: color-mix(in srgb, var(--card-bg) 92%, transparent) !important;
+            color: var(--text-main) !important;
+            border: 1px solid var(--line-soft) !important;
+        }
+
+        html[data-theme] .form-check-input,
+        html[data-theme] input[type="checkbox"],
+        html[data-theme] input[type="radio"] {
+            accent-color: var(--primary) !important;
+        }
+
+        /* High-specificity normalization for custom page components */
+        html[data-theme] body .hero-ai,
+        html[data-theme] body .metric-card,
+        html[data-theme] body .tip-card,
+        html[data-theme] body .history-item,
+        html[data-theme] body .calendar-wrapper,
+        html[data-theme] body .post-card,
+        html[data-theme] body .community-shell,
+        html[data-theme] body .community-main,
+        html[data-theme] body .community-sidebar,
+        html[data-theme] body .clarification-answer,
+        html[data-theme] body .featured-comment-box,
+        html[data-theme] body .comment-item {
+            background: var(--card-bg) !important;
+            color: var(--text-main) !important;
+            border-color: var(--line-soft) !important;
+        }
+
+        html[data-theme] body .wa-header,
+        html[data-theme] body .wa-body,
+        html[data-theme] body .wa-bar,
+        html[data-theme] body .wa-input-wrap,
+        html[data-theme] body .wa-bubble,
+        html[data-theme] body .wa-date-chip,
+        html[data-theme] body .wa-empty,
+        html[data-theme] body .wa-typing,
+        html[data-theme] body .wa-emoji-picker {
+            border-color: var(--line-soft) !important;
+            color: var(--text-main) !important;
         }
 
         .nav-link { color: var(--text-main) !important; }
@@ -600,6 +755,8 @@
             .btn {
                 font-size: .78rem;
                 padding: .3rem .6rem;
+                border-radius: 10px;
+            }
 
             .group-chip,
             .community-chip,
@@ -615,8 +772,6 @@
             .group-chip i {
                 background: color-mix(in srgb, var(--mobile-text) 10%, transparent) !important;
                 color: var(--mobile-text) !important;
-            }
-                border-radius: 10px;
             }
             .btn-sm {
                 font-size: .72rem;
@@ -703,6 +858,27 @@
                 box-shadow: 6px 6px 12px var(--neo-out-a), -6px -6px 12px var(--neo-out-b) !important;
             }
 
+            /* Keep primary action color visible on small screens */
+            .btn-danger,
+            .btn-primary,
+            .wa-send-btn,
+            .ai-fab,
+            #aiQuickSend {
+                background: linear-gradient(135deg, var(--primary), var(--secondary)) !important;
+                background-image: linear-gradient(135deg, var(--primary), var(--secondary)) !important;
+                color: var(--seed-on-color) !important;
+                border-color: color-mix(in srgb, var(--primary) 60%, transparent) !important;
+                box-shadow: 0 10px 24px color-mix(in srgb, var(--primary) 40%, transparent) !important;
+            }
+
+            .btn-outline-danger,
+            .btn-outline-primary,
+            .btn-outline-secondary {
+                background: color-mix(in srgb, var(--mobile-solid) 92%, transparent) !important;
+                color: var(--mobile-text) !important;
+                border-color: var(--mobile-border) !important;
+            }
+
             button i,
             .btn i,
             [class*="btn"] i {
@@ -736,6 +912,25 @@
                 background: var(--mobile-solid) !important;
                 border-bottom-color: var(--mobile-border);
                 box-shadow: 8px 8px 18px var(--neo-out-a), -8px -8px 18px var(--neo-out-b);
+            }
+
+            .ai-chat-head,
+            .ai-chat-body,
+            .ai-chat-form,
+            .ai-quick-prompts {
+                background: var(--mobile-solid) !important;
+                background-image: none !important;
+                color: var(--mobile-text) !important;
+                border-color: var(--mobile-border) !important;
+            }
+
+            .ai-chat-head,
+            .ai-chat-form {
+                box-shadow: inset 3px 3px 7px var(--neo-in-a), inset -3px -3px 7px var(--neo-in-b) !important;
+            }
+
+            .ai-chat-body {
+                box-shadow: inset 4px 4px 9px var(--neo-in-a), inset -4px -4px 9px var(--neo-in-b) !important;
             }
 
             .afya-main-link,
@@ -775,9 +970,30 @@
             .form-check-input,
             input[type="radio"],
             input[type="checkbox"] {
-                accent-color: #ff4b4b;
+                accent-color: var(--primary);
                 width: 1.05rem;
                 height: 1.05rem;
+            }
+
+            /* Hard lock for stubborn mobile sections with local custom CSS */
+            .hero-ai,
+            .tip-card,
+            .metric-card,
+            .history-item,
+            .calendar-wrapper,
+            .post-card,
+            .wa-main,
+            .wa-header,
+            .wa-body,
+            .wa-bar,
+            .wa-input-wrap,
+            .wa-emoji-picker,
+            .wa-date-chip,
+            .wa-empty,
+            .wa-typing {
+                background: var(--mobile-solid) !important;
+                color: var(--mobile-text) !important;
+                border-color: var(--mobile-border) !important;
             }
 
             .afya-main-links {
@@ -789,21 +1005,13 @@
 
             .afya-primary-link {
                 position: relative;
-                min-width: 38px;
-                padding: .2rem;
+                min-width: 52px;
+                padding: .22rem .28rem;
             }
 
             .afya-primary-link span {
-                display: none;
-            }
-
-            .afya-primary-link.afya-service-text span {
                 display: inline;
                 font-size: clamp(.56rem, .5rem + .25vw, .68rem);
-            }
-
-            .afya-primary-link.afya-service-text i {
-                display: none;
             }
 
             .afya-primary-link i {
@@ -866,10 +1074,10 @@
             <span>afya-AI</span>
         </a>
         <div class="afya-main-links">
-            <a href="{% url 'doctor:hub' %}" class="afya-main-link afya-primary-link afya-service-text" data-nav-match="/doctor/" aria-label="Services"><i class="bi bi-person-badge-fill"></i><span>Services</span></a>
+            {% if user.is_authenticated %}
+            <a href="{% url 'doctor:hub' %}" class="afya-main-link afya-primary-link" data-nav-match="/doctor/" aria-label="Services"><i class="bi bi-person-badge-fill"></i><span>Services</span></a>
             <a href="{% url 'menstrual:settings' %}" class="afya-main-link afya-primary-link" data-nav-match="/menstrual/settings/" aria-label="Settings"><i class="bi bi-gear"></i><span>Settings</span></a>
             <a href="{% url 'chats:notifications' %}" class="afya-main-link afya-primary-link" data-nav-match="/social/notifications/" aria-label="Notifications"><i class="bi bi-bell"></i><span>Notifications</span></a>
-            {% if user.is_authenticated %}
             <a href="{% url 'users:profile' %}" class="afya-main-link afya-primary-link d-lg-none" data-nav-match="/users/profile/" aria-label="Account">
                 {% if current_user_avatar_url %}
                 <img src="{{ current_user_avatar_url }}" alt="{{ user.username }} profile photo" class="afya-account-avatar">
@@ -879,7 +1087,8 @@
                 <span>Account</span>
             </a>
             {% else %}
-            <a href="{% url 'users:login' %}" class="afya-main-link afya-primary-link" data-nav-match="/users/login/" aria-label="Account"><i class="bi bi-person-circle"></i><span>Account</span></a>
+            <a href="{% url 'users:login' %}" class="afya-main-link afya-primary-link" data-nav-match="/users/login/" aria-label="Login"><i class="bi bi-box-arrow-in-right"></i><span>Login</span></a>
+            <a href="{% url 'users:register' %}" class="afya-main-link afya-primary-link" data-nav-match="/users/register/" aria-label="Register"><i class="bi bi-person-plus"></i><span>Register</span></a>
             {% endif %}
 
             <a href="{% url 'AI_brain:chat' %}" class="afya-main-link d-none d-lg-inline-flex" data-nav-match="/ai/chat/"><i class="bi bi-robot"></i><span>AI</span></a>
@@ -905,6 +1114,7 @@
     </div>
 </nav>
 
+{% if user.is_authenticated %}
 <nav class="navbar afya-mobile-sub-nav py-1 d-lg-none">
     <div class="container">
         <div class="afya-sub-links-mobile">
@@ -916,6 +1126,7 @@
         </div>
     </div>
 </nav>
+{% endif %}
 
 <main class="container">
     <div class="global-back-row">
@@ -952,7 +1163,7 @@
 <section class="ai-chat-widget" id="aiChatWidget" aria-live="polite">
     <div class="ai-chat-head">
         <div class="fw-semibold small"><i class="bi bi-stars text-warning me-1"></i> afya-AI Assistant</div>
-        <button type="button" class="btn btn-sm btn-light rounded-pill" id="aiChatClose">Funga</button>
+        <button type="button" class="btn btn-sm btn-light rounded-pill" id="aiChatClose" aria-label="Close AI chat"><i class="bi bi-x-lg"></i></button>
     </div>
     <div class="ai-chat-body" id="aiChatBody">
         <div class="ai-msg ai-msg-bot"><i class="bi bi-hand-wave me-1"></i>Habari. Uliza swali lolote la afya. Nitakujibu kwa njia fupi, salama, na personalized.</div>
@@ -975,13 +1186,29 @@
 <script>
     function applyThemeIcon(theme) {
         document.querySelectorAll('[data-theme-toggle] i').forEach((icon) => {
-            icon.className = theme === 'dark' ? 'bi bi-sun' : 'bi bi-moon-stars';
+            if (theme === 'dark') {
+                icon.className = 'bi bi-sun';
+            } else if (theme === 'light') {
+                icon.className = 'bi bi-palette2';
+            } else {
+                icon.className = 'bi bi-moon-stars';
+            }
         });
     }
 
     function toggleTheme() {
         const current = document.documentElement.getAttribute('data-theme') || 'light';
-        const next = current === 'dark' ? 'light' : 'dark';
+        const hasCustomColor = document.documentElement.getAttribute('data-has-custom-color') === '1';
+        let next = 'dark';
+
+        if (hasCustomColor) {
+            if (current === 'color') next = 'dark';
+            else if (current === 'dark') next = 'light';
+            else next = 'color';
+        } else {
+            next = current === 'dark' ? 'light' : 'dark';
+        }
+
         document.documentElement.setAttribute('data-theme', next);
         localStorage.setItem('zh-theme', next);
         applyThemeIcon(next);
@@ -1064,6 +1291,19 @@
         });
     }
 
+    function setupAutoDismissAlerts() {
+        const alerts = document.querySelectorAll('.alert.alert-dismissible');
+        alerts.forEach((alertEl) => {
+            window.setTimeout(() => {
+                if (typeof bootstrap !== 'undefined' && bootstrap.Alert) {
+                    bootstrap.Alert.getOrCreateInstance(alertEl).close();
+                } else {
+                    alertEl.remove();
+                }
+            }, 2000);
+        });
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
         const current = document.documentElement.getAttribute('data-theme') || 'light';
         applyThemeIcon(current);
@@ -1097,6 +1337,7 @@
             if (best) best.link.classList.add('is-active');
         });
 
+        setupAutoDismissAlerts();
         setupQuickAIWidget();
     });
 </script>
