@@ -1,0 +1,47 @@
+{% extends 'base.html' %}
+
+{% block title %}Card Details{% endblock %}
+
+{% block content %}
+<div class="container py-3" style="max-width:980px;">
+  <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <h4 class="mb-0 fw-bold"><i class="bi bi-sliders me-2"></i>Update Card Details</h4>
+    <a href="{% url 'card:home' %}" class="btn btn-outline-secondary rounded-pill"><i class="bi bi-arrow-left me-1"></i>Back to Card</a>
+  </div>
+
+  <form method="post" enctype="multipart/form-data" class="card-custom p-3 p-lg-4">
+    {% csrf_token %}
+
+    <h6 class="fw-bold mb-3">Front Side</h6>
+    <div class="row g-3 mb-3">
+      <div class="col-md-6">{{ form.full_name_override.label_tag }} {{ form.full_name_override }}</div>
+      <div class="col-md-6">{{ form.gender_override.label_tag }} {{ form.gender_override }}</div>
+      <div class="col-md-6">{{ form.birth_date.label_tag }} {{ form.birth_date }}</div>
+      <div class="col-md-6">{{ form.photo.label_tag }} {{ form.photo }}</div>
+      <div class="col-md-6">{{ form.style_theme.label_tag }} {{ form.style_theme }}</div>
+      <div class="col-md-6 d-flex align-items-end">{{ form.show_watermark }} {{ form.show_watermark.label_tag }}</div>
+      <div class="col-12">{{ form.watermark_text.label_tag }} {{ form.watermark_text }}</div>
+    </div>
+
+    <h6 class="fw-bold mb-3">Data to show after QR scan</h6>
+    <div class="row g-2 mb-4 small">
+      <div class="col-md-4">{{ form.show_name }} {{ form.show_name.label_tag }}</div>
+      <div class="col-md-4">{{ form.show_gender }} {{ form.show_gender.label_tag }}</div>
+      <div class="col-md-4">{{ form.show_birth_date }} {{ form.show_birth_date.label_tag }}</div>
+      <div class="col-md-4">{{ form.show_age }} {{ form.show_age.label_tag }}</div>
+      <div class="col-md-4">{{ form.show_health_notes }} {{ form.show_health_notes.label_tag }}</div>
+      <div class="col-md-4">{{ form.show_permanent_diseases }} {{ form.show_permanent_diseases.label_tag }}</div>
+      <div class="col-md-4">{{ form.show_medications }} {{ form.show_medications.label_tag }}</div>
+      <div class="col-md-4">{{ form.show_goals }} {{ form.show_goals.label_tag }}</div>
+    </div>
+
+    <h6 class="fw-bold mb-3">Persona Reminder Schedule</h6>
+    <div class="row g-3 mb-3">
+      <div class="col-md-6">{{ config_form.interval_days.label_tag }} {{ config_form.interval_days }}</div>
+      <div class="col-md-6">{{ config_form.reminder_cooldown_days.label_tag }} {{ config_form.reminder_cooldown_days }}</div>
+    </div>
+
+    <button class="btn btn-danger rounded-pill" type="submit"><i class="bi bi-save me-1"></i>Save Details</button>
+  </form>
+</div>
+{% endblock %}

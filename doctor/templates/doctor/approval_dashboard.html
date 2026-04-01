@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="py-4">
+    <div class="card-custom p-4 mb-4">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+                <h4 class="fw-bold mb-1">Doctor Approval Workflow</h4>
+                <p class="text-muted mb-0">Kagua documents, approve au reject doctor applications.</p>
+            </div>
+            <a href="{% url 'doctor:hub' %}" class="btn btn-outline-secondary rounded-pill">Back to Doctor Hub</a>
+        </div>
+    </div>
+
+    {% for item in requests %}
+    <div class="card-custom p-4 mb-3">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+            <div>
+                <h6 class="fw-bold mb-1">{{ item.doctor_profile.user.get_full_name|default:item.doctor_profile.user.username }}</h6>
+                <div class="small text-muted mb-1">{{ item.doctor_profile.specialization }}{% if item.doctor_profile.hospital_name %} • {{ item.doctor_profile.hospital_name }}{% endif %}</div>
+                <div class="small text-muted">License: {{ item.license_number }}{% if item.issuing_body %} • {{ item.issuing_body }}{% endif %}</div>
+            </div>
+            <span class="badge {% if item.status == 'approved' %}text-bg-success{% elif item.status == 'rejected' %}text-bg-danger{% else %}text-bg-warning{% endif %}">
+                {{ item.status|title }}
+            </span>
+        </div>
+
+        <div class="mt-3 small">
+            {% for doc in item.documents.all %}
+            <div><a href="{{ doc.document.url }}" target="_blank">Open document: {{ doc.title }}</a></div>
+            {% empty %}
+            <div class="text-muted">Hakuna document iliyopakiwa.</div>
+            {% endfor %}
+        </div>
+
+        <div class="mt-3">
+            <a href="{% url 'doctor:review_request' item.id %}" class="btn btn-danger rounded-pill btn-sm">Review Request</a>
+        </div>
+    </div>
+    {% empty %}
+    <div class="card-custom p-4 text-center text-muted">Hakuna doctor requests kwa sasa.</div>
+    {% endfor %}
+</div>
+{% endblock %}

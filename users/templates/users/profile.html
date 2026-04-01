@@ -1,0 +1,442 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Akaunti Yangu{% endblock %}
+
+{% block content %}
+<style>
+    .profile-shell {
+        max-width: 780px;
+        margin: 0 auto;
+        padding: 1.5rem 1rem 6rem;
+    }
+
+    /* ── Avatar hero ── */
+    .avatar-hero {
+        display: flex;
+        align-items: center;
+        gap: 1.25rem;
+        background: var(--card-bg);
+        border-radius: 22px;
+        padding: 1.4rem 1.6rem;
+        box-shadow: 0 6px 22px rgba(0,0,0,.07);
+        margin-bottom: 1.5rem;
+        flex-wrap: wrap;
+    }
+    .avatar-ring {
+        position: relative;
+        flex-shrink: 0;
+        width: 90px;
+        height: 90px;
+    }
+    .avatar-ring img,
+    .avatar-ring .avatar-initials {
+        width: 90px;
+        height: 90px;
+        border-radius: 50%;
+        object-fit: cover;
+        border: 3px solid var(--primary);
+    }
+    .avatar-ring .avatar-initials {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: #fff;
+        font-size: 2rem;
+        font-weight: 800;
+    }
+    .avatar-upload-btn {
+        position: absolute;
+        bottom: 2px;
+        right: 2px;
+        width: 26px;
+        height: 26px;
+        border-radius: 50%;
+        background: var(--primary);
+        color: #fff;
+        border: 2px solid var(--card-bg);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: .7rem;
+        cursor: pointer;
+    }
+    .avatar-info h5 { font-weight: 800; margin-bottom: .15rem; }
+    .avatar-info .role-badges { display: flex; gap: .4rem; flex-wrap: wrap; }
+
+    /* ── Tabs ── */
+    .profile-tabs {
+        display: flex;
+        gap: .5rem;
+        background: var(--card-bg);
+        border-radius: 16px;
+        padding: .45rem;
+        box-shadow: 0 3px 14px rgba(0,0,0,.06);
+        margin-bottom: 1.4rem;
+        overflow-x: auto;
+        scrollbar-width: none;
+    }
+    .profile-tabs::-webkit-scrollbar { display: none; }
+    .ptab {
+        flex: 1;
+        min-width: 80px;
+        text-align: center;
+        padding: .55rem .8rem;
+        border-radius: 12px;
+        border: none;
+        background: transparent;
+        color: var(--text-muted);
+        font-size: .82rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: background .18s, color .18s;
+        white-space: nowrap;
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: .35rem;
+    }
+    .ptab.active {
+        background: var(--primary);
+        color: #fff;
+        box-shadow: 0 3px 10px rgba(0,0,0,.12);
+    }
+    .ptab:not(.active):hover { background: rgba(0,0,0,.06); color: var(--text-main); }
+    html[data-theme='dark'] .ptab:not(.active):hover { background: rgba(255,255,255,.08); }
+
+    /* ── Section cards ── */
+    .profile-card {
+        background: var(--card-bg);
+        border-radius: 20px;
+        padding: 1.5rem;
+        box-shadow: 0 6px 22px rgba(0,0,0,.07);
+        margin-bottom: 1.2rem;
+    }
+    .profile-card h6 {
+        font-weight: 700;
+        font-size: .82rem;
+        text-transform: uppercase;
+        letter-spacing: .05em;
+        color: var(--text-muted);
+        margin-bottom: 1rem;
+        padding-bottom: .5rem;
+        border-bottom: 1px solid var(--line-soft);
+    }
+    .form-label { font-size: .85rem; font-weight: 600; color: var(--text-main); }
+    .form-control, .form-select {
+        background: var(--app-bg);
+        border-color: var(--line-soft);
+        color: var(--text-main);
+        border-radius: 10px;
+    }
+    .form-control:focus, .form-select:focus {
+        background: var(--app-bg);
+        color: var(--text-main);
+        border-color: var(--primary);
+        box-shadow: 0 0 0 .2rem rgba(var(--primary-rgb, 47,107,63), .15);
+    }
+    .tab-panel { display: none; }
+    .tab-panel.active { display: block; }
+
+    /* ── Danger zone ── */
+    .danger-zone {
+        border: 1px solid rgba(220,53,69,.35);
+        border-radius: 16px;
+        padding: 1.2rem 1.4rem;
+        background: rgba(220,53,69,.04);
+    }
+
+    /* ── Username readonly badge ── */
+    .username-readonly {
+        font-weight: 700;
+        font-size: 1rem;
+        background: rgba(0,0,0,.05);
+        border-radius: 10px;
+        padding: .5rem .9rem;
+        display: inline-block;
+        color: var(--text-main);
+    }
+    html[data-theme='dark'] .username-readonly { background: rgba(255,255,255,.08); }
+
+    @media (max-width: 991.98px) {
+        .profile-shell {
+            max-width: 99vw;
+            padding: .9rem .5vw 5.4rem;
+        }
+
+        .avatar-hero,
+        .profile-tabs,
+        .profile-card {
+            background: var(--mobile-solid) !important;
+            color: var(--mobile-text) !important;
+            border: 1px solid var(--mobile-border) !important;
+            box-shadow: 8px 8px 18px var(--neo-out-a), -8px -8px 18px var(--neo-out-b) !important;
+        }
+
+        .ptab:not(.active) {
+            color: color-mix(in srgb, var(--mobile-text) 75%, transparent) !important;
+        }
+    }
+</style>
+
+<div class="profile-shell">
+
+    <!-- Avatar hero -->
+    <div class="avatar-hero">
+        <div class="avatar-ring">
+            {% if persona.avatar %}
+                <img src="{{ persona.avatar.url }}" alt="Avatar">
+            {% else %}
+                <div class="avatar-initials">
+                    {{ user.first_name|first|upper|default:user.username|first|upper }}
+                </div>
+            {% endif %}
+            <label class="avatar-upload-btn" for="id_avatar" title="Badilisha picha">
+                <i class="bi bi-camera-fill"></i>
+            </label>
+        </div>
+        <div class="avatar-info flex-grow-1">
+            <h5>{{ user.get_full_name|default:user.username }}</h5>
+            <div class="text-muted small mb-1">@{{ user.username }}</div>
+            <div class="role-badges">
+                {% if user.is_staff %}<span class="badge text-bg-danger">Admin</span>{% endif %}
+                {% if is_doctor_user %}<span class="badge text-bg-info">Doctor</span>{% endif %}
+                {% if is_moderator_user %}<span class="badge text-bg-warning">Moderator</span>{% endif %}
+                {% if persona.onboarding_complete %}
+                    <span class="badge text-bg-success">AI Persona ✓</span>
+                {% else %}
+                    <span class="badge text-bg-secondary">AI Persona incomplete</span>
+                {% endif %}
+            </div>
+        </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="profile-tabs">
+        <a href="?tab=account" class="ptab {% if active_tab == 'account' %}active{% endif %}">
+            <i class="bi bi-person-fill"></i> Akaunti
+        </a>
+        <a href="?tab=persona" class="ptab {% if active_tab == 'persona' %}active{% endif %}">
+            <i class="bi bi-stars"></i> AI Persona
+        </a>
+        <a href="?tab=security" class="ptab {% if active_tab == 'security' %}active{% endif %}">
+            <i class="bi bi-shield-lock-fill"></i> Usalama
+        </a>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+         TAB 1: ACCOUNT
+    ═══════════════════════════════════════ -->
+    <div class="tab-panel {% if active_tab == 'account' %}active{% endif %}">
+
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            <input type="hidden" name="_action" value="update_info">
+
+            <!-- Avatar upload (hidden, triggered by camera icon above) -->
+            <div style="display:none;">
+                {{ avatar_form.avatar }}
+            </div>
+
+            <div class="profile-card">
+                <h6><i class="bi bi-person me-1"></i>Taarifa za Msingi</h6>
+
+                <div class="mb-3">
+                    <label class="form-label">Jina la Mtumiaji</label>
+                    <div class="username-readonly">@{{ user.username }}</div>
+                    <div class="form-text">Haiwezi kubadilishwa.</div>
+                </div>
+
+                <div class="row g-3">
+                    <div class="col-sm-6">
+                        <label class="form-label">Jina la Kwanza</label>
+                        {{ info_form.first_name }}
+                        {% if info_form.first_name.errors %}
+                            <div class="text-danger small">{{ info_form.first_name.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="form-label">Jina la Mwisho</label>
+                        {{ info_form.last_name }}
+                        {% if info_form.last_name.errors %}
+                            <div class="text-danger small">{{ info_form.last_name.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Barua Pepe</label>
+                        {{ info_form.email }}
+                        {% if info_form.email.errors %}
+                            <div class="text-danger small">{{ info_form.email.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-card">
+                <h6><i class="bi bi-chat-quote me-1"></i>Bio</h6>
+                <label class="form-label">Kuhusu Mimi</label>
+                {{ avatar_form.bio }}
+                {% if avatar_form.bio.errors %}
+                    <div class="text-danger small">{{ avatar_form.bio.errors.0 }}</div>
+                {% endif %}
+                {% if persona.bio %}
+                    <div class="form-text">Bio yako ya sasa: <em>{{ persona.bio }}</em></div>
+                {% endif %}
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 rounded-pill fw-bold py-2">
+                <i class="bi bi-check2-circle me-1"></i> Hifadhi Mabadiliko
+            </button>
+        </form>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+         TAB 2: AI PERSONA
+    ═══════════════════════════════════════ -->
+    <div class="tab-panel {% if active_tab == 'persona' %}active{% endif %}">
+
+        <form method="post">
+            {% csrf_token %}
+            <input type="hidden" name="_action" value="update_persona">
+
+            <div class="profile-card">
+                <h6><i class="bi bi-body-text me-1"></i>Taarifa za Kimwili</h6>
+                <div class="row g-3">
+                    <div class="col-6 col-sm-3">
+                        <label class="form-label">Umri</label>
+                        {{ persona_form.age }}
+                    </div>
+                    <div class="col-6 col-sm-3">
+                        <label class="form-label">Jinsia</label>
+                        {{ persona_form.gender }}
+                    </div>
+                    <div class="col-6 col-sm-3">
+                        <label class="form-label">Urefu (cm)</label>
+                        {{ persona_form.height_cm }}
+                    </div>
+                    <div class="col-6 col-sm-3">
+                        <label class="form-label">Uzito (kg)</label>
+                        {{ persona_form.weight_kg }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-card">
+                <h6><i class="bi bi-heart-pulse me-1"></i>Historia ya Afya</h6>
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label">Maelezo ya Afya</label>
+                        {{ persona_form.health_notes }}
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Magonjwa ya Kudumu</label>
+                        {{ persona_form.permanent_diseases }}
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Dawa Unazotumia</label>
+                        {{ persona_form.medications }}
+                    </div>
+                </div>
+            </div>
+
+            <div class="profile-card">
+                <h6><i class="bi bi-activity me-1"></i>Mtindo wa Maisha</h6>
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label">Maelezo ya Maisha</label>
+                        {{ persona_form.lifestyle_notes }}
+                    </div>
+                    <div class="col-sm-4">
+                        <label class="form-label">Masaa ya Usingizi</label>
+                        {{ persona_form.sleep_hours }}
+                    </div>
+                    <div class="col-sm-4">
+                        <label class="form-label">Kiwango cha Msongo</label>
+                        {{ persona_form.stress_level }}
+                    </div>
+                    <div class="col-sm-4">
+                        <label class="form-label">Mazoezi</label>
+                        {{ persona_form.exercise_frequency }}
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Chakula (Optional)</label>
+                        {{ persona_form.diet }}
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Malengo (Optional)</label>
+                        {{ persona_form.goals }}
+                    </div>
+                    <div class="col-12">
+                        <label class="form-label">Afya ya Akili (Optional)</label>
+                        {{ persona_form.mental_health }}
+                    </div>
+                </div>
+                {% if persona_form.errors %}
+                    <div class="alert alert-danger mt-3 small">Angalia makosa kwenye fomu.</div>
+                {% endif %}
+            </div>
+
+            <button type="submit" class="btn btn-primary w-100 rounded-pill fw-bold py-2">
+                <i class="bi bi-stars me-1"></i> Sasisha AI Persona
+            </button>
+        </form>
+    </div>
+
+    <!-- ═══════════════════════════════════════
+         TAB 3: SECURITY
+    ═══════════════════════════════════════ -->
+    <div class="tab-panel {% if active_tab == 'security' %}active{% endif %}">
+
+        <div class="profile-card">
+            <h6><i class="bi bi-key me-1"></i>Badilisha Nenosiri</h6>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="_action" value="change_password">
+                <div class="row g-3">
+                    <div class="col-12">
+                        <label class="form-label">Nenosiri la Zamani</label>
+                        {{ password_form.old_password }}
+                        {% if password_form.old_password.errors %}
+                            <div class="text-danger small">{{ password_form.old_password.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="form-label">Nenosiri Jipya</label>
+                        {{ password_form.new_password1 }}
+                        {% if password_form.new_password1.errors %}
+                            <div class="text-danger small">{{ password_form.new_password1.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                    <div class="col-sm-6">
+                        <label class="form-label">Thibitisha Nenosiri</label>
+                        {{ password_form.new_password2 }}
+                        {% if password_form.new_password2.errors %}
+                            <div class="text-danger small">{{ password_form.new_password2.errors.0 }}</div>
+                        {% endif %}
+                    </div>
+                </div>
+                <button type="submit" class="btn btn-warning w-100 rounded-pill fw-bold py-2 mt-3">
+                    <i class="bi bi-shield-check me-1"></i> Badilisha Nenosiri
+                </button>
+            </form>
+        </div>
+
+        <div class="danger-zone">
+            <div class="d-flex align-items-center gap-2 mb-2">
+                <i class="bi bi-door-open-fill text-danger fs-5"></i>
+                <span class="fw-bold text-danger">Toka kwenye Akaunti</span>
+            </div>
+            <p class="small text-muted mb-3">Bonyeza kitufe hapa chini kutoka kwenye akaunti yako kwenye kifaa hiki.</p>
+            <form method="post" action="{% url 'users:logout' %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-outline-danger w-100 rounded-pill fw-bold">
+                    <i class="bi bi-box-arrow-right me-1"></i> Ondoka (Logout)
+                </button>
+            </form>
+        </div>
+    </div>
+
+</div>
+{% endblock %}

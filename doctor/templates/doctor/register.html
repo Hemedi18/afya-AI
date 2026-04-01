@@ -1,0 +1,92 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="py-4" style="max-width: 920px; margin: 0 auto;">
+    <div class="card-custom p-4 p-lg-5">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
+            <div>
+                <h4 class="fw-bold mb-1">Doctor Registration</h4>
+                <p class="text-muted mb-0">Madaktari wanaweza kujisajili hapa. Account itakuwa pending mpaka admin a-verify.</p>
+            </div>
+            <span class="badge text-bg-warning">Verification required</span>
+        </div>
+
+        <form method="post" enctype="multipart/form-data" class="row g-3">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+            <div class="col-12">
+                <div class="alert alert-danger rounded-4">{{ form.non_field_errors }}</div>
+            </div>
+            {% endif %}
+
+            <div class="col-md-6">
+                <label class="form-label">Username</label>
+                {{ form.username }}
+                <div class="small text-danger">{{ form.username.errors }}</div>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Email</label>
+                {{ form.email }}
+                <div class="small text-danger">{{ form.email.errors }}</div>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">First name</label>
+                {{ form.first_name }}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Last name</label>
+                {{ form.last_name }}
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Specialization</label>
+                {{ form.specialization }}
+                <div class="small text-danger">{{ form.specialization.errors }}</div>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Gender</label>
+                {{ form.gender }}
+                <div class="small text-danger">{{ form.gender.errors }}</div>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Hospital</label>
+                {{ form.hospital_name }}
+            </div>
+            <div class="col-12">
+                <label class="form-label">Bio</label>
+                {{ form.bio }}
+                <div class="small text-danger">{{ form.bio.errors }}</div>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">License number</label>
+                {{ form.license_number }}
+                <div class="small text-danger">{{ form.license_number.errors }}</div>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Issuing body</label>
+                {{ form.issuing_body }}
+                <div class="small text-danger">{{ form.issuing_body.errors }}</div>
+            </div>
+            <div class="col-12">
+                <label class="form-label">Verification document</label>
+                {{ form.verification_document }}
+                <div class="small text-danger">{{ form.verification_document.errors }}</div>
+                <div class="small text-muted mt-1">Pakia medical license, work permit, au document ya kuthibitisha taaluma yako.</div>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Password</label>
+                {{ form.password1 }}
+                <div class="small text-danger">{{ form.password1.errors }}</div>
+            </div>
+            <div class="col-md-6">
+                <label class="form-label">Confirm password</label>
+                {{ form.password2 }}
+                <div class="small text-danger">{{ form.password2.errors }}</div>
+            </div>
+            <div class="col-12 d-grid d-md-flex gap-2 pt-2">
+                <button type="submit" class="btn btn-danger rounded-pill px-4">Submit Registration</button>
+                <a href="{% url 'users:login' %}" class="btn btn-outline-secondary rounded-pill px-4">Back to login</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

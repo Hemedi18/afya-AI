@@ -1,0 +1,78 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="py-4">
+    <div class="card-custom p-4 mb-3">
+        <h4 class="fw-bold mb-1">AI Reports & Summary</h4>
+        <p class="text-muted small mb-0">Grafu rahisi kuelewa, summary ya maendeleo, na share progress yako.</p>
+    </div>
+
+    <div class="card-custom p-4 mb-3">
+        <h6 class="fw-bold mb-2">Muhtasari wa AI</h6>
+        <p class="mb-0">{{ report_summary }}</p>
+    </div>
+
+    <div class="card-custom p-4 mb-3">
+        <h6 class="fw-bold mb-3">Grafu ya Maendeleo</h6>
+        <div style="height:280px;"><canvas id="reportsChart"></canvas></div>
+    </div>
+
+    <div class="card-custom p-4">
+        <h6 class="fw-bold mb-2">Share Progress</h6>
+        <p class="small text-muted">Unaweza kushare summary hii kwenye social media au kumtumia mtu husika.</p>
+        <div class="d-flex flex-wrap gap-2">
+            <button class="btn btn-danger rounded-pill" onclick="shareProgress()">Share Summary</button>
+            <a href="{% url 'chats:feed' %}" class="btn btn-outline-secondary rounded-pill">Discuss in Community</a>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+    const reportData = {{ report_chart_json|safe }};
+
+    const chartEl = document.getElementById('reportsChart');
+    if (chartEl) {
+        new Chart(chartEl, {
+            type: 'bar',
+            data: {
+                labels: reportData.labels,
+                datasets: [
+                    {
+                        label: 'Flow',
+                        data: reportData.flow,
+                        backgroundColor: '#c9184a',
+                        borderRadius: 10,
+                    },
+                    {
+                        label: 'Dalili Count',
+                        data: reportData.symptoms,
+                        backgroundColor: '#ff85a1',
+                        borderRadius: 10,
+                    },
+                ]
+            },
+            options: {
+                maintainAspectRatio: false,
+                scales: {
+                    y: { beginAtZero: true },
+                    x: { grid: { display: false } },
+                }
+            }
+        });
+    }
+
+    function shareProgress() {
+        const text = "{{ report_summary|escapejs }}";
+        if (navigator.share) {
+            navigator.share({
+                title: 'Menstrual AI Progress',
+                text: text,
+            });
+        } else {
+            navigator.clipboard.writeText(text);
+            alert('Summary imenakiliwa kwenye clipboard.');
+        }
+    }
+</script>
+{% endblock %}

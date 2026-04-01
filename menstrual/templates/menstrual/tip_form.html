@@ -1,0 +1,57 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="py-4" style="max-width: 860px; margin: 0 auto;">
+    <div class="card-custom p-4 p-lg-5">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
+            <div>
+                <h4 class="fw-bold mb-1">Ongeza Daily Tip</h4>
+                <p class="text-muted mb-0">Admin na verified doctor wanaweza kuweka tip mpya itakayoonekana kwenye dashboard.</p>
+            </div>
+            <a href="{% url 'menstrual:dashboard' %}" class="btn btn-outline-secondary rounded-pill">Rudi Dashboard</a>
+        </div>
+
+        <form method="post" class="row g-3">
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+            <div class="col-12">
+                <div class="alert alert-danger rounded-4">{{ form.non_field_errors }}</div>
+            </div>
+            {% endif %}
+
+            <div class="col-12">
+                <label class="form-label fw-semibold" for="{{ form.title.id_for_label }}">Title</label>
+                {{ form.title }}
+                {% if form.title.errors %}<div class="text-danger small mt-1">{{ form.title.errors|striptags }}</div>{% endif %}
+            </div>
+
+            <div class="col-12">
+                <label class="form-label fw-semibold" for="{{ form.content.id_for_label }}">Content</label>
+                {{ form.content }}
+                {% if form.content.errors %}<div class="text-danger small mt-1">{{ form.content.errors|striptags }}</div>{% endif %}
+            </div>
+
+            <div class="col-md-8">
+                <label class="form-label fw-semibold" for="{{ form.url.id_for_label }}">Source URL</label>
+                {{ form.url }}
+                {% if form.url.errors %}<div class="text-danger small mt-1">{{ form.url.errors|striptags }}</div>{% endif %}
+            </div>
+
+            {% if is_admin_user %}
+            <div class="col-md-4">
+                <label class="form-label fw-semibold" for="{{ form.source.id_for_label }}">Source type</label>
+                {{ form.source }}
+                {% if form.source.errors %}<div class="text-danger small mt-1">{{ form.source.errors|striptags }}</div>{% endif %}
+            </div>
+            {% else %}
+            {{ form.source }}
+            {% endif %}
+
+            <div class="col-12 d-flex gap-2 flex-wrap pt-2">
+                <button type="submit" class="btn btn-danger rounded-pill px-4">Save tip</button>
+                <a href="{% url 'menstrual:dashboard' %}" class="btn btn-outline-secondary rounded-pill px-4">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,204 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+.profile-shell { padding: .75rem 0 5.5rem; }
+
+.profile-hero {
+    background: linear-gradient(135deg,
+        color-mix(in srgb, var(--primary) 18%, var(--card-bg)),
+        color-mix(in srgb, var(--secondary) 10%, var(--card-bg)));
+    border: 1px solid var(--line-soft);
+    border-radius: 22px;
+    padding: 1.5rem 1.4rem 1.2rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 8px 26px rgba(0,0,0,.08);
+    position: relative; overflow: hidden;
+}
+.profile-hero::before {
+    content: '';
+    position: absolute; top: -50px; right: -50px;
+    width: 200px; height: 200px; border-radius: 50%;
+    background: radial-gradient(circle, color-mix(in srgb, var(--primary) 18%, transparent), transparent 70%);
+    pointer-events: none;
+}
+.profile-avatar-wrap { position: relative; margin-bottom: 1rem; }
+.profile-avatar {
+    width: 78px; height: 78px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: #fff; font-weight: 800; font-size: 1.9rem;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 8px 22px color-mix(in srgb, var(--primary) 40%, transparent);
+    border: 3px solid var(--card-bg);
+}
+.profile-online-ring {
+    position: absolute; bottom: 3px; right: 3px;
+    width: 17px; height: 17px; border-radius: 50%;
+    background: #22c55e; border: 3px solid var(--card-bg);
+    box-shadow: 0 0 8px #22c55e88;
+}
+.profile-name { font-size: 1.2rem; font-weight: 800; color: var(--text-main); margin-bottom: .1rem; }
+.profile-handle { font-size: .84rem; color: var(--text-muted); margin-bottom: .65rem; }
+
+.profile-stats {
+    display: flex; gap: .75rem; flex-wrap: wrap;
+    margin-top: .75rem;
+}
+.profile-stat {
+    flex: 1; min-width: 80px;
+    background: color-mix(in srgb, var(--card-bg) 72%, transparent);
+    border: 1px solid var(--line-soft);
+    border-radius: 16px;
+    padding: .65rem .75rem;
+    text-align: center;
+}
+.profile-stat-num { font-size: 1.3rem; font-weight: 800; color: var(--primary); line-height: 1; }
+.profile-stat-lbl { font-size: .72rem; color: var(--text-muted); margin-top: .2rem; }
+
+.profile-actions { display: flex; gap: .5rem; flex-wrap: wrap; margin-top: 1rem; }
+.action-btn {
+    display: inline-flex; align-items: center; gap: .35rem;
+    padding: .46rem .95rem; border-radius: 999px;
+    font-size: .82rem; font-weight: 700;
+    border: 1.5px solid var(--line-soft);
+    background: color-mix(in srgb, var(--card-bg) 92%, var(--app-bg));
+    color: var(--text-main); cursor: pointer; transition: all .18s;
+    text-decoration: none;
+}
+.action-btn:hover { border-color: var(--primary); color: var(--primary); }
+
+.post-card {
+    background: var(--card-bg);
+    border: 1px solid var(--line-soft);
+    border-radius: 20px;
+    padding: 1rem 1.1rem;
+    margin-bottom: .9rem;
+    box-shadow: 0 5px 18px rgba(0,0,0,.06);
+    transition: box-shadow .2s;
+}
+.post-card:hover { box-shadow: 0 10px 28px rgba(0,0,0,.10); }
+.post-meta-row { display: flex; align-items: center; justify-content: space-between; margin-bottom: .65rem; gap: .5rem; }
+.post-group-tag {
+    display: inline-block; font-size: .72rem; font-weight: 700;
+    padding: .15rem .55rem; border-radius: 999px;
+    background: color-mix(in srgb, var(--primary) 12%, var(--card-bg));
+    color: var(--primary);
+}
+.post-body { font-size: .92rem; line-height: 1.65; color: var(--text-main); }
+.media-frame {
+    width: 100%;
+    margin-top: .65rem;
+    overflow: hidden;
+    border: 1px solid var(--line-soft);
+    background: color-mix(in srgb, var(--card-bg) 86%, var(--app-bg));
+}
+.media-frame.ratio-auto { max-height: 360px; }
+.media-frame.ratio-square { aspect-ratio: 1 / 1; }
+.media-frame.ratio-portrait { aspect-ratio: 4 / 5; }
+.media-frame.ratio-story { aspect-ratio: 9 / 16; }
+.media-frame.ratio-landscape { aspect-ratio: 16 / 9; }
+.media-frame.shape-rounded { border-radius: 14px; }
+.media-frame.shape-square { border-radius: 0; }
+.media-frame.shape-circle { border-radius: 24px; }
+.post-media {
+    width: 100%;
+    height: 100%;
+    display: block;
+    object-fit: cover;
+    object-position: var(--focus-x, 50%) var(--focus-y, 50%);
+}
+
+@media (max-width: 767px) {
+    .profile-hero { padding: 1.1rem; }
+    .profile-stats { gap: .5rem; }
+    .profile-avatar { width: 62px; height: 62px; font-size: 1.4rem; }
+}
+</style>
+
+<div class="profile-shell">
+    <div class="row justify-content-center">
+        <div class="col-lg-7">
+
+            <!-- Profile Hero -->
+            <div class="profile-hero">
+                <div class="d-flex align-items-start gap-3">
+                    <div class="profile-avatar-wrap">
+                        <div class="profile-avatar">{{ target_user.username|first|upper }}</div>
+                        <div class="profile-online-ring"></div>
+                    </div>
+                    <div class="flex-grow-1">
+                        <div class="profile-name">{{ target_user.get_full_name|default:target_user.username }}</div>
+                        <div class="profile-handle">@{{ target_user.username }}</div>
+                        <div class="profile-actions">
+                            <a href="{% url 'chats:feed' %}" class="action-btn"><i class="bi bi-arrow-left"></i> Jamii</a>
+                            {% if target_user != request.user %}
+                            <a href="{% url 'chats:start_private_chat' target_user.id %}" class="action-btn"><i class="bi bi-chat-dots-fill"></i> Private Chat</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+                <div class="profile-stats">
+                    <div class="profile-stat">
+                        <div class="profile-stat-num">{{ total_posts }}</div>
+                        <div class="profile-stat-lbl">Posts</div>
+                    </div>
+                    <div class="profile-stat">
+                        <div class="profile-stat-num">{{ total_comments }}</div>
+                        <div class="profile-stat-lbl">Comments</div>
+                    </div>
+                    <div class="profile-stat">
+                        <div class="profile-stat-num">{{ total_likes_received }}</div>
+                        <div class="profile-stat-lbl">Likes got</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Posts -->
+            <div class="fw-bold mb-2" style="font-size:.92rem; color:var(--text-muted);">
+                <i class="bi bi-grid-3x3-gap"></i> Community Posts
+            </div>
+
+            {% for post in posts %}
+            <div class="post-card">
+                <div class="post-meta-row">
+                    <div class="d-flex align-items-center gap-2">
+                        <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:.78rem;flex-shrink:0;">
+                            {{ target_user.username|first|upper }}
+                        </div>
+                        <div>
+                            <div class="fw-bold" style="font-size:.85rem;">{{ target_user.username }}</div>
+                            <div class="text-muted" style="font-size:.74rem;">{{ post.created_at|timesince }} ago</div>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-2 flex-wrap justify-content-end">
+                        {% if post.groups.all %}
+                            {% for group in post.groups.all %}
+                                <span class="post-group-tag">{{ group.name }}</span>
+                            {% endfor %}
+                        {% elif post.group %}
+                            <span class="post-group-tag">{{ post.group.name }}</span>
+                        {% endif %}
+                        <a href="{% url 'chats:post_detail' post.id %}" class="action-btn" style="font-size:.76rem;padding:.3rem .75rem;"><i class="bi bi-box-arrow-up-right"></i></a>
+                    </div>
+                </div>
+                <div class="post-body">{{ post.content|safe }}</div>
+                {% include 'chats/includes/post_media.html' with post=post %}
+                <div class="d-flex align-items-center gap-2 mt-2" style="font-size:.78rem;color:var(--text-muted);">
+                    <span><i class="bi bi-heart-fill" style="color:#ef4444;"></i> {{ post.likes.count }}</span>
+                    <span><i class="bi bi-chat" style="color:var(--primary);"></i> {{ post.replies.count }}</span>
+                    <button class="action-btn ms-auto" type="button" data-ai-prompt="Explain this health community post in simple Swahili. Summarize it, mention possible health concerns, and say when the user should see a doctor: {{ post.content|striptags|truncatechars:700|escapejs }}">
+                        <i class="bi bi-stars"></i> Explain with AI
+                    </button>
+                </div>
+            </div>
+            {% empty %}
+            <div class="post-card text-center py-4">
+                <i class="bi bi-chat-square-dots fs-2 d-block mb-2" style="color:var(--primary);opacity:.4;"></i>
+                <div class="text-muted small">Hakuna posts za user huyu kwa community yako.</div>
+            </div>
+            {% endfor %}
+
+        </div>
+    </div>
+</div>
+{% endblock %}

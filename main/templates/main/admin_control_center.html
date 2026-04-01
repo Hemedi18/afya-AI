@@ -1,0 +1,67 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="py-4">
+    <div class="card-custom p-4 p-lg-5 mb-4">
+        <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
+            <div>
+                <h4 class="fw-bold mb-1">Admin Control Center</h4>
+                <p class="text-muted mb-0">Control each and every part of the platform from one screen.</p>
+            </div>
+            <div class="d-flex gap-2 flex-wrap">
+                <a href="{% url 'admin:index' %}" class="btn btn-danger rounded-pill">Open Django Admin</a>
+                <a href="{% url 'doctor:approval_dashboard' %}" class="btn btn-outline-danger rounded-pill">Doctor approvals</a>
+                <a href="{% url 'chats:moderator_dashboard' %}" class="btn btn-outline-secondary rounded-pill">Moderation</a>
+                <a href="{% url 'doctor:register' %}" class="btn btn-outline-secondary rounded-pill">Doctor Registration Page</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-3 mb-4">
+        <div class="col-md-6 col-xl-4"><div class="card-custom p-4"><div class="text-muted small">Users</div><div class="display-6 fw-bold">{{ stats.users }}</div></div></div>
+        <div class="col-md-6 col-xl-4"><div class="card-custom p-4"><div class="text-muted small">Doctors</div><div class="display-6 fw-bold">{{ stats.doctors_total }}</div><div class="small text-success">Verified: {{ stats.doctors_verified }}</div></div></div>
+        <div class="col-md-6 col-xl-4"><div class="card-custom p-4"><div class="text-muted small">Daily Logs</div><div class="display-6 fw-bold">{{ stats.daily_logs }}</div></div></div>
+        <div class="col-md-6 col-xl-4"><div class="card-custom p-4"><div class="text-muted small">Community Posts</div><div class="display-6 fw-bold">{{ stats.community_posts }}</div></div></div>
+        <div class="col-md-6 col-xl-4"><div class="card-custom p-4"><div class="text-muted small">Pending Reminders</div><div class="display-6 fw-bold">{{ stats.pending_reminders }}</div></div></div>
+    </div>
+
+    <div class="row g-4">
+        <div class="col-lg-6">
+            <div class="card-custom p-4 h-100">
+                <h6 class="fw-bold mb-3">Latest Community Posts</h6>
+                {% for post in latest_posts %}
+                <div class="border rounded-4 p-3 mb-2">
+                    <div class="d-flex justify-content-between">
+                        <strong>{% if post.is_anonymous %}Anonymous sister{% else %}{{ post.user.username }}{% endif %}</strong>
+                        <small class="text-muted">{{ post.created_at|timesince }} ago</small>
+                    </div>
+                    <div class="small mt-1">{{ post.content|truncatechars:100 }}</div>
+                </div>
+                {% empty %}
+                <div class="text-muted">Hakuna posts bado.</div>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="card-custom p-4 h-100">
+                <h6 class="fw-bold mb-3">Latest Doctor Applications</h6>
+                {% for doctor in latest_doctors %}
+                <div class="border rounded-4 p-3 mb-2 d-flex justify-content-between align-items-center">
+                    <div>
+                        <div class="fw-semibold">{{ doctor.user.get_full_name|default:doctor.user.username }}</div>
+                        <div class="small text-muted">{{ doctor.specialization }} • {{ doctor.hospital_name|default:'N/A' }}</div>
+                    </div>
+                    {% if doctor.verified %}
+                    <span class="badge text-bg-success">Verified</span>
+                    {% else %}
+                    <span class="badge text-bg-warning">Pending</span>
+                    {% endif %}
+                </div>
+                {% empty %}
+                <div class="text-muted">Hakuna doctor applications bado.</div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

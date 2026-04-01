@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Scanned Health Card</title>
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+</head>
+<body class="bg-light">
+  <main class="container py-4" style="max-width:780px;">
+    <div class="card shadow-sm border-0 rounded-4">
+      <div class="card-body p-4">
+        <h4 class="fw-bold mb-2">Scanned afya-AI Card</h4>
+        <p class="text-muted mb-3">Owner: {{ owner.username }} • Generated {{ generated_at|date:"d M Y H:i" }}</p>
+
+        <div class="table-responsive mb-3">
+          <table class="table table-sm align-middle">
+            <tbody>
+            {% for key, value in payload.items %}
+              <tr>
+                <th style="width:240px;">{{ key|title|cut:"_" }}</th>
+                <td>{{ value }}</td>
+              </tr>
+            {% endfor %}
+            </tbody>
+          </table>
+        </div>
+
+        <details>
+          <summary class="text-primary">View raw JSON</summary>
+          <pre class="bg-dark text-white p-3 rounded-3 mt-2 small">{{ payload_pretty }}</pre>
+        </details>
+      </div>
+    </div>
+  </main>
+</body>
+</html>

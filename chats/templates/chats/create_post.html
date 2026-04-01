@@ -1,0 +1,651 @@
+{% extends 'base.html' %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.css">
+{% endblock %}
+
+{% block content %}
+<style>
+.create-post-shell { padding: .85rem 0 5.5rem; }
+.create-post-card {
+    background: var(--card-bg);
+    border: 1px solid var(--line-soft);
+    border-radius: 22px;
+    padding: 1.15rem;
+    box-shadow: 0 10px 28px rgba(0,0,0,.07);
+}
+.create-post-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+.create-post-title { font-size: 1.1rem; font-weight: 800; color: var(--text-main); }
+.create-post-sub { font-size: .84rem; color: var(--text-muted); }
+.form-note {
+    font-size: .76rem;
+    color: var(--text-muted);
+}
+.toolbar-wrap {
+    border: 1px solid var(--line-soft);
+    border-radius: 18px;
+    overflow: hidden;
+    margin-bottom: 1rem;
+    background: color-mix(in srgb, var(--card-bg) 96%, transparent);
+}
+.toolbar-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .45rem;
+    padding: .7rem;
+    border-bottom: 1px solid var(--line-soft);
+    background: color-mix(in srgb, var(--primary) 4%, var(--card-bg));
+}
+.tool-btn,
+.tool-select,
+.tool-color {
+    border: 1px solid var(--line-soft);
+    background: var(--card-bg);
+    color: var(--text-main);
+    border-radius: 10px;
+    min-height: 38px;
+}
+.tool-btn {
+    min-width: 38px;
+    padding: 0 .65rem;
+    font-size: .88rem;
+    font-weight: 700;
+}
+.tool-select { padding: 0 .5rem; }
+.tool-color { width: 42px; padding: .2rem; }
+.editor-surface {
+    min-height: 320px;
+    padding: 1rem;
+    outline: none;
+    color: var(--text-main);
+    line-height: 1.65;
+}
+.editor-surface:empty::before {
+    content: attr(data-placeholder);
+    color: var(--text-muted);
+}
+.editor-surface a { color: var(--primary); }
+.editor-surface blockquote {
+    border-left: 4px solid var(--primary);
+    margin: .8rem 0;
+    padding: .4rem 0 .4rem .85rem;
+    color: var(--text-muted);
+}
+.post-options-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: .75rem;
+    margin-bottom: 1rem;
+}
+.option-card {
+    border: 1px solid var(--line-soft);
+    border-radius: 16px;
+    padding: .85rem .95rem;
+    background: color-mix(in srgb, var(--card-bg) 92%, transparent);
+}
+.multi-picker {
+    margin-top: .6rem;
+    border: 1px solid var(--line-soft);
+    border-radius: 14px;
+    background: color-mix(in srgb, var(--card-bg) 88%, var(--app-bg));
+    overflow: hidden;
+}
+.multi-picker summary {
+    list-style: none;
+    cursor: pointer;
+    padding: .65rem .8rem;
+    font-size: .82rem;
+    font-weight: 700;
+    color: var(--text-main);
+}
+.multi-picker summary::-webkit-details-marker { display: none; }
+.multi-picker-grid {
+    padding: 0 .8rem .8rem;
+    display: grid;
+    gap: .55rem;
+}
+.multi-option {
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    padding: .58rem .7rem;
+    border: 1px solid var(--line-soft);
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--card-bg) 92%, transparent);
+}
+.multi-option input { margin: 0; }
+.multi-option-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    flex-shrink: 0;
+}
+.multi-option-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.multi-option-name { font-size: .82rem; font-weight: 700; color: var(--text-main); }
+.multi-option-meta { font-size: .72rem; color: var(--text-muted); }
+.clarify-box {
+    border: 1.5px dashed var(--line-soft);
+    border-radius: 16px;
+    padding: .9rem;
+    background: color-mix(in srgb, var(--primary) 4%, var(--card-bg));
+}
+.doctor-picker {
+    margin-top: .7rem;
+    border: 1px solid var(--line-soft);
+    border-radius: 14px;
+    background: color-mix(in srgb, var(--card-bg) 88%, var(--app-bg));
+    overflow: hidden;
+}
+.doctor-picker summary {
+    list-style: none;
+    cursor: pointer;
+    padding: .65rem .8rem;
+    font-size: .82rem;
+    font-weight: 700;
+    color: var(--text-main);
+}
+.doctor-picker summary::-webkit-details-marker { display: none; }
+.doctor-picker-grid {
+    padding: 0 .8rem .8rem;
+    display: grid;
+    gap: .55rem;
+}
+.doctor-option {
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    padding: .55rem .65rem;
+    border: 1px solid var(--line-soft);
+    border-radius: 12px;
+    cursor: pointer;
+    background: color-mix(in srgb, var(--card-bg) 92%, transparent);
+}
+.doctor-option-avatar {
+    width: 36px;
+    height: 36px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    flex-shrink: 0;
+}
+.doctor-option-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.doctor-option-name { font-size: .82rem; font-weight: 700; color: var(--text-main); }
+.doctor-option-spec { font-size: .72rem; color: var(--text-muted); }
+.word-meter {
+    display: flex;
+    justify-content: space-between;
+    gap: .75rem;
+    font-size: .76rem;
+    color: var(--text-muted);
+    margin: -.15rem 0 1rem;
+}
+.media-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+    gap: 1rem;
+    margin-bottom: 1rem;
+}
+.media-card {
+    border: 1px solid var(--line-soft);
+    border-radius: 18px;
+    padding: .9rem;
+    background: color-mix(in srgb, var(--card-bg) 94%, transparent);
+}
+.media-preview-shell {
+    position: relative;
+    border: 1px dashed var(--line-soft);
+    border-radius: 20px;
+    min-height: 280px;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: color-mix(in srgb, var(--card-bg) 86%, var(--app-bg));
+}
+.media-preview-shell.ratio-square { aspect-ratio: 1 / 1; min-height: 0; }
+.media-preview-shell.ratio-portrait { aspect-ratio: 4 / 5; min-height: 0; }
+.media-preview-shell.ratio-story { aspect-ratio: 9 / 16; min-height: 0; }
+.media-preview-shell.ratio-landscape { aspect-ratio: 16 / 9; min-height: 0; }
+.media-preview-shell.shape-square { border-radius: 16px; }
+.media-preview-shell.shape-rounded { border-radius: 24px; }
+.media-preview-shell.shape-circle { border-radius: 50%; }
+.media-preview-shell img,
+.media-preview-shell video {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.media-empty {
+    font-size: .82rem;
+    color: var(--text-muted);
+    text-align: center;
+    padding: 1rem;
+}
+.media-controls-grid {
+    display: grid;
+    gap: .8rem;
+    margin-top: .85rem;
+}
+.media-range-label {
+    display: flex;
+    justify-content: space-between;
+    font-size: .75rem;
+    color: var(--text-muted);
+    margin-bottom: .2rem;
+}
+.cropper-container { max-width: 100%; }
+</style>
+
+<div class="create-post-shell">
+    <div class="row justify-content-center">
+        <div class="col-lg-8">
+            <div class="create-post-card">
+                <div class="create-post-head">
+                    <div>
+                        <div class="create-post-title">Create post</div>
+                        <div class="create-post-sub">Andika post mpya kwa jamii ya {{ community_gender_label }}.</div>
+                    </div>
+                    <a href="{% url 'chats:feed_posts' %}" class="btn btn-sm btn-outline-secondary rounded-pill">Back to posts</a>
+                </div>
+
+                <form method="post" action="{% url 'chats:post_create' %}" enctype="multipart/form-data">
+                    {% csrf_token %}
+
+                    <div class="toolbar-wrap">
+                        <div class="toolbar-row">
+                            <button class="tool-btn" type="button" data-editor-cmd="bold"><b>B</b></button>
+                            <button class="tool-btn" type="button" data-editor-cmd="italic"><i>I</i></button>
+                            <button class="tool-btn" type="button" data-editor-cmd="underline"><u>U</u></button>
+                            <button class="tool-btn" type="button" data-editor-cmd="insertUnorderedList">• List</button>
+                            <button class="tool-btn" type="button" data-editor-cmd="insertOrderedList">1. List</button>
+                            <button class="tool-btn" type="button" data-editor-block="blockquote">❝</button>
+                            <button class="tool-btn" type="button" data-editor-link><i class="bi bi-link-45deg"></i></button>
+                            <select class="tool-select" data-editor-font-size>
+                                <option value="3">Font</option>
+                                <option value="1">10px</option>
+                                <option value="2">13px</option>
+                                <option value="3">16px</option>
+                                <option value="4">18px</option>
+                                <option value="5">24px</option>
+                                <option value="6">32px</option>
+                            </select>
+                            <input class="tool-color" type="color" value="#2f6b3f" data-editor-color title="Text color">
+                            <input class="tool-color" type="color" value="#fff6c0" data-editor-bg title="Background color">
+                            <button class="tool-btn" type="button" data-editor-clear>Clear</button>
+                        </div>
+                        <div id="postEditor" class="editor-surface" contenteditable="true" data-placeholder="Andika post yako hapa... unaweza kubold, kubadilisha rangi, kuweka link, headings na list."></div>
+                    </div>
+                    <textarea name="content" id="postContentInput" class="d-none"></textarea>
+                    <div class="word-meter">
+                        <span>Minimum 5 words • Recommended maximum 120 words on homepage before Read more.</span>
+                        <strong id="wordCountLabel">0 words</strong>
+                    </div>
+
+                    <div class="post-options-grid">
+                        <div class="option-card">
+                            <div class="fw-semibold small mb-2">Post scope</div>
+                            <div class="form-check mb-2">
+                                <input class="form-check-input" type="checkbox" name="post_for_all" id="id_post_for_all">
+                                <label class="form-check-label small" for="id_post_for_all">Post for all community, not specific groups</label>
+                            </div>
+                            <details class="multi-picker">
+                                <summary><i class="bi bi-collection"></i> Chagua groups nyingi</summary>
+                                <div class="multi-picker-grid">
+                                    {% for group in groups %}
+                                    <label class="multi-option">
+                                        <input type="checkbox" name="group_ids" value="{{ group.id }}" {% if group.id in selected_group_ids %}checked{% endif %}>
+                                        <span class="multi-option-avatar"><i class="bi bi-people-fill"></i></span>
+                                        <span>
+                                            <span class="multi-option-name">{{ group.name }}</span>
+                                            <span class="multi-option-meta d-block">{{ group.description|default:'Community group'|truncatewords:8 }}</span>
+                                        </span>
+                                    </label>
+                                    {% empty %}
+                                    <div class="form-note">Hakuna groups bado.</div>
+                                    {% endfor %}
+                                </div>
+                            </details>
+                        </div>
+
+                        <div class="option-card d-flex flex-column justify-content-between">
+                            <div>
+                                <div class="fw-semibold small mb-2">Post options</div>
+                                <div class="form-check mb-2">
+                                    <input class="form-check-input" type="checkbox" name="publish_as_status" id="id_publish_as_status">
+                                    <label class="form-check-label small" for="id_publish_as_status">Publish this also as status</label>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" name="is_anonymous" id="id_is_anonymous_create" {% if default_anonymous_mode %}checked{% endif %}>
+                                    <label class="form-check-label small" for="id_is_anonymous_create">Post anonymously</label>
+                                </div>
+                            </div>
+                            <div class="form-note mt-3">Unaweza kuchagua groups nyingi, au ukaweka kwa jamii yote.</div>
+                        </div>
+                    </div>
+
+                    <div class="media-grid">
+                        <div class="media-card">
+                            <label class="form-label fw-semibold small">Upload image</label>
+                            <input type="file" name="image" id="postImageInput" class="form-control mb-2" accept="image/*">
+                            <label class="form-label fw-semibold small">Upload video</label>
+                            <input type="file" name="video" id="postVideoInput" class="form-control" accept="video/*">
+                            <div class="form-note mt-2">Tumia image au video moja. Image inaweza ku-cropiwa kabla ya kutuma.</div>
+                            <input type="hidden" name="cropped_image_data" id="croppedImageData">
+                        </div>
+
+                        <div class="media-card">
+                            <div class="fw-semibold small mb-2">Frame & crop preview</div>
+                            <div id="mediaPreviewShell" class="media-preview-shell ratio-auto shape-rounded">
+                                <div id="mediaEmptyState" class="media-empty">Chagua image au video. Hapa utaona crop/frame exactly jinsi itakavyoonekana kwenye post.</div>
+                                <img id="imageCropTarget" alt="Crop preview" style="display:none;max-width:100%;">
+                                <video id="videoPreviewTarget" style="display:none;" controls muted playsinline></video>
+                            </div>
+                            <div class="media-controls-grid">
+                                <div>
+                                    <label class="form-label fw-semibold small">Aspect ratio</label>
+                                    <select name="media_ratio" id="mediaRatioSelect" class="form-select">
+                                        <option value="auto">Auto</option>
+                                        <option value="square">Square</option>
+                                        <option value="portrait">Portrait 4:5</option>
+                                        <option value="story">Story 9:16</option>
+                                        <option value="landscape">Landscape 16:9</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label class="form-label fw-semibold small">Shape</label>
+                                    <select name="media_shape" id="mediaShapeSelect" class="form-select">
+                                        <option value="rounded">Rounded</option>
+                                        <option value="square">Square</option>
+                                        <option value="circle">Circle</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <div class="media-range-label"><span>Focus left/right</span><span id="focusXValue">50%</span></div>
+                                    <input type="range" min="0" max="100" value="50" name="media_focus_x" id="mediaFocusX" class="form-range">
+                                </div>
+                                <div>
+                                    <div class="media-range-label"><span>Focus top/bottom</span><span id="focusYValue">50%</span></div>
+                                    <input type="range" min="0" max="100" value="50" name="media_focus_y" id="mediaFocusY" class="form-range">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="clarify-box mb-3">
+                        <div class="form-check mb-2">
+                            <input class="form-check-input" type="checkbox" name="request_clarification" id="id_request_clarification_create">
+                            <label class="form-check-label fw-semibold small" for="id_request_clarification_create">Tuma kwa admin/doctor kwa ufafanuzi</label>
+                        </div>
+                        <div class="row g-2">
+                            <div class="col-md-3">
+                                <select name="clarify_target_role" class="form-select form-select-sm">
+                                    <option value="doctor">Doctor</option>
+                                    <option value="admin">Admin</option>
+                                </select>
+                            </div>
+                            <div class="col-md-9">
+                                <input type="text" name="clarify_question" class="form-control form-control-sm" placeholder="Mfano: Naomba afafanue kama dalili hizi ni za kawaida.">
+                            </div>
+                        </div>
+                        <details class="doctor-picker">
+                            <summary><i class="bi bi-person-badge"></i> Chagua doctor wa kujibu</summary>
+                            <div class="doctor-picker-grid">
+                                {% for doctor in available_doctors %}
+                                <label class="doctor-option">
+                                    <input type="radio" name="clarify_doctor_id" value="{{ doctor.id }}">
+                                    <span class="doctor-option-avatar">{% if doctor.community_avatar_url %}<img src="{{ doctor.community_avatar_url }}" alt="Dr. {{ doctor.username }}">{% else %}{{ doctor.community_avatar_initial }}{% endif %}</span>
+                                    <span>
+                                        <span class="doctor-option-name">Dr. {{ doctor.get_full_name|default:doctor.username }}</span>
+                                        <span class="doctor-option-spec d-block">{{ doctor.doctor_profile.specialization }}</span>
+                                    </span>
+                                </label>
+                                {% empty %}
+                                <div class="form-note">Hakuna doctor verified kwa sasa.</div>
+                                {% endfor %}
+                            </div>
+                        </details>
+                    </div>
+
+                    <div class="d-flex gap-2 justify-content-end flex-wrap">
+                        <a href="{% url 'chats:feed_posts' %}" class="btn btn-outline-secondary rounded-pill px-4">Cancel</a>
+                        <button class="btn btn-danger rounded-pill px-4" type="submit">Publish post</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.js"></script>
+<script>
+(() => {
+    const editor = document.getElementById('postEditor');
+    const hiddenInput = document.getElementById('postContentInput');
+    const form = hiddenInput?.closest('form');
+    const allScopeCheckbox = document.getElementById('id_post_for_all');
+    const wordCountLabel = document.getElementById('wordCountLabel');
+    const imageInput = document.getElementById('postImageInput');
+    const videoInput = document.getElementById('postVideoInput');
+    const imageTarget = document.getElementById('imageCropTarget');
+    const videoTarget = document.getElementById('videoPreviewTarget');
+    const previewShell = document.getElementById('mediaPreviewShell');
+    const emptyState = document.getElementById('mediaEmptyState');
+    const croppedImageData = document.getElementById('croppedImageData');
+    const ratioSelect = document.getElementById('mediaRatioSelect');
+    const shapeSelect = document.getElementById('mediaShapeSelect');
+    const focusX = document.getElementById('mediaFocusX');
+    const focusY = document.getElementById('mediaFocusY');
+    const focusXValue = document.getElementById('focusXValue');
+    const focusYValue = document.getElementById('focusYValue');
+    let cropper = null;
+
+    if (!editor || !hiddenInput || !form) return;
+
+    const ratioMap = {
+        auto: NaN,
+        square: 1,
+        portrait: 4 / 5,
+        story: 9 / 16,
+        landscape: 16 / 9,
+    };
+
+    const syncWordCount = () => {
+        const words = editor.innerText.trim().split(/\s+/).filter(Boolean).length;
+        if (wordCountLabel) {
+            wordCountLabel.textContent = `${words} words`;
+            wordCountLabel.style.color = words > 120 ? '#ef4444' : 'var(--text-main)';
+        }
+    };
+
+    const syncEditor = () => {
+        hiddenInput.value = editor.innerHTML.trim();
+        syncWordCount();
+    };
+
+    const applyFramePreview = () => {
+        previewShell.classList.remove('ratio-auto', 'ratio-square', 'ratio-portrait', 'ratio-story', 'ratio-landscape');
+        previewShell.classList.remove('shape-rounded', 'shape-square', 'shape-circle');
+        previewShell.classList.add(`ratio-${ratioSelect.value}`);
+        previewShell.classList.add(`shape-${shapeSelect.value}`);
+        const pos = `${focusX.value}% ${focusY.value}%`;
+        imageTarget.style.objectPosition = pos;
+        videoTarget.style.objectPosition = pos;
+        focusXValue.textContent = `${focusX.value}%`;
+        focusYValue.textContent = `${focusY.value}%`;
+        if (cropper && !Number.isNaN(ratioMap[ratioSelect.value])) {
+            cropper.setAspectRatio(ratioMap[ratioSelect.value]);
+        } else if (cropper) {
+            cropper.setAspectRatio(NaN);
+        }
+    };
+
+    const resetMediaPreview = () => {
+        if (cropper) {
+            cropper.destroy();
+            cropper = null;
+        }
+        imageTarget.style.display = 'none';
+        videoTarget.style.display = 'none';
+        imageTarget.removeAttribute('src');
+        videoTarget.removeAttribute('src');
+        emptyState.style.display = 'block';
+        croppedImageData.value = '';
+    };
+
+    const initCropper = () => {
+        if (cropper) cropper.destroy();
+        cropper = new Cropper(imageTarget, {
+            aspectRatio: ratioMap[ratioSelect.value],
+            viewMode: 1,
+            autoCropArea: 1,
+            background: false,
+            responsive: true,
+            crop() {
+                croppedImageData.value = cropper.getCroppedCanvas({
+                    fillColor: '#fff',
+                }).toDataURL('image/jpeg', 0.92);
+            },
+        });
+    };
+
+    document.querySelectorAll('[data-editor-cmd]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            document.execCommand(btn.dataset.editorCmd, false, null);
+            syncEditor();
+            editor.focus();
+        });
+    });
+
+    document.querySelectorAll('[data-editor-block]').forEach((btn) => {
+        btn.addEventListener('click', () => {
+            document.execCommand('formatBlock', false, btn.dataset.editorBlock);
+            syncEditor();
+            editor.focus();
+        });
+    });
+
+    const fontSize = document.querySelector('[data-editor-font-size]');
+    if (fontSize) {
+        fontSize.addEventListener('change', () => {
+            document.execCommand('fontSize', false, fontSize.value);
+            syncEditor();
+            editor.focus();
+        });
+    }
+
+    const colorInput = document.querySelector('[data-editor-color]');
+    if (colorInput) {
+        colorInput.addEventListener('input', () => {
+            document.execCommand('foreColor', false, colorInput.value);
+            syncEditor();
+        });
+    }
+
+    const bgInput = document.querySelector('[data-editor-bg]');
+    if (bgInput) {
+        bgInput.addEventListener('input', () => {
+            document.execCommand('hiliteColor', false, bgInput.value);
+            syncEditor();
+        });
+    }
+
+    const linkBtn = document.querySelector('[data-editor-link]');
+    if (linkBtn) {
+        linkBtn.addEventListener('click', () => {
+            const url = window.prompt('Weka link', 'https://');
+            if (!url) return;
+            document.execCommand('createLink', false, url);
+            syncEditor();
+        });
+    }
+
+    const clearBtn = document.querySelector('[data-editor-clear]');
+    if (clearBtn) {
+        clearBtn.addEventListener('click', () => {
+            document.execCommand('removeFormat', false, null);
+            syncEditor();
+        });
+    }
+
+    imageInput?.addEventListener('change', () => {
+        const file = imageInput.files?.[0];
+        if (!file) {
+            resetMediaPreview();
+            return;
+        }
+        if (videoInput) videoInput.value = '';
+        const url = URL.createObjectURL(file);
+        emptyState.style.display = 'none';
+        videoTarget.style.display = 'none';
+        imageTarget.src = url;
+        imageTarget.style.display = 'block';
+        imageTarget.onload = () => {
+            initCropper();
+            applyFramePreview();
+        };
+    });
+
+    videoInput?.addEventListener('change', () => {
+        const file = videoInput.files?.[0];
+        if (!file) {
+            resetMediaPreview();
+            return;
+        }
+        if (imageInput) imageInput.value = '';
+        if (cropper) {
+            cropper.destroy();
+            cropper = null;
+        }
+        emptyState.style.display = 'none';
+        imageTarget.style.display = 'none';
+        videoTarget.src = URL.createObjectURL(file);
+        videoTarget.style.display = 'block';
+        croppedImageData.value = '';
+        applyFramePreview();
+    });
+
+    [ratioSelect, shapeSelect, focusX, focusY].forEach((el) => {
+        el?.addEventListener('input', applyFramePreview);
+        el?.addEventListener('change', applyFramePreview);
+    });
+
+    editor.addEventListener('input', syncEditor);
+    form.addEventListener('submit', () => {
+        if (cropper) {
+            croppedImageData.value = cropper.getCroppedCanvas({ fillColor: '#fff' }).toDataURL('image/jpeg', 0.92);
+        }
+        syncEditor();
+    });
+
+    if (allScopeCheckbox) {
+        allScopeCheckbox.addEventListener('change', () => {
+            document.querySelectorAll('input[name="group_ids"]').forEach((checkbox) => {
+                checkbox.disabled = allScopeCheckbox.checked;
+                if (allScopeCheckbox.checked) checkbox.checked = false;
+            });
+        });
+    }
+
+    applyFramePreview();
+    syncWordCount();
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+
+{% block title %}Ingia - ZanzHub AI Health{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center">
+    <div class="col-md-6">
+        <div class="card card-custom p-4 bg-white">
+            <h3 class="fw-bold text-center mb-4">Ingia kwenye ZanzHub AI Health</h3>
+            <form method="post" action="{% url 'users:login' %}">
+                {% csrf_token %}
+                <div class="mb-3">
+                    <label for="id_username" class="form-label">Jina la Mtumiaji</label>
+                    <input type="text" name="username" class="form-control" id="id_username" required>
+                </div>
+                <div class="mb-3">
+                    <label for="id_password" class="form-label">Nenosiri</label>
+                    <input type="password" name="password" class="form-control" id="id_password" required>
+                </div>
+                <button type="submit" class="btn btn-danger w-100 rounded-pill">Ingia</button>
+            </form>
+            <p class="text-center mt-3">Huna akaunti? <a href="{% url 'users:register' %}">Jisajili hapa</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

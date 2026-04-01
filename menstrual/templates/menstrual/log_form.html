@@ -1,0 +1,384 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_head %}
+<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+{% endblock %}
+
+{% block content %}
+<style>
+    .log-shell {
+        max-width: 1080px;
+        margin: 0 auto;
+    }
+
+    .hero-panel,
+    .section-card {
+        background: var(--card-bg);
+        border-radius: 28px;
+        box-shadow: 0 14px 40px rgba(201, 24, 74, 0.08);
+        border: 1px solid rgba(201, 24, 74, 0.08);
+    }
+
+    .hero-panel {
+        background: linear-gradient(135deg, rgba(255,255,255,0.96), rgba(255, 240, 243, 0.96));
+    }
+
+    .section-title {
+        font-size: .82rem;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: .08em;
+        color: #c9184a;
+        margin-bottom: .35rem;
+    }
+
+    .field-note {
+        color: var(--text-muted);
+        font-size: .92rem;
+        margin-bottom: 1rem;
+    }
+
+    .error-box {
+        background: #fff1f2;
+        color: #9f1239;
+        border: 1px solid #fecdd3;
+        border-radius: 18px;
+        padding: 1rem 1.1rem;
+    }
+
+    .flatpickr-input,
+    textarea.form-control {
+        background: rgba(248, 250, 252, .96) !important;
+        border: 1px solid rgba(203, 213, 225, .85) !important;
+        border-radius: 18px !important;
+        padding: 1rem 1rem !important;
+        box-shadow: none !important;
+    }
+
+    .flow-grid {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 12px;
+    }
+
+    .flow-choice input,
+    .choice-chip input {
+        display: none;
+    }
+
+    .flow-choice {
+        position: relative;
+    }
+
+    .flow-card {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        min-height: 112px;
+        border-radius: 20px;
+        background: linear-gradient(180deg, #fff, #fff8fa);
+        border: 1px solid rgba(201, 24, 74, 0.12);
+        cursor: pointer;
+        transition: all .25s ease;
+        color: #9ca3af;
+    }
+
+    .flow-card i {
+        font-size: 2rem;
+        margin-bottom: .45rem;
+    }
+
+    .flow-choice input:checked + .flow-card {
+        color: #c9184a;
+        transform: translateY(-4px);
+        border-color: rgba(201, 24, 74, .45);
+        box-shadow: 0 14px 30px rgba(201, 24, 74, .16);
+        background: linear-gradient(180deg, #fff0f4, #fff);
+    }
+
+    .chip-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+        gap: 12px;
+    }
+
+    .choice-chip {
+        position: relative;
+    }
+
+    .chip-label {
+        display: flex;
+        align-items: center;
+        gap: .7rem;
+        min-height: 60px;
+        padding: .95rem 1rem;
+        border-radius: 18px;
+        border: 1px solid rgba(203, 213, 225, .8);
+        background: rgba(255,255,255,.9);
+        cursor: pointer;
+        transition: all .22s ease;
+        font-weight: 600;
+        color: var(--text-main);
+    }
+
+    .chip-text {
+        display: flex;
+        flex-direction: column;
+        line-height: 1.2;
+    }
+
+    .chip-text small {
+        color: var(--text-muted);
+        font-weight: 500;
+        margin-top: .22rem;
+    }
+
+    .chip-label i {
+        font-size: 1.2rem;
+        color: #c9184a;
+    }
+
+    .choice-chip input:checked + .chip-label {
+        background: #fff1f5;
+        border-color: rgba(201, 24, 74, .4);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 24px rgba(201, 24, 74, .12);
+    }
+
+    .submit-btn {
+        min-height: 58px;
+        border-radius: 999px;
+        font-weight: 800;
+        font-size: 1rem;
+        box-shadow: 0 12px 32px rgba(201, 24, 74, .25);
+    }
+
+    @media (max-width: 767px) {
+        .flow-grid {
+            grid-template-columns: repeat(1, minmax(0, 1fr));
+        }
+        .chip-grid {
+            grid-template-columns: repeat(1, minmax(0, 1fr));
+        }
+    }
+
+    html[data-theme='dark'] .hero-panel {
+        background: linear-gradient(135deg, rgba(17,24,39,.96), rgba(31,41,55,.96));
+    }
+
+    html[data-theme='dark'] .flow-card,
+    html[data-theme='dark'] .chip-label {
+        background: rgba(17,24,39,.9);
+        border-color: rgba(255,255,255,.12);
+        color: #e5e7eb;
+    }
+
+    html[data-theme='dark'] .flow-choice input:checked + .flow-card,
+    html[data-theme='dark'] .choice-chip input:checked + .chip-label {
+        background: rgba(201, 24, 74, .14);
+    }
+</style>
+
+<div class="container pb-5 pt-3">
+    <div class="log-shell">
+    <div class="d-flex align-items-center mb-4">
+        <a href="{% url 'menstrual:dashboard' %}" 
+           class="btn btn-light shadow-sm me-3 d-flex align-items-center justify-content-center" 
+           style="width: 48px; height: 48px; border-radius: 50%;">
+            <i class="bi bi-arrow-left fs-5"></i>
+        </a>
+        <h4 class="fw-bold mb-0">
+            {% if object %}Hariri Log{% else %}Weka Log Mpya{% endif %}
+        </h4>
+    </div>
+
+    <div class="hero-panel p-4 p-lg-5 mb-4">
+        <div class="row g-3 align-items-center">
+            <div class="col-lg-8">
+                <div class="section-title">Daily menstrual entry</div>
+                <h5 class="fw-bold mb-2">Ingiza taarifa za leo kwa urahisi</h5>
+                <p class="field-note mb-0">Baada ya kuhifadhi utaelekezwa moja kwa moja kwenye dashboard uone data zako, AI insight, na maendeleo kwa grafu.</p>
+            </div>
+            <div class="col-lg-4 text-lg-end">
+                <span class="badge rounded-pill text-bg-light border px-3 py-2">Mobile first</span>
+                <span class="badge rounded-pill text-bg-light border px-3 py-2">AI ready</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="section-card p-4 p-md-5">
+
+        <form method="post" id="logForm">
+            {% csrf_token %}
+
+            {% if form.non_field_errors %}
+            <div class="error-box mb-4">
+                {{ form.non_field_errors }}
+            </div>
+            {% endif %}
+
+            {% if form.errors %}
+            <div class="error-box mb-4">
+                <div class="fw-bold mb-2">Tafadhali rekebisha sehemu zifuatazo:</div>
+                <ul class="mb-0 ps-3 small">
+                    {% for field in form %}
+                        {% for error in field.errors %}
+                        <li>{{ field.label }}: {{ error }}</li>
+                        {% endfor %}
+                    {% endfor %}
+                </ul>
+            </div>
+            {% endif %}
+
+            <div class="mb-4">
+                <div class="section-title">Tarehe</div>
+                <p class="field-note">Chagua siku unayotaka kuweka rekodi.</p>
+                <div class="calendar-wrapper">
+                    {{ form.date }}
+                </div>
+                {% if form.date.errors %}
+                    <div class="text-danger small mt-1">{{ form.date.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="mb-4">
+                <div class="section-title">Flow intensity</div>
+                <p class="field-note">Chagua kiwango cha damu kutoka 1 mpaka 5.</p>
+                <div class="flow-grid">
+                    {% for value, label in form.flow_intensity.field.choices %}
+                    <div class="flow-choice">
+                        <input type="radio"
+                               name="flow_intensity"
+                               value="{{ value }}"
+                               id="id_flow_intensity_{{ forloop.counter }}"
+                               {% if form.flow_intensity.value|stringformat:'s' == value|stringformat:'s' %}checked{% endif %}>
+                        <label for="id_flow_intensity_{{ forloop.counter }}" class="flow-card">
+                            <i class="bi bi-droplet-fill"></i>
+                            <div class="fw-bold">{{ value }}/5</div>
+                            <small class="text-muted">
+                                {% if value == '1' %}Very light{% elif value == '2' %}Light{% elif value == '3' %}Normal{% elif value == '4' %}Heavy{% else %}Very heavy{% endif %}
+                            </small>
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+                {% if form.flow_intensity.errors %}
+                    <div class="text-danger small mt-2">{{ form.flow_intensity.errors }}</div>
+                {% endif %}
+            </div>
+
+            <div class="mb-4">
+                <div class="section-title">Dalili za mwili</div>
+                <p class="field-note">Chagua dalili zote zinazokuhusu leo.</p>
+                <div class="chip-grid">
+                    {% for value, label in form.physical_symptoms.field.choices %}
+                    <div class="choice-chip">
+                        <input type="checkbox" name="physical_symptoms" value="{{ value }}"
+                               id="id_physical_symptoms_{{ forloop.counter }}"
+                               {% if value in form.physical_symptoms.value %}checked{% endif %}>
+                        <label for="id_physical_symptoms_{{ forloop.counter }}" class="chip-label">
+                            <i class="bi {% if 'Cramps' in label %}bi-lightning-charge-fill{% elif 'Headache' in label %}bi-headset-vr{% elif 'Bloating' in label %}bi-wind{% else %}bi-heart-pulse-fill{% endif %}"></i>
+                            <span class="chip-text">
+                                <strong>{{ value }}</strong>
+                                <small>{{ label }}</small>
+                            </span>
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <div class="section-title">Hisia za leo</div>
+                <p class="field-note">Tambua hali ya hisia ili AI iweze kutoa ushauri sahihi zaidi.</p>
+                <div class="chip-grid">
+                    {% for value, label in form.emotional_changes.field.choices %}
+                    <div class="choice-chip">
+                        <input type="checkbox" name="emotional_changes" value="{{ value }}"
+                               id="id_emotional_changes_{{ forloop.counter }}"
+                               {% if value in form.emotional_changes.value %}checked{% endif %}>
+                        <label for="id_emotional_changes_{{ forloop.counter }}" class="chip-label">
+                            <i class="bi bi-emoji-smile"></i>
+                            <span class="chip-text">
+                                <strong>{{ value }}</strong>
+                                <small>{{ label }}</small>
+                            </span>
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <div class="section-title">Usingizi na uchovu</div>
+                <p class="field-note">Hii itasaidia AI kutambua patterns za mwili wako.</p>
+                <div class="chip-grid">
+                    {% for value, label in form.sleep_patterns.field.choices %}
+                    <div class="choice-chip">
+                        <input type="checkbox" name="sleep_patterns" value="{{ value }}"
+                               id="id_sleep_patterns_{{ forloop.counter }}"
+                               {% if value in form.sleep_patterns.value %}checked{% endif %}>
+                        <label for="id_sleep_patterns_{{ forloop.counter }}" class="chip-label">
+                            <i class="bi bi-moon-stars-fill"></i>
+                            <span class="chip-text">
+                                <strong>{{ value }}</strong>
+                                <small>{{ label }}</small>
+                            </span>
+                        </label>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+
+            <div class="mb-4">
+                <div class="section-title">Maelezo ya ziada</div>
+                <p class="field-note">Andika kitu chochote cha muhimu kuhusu leo.</p>
+                {{ form.flow_notes }}
+            </div>
+
+            <div class="mt-4 d-grid gap-2">
+                <button type="submit" class="submit-btn btn btn-primary w-100 text-white">
+                    <i class="bi bi-check2-circle me-2"></i>
+                    {% if object %}Hifadhi Mabadiliko{% else %}Hifadhi Kumbukumbu{% endif %}
+                </button>
+                <a href="{% url 'menstrual:dashboard' %}" class="btn btn-outline-secondary rounded-pill w-100">Rudi Dashboard</a>
+            </div>
+        </form>
+    </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+<script>
+    flatpickr("#{{ form.date.id_for_label }}", {
+        dateFormat: "Y-m-d",
+        defaultDate: "{{ form.date.value|default:'' }}" || "today",
+        maxDate: "today",
+        locale: {
+            firstDayOfWeek: 1,
+            weekdays: {
+                shorthand: ['Jum', 'Jtn', 'Jmn', 'Alh', 'Ijm', 'Jmn', 'Jum'],
+                longhand: ['Jumapili', 'Jumatatu', 'Jumanne', 'Jumatano', 'Alhamisi', 'Ijumaa', 'Jumamosi']
+            },
+            months: {
+                shorthand: ['Jan', 'Feb', 'Mac', 'Apr', 'Mei', 'Jun', 'Jul', 'Ago', 'Sep', 'Okt', 'Nov', 'Des'],
+                longhand: ['Januari', 'Februari', 'Machi', 'Aprili', 'Mei', 'Juni', 'Julai', 'Agosti', 'Septemba', 'Oktoba', 'Novemba', 'Desemba']
+            }
+        },
+        disableMobile: false,
+        animate: true,
+        onReady: function(selectedDates, dateStr, instance) {
+            instance.input.placeholder = "Chagua tarehe...";
+        }
+    });
+
+    document.getElementById('logForm').addEventListener('submit', function() {
+        const btn = this.querySelector('button[type="submit"]');
+        btn.disabled = true;
+        btn.innerHTML = `<span class="spinner-border spinner-border-sm me-2"></span> Inahifadhi...`;
+    });
+</script>
+
+{% endblock %}

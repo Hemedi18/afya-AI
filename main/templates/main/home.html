@@ -1,0 +1,424 @@
+{% extends "base.html" %}
+
+{% block content %}
+<style>
+    .landing-shell { max-width: 1160px; margin: 0 auto; }
+    .landing-hero,
+    .landing-card,
+    .landing-glass {
+        background: color-mix(in srgb, var(--card-bg) 94%, transparent);
+        border: 1px solid var(--line-soft);
+        border-radius: 24px;
+        box-shadow: 0 14px 34px rgba(0,0,0,.08);
+    }
+
+    .landing-hero {
+        position: relative;
+        overflow: hidden;
+        padding: 2rem;
+        background-image: radial-gradient(circle at 8% 10%, color-mix(in srgb, var(--secondary) 16%, transparent), transparent 38%), radial-gradient(circle at 92% 6%, color-mix(in srgb, var(--primary) 16%, transparent), transparent 44%);
+    }
+
+    .hero-glow {
+        position: absolute;
+        width: 260px;
+        height: 260px;
+        border-radius: 50%;
+        filter: blur(6px);
+        opacity: .45;
+        z-index: 0;
+        animation: pulseGlow 6s ease-in-out infinite;
+    }
+
+    .hero-glow.one {
+        right: -70px;
+        top: -70px;
+        background: color-mix(in srgb, var(--primary) 65%, transparent);
+    }
+
+    .hero-glow.two {
+        left: -90px;
+        bottom: -110px;
+        background: color-mix(in srgb, var(--secondary) 65%, transparent);
+        animation-delay: 1.6s;
+    }
+
+    .hero-content,
+    .hero-visual {
+        position: relative;
+        z-index: 1;
+    }
+
+    .welcome-tag {
+        display: inline-flex;
+        align-items: center;
+        gap: .45rem;
+        border-radius: 999px;
+        padding: .45rem .8rem;
+        font-size: .82rem;
+        font-weight: 700;
+        color: var(--text-main);
+        background: color-mix(in srgb, var(--primary) 12%, var(--card-bg));
+        border: 1px solid color-mix(in srgb, var(--primary) 24%, var(--line-soft));
+    }
+
+    .hero-title {
+        font-size: clamp(1.6rem, 3vw, 2.5rem);
+        font-weight: 900;
+        letter-spacing: -.02em;
+    }
+
+    .hero-sub {
+        color: var(--text-muted);
+        max-width: 740px;
+        line-height: 1.7;
+    }
+
+    .hero-stats {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: .6rem;
+        margin-top: 1.1rem;
+        max-width: 580px;
+    }
+
+    .hero-stat {
+        border-radius: 15px;
+        border: 1px solid var(--line-soft);
+        background: color-mix(in srgb, var(--card-bg) 90%, transparent);
+        padding: .55rem .7rem;
+        text-align: center;
+    }
+
+    .hero-stat .num { font-weight: 900; font-size: 1rem; color: var(--primary); }
+    .hero-stat .lbl { font-size: .73rem; color: var(--text-muted); }
+
+    .hero-image-wrap {
+        position: relative;
+        max-width: 420px;
+        margin: 0 auto;
+    }
+
+    .hero-image {
+        width: 100%;
+        height: 280px;
+        object-fit: cover;
+        border-radius: 20px;
+        border: 1px solid var(--line-soft);
+        box-shadow: 0 16px 34px rgba(0,0,0,.16);
+    }
+
+    .float-chip {
+        position: absolute;
+        border-radius: 999px;
+        padding: .45rem .75rem;
+        font-size: .72rem;
+        font-weight: 700;
+        color: var(--text-main);
+        border: 1px solid var(--line-soft);
+        background: color-mix(in srgb, var(--card-bg) 93%, transparent);
+        box-shadow: 0 12px 24px rgba(0,0,0,.14);
+        animation: floatY 4.3s ease-in-out infinite;
+        white-space: nowrap;
+    }
+
+    .float-chip.one { left: -18px; top: 16px; }
+    .float-chip.two { right: -18px; top: 122px; animation-delay: .9s; }
+    .float-chip.three { left: 24px; bottom: -14px; animation-delay: 1.4s; }
+
+    .landing-card { padding: 1.15rem; height: 100%; }
+    .landing-card h6 { font-weight: 800; margin-bottom: .45rem; }
+    .landing-card p { margin-bottom: 0; color: var(--text-muted); line-height: 1.65; }
+    .section-head { font-size: .82rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--primary); }
+
+    .service-icon {
+        width: 42px;
+        height: 42px;
+        border-radius: 13px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+        margin-bottom: .55rem;
+        color: var(--primary);
+        background: color-mix(in srgb, var(--primary) 16%, var(--card-bg));
+        border: 1px solid color-mix(in srgb, var(--primary) 32%, var(--line-soft));
+    }
+
+    .service-thumb {
+        width: 100%;
+        height: 138px;
+        object-fit: cover;
+        border-radius: 14px;
+        border: 1px solid var(--line-soft);
+        margin-bottom: .75rem;
+    }
+
+    .step-item {
+        border-radius: 18px;
+        border: 1px dashed color-mix(in srgb, var(--primary) 35%, var(--line-soft));
+        padding: .95rem;
+        background: color-mix(in srgb, var(--card-bg) 92%, transparent);
+        height: 100%;
+    }
+
+    .step-badge {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: .76rem;
+        font-weight: 800;
+        color: #fff;
+        margin-bottom: .45rem;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+    }
+
+    .faq-item {
+        border: 1px solid var(--line-soft);
+        border-radius: 14px;
+        background: color-mix(in srgb, var(--card-bg) 94%, transparent);
+        padding: .75rem .9rem;
+    }
+
+    .faq-item + .faq-item { margin-top: .6rem; }
+
+    .faq-q {
+        font-weight: 700;
+        display: flex;
+        gap: .55rem;
+        align-items: center;
+        margin-bottom: .25rem;
+    }
+
+    @keyframes floatY {
+        0%, 100% { transform: translateY(0); }
+        50% { transform: translateY(-9px); }
+    }
+
+    @keyframes pulseGlow {
+        0%, 100% { transform: scale(1); opacity: .42; }
+        50% { transform: scale(1.08); opacity: .58; }
+    }
+
+    @media (max-width: 991px) {
+        .hero-image { height: 240px; }
+    }
+
+    @media (max-width: 767px) {
+        .landing-hero { padding: 1.2rem; }
+        .hero-stats { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .float-chip { display: none; }
+
+        .container.py-3.pb-5 {
+            max-width: 99vw !important;
+            width: 99vw !important;
+            padding-left: .5vw !important;
+            padding-right: .5vw !important;
+        }
+
+        .col-md-6.col-lg-3 {
+            width: 50%;
+            max-width: 50%;
+        }
+
+        .landing-card,
+        .landing-hero,
+        .landing-glass,
+        .step-item,
+        .hero-stat,
+        .faq-item {
+            border-radius: 16px;
+        }
+    }
+</style>
+
+<div class="container py-3 pb-5">
+    <div class="landing-shell">
+        <section class="landing-hero mb-4">
+            <span class="hero-glow one"></span>
+            <span class="hero-glow two"></span>
+
+            <div class="row g-4 align-items-center">
+                <div class="col-lg-7 hero-content">
+                    <span class="welcome-tag mb-3">
+                        <i class="bi bi-stars"></i>
+                        <span>{{ welcome_tag }}</span>
+                    </span>
+                    <h1 class="hero-title mb-2">Karibu ZanzHub AI Health Assistant</h1>
+                    <p class="hero-sub mb-4">
+                        ZanzHub ni platform ya afya ya uzazi na ustawi wa kila siku. Hapa utapata mfumo wa ku-track mzunguko,
+                        AI chat kwa majibu ya haraka, support ya jamii, na mwongozo wa wataalamu. Mtumiaji mpya anayejisajili
+                        ataelekezwa hapa kwanza ili apate maelezo kamili ya huduma, documentation, na njia za mawasiliano.
+                    </p>
+                    <div class="d-flex flex-wrap gap-2 mb-3">
+                        <a href="{% url primary_url %}" class="btn btn-primary rounded-pill px-4">
+                            <i class="bi bi-arrow-right-circle me-1"></i>{{ primary_label }}
+                        </a>
+                        <a href="{% url 'AI_brain:chat' %}" class="btn btn-outline-secondary rounded-pill px-4">Jaribu AI Chat</a>
+                        <a href="{% url 'main:documentation' %}" class="btn btn-outline-primary rounded-pill px-4">Soma Guide</a>
+                    </div>
+
+                    <div class="hero-stats">
+                        <div class="hero-stat">
+                            <div class="num"><i class="bi bi-calendar-heart me-1"></i>Daily Logs</div>
+                            <div class="lbl">Weka rekodi kwa urahisi kila siku</div>
+                        </div>
+                        <div class="hero-stat">
+                            <div class="num"><i class="bi bi-robot me-1"></i>AI Insights</div>
+                            <div class="lbl">Mapendekezo yanayobinafsishwa</div>
+                        </div>
+                        <div class="hero-stat">
+                            <div class="num"><i class="bi bi-shield-check me-1"></i>Privacy First</div>
+                            <div class="lbl">Data inalindwa kwa mipangilio ya privacy</div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-lg-5 hero-visual">
+                    <div class="hero-image-wrap">
+                        <img class="hero-image" src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=1200&q=80" alt="Healthcare professionals and digital health tools">
+                        <span class="float-chip one"><i class="bi bi-activity me-1"></i>AI inaendelea kujifunza</span>
+                        <span class="float-chip two"><i class="bi bi-person-hearts me-1"></i>Community support 24/7</span>
+                        <span class="float-chip three"><i class="bi bi-heart-pulse me-1"></i>Track • Predict • Improve</span>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-4">
+            <div class="section-head mb-2">Services</div>
+            <div class="row g-3">
+                <div class="col-md-6 col-lg-3">
+                    <div class="landing-card">
+                        <img class="service-thumb" src="https://images.unsplash.com/photo-1511174511562-5f7f18b874f8?auto=format&fit=crop&w=800&q=80" alt="Cycle tracking notes">
+                        <span class="service-icon"><i class="bi bi-calendar-heart"></i></span>
+                        <h6>Cycle Tracking</h6>
+                        <p>Log za kila siku, flow intensity, dalili, na trend analysis. Mfumo unakusaidia kuona pattern ya mzunguko mapema.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="landing-card">
+                        <img class="service-thumb" src="https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=800&q=80" alt="AI assistant concept">
+                        <span class="service-icon"><i class="bi bi-robot"></i></span>
+                        <h6>AI Assistant</h6>
+                        <p>Majibu ya haraka kwa maswali ya afya, ushauri wa lifestyle, na mapendekezo personalized kulingana na data yako.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="landing-card">
+                        <img class="service-thumb" src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=800&q=80" alt="People in community support">
+                        <span class="service-icon"><i class="bi bi-people-fill"></i></span>
+                        <h6>Community</h6>
+                        <p>Jamii salama ya kuuliza, kujifunza, na kupata support. Unaweza kushiriki updates na kujifunza kutoka uzoefu wa wengine.</p>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="landing-card">
+                        <img class="service-thumb" src="https://images.unsplash.com/photo-1666214280391-8ff5bd3c0bf0?auto=format&fit=crop&w=800&q=80" alt="Doctor consultation">
+                        <span class="service-icon"><i class="bi bi-heart-pulse"></i></span>
+                        <h6>Doctor Access</h6>
+                        <p>Unganishwa na madaktari wa mfumo kwa mwongozo wa ziada, hasa unapohitaji ufafanuzi wa kitaalamu kwa haraka.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-4">
+            <div class="section-head mb-2">How It Works</div>
+            <div class="row g-3">
+                <div class="col-md-6 col-lg-3">
+                    <div class="step-item">
+                        <span class="step-badge">1</span>
+                        <div class="fw-bold mb-1">Jisajili</div>
+                        <div class="small text-muted">Unda account na ukamilishe AI persona ili mfumo uanze kukuelewa.</div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="step-item">
+                        <span class="step-badge">2</span>
+                        <div class="fw-bold mb-1">Weka Daily Log</div>
+                        <div class="small text-muted">Andika flow, dalili, hisia, na notes kila siku kwa matokeo bora.</div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="step-item">
+                        <span class="step-badge">3</span>
+                        <div class="fw-bold mb-1">Pata Insights</div>
+                        <div class="small text-muted">Tazama trends, reminders, na mapendekezo ya AI kwenye dashboard.</div>
+                    </div>
+                </div>
+                <div class="col-md-6 col-lg-3">
+                    <div class="step-item">
+                        <span class="step-badge">4</span>
+                        <div class="fw-bold mb-1">Shirikiana</div>
+                        <div class="small text-muted">Uliza jamii au doctor pale unapotaka ushauri wa ziada.</div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-4">
+            <div class="section-head mb-2">Documentation</div>
+            <div class="landing-card">
+                <div class="row g-3 align-items-center">
+                    <div class="col-lg-8">
+                        <p class="mb-2">Documentation yetu inaelezea kila kitu: kuanza kutumia mfumo, jinsi ya kuweka data sahihi, namna ya kutumia AI Chat, moderation ya jamii, na usalama wa taarifa zako.</p>
+                        <p class="small text-muted mb-0">Ukifuata guide hii, experience yako itakuwa laini na taarifa zitakuwa na ubora wa juu kwa personalized insights.</p>
+                    </div>
+                    <div class="col-lg-4 text-lg-end">
+                        <a href="{% url 'main:documentation' %}" class="btn btn-outline-primary rounded-pill px-4">
+                            <i class="bi bi-journal-text me-1"></i>Fungua Documentation
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-4">
+            <div class="section-head mb-2">Contact & Support</div>
+            <div class="row g-3">
+                <div class="col-md-7">
+                    <div class="landing-card">
+                        <h6><i class="bi bi-headset me-1"></i>Unahitaji msaada?</h6>
+                        <p class="mb-3">Kwa changamoto za account, technical issue, au ushauri wa matumizi, tumia ukurasa wa mawasiliano. Timu yetu itakusaidia haraka kulingana na aina ya tatizo.</p>
+                        <ul class="small text-muted mb-3 ps-3">
+                            <li>Support ya login, profile, na usalama wa account</li>
+                            <li>Msaada wa AI chat, notifications, na doctor channel</li>
+                            <li>Mwongozo wa jinsi ya kutumia features kwa ufanisi</li>
+                        </ul>
+                        <a href="{% url 'main:contact' %}" class="btn btn-outline-dark rounded-pill px-4">Nenda Contact</a>
+                    </div>
+                </div>
+                <div class="col-md-5">
+                    <div class="landing-card">
+                        <h6><i class="bi bi-info-circle me-1"></i>Kuhusu ZanzHub AI</h6>
+                        <p class="mb-3">Fahamu dhamira, usalama wa data, na mwelekeo wa huduma zetu za afya kidigitali kwa muda mrefu.</p>
+                        <a href="{% url 'main:about' %}" class="btn btn-outline-secondary rounded-pill px-4">Soma About</a>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <section class="mb-2">
+            <div class="section-head mb-2">FAQ</div>
+            <div class="landing-glass p-3 p-md-4">
+                <div class="faq-item">
+                    <div class="faq-q"><i class="bi bi-patch-question"></i>Kwa nini niweke log kila siku?</div>
+                    <div class="small text-muted">Daily logs husaidia mfumo kugundua patterns zako mapema na kutoa mapendekezo sahihi zaidi.</div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-q"><i class="bi bi-shield-lock"></i>Data yangu iko salama?</div>
+                    <div class="small text-muted">Ndiyo. Mfumo una mipangilio ya privacy na controls za account ili taarifa zako zibaki salama.</div>
+                </div>
+                <div class="faq-item">
+                    <div class="faq-q"><i class="bi bi-gender-ambiguous"></i>Gender selective inafanyaje kazi?</div>
+                    <div class="small text-muted">Baada ya onboarding, mfumo unaonyesha njia/stori zinazolingana na gender uliyochagua kwenye AI persona.</div>
+                </div>
+            </div>
+        </section>
+    </div>
+</div>
+{% endblock %}

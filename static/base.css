@@ -1,0 +1,354 @@
+/* 1. Design Tokens (Global Variables) */
+:root {
+    --soft-pink: #ff85a1;
+    --deep-berry: #c9184a;
+    --glass: rgba(255, 255, 255, 0.96);
+    --bg-gradient: linear-gradient(135deg, #fff5f7 0%, #fce4ec 100%);
+    --shadow-soft: 0 10px 30px rgba(0,0,0,0.05);
+    --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* 2. Global Reset & Mobile-First Foundation */
+html {
+    font-size: 15px; /* Slightly larger for readability */
+    scroll-behavior: smooth;
+}
+
+body {
+    background: var(--bg-gradient);
+    background-attachment: fixed;
+    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    color: #2d3436;
+    margin: 0;
+    min-height: 100vh;
+    line-height: 1.6;
+    -webkit-font-smoothing: antialiased;
+}
+
+/* 3. Navigation (Optimized for Touch) */
+.navbar {
+    background: var(--glass) !important;
+    backdrop-filter: blur(15px);
+    -webkit-backdrop-filter: blur(15px);
+    border-bottom: 1px solid rgba(255, 133, 161, 0.2);
+    padding: 0.75rem 0.5rem;
+    z-index: 1030;
+}
+
+.navbar-brand {
+    font-weight: 800;
+    font-size: 1.4rem;
+}
+
+/* Mobile Bottom Nav Bar */
+.mobile-bottom-nav {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 70px;
+    background: var(--glass);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(255, 133, 161, 0.2);
+    z-index: 1030;
+    box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
+}
+
+.nav-icon-link {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-decoration: none;
+    color: #888;
+    font-size: 0.7rem;
+    font-weight: 600;
+    transition: var(--transition);
+}
+
+.nav-icon-link i {
+    font-size: 1.4rem;
+    margin-bottom: 2px;
+}
+
+.nav-icon-link.active {
+    color: var(--deep-berry);
+}
+
+/* Floating Action Button (FAB) */
+.nav-icon-fab {
+    width: 56px;
+    height: 56px;
+    background: linear-gradient(135deg, var(--soft-pink), var(--deep-berry));
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white !important;
+    font-size: 1.5rem;
+    margin-top: -40px;
+    box-shadow: 0 8px 15px rgba(201, 24, 74, 0.3);
+    border: 4px solid #fff;
+}
+
+/* 4. Responsive Layout Containers */
+main.container {
+    padding-top: 1.5rem;
+    padding-bottom: 80px; /* Space for the bottom nav */
+}
+
+/* Chart.js Responsive Container */
+.chart-container {
+    position: relative;
+    height: 250px; /* Compact height for mobile thumbs */
+    width: 100%;
+}
+
+/* 5. Components (Mobile-First) */
+.card-custom {
+    background: #ffffff;
+    border-radius: 24px;
+    border: none;
+    padding: 1.25rem;
+    margin-bottom: 1.5rem;
+    box-shadow: var(--shadow-soft);
+    transition: var(--transition);
+    overflow: hidden; /* Inazuia vitu vya ndani visivuje nje */
+}
+
+/* Dashboard Specific Responsive Components */
+.welcome-card {
+    background: linear-gradient(135deg, #ffffff 0%, #fff0f3 100%);
+    padding: 2rem !important;
+}
+
+.cycle-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    border: 10px solid var(--soft-pink);
+    border-top-color: var(--deep-berry);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-direction: column;
+    margin: 1.5rem auto;
+    box-shadow: 0 10px 25px rgba(201, 24, 74, 0.1);
+}
+
+.cycle-day {
+    font-size: 2.2rem;
+    font-weight: 800;
+    color: var(--deep-berry);
+    line-height: 1;
+}
+
+/* Flow Intensity Picker (Icons) */
+.flow-container {
+    display: flex;
+    justify-content: space-around;
+    background: white;
+    padding: 1.5rem;
+    border-radius: 20px;
+    gap: 10px;
+}
+
+.flow-label {
+    font-size: 2rem;
+    color: #e0e0e0;
+    cursor: pointer;
+    transition: var(--transition);
+}
+
+.flow-item input:checked + .flow-label {
+    color: var(--deep-berry);
+    transform: scale(1.2);
+}
+
+/* AI Insight Card Style */
+.ai-card {
+    background: linear-gradient(white, white) padding-box,
+                linear-gradient(135deg, #ff85a1, #c9184a) border-box;
+    border: 2px solid transparent;
+    position: relative;
+    overflow: visible !important;
+}
+
+.ai-card::before {
+    content: "✨ AI Insight";
+    position: absolute;
+    top: -12px;
+    right: 20px;
+    background: var(--deep-berry);
+    color: white;
+    padding: 2px 12px;
+    border-radius: 20px;
+    font-size: 0.75rem;
+    font-weight: bold;
+    box-shadow: 0 4px 10px rgba(201, 24, 74, 0.2);
+}
+
+/* Symptom Picker (Icon-based Checkboxes) */
+.symptom-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 12px;
+    margin-top: 10px;
+}
+
+.symptom-item input[type="checkbox"] {
+    display: none; /* Ficha checkbox halisi */
+}
+
+.symptom-label {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 15px 10px;
+    background: #f8f9fa;
+    border-radius: 16px;
+    cursor: pointer;
+    transition: var(--transition);
+    border: 2px solid transparent;
+    text-align: center;
+    font-size: 0.8rem;
+}
+
+.symptom-item input[type="checkbox"]:checked + .symptom-label {
+    background: #fff0f3;
+    border-color: var(--soft-pink);
+    color: var(--deep-berry);
+}
+
+/* Flow Intensity Droplet Picker */
+.flow-picker {
+    display: flex;
+    justify-content: space-between;
+    max-width: 300px;
+    margin: 10px auto;
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 20px;
+}
+
+.flow-picker input[type="radio"] {
+    display: none; /* Ficha radio button ya kawaida */
+}
+
+.flow-picker label {
+    cursor: pointer;
+    font-size: 1.8rem;
+    color: #dee2e6;
+    transition: var(--transition);
+    line-height: 1;
+}
+
+.flow-picker input[type="radio"]:checked + label {
+    color: var(--deep-berry);
+    transform: scale(1.3);
+    filter: drop-shadow(0 0 5px rgba(201, 24, 74, 0.2));
+}
+
+/* Form Controls (Optimized for touch focus) */
+.form-control, .form-select {
+    border-radius: 14px;
+    padding: 0.8rem 1.2rem;
+    border: 2px solid transparent;
+    background-color: #f8f9fa;
+    font-size: 16px !important; /* Critical for mobile: prevents auto-zoom on input focus */
+    transition: var(--transition);
+}
+
+.form-control:focus {
+    background-color: #fff;
+    border-color: var(--soft-pink);
+    box-shadow: 0 0 0 4px rgba(255, 133, 161, 0.1);
+}
+
+/* Buttons */
+.btn {
+    border-radius: 16px;
+    font-weight: 600;
+    padding: 0.6rem 1rem; /* Punguza padding kidogo kwa mobile */
+    transition: var(--transition);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+    max-width: 100%;
+    white-space: normal; /* Inaruhusu maandishi kushuka chini badala ya kuvunja page */
+    word-break: break-word;
+}
+
+.btn i {
+    font-size: 1.2rem;
+}
+
+
+/* Icon-only circular buttons */
+.btn-icon {
+    width: 45px;
+    height: 45px;
+    padding: 0;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 50%;
+    font-size: 1.2rem;
+}
+
+/* Responsive Button Utilities */
+@media (max-width: 576px) {
+    .btn-mobile-icon-only span {
+        display: none; /* Inaficha maandishi, inabakiza icon tu kwenye simu ndogo */
+    }
+    
+    .btn-mobile-icon-only i {
+        margin: 0 !important;
+    }
+    
+    .btn-lg-mobile {
+        width: 100%; /* Inafanya button muhimu kuwa upana wa kioo chote */
+        padding: 0.8rem;
+    }
+}
+
+/* 6. Tablet & Desktop Enhancements (Media Queries) */
+@media (min-width: 768px) {
+    html {
+        font-size: 16px; /* Larger base font for bigger screens */
+    }
+
+    main.container {
+        padding-bottom: 3rem;
+    }
+
+    .card-custom {
+        padding: 2.5rem;
+    }
+
+    .chart-container {
+        height: 400px; /* More room for detail on desktop */
+    }
+
+    .card-custom:hover {
+        transform: translateY(-8px);
+        box-shadow: 0 20px 40px rgba(201, 24, 74, 0.1);
+    }
+
+    main.container {
+        padding-top: 3rem;
+    }
+}
+
+/* 7. Utilities */
+.text-gradient {
+    background: linear-gradient(45deg, var(--deep-berry), var(--soft-pink));
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+}

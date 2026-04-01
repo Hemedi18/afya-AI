@@ -1,0 +1,152 @@
+{% extends 'base.html' %}
+
+{% block title %}afya-AI Card{% endblock %}
+
+{% block extra_head %}
+<style>
+.card-shell { max-width: 1020px; margin: 1rem auto 2rem; }
+.card-stage { perspective: 1200px; }
+.health-card {
+  width: min(100%, 460px);
+  min-height: 280px;
+  margin: 0 auto;
+  position: relative;
+  transform-style: preserve-3d;
+  transition: transform .75s ease;
+}
+.health-card.flipped { transform: rotateY(180deg); }
+.health-face {
+  position: absolute;
+  inset: 0;
+  border-radius: 22px;
+  backface-visibility: hidden;
+  overflow: hidden;
+  border: 1px solid var(--line-soft);
+  box-shadow: 0 24px 48px rgba(0,0,0,.16);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--primary) 25%, transparent), color-mix(in srgb, var(--secondary) 14%, transparent));
+}
+.health-front { padding: 1rem; }
+.health-back { transform: rotateY(180deg); padding: 1rem; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:.8rem; }
+.health-face.theme-classic {
+  background: linear-gradient(135deg, #1f2937, #374151 45%, #0f172a);
+  color: #f8fafc;
+}
+.health-face.theme-aurora {
+  background: linear-gradient(135deg, #4f46e5, #0ea5e9 45%, #14b8a6);
+  color: #f8fafc;
+}
+.health-face.theme-midnight {
+  background: radial-gradient(circle at 20% 15%, #334155, #111827 58%, #020617);
+  color: #e2e8f0;
+}
+.health-face.theme-emerald {
+  background: linear-gradient(135deg, #065f46, #0f766e 45%, #064e3b);
+  color: #ecfeff;
+}
+.health-watermark {
+  position: absolute;
+  inset: auto -18% 24% auto;
+  transform: rotate(-27deg);
+  font-size: clamp(1.15rem, 1rem + .8vw, 1.85rem);
+  letter-spacing: .08em;
+  font-weight: 800;
+  opacity: .12;
+  pointer-events: none;
+  text-transform: uppercase;
+}
+.health-back .health-watermark {
+  inset: auto auto 12% -14%;
+  transform: rotate(23deg);
+}
+.profile-pic {
+  width: 78px; height: 78px; border-radius: 50%; object-fit: cover;
+  border: 2px solid color-mix(in srgb, var(--line-soft) 60%, transparent);
+  background: rgba(255,255,255,.24);
+}
+.qr-box { width: 220px; height: 220px; border-radius: 14px; background:#fff; padding:.65rem; display:flex; align-items:center; justify-content:center; }
+.qr-box img { width: 100%; height: 100%; object-fit: contain; }
+.card-grid { display:grid; grid-template-columns: 1.1fr .9fr; gap: 1rem; }
+@media (max-width: 991.98px){ .card-grid{ grid-template-columns: 1fr; } }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="card-shell">
+  <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
+    <h4 class="mb-0 fw-bold"><i class="bi bi-credit-card-2-front me-2"></i>afya-AI Online Card</h4>
+    <div class="d-flex gap-2">
+      <a href="{% url 'card:details' %}" class="btn btn-outline-danger rounded-pill"><i class="bi bi-sliders me-1"></i>Update Card Details</a>
+      <a href="{% url 'card:notifications' %}" class="btn btn-danger rounded-pill">
+        <i class="bi bi-bell me-1"></i>Notifications
+        {% if unread_notifications %}<span class="badge text-bg-light ms-1">{{ unread_notifications|length }}</span>{% endif %}
+      </a>
+    </div>
+  </div>
+
+  <div class="card-grid">
+    <div class="card-custom p-3 p-lg-4">
+      <div class="card-stage">
+        <div class="health-card" id="healthCard">
+          <article class="health-face health-front theme-{{ card_obj.style_theme }}">
+            {% if card_obj.show_watermark %}<span class="health-watermark">{{ card_obj.watermark_text|default:'afya-AI' }}</span>{% endif %}
+            <div class="d-flex justify-content-between align-items-start mb-3">
+              <div class="small text-muted">afya-AI Health Identity</div>
+              <span class="badge text-bg-danger">Front</span>
+            </div>
+            <div class="d-flex align-items-center gap-3 mb-3">
+              {% if card_obj.display_photo_url %}
+              <img src="{{ card_obj.display_photo_url }}" alt="Profile" class="profile-pic">
+              {% else %}
+              <div class="profile-pic d-inline-flex align-items-center justify-content-center fw-bold">{{ request.user.username|first|upper }}</div>
+              {% endif %}
+              <div>
+                <div class="fw-bold fs-5">{{ card_obj.display_name }}</div>
+                <div class="small text-muted">@{{ request.user.username }}</div>
+              </div>
+            </div>
+            <div class="row g-2 small">
+              <div class="col-6"><span class="text-muted">Gender:</span> <strong>{{ card_obj.display_gender }}</strong></div>
+              <div class="col-6"><span class="text-muted">Birth date:</span> <strong>{% if card_obj.display_birth_date %}{{ card_obj.display_birth_date }}{% else %}Not set{% endif %}</strong></div>
+            </div>
+          </article>
+
+          <article class="health-face health-back theme-{{ card_obj.style_theme }}">
+            {% if card_obj.show_watermark %}<span class="health-watermark">{{ card_obj.watermark_text|default:'afya-AI' }}</span>{% endif %}
+            <span class="badge text-bg-primary">Back</span>
+            <div class="qr-box">
+              <img src="{{ qr_image }}" alt="Card QR code">
+            </div>
+            <div class="small text-muted text-center">Scan QR kupata taarifa ulizoruhusu kuonekana.</div>
+          </article>
+        </div>
+      </div>
+      <div class="d-grid mt-3">
+        <button class="btn btn-dark rounded-pill" id="flipBtn"><i class="bi bi-arrow-repeat me-1"></i>Flip Card</button>
+      </div>
+    </div>
+
+    <div class="card-custom p-3 p-lg-4">
+      <h6 class="fw-bold mb-2"><i class="bi bi-qr-code me-1"></i>Scan Link</h6>
+      <div class="small text-muted mb-2">Hii ndio link itafunguliwa baada ya QR kuscan:</div>
+      <div class="form-control small" style="word-break:break-all;">{{ public_url }}</div>
+
+      <hr>
+      <h6 class="fw-bold mb-2"><i class="bi bi-clock-history me-1"></i>Persona Reminder Logic</h6>
+      <ul class="small mb-0">
+        <li>Reminder interval: <strong>kila siku {{ persona_config.interval_days }}</strong></li>
+        <li>Cooldown ya reminder: <strong>siku {{ persona_config.reminder_cooldown_days }}</strong></li>
+        <li>Persona ikipitiliza interval, notification hutumwa automatically.</li>
+      </ul>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  const card = document.getElementById('healthCard');
+  const btn = document.getElementById('flipBtn');
+  if (!card || !btn) return;
+  btn.addEventListener('click', () => card.classList.toggle('flipped'));
+})();
+</script>
+{% endblock %}

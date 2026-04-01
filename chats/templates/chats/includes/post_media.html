@@ -1,0 +1,20 @@
+{% if post.image or post.video %}
+<div class="media-frame ratio-{{ post.media_ratio|default:'auto' }} shape-{{ post.media_shape|default:'rounded' }}" style="--focus-x: {{ post.media_focus_x|default:50 }}%; --focus-y: {{ post.media_focus_y|default:50 }}%;">
+    {% if post.image %}
+    <img src="{{ post.image.url }}" class="post-media" alt="post media">
+    {% elif post.video %}
+    <video class="post-media{% if autoplay_to_post %} js-feed-video{% endif %}" {% if autoplay_to_post %}muted loop playsinline preload="metadata" data-post-url="{{ post_url }}" role="link" tabindex="0" aria-label="Open post video"{% else %}controls playsinline preload="metadata"{% endif %}>
+        <source src="{{ post.video.url }}">
+    </video>
+    {% endif %}
+</div>
+<div class="d-flex flex-wrap gap-2 mt-2">
+    {% if post.image %}
+    <a href="{{ post.image.url }}" target="_blank" rel="noopener" class="btn btn-sm btn-dark rounded-pill d-inline-flex align-items-center gap-2"><i class="bi bi-image"></i><span>Open</span></a>
+    <a href="{{ post.image.url }}" download class="btn btn-sm btn-outline-dark rounded-pill d-inline-flex align-items-center gap-2"><i class="bi bi-download"></i><span>Save</span></a>
+    {% elif post.video %}
+    <a href="{{ post.video.url }}" target="_blank" rel="noopener" class="btn btn-sm btn-dark rounded-pill d-inline-flex align-items-center gap-2"><i class="bi bi-play-circle"></i><span>Open</span></a>
+    <a href="{{ post.video.url }}" download class="btn btn-sm btn-outline-dark rounded-pill d-inline-flex align-items-center gap-2"><i class="bi bi-download"></i><span>Save</span></a>
+    {% endif %}
+</div>
+{% endif %}

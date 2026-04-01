@@ -1,0 +1,549 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+/* ══ Post Detail – Polished ══ */
+.detail-shell { padding: .75rem 0 5.5rem; }
+
+.detail-card {
+    background: var(--card-bg);
+    border: 1px solid var(--line-soft);
+    border-radius: 20px;
+    padding: 1.2rem 1.3rem;
+    margin-bottom: 1rem;
+    box-shadow: 0 6px 22px rgba(0,0,0,.07);
+}
+.post-author-lg {
+    display: flex; align-items: center; gap: 1rem;
+    margin-bottom: 1rem;
+}
+.post-avatar-lg {
+    width: 58px; height: 58px; border-radius: 50%; flex-shrink: 0;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: #fff; font-weight: 800; font-size: 1.4rem;
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: 0 6px 18px color-mix(in srgb, var(--primary) 35%, transparent);
+    position: relative;
+}
+.online-dot {
+    width: 13px; height: 13px; border-radius: 50%; background: #22c55e;
+    position: absolute; right: 1px; bottom: 1px;
+    border: 2.5px solid var(--card-bg);
+    box-shadow: 0 0 6px #22c55e88;
+}
+.author-name {
+    font-weight: 800; font-size: 1.05rem;
+    color: var(--text-main); text-decoration: none;
+    transition: color .15s;
+}
+.author-name:hover { color: var(--primary); }
+.author-meta { font-size: .78rem; color: var(--text-muted); margin-top: .1rem; }
+.post-group-tag {
+    display: inline-block; font-size: .72rem; font-weight: 700;
+    padding: .15rem .55rem; border-radius: 999px;
+    background: color-mix(in srgb, var(--primary) 12%, var(--card-bg));
+    color: var(--primary);
+}
+.post-body-lg {
+    font-size: .97rem; line-height: 1.75;
+    color: var(--text-main); white-space: pre-line;
+    margin-bottom: .85rem;
+}
+.post-media {
+    width: 100%; border-radius: 18px;
+    border: 1px solid var(--line-soft);
+    max-height: 500px; object-fit: cover;
+    margin-bottom: .85rem;
+}
+.action-row {
+    display: flex; gap: .5rem; flex-wrap: wrap;
+    align-items: center; padding-top: .85rem;
+    border-top: 1px solid var(--line-soft);
+}
+.action-btn {
+    display: inline-flex; align-items: center; gap: .35rem;
+    padding: .44rem .9rem; border-radius: 999px;
+    font-size: .82rem; font-weight: 700;
+    border: 1.5px solid var(--line-soft);
+    background: color-mix(in srgb, var(--card-bg) 92%, var(--app-bg));
+    color: var(--text-main);
+    cursor: pointer; transition: all .18s ease;
+    text-decoration: none;
+}
+.action-btn:hover { border-color: var(--primary); color: var(--primary); }
+.action-btn-like { color: #ef4444; border-color: color-mix(in srgb, #ef4444 30%, var(--line-soft)); }
+.action-btn-like:hover { background: color-mix(in srgb, #ef4444 10%, var(--card-bg)); border-color: #ef4444; color: #ef4444; }
+.action-btn-back { color: var(--text-muted); }
+
+.inline-form-box {
+    border: 1.5px solid var(--line-soft); border-radius: 14px;
+    padding: .85rem; background: color-mix(in srgb, var(--card-bg) 88%, var(--app-bg));
+    margin-top: .55rem;
+}
+.clarify-dashed {
+    border: 1.5px dashed var(--line-soft); border-radius: 14px;
+    padding: .85rem; background: color-mix(in srgb, var(--primary) 4%, var(--card-bg));
+}
+
+/* Comments */
+.comment-item {
+    background: color-mix(in srgb, var(--card-bg) 84%, var(--app-bg));
+    border: 1px solid var(--line-soft);
+    border-radius: 16px; padding: .75rem .9rem;
+    margin-bottom: .6rem;
+}
+.comment-meta-row { display: flex; align-items: center; gap: .5rem; margin-bottom: .35rem; }
+.comment-avatar {
+    width: 30px; height: 30px; border-radius: 50%; flex-shrink: 0;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: #fff; font-weight: 800; font-size: .76rem;
+    display: flex; align-items: center; justify-content: center;
+}
+.comment-username { font-weight: 700; font-size: .84rem; color: var(--text-main); }
+.comment-time { font-size: .74rem; color: var(--text-muted); margin-left: auto; }
+.comment-text { font-size: .87rem; line-height: 1.5; color: var(--text-main); }
+.comment-actions { display: flex; gap: .4rem; flex-wrap: wrap; margin-top: .5rem; }
+.comment-action-btn {
+    padding: .22rem .58rem; border-radius: 999px;
+    font-size: .75rem; font-weight: 600;
+    border: 1px solid var(--line-soft);
+    background: transparent; color: var(--text-muted);
+    cursor: pointer; transition: all .15s;
+}
+.comment-action-btn:hover { border-color: var(--primary); color: var(--primary); }
+.child-reply {
+    margin-top: .5rem; margin-left: 1rem; padding: .5rem .75rem;
+    background: color-mix(in srgb, var(--card-bg) 68%, var(--app-bg));
+    border-left: 2.5px solid var(--primary);
+    border-radius: 0 10px 10px 0;
+    font-size: .83rem; color: var(--text-main);
+}
+.add-comment-row {
+    display: flex; gap: .5rem;
+    background: color-mix(in srgb, var(--card-bg) 86%, var(--app-bg));
+    border: 1.5px solid var(--line-soft);
+    border-radius: 999px; padding: .4rem .4rem .4rem .9rem;
+    transition: border-color .18s;
+}
+.add-comment-row:focus-within { border-color: var(--primary); }
+.add-comment-input {
+    flex: 1; border: none; background: transparent;
+    font-size: .9rem; color: var(--text-main); outline: none;
+}
+.add-comment-input::placeholder { color: var(--text-muted); }
+.add-comment-btn {
+    padding: .4rem .95rem; border-radius: 999px;
+    background: var(--primary); color: #fff;
+    font-size: .84rem; font-weight: 700; border: none; cursor: pointer;
+}
+.add-comment-btn:hover { opacity: .88; }
+
+/* Sidebar */
+.sidebar-card {
+    background: var(--card-bg); border: 1px solid var(--line-soft);
+    border-radius: 18px; margin-bottom: .9rem; overflow: hidden;
+    box-shadow: 0 4px 16px rgba(0,0,0,.06);
+}
+.sidebar-card-head {
+    padding: .7rem 1rem .6rem; border-bottom: 1px solid var(--line-soft);
+    background: color-mix(in srgb, var(--primary) 6%, var(--card-bg));
+    display: flex; align-items: center; justify-content: space-between;
+}
+.sidebar-card-head h6 {
+    font-size: .88rem; font-weight: 800; margin: 0; color: var(--text-main);
+    display: flex; align-items: center; gap: .45rem;
+}
+.sidebar-card-body { padding: .85rem 1rem; }
+.recent-link {
+    display: flex; align-items: flex-start; gap: .6rem;
+    padding: .55rem .75rem; border-radius: 12px;
+    background: color-mix(in srgb, var(--card-bg) 86%, var(--app-bg));
+    border: 1px solid var(--line-soft);
+    color: var(--text-main); text-decoration: none;
+    margin-bottom: .4rem; transition: border-color .18s, color .18s;
+}
+.recent-link:hover { border-color: var(--primary); color: var(--primary); }
+.recent-link-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--primary); flex-shrink: 0; margin-top: .35rem; }
+.doctor-row { display: flex; align-items: center; justify-content: space-between; gap: .7rem; padding: .6rem 0; border-bottom: 1px solid var(--line-soft); }
+.doctor-row:last-child { border-bottom: none; }
+.doctor-info { display: flex; align-items: center; gap: .65rem; min-width: 0; }
+.doctor-avatar {
+    width: 38px; height: 38px; border-radius: 50%; flex-shrink: 0;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: #fff; font-weight: 800; font-size: .9rem;
+    display: flex; align-items: center; justify-content: center;
+}
+.doctor-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.doctor-name { font-size: .84rem; font-weight: 700; }
+.doctor-spec { font-size: .73rem; color: var(--text-muted); }
+
+.doctor-picker {
+    margin-top: .75rem;
+    border: 1px solid var(--line-soft);
+    border-radius: 14px;
+    background: color-mix(in srgb, var(--card-bg) 88%, var(--app-bg));
+    overflow: hidden;
+}
+.doctor-picker summary {
+    list-style: none;
+    cursor: pointer;
+    padding: .65rem .8rem;
+    font-size: .82rem;
+    font-weight: 700;
+    color: var(--text-main);
+}
+.doctor-picker summary::-webkit-details-marker { display: none; }
+.doctor-picker-grid {
+    padding: 0 .8rem .8rem;
+    display: grid;
+    gap: .55rem;
+}
+.doctor-option {
+    display: flex;
+    align-items: center;
+    gap: .65rem;
+    padding: .55rem .65rem;
+    border: 1px solid var(--line-soft);
+    border-radius: 12px;
+    cursor: pointer;
+    background: color-mix(in srgb, var(--card-bg) 92%, transparent);
+}
+.doctor-option input { margin: 0; }
+.doctor-option-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-size: .78rem;
+    font-weight: 800;
+    flex-shrink: 0;
+}
+.doctor-option-avatar img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.doctor-option-name { font-size: .8rem; font-weight: 700; color: var(--text-main); }
+.doctor-option-spec { font-size: .72rem; color: var(--text-muted); }
+
+.clarification-answer {
+    margin-top: .8rem;
+    padding: .75rem .85rem;
+    border-radius: 14px;
+    border: 1px solid color-mix(in srgb, var(--primary) 22%, var(--line-soft));
+    background: color-mix(in srgb, var(--primary) 7%, var(--card-bg));
+}
+.clarification-answer-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .65rem;
+    margin-bottom: .35rem;
+}
+.clarification-answer-title {
+    font-size: .76rem;
+    font-weight: 800;
+    color: var(--primary);
+}
+.clarification-answer-meta {
+    font-size: .72rem;
+    color: var(--text-muted);
+}
+.clarification-answer-body {
+    font-size: .84rem;
+    line-height: 1.55;
+    color: var(--text-main);
+    white-space: pre-line;
+}
+
+@media (max-width: 767px) {
+    .detail-shell { padding-top: .4rem; }
+    .detail-card { padding: .9rem; }
+}
+</style>
+
+<div class="detail-shell">
+    <div class="row g-3">
+        <!-- ══ MAIN POST ══ -->
+        <div class="col-lg-8">
+            <!-- Post header -->
+            <div class="detail-card">
+                <div class="post-author-lg">
+                    <div class="post-avatar-lg">
+                        {% if post.is_anonymous %}?{% else %}{{ post.user.username|first|upper }}{% endif %}
+                        <span class="online-dot"></span>
+                    </div>
+                    <div class="flex-grow-1">
+                        {% if post.is_anonymous %}
+                        <div class="author-name">Anonymous member</div>
+                        {% else %}
+                        <a class="author-name" href="{% url 'chats:user_profile' post.user.id %}">{{ post.user.username }}</a>
+                        {% endif %}
+                        <div class="author-meta">
+                            {{ post.created_at|date:"F d, Y – h:i A" }}
+                            {% if post.groups.all %}
+                                {% for group in post.groups.all %}
+                                    • <span class="post-group-tag">{{ group.name }}</span>
+                                {% endfor %}
+                            {% elif post.group %}
+                                • <span class="post-group-tag">{{ post.group.name }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    {% if can_moderate %}
+                    <form method="post" action="{% url 'chats:post_delete' post.id %}">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{% url 'chats:feed' %}">
+                        <button class="comment-action-btn" style="color:#ef4444;border-color:#ef444455;" type="submit"><i class="bi bi-trash3"></i> Delete</button>
+                    </form>
+                    {% endif %}
+                </div>
+                <hr style="border-color:var(--line-soft);opacity:.5;">
+                <div class="post-body-lg">{{ post.content|safe }}</div>
+                {% include 'chats/includes/post_media.html' with post=post %}
+                <div id="post-clarifications">
+                {% for clarification in post.clarifications.all %}
+                    {% if clarification.response or clarification.can_user_respond or clarification.can_user_participate %}
+                        {% include 'chats/includes/clarification_thread.html' with clarification=clarification refresh_target='#post-clarifications' %}
+                    {% endif %}
+                {% endfor %}
+                </div>
+            </div>
+
+            <!-- Actions -->
+            <div class="detail-card" id="post-actions-card" style="padding:.85rem 1.1rem;">
+                <div class="action-row" style="border-top:none;padding-top:0;">
+                    <form method="post" action="{% url 'chats:post_like' post.id %}" data-ajax-refresh-target="#post-actions-card">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ request.path }}">
+                        <button class="action-btn action-btn-like" type="submit"><i class="bi bi-heart-fill"></i> {{ post.likes.count }}</button>
+                    </form>
+                    <button class="action-btn" type="button" data-bs-toggle="collapse" data-bs-target="#clarify-post-detail">
+                        <i class="bi bi-patch-question"></i> Clarify
+                    </button>
+                    <button class="action-btn" type="button" data-bs-toggle="collapse" data-bs-target="#report-post-detail">
+                        <i class="bi bi-flag"></i> Report
+                    </button>
+                    <button class="action-btn" type="button" data-ai-prompt="Explain this health community post in simple Swahili. Summarize it, mention possible health concerns, and say when the user should see a doctor: {{ post.content|striptags|truncatechars:700|escapejs }}">
+                        <i class="bi bi-stars"></i> Explain with AI
+                    </button>
+                    <a href="{% url 'chats:feed' %}" class="action-btn action-btn-back ms-auto"><i class="bi bi-arrow-left"></i> Back</a>
+                </div>
+
+                <div class="collapse mt-2" id="clarify-post-detail">
+                    <div class="clarify-dashed">
+                        <form method="post" action="{% url 'chats:post_clarify' post.id %}" data-ajax-refresh-target="#post-actions-card">
+                            {% csrf_token %}
+                            <input type="hidden" name="next" value="{{ request.path }}">
+                            <div class="row g-2">
+                                <div class="col-md-3">
+                                    <select name="target_role" class="form-select form-select-sm" style="border-radius:10px;" required>
+                                        <option value="doctor">Doctor</option>
+                                        <option value="admin">Admin</option>
+                                    </select>
+                                </div>
+                                <div class="col-md-7"><textarea name="question" rows="2" class="form-control form-control-sm" placeholder="Ni sehemu gani unahitaji ufafanuzi?" required autocomplete="off" style="border-radius:10px;"></textarea></div>
+                                <div class="col-md-2 d-grid"><button class="add-comment-btn" style="border-radius:10px;" type="submit">Send</button></div>
+                            </div>
+                            <details class="doctor-picker">
+                                <summary><i class="bi bi-person-badge"></i> Chagua doctor wa kujibu</summary>
+                                <div class="doctor-picker-grid">
+                                    {% for doctor in available_doctors %}
+                                    <label class="doctor-option">
+                                        <input type="radio" name="doctor_id" value="{{ doctor.id }}">
+                                        <span class="doctor-option-avatar">{% if doctor.community_avatar_url %}<img src="{{ doctor.community_avatar_url }}" alt="Dr. {{ doctor.username }}">{% else %}{{ doctor.community_avatar_initial }}{% endif %}</span>
+                                        <span>
+                                            <span class="doctor-option-name">Dr. {{ doctor.get_full_name|default:doctor.username }}</span>
+                                            <span class="doctor-option-spec d-block">{{ doctor.doctor_profile.specialization }}</span>
+                                        </span>
+                                    </label>
+                                    {% empty %}
+                                    <div class="small text-muted">Hakuna doctor verified kwa sasa.</div>
+                                    {% endfor %}
+                                </div>
+                            </details>
+                        </form>
+                    </div>
+                </div>
+
+                <div class="collapse mt-2" id="report-post-detail">
+                    <div class="inline-form-box">
+                        <form method="post" action="{% url 'chats:post_report' post.id %}" data-ajax-refresh-target="#post-actions-card">
+                            {% csrf_token %}
+                            <input type="hidden" name="next" value="{{ request.path }}">
+                            <input type="text" name="reason" class="form-control form-control-sm mb-2" placeholder="Sababu ya report" required autocomplete="off" style="border-radius:10px;">
+                            <textarea name="details" rows="2" class="form-control form-control-sm mb-2" placeholder="Maelezo ya ziada..." autocomplete="off" style="border-radius:10px;"></textarea>
+                            <button class="comment-action-btn" style="color:#ef4444;" type="submit"><i class="bi bi-flag-fill"></i> Send report</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comments -->
+            <div class="detail-card" id="comments-panel">
+                <div class="d-flex align-items-center justify-content-between mb-3">
+                    <div class="fw-bold" style="font-size:1rem;"><i class="bi bi-chat-fill" style="color:var(--primary);"></i> Comments <span class="text-muted fw-normal">({{ post.replies.count }})</span></div>
+                    <div class="d-flex flex-wrap gap-2">
+                        <a href="?comments=recent{% if focused_clarification_id %}&clarification={{ focused_clarification_id }}{% endif %}" class="comment-action-btn {% if comment_sort == 'recent' %}active{% endif %}">Newest</a>
+                        <a href="?comments=oldest{% if focused_clarification_id %}&clarification={{ focused_clarification_id }}{% endif %}" class="comment-action-btn {% if comment_sort == 'oldest' %}active{% endif %}">Oldest</a>
+                        <a href="?comments=likes{% if focused_clarification_id %}&clarification={{ focused_clarification_id }}{% endif %}" class="comment-action-btn {% if comment_sort == 'likes' %}active{% endif %}">Most liked</a>
+                        <a href="?comments=replies{% if focused_clarification_id %}&clarification={{ focused_clarification_id }}{% endif %}" class="comment-action-btn {% if comment_sort == 'replies' or comment_sort == 'reviews' %}active{% endif %}">Most replies</a>
+                    </div>
+                </div>
+
+                <div class="add-comment-row mb-4">
+                    <form method="post" action="{% url 'chats:post_comment' post.id %}" style="display:flex;width:100%;gap:.5rem;" class="align-items-center" data-ajax-refresh-target="#comments-panel">
+                        {% csrf_token %}
+                        <input type="hidden" name="next" value="{{ request.path }}">
+                        <input type="text" name="content" class="add-comment-input" placeholder="Andika comment..." autocomplete="off">
+                        <button class="add-comment-btn" type="submit">Tuma</button>
+                    </form>
+                </div>
+
+                {% for reply in top_level_comments %}
+                <div class="comment-item" id="comment-{{ reply.id }}">
+                    <div class="comment-meta-row">
+                        <div class="comment-avatar">{{ reply.user.username|first|upper }}</div>
+                        <span class="comment-username">{{ reply.user.username }}</span>
+                        <span class="comment-time">{{ reply.created_at|timesince }} ago</span>
+                    </div>
+                    <div class="comment-text">{{ reply.content }}</div>
+                    {% for clarification in reply.clarifications.all %}
+                        {% if clarification.response or clarification.can_user_respond or clarification.can_user_participate %}
+                            {% include 'chats/includes/clarification_thread.html' with clarification=clarification refresh_target='#comments-panel' %}
+                        {% endif %}
+                    {% endfor %}
+                    <div class="comment-actions">
+                        <form method="post" action="{% url 'chats:comment_react' reply.id 'like' %}" class="d-inline" data-ajax-refresh-target="#comments-panel">
+                            {% csrf_token %}<input type="hidden" name="next" value="{{ request.path }}">
+                            <button class="comment-action-btn" type="submit"><i class="bi bi-hand-thumbs-up"></i> {{ reply.likes.count }}</button>
+                        </form>
+                        <form method="post" action="{% url 'chats:comment_react' reply.id 'dislike' %}" class="d-inline" data-ajax-refresh-target="#comments-panel">
+                            {% csrf_token %}<input type="hidden" name="next" value="{{ request.path }}">
+                            <button class="comment-action-btn" type="submit"><i class="bi bi-hand-thumbs-down"></i> {{ reply.dislikes.count }}</button>
+                        </form>
+                        <button class="comment-action-btn" type="button" data-bs-toggle="collapse" data-bs-target="#reply-{{ reply.id }}"><i class="bi bi-reply"></i></button>
+                        <button class="comment-action-btn" type="button" data-bs-toggle="collapse" data-bs-target="#clarify-c-{{ reply.id }}"><i class="bi bi-patch-question"></i></button>
+                        <button class="comment-action-btn" type="button" data-bs-toggle="collapse" data-bs-target="#report-c-{{ reply.id }}"><i class="bi bi-flag"></i></button>
+                        {% if can_moderate %}
+                        <form method="post" action="{% url 'chats:comment_delete' reply.id %}" class="d-inline" data-ajax-refresh-target="#comments-panel">
+                            {% csrf_token %}<input type="hidden" name="next" value="{{ request.path }}">
+                            <button class="comment-action-btn" style="color:#ef4444;" type="submit"><i class="bi bi-trash3"></i></button>
+                        </form>
+                        {% endif %}
+                    </div>
+
+                    <div class="collapse mt-2" id="reply-{{ reply.id }}">
+                        <form method="post" action="{% url 'chats:post_comment' post.id %}" data-ajax-refresh-target="#comments-panel">
+                            {% csrf_token %}
+                            <input type="hidden" name="next" value="{{ request.path }}">
+                            <input type="hidden" name="parent_id" value="{{ reply.id }}">
+                            <div class="add-comment-row" style="border-radius:12px;">
+                                <input type="text" name="content" class="add-comment-input" placeholder="Reply..." required autocomplete="off">
+                                <button class="add-comment-btn" type="submit" style="font-size:.78rem;"><i class="bi bi-reply"></i></button>
+                            </div>
+                        </form>
+                    </div>
+                    <div class="collapse mt-2" id="clarify-c-{{ reply.id }}">
+                        <div class="clarify-dashed">
+                            <form method="post" action="{% url 'chats:comment_clarify' reply.id %}" data-ajax-refresh-target="#comments-panel">
+                                {% csrf_token %}<input type="hidden" name="next" value="{{ request.path }}">
+                                <div class="row g-2">
+                                    <div class="col-md-3"><select name="target_role" class="form-select form-select-sm" style="border-radius:10px;" required><option value="doctor">Doctor</option><option value="admin">Admin</option></select></div>
+                                    <div class="col-md-7"><input type="text" name="question" class="form-control form-control-sm" placeholder="Ufafanuzi..." required autocomplete="off" style="border-radius:10px;"></div>
+                                    <div class="col-md-2 d-grid"><button class="add-comment-btn" style="border-radius:10px;" type="submit">Send</button></div>
+                                </div>
+                                <details class="doctor-picker">
+                                    <summary><i class="bi bi-person-badge"></i> Chagua doctor wa kujibu</summary>
+                                    <div class="doctor-picker-grid">
+                                        {% for doctor in available_doctors %}
+                                        <label class="doctor-option">
+                                            <input type="radio" name="doctor_id" value="{{ doctor.id }}">
+                                            <span class="doctor-option-avatar">{% if doctor.community_avatar_url %}<img src="{{ doctor.community_avatar_url }}" alt="Dr. {{ doctor.username }}">{% else %}{{ doctor.community_avatar_initial }}{% endif %}</span>
+                                            <span>
+                                                <span class="doctor-option-name">Dr. {{ doctor.get_full_name|default:doctor.username }}</span>
+                                                <span class="doctor-option-spec d-block">{{ doctor.doctor_profile.specialization }}</span>
+                                            </span>
+                                        </label>
+                                        {% empty %}
+                                        <div class="small text-muted">Hakuna doctor verified kwa sasa.</div>
+                                        {% endfor %}
+                                    </div>
+                                </details>
+                            </form>
+                        </div>
+                    </div>
+                    <div class="collapse mt-2" id="report-c-{{ reply.id }}">
+                        <div class="inline-form-box">
+                            <form method="post" action="{% url 'chats:comment_report' reply.id %}" data-ajax-refresh-target="#comments-panel">
+                                {% csrf_token %}<input type="hidden" name="next" value="{{ request.path }}">
+                                <input type="text" name="reason" class="form-control form-control-sm mb-2" placeholder="Sababu ya report" required autocomplete="off" style="border-radius:10px;">
+                                <button class="comment-action-btn" style="color:#ef4444;" type="submit"><i class="bi bi-flag-fill"></i> Report</button>
+                            </form>
+                        </div>
+                    </div>
+
+                    {% if reply.child_replies.all %}
+                    {% for child in reply.child_replies.all %}
+                    <div class="child-reply" id="comment-{{ child.id }}">
+                        <div><strong>{{ child.user.username }}:</strong> {{ child.content }} <span class="text-muted" style="font-size:.72rem;">• {{ child.created_at|timesince }} ago</span></div>
+                        {% for clarification in child.clarifications.all %}
+                            {% if clarification.response or clarification.can_user_respond or clarification.can_user_participate %}
+                                {% include 'chats/includes/clarification_thread.html' with clarification=clarification refresh_target='#comments-panel' %}
+                            {% endif %}
+                        {% endfor %}
+                        <button class="comment-action-btn mt-1" type="button" data-bs-toggle="collapse" data-bs-target="#reply-child-detail-{{ child.id }}"><i class="bi bi-reply"></i></button>
+                        <div class="collapse mt-2" id="reply-child-detail-{{ child.id }}">
+                            <form method="post" action="{% url 'chats:post_comment' post.id %}" data-ajax-refresh-target="#comments-panel">
+                                {% csrf_token %}
+                                <input type="hidden" name="next" value="{{ request.path }}">
+                                <input type="hidden" name="parent_id" value="{{ child.id }}">
+                                <div class="add-comment-row" style="border-radius:12px;">
+                                    <input type="text" name="content" class="add-comment-input" placeholder="Reply..." required autocomplete="off">
+                                    <button class="add-comment-btn" type="submit" style="font-size:.78rem;"><i class="bi bi-reply"></i></button>
+                                </div>
+                            </form>
+                        </div>
+                    </div>
+                    {% endfor %}
+                    {% endif %}
+                </div>
+                {% empty %}
+                <div class="text-muted text-center py-3 small">Hakuna comments bado. Kuwa wa kwanza!</div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- ══ SIDEBAR ══ -->
+        <div class="col-lg-4">
+            <div class="sidebar-card">
+                <div class="sidebar-card-head">
+                    <h6><i class="bi bi-diagram-3-fill" style="color:var(--primary);"></i> Related Posts</h6>
+                </div>
+                <div class="sidebar-card-body">
+                    {% for item in related_posts %}
+                    <a href="{% url 'chats:post_detail' item.id %}" class="recent-link">
+                        <div class="recent-link-dot"></div>
+                        <div style="min-width:0;">
+                            <div class="fw-bold" style="font-size:.82rem;">{% if item.is_anonymous %}Anonymous{% else %}{{ item.user.username }}{% endif %}</div>
+                            <div class="small text-muted" style="font-size:.76rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ item.content|striptags|truncatewords:10 }}</div>
+                        </div>
+                    </a>
+                    {% empty %}
+                    <div class="text-muted small text-center">Hakuna related posts kwa sasa.</div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

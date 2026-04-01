@@ -1,0 +1,356 @@
+{% extends 'base.html' %}
+
+{% block title %}Puberty & Reproductive Hub{% endblock %}
+
+{% block content %}
+<style>
+  .hub-hero {
+    border-radius: 22px;
+    padding: 1rem;
+    background: linear-gradient(135deg, rgba(59,130,246,.18), rgba(168,85,247,.18));
+    border: 1px solid rgba(255,255,255,.2);
+    box-shadow: 0 14px 28px rgba(0,0,0,.12);
+    position: relative;
+    overflow: hidden;
+  }
+  .hub-hero::after {
+    content: '';
+    position: absolute;
+    inset: -20% -40% auto auto;
+    width: 220px;
+    height: 220px;
+    background: radial-gradient(circle, rgba(255,255,255,.25), transparent 60%);
+    pointer-events: none;
+  }
+  .score-card {
+    border-radius: 16px;
+    border: 1px solid var(--line-soft);
+    padding: .75rem;
+    background: color-mix(in srgb, var(--card-bg) 90%, transparent);
+    text-align: center;
+  }
+  .score-value { font-size: 1.25rem; font-weight: 700; }
+  .feature-card {
+    border-radius: 16px;
+    border: 1px solid var(--line-soft);
+    padding: .9rem;
+    background: color-mix(in srgb, var(--card-bg) 90%, transparent);
+    transition: transform .2s ease;
+  }
+  .feature-card:hover { transform: translateY(-2px); }
+  .mini-icon {
+    width: 34px; height: 34px; border-radius: 10px;
+    display: inline-flex; align-items: center; justify-content: center;
+    background: rgba(59,130,246,.2); font-size: 1rem;
+  }
+
+  @media (max-width: 575.98px) {
+    .hub-hero { padding: .6rem .75rem; border-radius: 14px; }
+    .hub-hero h4 { font-size: .88rem !important; line-height: 1.3; }
+    .hub-hero .small { font-size: .72rem !important; }
+    .hub-hero .btn { font-size: .72rem; padding: .22rem .5rem; }
+    .score-card { padding: .45rem .35rem; border-radius: 10px; }
+    .score-value { font-size: 1rem; }
+    .score-card .small { font-size: .68rem; }
+    .feature-card { padding: .6rem .7rem; border-radius: 12px; }
+    .feature-card h6 { font-size: .8rem !important; }
+    .feature-card ul { font-size: .75rem; }
+    .mini-icon { width: 26px; height: 26px; border-radius: 7px; font-size: .8rem; }
+    .card-custom.p-3 { padding: .65rem !important; }
+    .border.rounded-3.p-2 { padding: .45rem .55rem !important; }
+    canvas { max-height: 130px !important; }
+  }
+</style>
+
+<div class="container py-2 py-md-4">
+  <div class="hub-hero mb-3">
+    <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
+      <div>
+        <h4 class="mb-1"> AI Reproductive & Sexual Health Assistant</h4>
+        <p class="mb-0 small text-muted">Mobile-first • Competition-ready • Community + Doctor integrated</p>
+      </div>
+      <div class="d-flex gap-2">
+        <a href="{% url 'chats:feed' %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-people"></i> Jamii</a>
+        <a href="{% url 'doctor:hub' %}" class="btn btn-sm btn-outline-danger"><i class="bi bi-heart-pulse"></i> Doctors</a>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-3">
+    <div class="col-lg-7">
+      <div class="card card-custom p-3 h-100">
+        <h5 class="mb-3">AI Smart Scores</h5>
+        <div class="row g-2">
+          <div class="col-6 col-md-4"><div class="score-card"><div class="small">Overall</div><div class="score-value">{{ ai_scores.overall_score }}</div></div></div>
+          <div class="col-6 col-md-4"><div class="score-card"><div class="small">Fertility</div><div class="score-value">{{ ai_scores.fertility_score }}</div></div></div>
+          <div class="col-6 col-md-4"><div class="score-card"><div class="small">Performance</div><div class="score-value">{{ ai_scores.sexual_performance_score }}</div></div></div>
+          <div class="col-6 col-md-6"><div class="score-card"><div class="small">Hormone Balance</div><div class="score-value">{{ ai_scores.hormone_balance_score }}</div></div></div>
+          <div class="col-6 col-md-6"><div class="score-card"><div class="small">Stress vs Libido</div><div class="score-value">{{ ai_scores.stress_libido_score }}</div></div></div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-5">
+      <div class="card card-custom p-3 h-100">
+        <h5 class="mb-3">Top Problems + Solutions</h5>
+        <div class="accordion" id="issuesAcc">
+          {% for issue in issues %}
+          <div class="accordion-item bg-transparent text-reset border rounded-3 mb-2 overflow-hidden">
+            <h2 class="accordion-header" id="head{{ forloop.counter }}">
+              <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#issue{{ forloop.counter }}">
+                {{ issue.name }}
+              </button>
+            </h2>
+            <div id="issue{{ forloop.counter }}" class="accordion-collapse collapse" data-bs-parent="#issuesAcc">
+              <div class="accordion-body">
+                <p><strong>Problem:</strong> {{ issue.problem }}</p>
+                <p><strong>Solution:</strong> {{ issue.solution }}</p>
+                <p class="mb-0 text-danger"><strong>Emergency:</strong> {{ issue.urgent }}</p>
+              </div>
+            </div>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+    </div>
+
+    <div class="col-lg-4">
+      <div class="card card-custom p-3 h-100">
+        <h5 class="mb-3">Quick Stats</h5>
+        <ul class="list-group list-group-flush">
+          <li class="list-group-item bg-transparent d-flex justify-content-between"><span>Self Checks</span><strong>{{ checks|length }}</strong></li>
+          <li class="list-group-item bg-transparent d-flex justify-content-between"><span>Healthy Goals</span><strong>{{ goals|length }}</strong></li>
+          <li class="list-group-item bg-transparent d-flex justify-content-between"><span>Findings</span><strong>{{ findings|length }}</strong></li>
+        </ul>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mb-3">
+    {% for key, section in feature_sections.items %}
+    <div class="col-12 col-md-6">
+      <div class="feature-card h-100">
+        <h6 class="mb-2"><span class="mini-icon me-1"><i class="bi bi-stars"></i></span>{{ section.title }}</h6>
+        <ul class="small mb-0 ps-3">
+          {% for item in section.items %}
+            <li class="mb-1">{{ item }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+    {% endfor %}
+  </div>
+
+  <div class="row g-3 mb-3">
+    <div class="col-12 col-lg-4">
+      <div class="card card-custom p-3 h-100">
+        <h5 class="mb-3">1) Self Check</h5>
+        <form method="post" action="{% url 'reproduction:create_check' %}">
+          {% csrf_token %}
+          {{ check_form.as_p }}
+          <button class="btn btn-primary w-100" type="submit">Run Check</button>
+        </form>
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-4">
+      <div class="card card-custom p-3 h-100">
+        <h5 class="mb-3">2) Habit Goals</h5>
+        <form method="post" action="{% url 'reproduction:create_goal' %}">
+          {% csrf_token %}
+          {{ goal_form.as_p }}
+          <button class="btn btn-primary w-100" type="submit">Add Goal</button>
+        </form>
+        <hr>
+        {% for goal in goals %}
+          <div class="d-flex justify-content-between align-items-start mb-2">
+            <div>
+              <strong>{{ goal.title }}</strong><br>
+              <small class="text-muted">Streak: {{ goal.streak_days }}/{{ goal.target_days }}</small>
+            </div>
+            <form method="post" action="{% url 'reproduction:toggle_goal_today' goal.id %}">
+              {% csrf_token %}
+              <button class="btn btn-sm {% if goal.completed_today %}btn-success{% else %}btn-outline-secondary{% endif %}" type="submit">
+                {% if goal.completed_today %}Done{% else %}Mark{% endif %}
+              </button>
+            </form>
+          </div>
+        {% empty %}
+          <p class="text-muted mb-0">No goals yet.</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-4">
+      <div class="card card-custom p-3 h-100">
+        <h5 class="mb-3">3) Findings + Jamii Share</h5>
+        <form method="post" action="{% url 'reproduction:create_finding' %}">
+          {% csrf_token %}
+          {{ finding_form.as_p }}
+          <button class="btn btn-primary w-100" type="submit">Save Finding</button>
+        </form>
+        <hr>
+        <h6 class="mb-2">4) Metric Logger (AI Learning)</h6>
+        <form method="post" action="{% url 'reproduction:create_metric' %}">
+          {% csrf_token %}
+          {{ metric_form.as_p }}
+          <button class="btn btn-outline-primary w-100" type="submit">Save Metric</button>
+        </form>
+        <hr>
+        <h6 class="mb-2">Couples Mode</h6>
+        <form method="post" action="{% url 'reproduction:connect_couple' %}">
+          {% csrf_token %}
+          {{ couple_form.as_p }}
+          <button class="btn btn-outline-danger w-100" type="submit">Send Couple Request</button>
+        </form>
+        {% if couple_connection %}
+        <p class="small text-success mt-2 mb-0">Connected/Requested: {{ couple_connection.requester }} ↔ {{ couple_connection.partner }} ({{ couple_connection.status }})</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3">
+    <div class="col-12 col-lg-6">
+      <div class="card card-custom p-3 h-100">
+        <h5 class="mb-3">Recent Self-Check Results</h5>
+        {% for item in checks %}
+          <div class="border rounded-3 p-2 mb-2">
+            <div class="d-flex justify-content-between">
+              <strong>{{ item.created_at|date:'M d, H:i' }}</strong>
+              <span class="badge {% if item.risk_level == 'high' %}bg-danger{% elif item.risk_level == 'medium' %}bg-warning text-dark{% else %}bg-success{% endif %}">{{ item.risk_level|upper }}</span>
+            </div>
+            <small>Symptoms: {{ item.symptoms|join:', ' }}</small>
+            {% if item.red_flags %}
+              <div class="mt-1">
+                {% for rf in item.red_flags %}
+                  <span class="badge bg-danger-subtle text-danger border me-1 mb-1">{{ rf }}</span>
+                {% endfor %}
+              </div>
+            {% endif %}
+            <p class="mb-0 mt-1">{{ item.ai_guidance }}</p>
+          </div>
+        {% empty %}
+          <p class="text-muted mb-0">No checks yet.</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-6">
+      <div class="card card-custom p-3 h-100">
+        <h5 class="mb-3">Recent Findings</h5>
+        {% for finding in findings %}
+          <div class="border rounded-3 p-2 mb-2">
+            <div class="d-flex justify-content-between">
+              <strong>{{ finding.title }}</strong>
+              <small>{{ finding.created_at|date:'M d' }}</small>
+            </div>
+            <p class="mb-1">{{ finding.finding|truncatechars:180 }}</p>
+            {% if finding.community_post_id %}
+              <small class="text-success">Shared to Jamii Community ✅</small>
+            {% else %}
+              <small class="text-muted">Private note</small>
+            {% endif %}
+          </div>
+        {% empty %}
+          <p class="text-muted mb-0">No findings yet.</p>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mt-1">
+    <div class="col-12 col-lg-6">
+      <div class="card card-custom p-3 h-100">
+        <h5 class="mb-3">AI Personalized Prevention Plan (7 Days)</h5>
+        {% for day in latest_plan %}
+          <div class="border rounded-3 p-2 mb-2 d-flex justify-content-between align-items-start">
+            <div>
+              <strong>Day {{ day.day_number }}: {{ day.title }}</strong>
+              <p class="mb-0 small">{{ day.action }}</p>
+            </div>
+            {% if day.is_done %}
+              <span class="badge bg-success">Done</span>
+            {% else %}
+              <span class="badge bg-secondary">Pending</span>
+            {% endif %}
+          </div>
+        {% empty %}
+          <p class="text-muted mb-0">Run a self-check to generate your personalized 7-day prevention plan.</p>
+        {% endfor %}
+      </div>
+    </div>
+
+    <div class="col-12 col-lg-6">
+      <div class="card card-custom p-3 h-100">
+        <h5 class="mb-3">Symptoms Analytics (Last 30 Days)</h5>
+        <div class="mb-3">
+          <canvas id="riskChart" height="160"></canvas>
+        </div>
+        <div>
+          <canvas id="symptomChart" height="180"></canvas>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div class="row g-3 mt-1">
+    <div class="col-12">
+      <div class="card card-custom p-3">
+        <h5 class="mb-3">Doctor + Community Integration</h5>
+        <div class="d-flex flex-wrap gap-2">
+          <a href="{% url 'doctor:hub' %}" class="btn btn-outline-danger btn-sm"><i class="bi bi-hospital"></i> Find Verified Doctor</a>
+          <a href="{% url 'chats:feed' %}" class="btn btn-outline-primary btn-sm"><i class="bi bi-chat-dots"></i> Share on Jamii</a>
+          <a href="{% url 'offline_chat:home' %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-hdd-network"></i> Offline AI Mode</a>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+  (function () {
+    const riskCtx = document.getElementById('riskChart');
+    const symptomCtx = document.getElementById('symptomChart');
+    if (!riskCtx || !symptomCtx || typeof Chart === 'undefined') return;
+
+    const riskLabels = {{ chart_risk_labels|safe }};
+    const riskData = {{ chart_risk_data|safe }};
+    const symptomLabels = {{ chart_symptom_labels|safe }};
+    const symptomData = {{ chart_symptom_data|safe }};
+
+    new Chart(riskCtx, {
+      type: 'doughnut',
+      data: {
+        labels: riskLabels,
+        datasets: [{
+          data: riskData,
+          backgroundColor: ['#33a65c', '#f2b01e', '#e53935'],
+          borderWidth: 0,
+        }]
+      },
+      options: {
+        plugins: { legend: { position: 'bottom' } },
+      }
+    });
+
+    new Chart(symptomCtx, {
+      type: 'bar',
+      data: {
+        labels: symptomLabels,
+        datasets: [{
+          label: 'Frequency',
+          data: symptomData,
+          backgroundColor: '#5c7cfa',
+          borderRadius: 6,
+        }]
+      },
+      options: {
+        scales: { y: { beginAtZero: true, ticks: { precision: 0 } } },
+        plugins: { legend: { display: false } },
+      }
+    });
+  })();
+</script>
+{% endblock %}

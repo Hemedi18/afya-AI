@@ -1,0 +1,277 @@
+{% extends 'base.html' %}
+
+{% block extra_head %}
+<style>
+@media (max-width: 991.98px) {
+    body {
+        background: linear-gradient(145deg,#1c2128,#0f141a) !important;
+        min-height: 100dvh;
+    }
+
+    body.inbox-light-mode {
+        background: #f3f5f8 !important;
+    }
+
+    .navbar,
+    .mobile-nav,
+    .desktop-footer,
+    .ai-fab,
+    .ai-chat-widget,
+    .global-back-row {
+        display: none !important;
+    }
+
+    main {
+        padding: 0 !important;
+        margin: 0 !important;
+        min-height: 100dvh;
+    }
+
+    .py-4 {
+        padding: 14px !important;
+        min-height: 100dvh;
+        color: #fff;
+    }
+
+    .card-custom.p-4.mb-4 {
+        background: #1c222a !important;
+        border-radius: 0 !important;
+        border: none !important;
+        box-shadow: 20px 20px 40px #0b0e12, -20px -20px 40px #2a3038 !important;
+        padding: 16px !important;
+        margin-bottom: 14px !important;
+        position: relative;
+        width: 100vw;
+        margin-left: calc(50% - 50vw) !important;
+        margin-right: calc(50% - 50vw) !important;
+    }
+
+    .card-custom.p-4.mb-4 h4 {
+        font-size: 24px !important;
+        margin-bottom: 12px !important;
+        color: #fff !important;
+    }
+
+    .card-custom.p-4.mb-4 p {
+        display: none !important;
+    }
+
+    .card-custom.p-4.mb-4 .btn {
+        width: 40px;
+        height: 40px;
+        min-width: 40px;
+        border-radius: 50% !important;
+        padding: 0 !important;
+        font-size: 0 !important;
+        background: #1c222a !important;
+        border: none !important;
+        box-shadow: 5px 5px 10px #0b0e12, -5px -5px 10px #2a3038 !important;
+        position: absolute;
+        top: 18px;
+        right: 16px;
+    }
+
+    .card-custom.p-4.mb-4 .btn::before {
+        content: '+';
+        font-size: 22px;
+        line-height: 40px;
+        color: #fff;
+        display: block;
+        text-align: center;
+    }
+
+    .inbox-theme-toggle {
+        position: absolute;
+        top: 18px;
+        right: 62px;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        border: none;
+        background: #1c222a;
+        color: #fff;
+        box-shadow: 5px 5px 10px #0b0e12, -5px -5px 10px #2a3038;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 2;
+    }
+
+    .card-custom.p-4.mb-4::after {
+        content: 'Search';
+        display: block;
+        margin-top: 12px;
+        width: 100%;
+        padding: 14px 20px;
+        border-radius: 30px;
+        color: rgba(255,255,255,.65);
+        background: #1c222a;
+        box-shadow: inset 5px 5px 10px #0b0e12, inset -5px -5px 10px #2a3038;
+        font-size: 14px;
+    }
+
+    a.text-decoration-none.text-reset {
+        display: block;
+        text-decoration: none !important;
+    }
+
+    .card-custom.p-4.mb-3 {
+        background: transparent !important;
+        border: none !important;
+        border-radius: 0 !important;
+        box-shadow: none !important;
+        width: 100vw;
+        margin-left: calc(50% - 50vw) !important;
+        margin-right: calc(50% - 50vw) !important;
+        padding: 12px 16px 14px 70px !important;
+        margin-top: 0 !important;
+        margin-bottom: 0 !important;
+        border-bottom: 1px solid rgba(255,255,255,.06) !important;
+        position: relative;
+        min-height: 72px;
+    }
+        .inbox-light .card-custom.p-4.mb-3 .fw-bold {
+            color: #1f2937 !important;
+        }
+
+        .inbox-light .card-custom.p-4.mb-3 .small.text-muted {
+            color: #6b7280 !important;
+        }
+
+        .inbox-light .card-custom.p-4.mb-3 .small.text-primary {
+            color: #2563eb !important;
+        }
+
+    .card-custom.p-4.mb-3::before {
+        content: '';
+        position: absolute;
+        left: 0;
+        top: 13px;
+        width: 45px;
+        height: 45px;
+        border-radius: 50%;
+        background: url('https://i.pravatar.cc/150?img=1') center/cover no-repeat;
+    }
+
+    .card-custom.p-4.mb-3 .fw-bold {
+        color: #fff !important;
+        font-size: 15px;
+        font-weight: 500 !important;
+        margin-bottom: 3px !important;
+        padding-right: 72px;
+    }
+
+    .card-custom.p-4.mb-3 .small.text-muted {
+        color: rgba(255,255,255,.62) !important;
+        font-size: 12px !important;
+        line-height: 1.35;
+        padding-right: 72px;
+    }
+
+    .card-custom.p-4.mb-3 .text-end {
+        position: absolute;
+        right: 16px;
+        top: 12px;
+        text-align: right;
+    }
+
+    .badge,
+    .badge.text-bg-success,
+    .badge.text-bg-secondary {
+        background: transparent !important;
+        color: rgba(255,255,255,.55) !important;
+        padding: 0 !important;
+        font-size: 12px !important;
+        font-weight: 400 !important;
+    }
+
+    .card-custom.p-4.text-center.text-muted {
+        background: #1c222a !important;
+        color: rgba(255,255,255,.7) !important;
+        border-radius: 16px !important;
+        box-shadow: 10px 10px 20px #0b0e12, -10px -10px 20px #2a3038 !important;
+        border: none !important;
+    }
+
+    body.inbox-light-mode .card-custom.p-4.mb-4,
+    body.inbox-light-mode .card-custom.p-4.mb-3,
+    body.inbox-light-mode .card-custom.p-4.text-center.text-muted,
+    body.inbox-light-mode .card-custom.p-4.mb-4 .btn,
+    body.inbox-light-mode .inbox-theme-toggle {
+        background: #eef1f5 !important;
+        color: #1f2937 !important;
+        box-shadow: 8px 8px 16px #d7dbe1, -8px -8px 16px #ffffff !important;
+    }
+
+    body.inbox-light-mode .card-custom.p-4.mb-4 h4,
+    body.inbox-light-mode .card-custom.p-4.mb-3 .fw-bold,
+    body.inbox-light-mode .card-custom.p-4.mb-3 .small.text-muted,
+    body.inbox-light-mode .badge,
+    body.inbox-light-mode .badge.text-bg-success,
+    body.inbox-light-mode .badge.text-bg-secondary {
+        color: #4b5563 !important;
+    }
+
+    body.inbox-light-mode .card-custom.p-4.mb-4::after {
+        background: #eef1f5;
+        color: #6b7280;
+        box-shadow: inset 4px 4px 8px #d7dbe1, inset -4px -4px 8px #ffffff;
+    }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="py-4">
+    <div class="card-custom p-4 mb-4">
+        <button class="inbox-theme-toggle" id="inboxThemeToggle" type="button" title="Theme"><i class="bi bi-brightness-high"></i></button>
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <div>
+                <h4 class="fw-bold mb-1">Private Inbox</h4>
+                <p class="text-muted mb-0">Mazungumzo binafsi kati ya user na doctor yaliyohifadhiwa kwa faragha.</p>
+            </div>
+            <a href="{% url 'doctor:hub' %}" class="btn btn-outline-secondary rounded-pill">Find doctors</a>
+        </div>
+    </div>
+
+    {% for conversation in conversations %}
+    <a href="{% url 'chats:conversation_detail' conversation.id %}" class="text-decoration-none text-reset">
+        <div class="card-custom p-4 mb-3">
+            <div class="d-flex justify-content-between align-items-start gap-3">
+                <div>
+                    <div class="fw-bold mb-1">{{ conversation.subject }}</div>
+                    <div class="small text-muted">
+                        Patient: {{ conversation.patient.get_full_name|default:conversation.patient.username }}
+                        • Doctor: {{ conversation.doctor.get_full_name|default:conversation.doctor.username }}
+                    </div>
+                </div>
+                <div class="text-end">
+                    {% if conversation.is_closed %}<span class="badge text-bg-secondary">Closed</span>{% else %}<span class="badge text-bg-success">Open</span>{% endif %}
+                    <div class="small text-muted mt-1">{{ conversation.updated_at|timesince }} ago</div>
+                </div>
+            </div>
+        </div>
+    </a>
+    {% empty %}
+    <div class="card-custom p-4 text-center text-muted">Hakuna private conversations bado.</div>
+    {% endfor %}
+</div>
+
+<script>
+(function () {
+    const btn = document.getElementById('inboxThemeToggle');
+    if (!btn) return;
+
+    const apply = (on) => {
+        document.body.classList.toggle('inbox-light-mode', on);
+        localStorage.setItem('inbox-light-mode', on ? '1' : '0');
+    };
+
+    apply(localStorage.getItem('inbox-light-mode') === '1');
+
+    btn.addEventListener('click', function () {
+        apply(!document.body.classList.contains('inbox-light-mode'));
+    });
+})();
+</script>
+{% endblock %}

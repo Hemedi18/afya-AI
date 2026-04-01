@@ -1,0 +1,67 @@
+<div class="clarification-answer {% if clarification.is_focused %}border border-2{% endif %}">
+    <div class="clarification-answer-head">
+        <span class="clarification-answer-title"><i class="bi bi-patch-check-fill"></i> Clarification</span>
+        <span class="clarification-answer-meta">
+            {% if clarification.responded_by %}{{ clarification.responded_by.username }}{% else %}{{ clarification.get_target_role_display }}{% endif %}
+            {% if clarification.updated_at %}• {{ clarification.updated_at|timesince }} ago{% endif %}
+        </span>
+    </div>
+    <div class="small text-muted mb-1">Swali: {{ clarification.question }}</div>
+
+    {% if clarification.response %}
+    <div class="clarification-answer-body mb-2">{{ clarification.response }}</div>
+    {% endif %}
+
+    {% if clarification.can_user_participate and clarification.response %}
+    <div class="comment-actions mb-2">
+        <form method="post" action="{% url 'chats:clarification_react' clarification.id 'like' %}" class="d-inline" data-ajax-refresh-target="{{ refresh_target|default:'#comments-panel' }}">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+            <button class="comment-action-btn" type="submit"><i class="bi bi-hand-thumbs-up"></i> {{ clarification.likes.count }}</button>
+        </form>
+        <form method="post" action="{% url 'chats:clarification_react' clarification.id 'dislike' %}" class="d-inline" data-ajax-refresh-target="{{ refresh_target|default:'#comments-panel' }}">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+            <button class="comment-action-btn" type="submit"><i class="bi bi-hand-thumbs-down"></i> {{ clarification.dislikes.count }}</button>
+        </form>
+        <button class="comment-action-btn" type="button" data-bs-toggle="collapse" data-bs-target="#clarification-reply-{{ clarification.id }}"><i class="bi bi-reply"></i></button>
+    </div>
+    {% endif %}
+
+    {% if clarification.messages.all %}
+    <div class="comment-thread mt-2">
+        {% for message in clarification.messages.all %}
+        <div class="child-reply">
+            <strong>{{ message.user.username }}:</strong> {{ message.content }}
+            <span class="text-muted" style="font-size:.72rem;">• {{ message.created_at|timesince }} ago</span>
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    {% if clarification.can_user_participate and clarification.response %}
+    <div class="collapse mt-2 {% if clarification.is_focused %}show{% endif %}" id="clarification-reply-{{ clarification.id }}">
+        <form method="post" action="{% url 'chats:clarification_reply' clarification.id %}" data-ajax-refresh-target="{{ refresh_target|default:'#comments-panel' }}">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+            <div class="add-comment-row" style="border-radius:12px;">
+                <input type="text" name="content" class="add-comment-input" placeholder="Reply to clarification...">
+                <button class="add-comment-btn" type="submit" style="font-size:.78rem;"><i class="bi bi-reply"></i></button>
+            </div>
+        </form>
+    </div>
+    {% endif %}
+
+    {% if clarification.can_user_respond %}
+    <div class="mt-2 {% if clarification.response and not clarification.is_focused %}d-none{% endif %}">
+        <form method="post" action="{% url 'chats:clarification_respond' clarification.id %}" data-ajax-refresh-target="{{ refresh_target|default:'#comments-panel' }}">
+            {% csrf_token %}
+            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+            <textarea name="response" class="form-control mb-2" rows="3" placeholder="Andika ufafanuzi hapa...">{{ clarification.response }}</textarea>
+            <button class="comment-action-btn" style="border-color:var(--primary);color:var(--primary);" type="submit">
+                <i class="bi bi-send-check"></i> {% if clarification.response %}Update response{% else %}Respond here{% endif %}
+            </button>
+        </form>
+    </div>
+    {% endif %}
+</div>

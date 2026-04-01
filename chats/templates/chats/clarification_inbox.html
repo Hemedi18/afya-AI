@@ -1,0 +1,173 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+.clar-shell { padding: .85rem 0 5.5rem; }
+.clar-wrap {
+    background: var(--card-bg);
+    border: 1px solid var(--line-soft);
+    border-radius: 24px;
+    padding: 1.15rem;
+    box-shadow: 0 10px 26px rgba(0,0,0,.07);
+}
+.clar-head {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 1rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+}
+.clar-sub { color: var(--text-muted); font-size: .84rem; }
+.clar-card {
+    border: 1px solid var(--line-soft);
+    border-radius: 18px;
+    padding: 1rem;
+    margin-bottom: .9rem;
+    background: color-mix(in srgb, var(--card-bg) 92%, var(--app-bg));
+}
+.clar-card-top {
+    display: flex;
+    justify-content: space-between;
+    gap: .9rem;
+    align-items: flex-start;
+    margin-bottom: .75rem;
+}
+.clar-user {
+    display: flex;
+    align-items: center;
+    gap: .75rem;
+}
+.clar-avatar {
+    width: 46px;
+    height: 46px;
+    border-radius: 50%;
+    overflow: hidden;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: #fff;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 800;
+    border: 2px solid color-mix(in srgb, var(--primary) 18%, var(--card-bg));
+}
+.clar-avatar img { width: 100%; height: 100%; object-fit: cover; }
+.clar-meta { font-size: .78rem; color: var(--text-muted); }
+.clar-target-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: .35rem;
+    padding: .24rem .62rem;
+    border-radius: 999px;
+    font-size: .72rem;
+    font-weight: 700;
+}
+.clar-target-pill.doctor { background: color-mix(in srgb, #3b82f6 14%, var(--card-bg)); color: #2563eb; }
+.clar-target-pill.admin { background: color-mix(in srgb, #ef4444 14%, var(--card-bg)); color: #dc2626; }
+.clar-target-pill.answered { background: color-mix(in srgb, #22c55e 14%, var(--card-bg)); color: #15803d; }
+.clar-target-pill.open { background: color-mix(in srgb, #f59e0b 14%, var(--card-bg)); color: #d97706; }
+.clar-question {
+    font-size: .9rem;
+    line-height: 1.6;
+    color: var(--text-main);
+    margin-bottom: .75rem;
+}
+.clar-related-box,
+.clar-response-box {
+    border-radius: 14px;
+    padding: .75rem .85rem;
+    border: 1px solid var(--line-soft);
+    margin-bottom: .7rem;
+}
+.clar-related-box {
+    background: color-mix(in srgb, var(--card-bg) 90%, var(--app-bg));
+}
+.clar-response-box {
+    background: color-mix(in srgb, var(--primary) 7%, var(--card-bg));
+}
+.clar-respond-form textarea {
+    border-radius: 14px;
+}
+</style>
+
+<div class="clar-shell">
+    <div class="clar-wrap">
+        <div class="clar-head">
+            <div>
+                <h4 class="fw-bold mb-1">Clarification Inbox</h4>
+                <div class="clar-sub">Orodha ya maombi ya ufafanuzi kutoka jamii pamoja na majibu yake.</div>
+            </div>
+            <a href="{% url 'chats:feed' %}" class="btn btn-sm btn-outline-secondary rounded-pill">Back to feed</a>
+        </div>
+
+        {% for item in requests %}
+        <div class="clar-card">
+            <div class="clar-card-top">
+                <div class="clar-user">
+                    <div class="clar-avatar">
+                        {% if item.asker.community_avatar_url %}
+                        <img src="{{ item.asker.community_avatar_url }}" alt="{{ item.asker.username }}">
+                        {% else %}
+                        {{ item.asker.community_avatar_initial|default:item.asker.username|first|upper }}
+                        {% endif %}
+                    </div>
+                    <div>
+                        <div class="fw-bold">{{ item.asker.username }}</div>
+                        <div class="clar-meta">{{ item.created_at|timesince }} ago</div>
+                    </div>
+                </div>
+                <div class="d-flex flex-wrap gap-2 justify-content-end">
+                    <span class="clar-target-pill {% if item.target_role == 'admin' %}admin{% else %}doctor{% endif %}">{{ item.target_role|title }}</span>
+                    <span class="clar-target-pill {% if item.status == 'answered' %}answered{% else %}open{% endif %}">{{ item.status|title }}</span>
+                </div>
+            </div>
+
+            {% if item.target_doctor %}
+            <div class="clar-related-box d-flex align-items-center gap-2 mb-2">
+                <div class="clar-avatar" style="width:34px;height:34px;">
+                    {% if item.target_doctor.community_avatar_url %}
+                    <img src="{{ item.target_doctor.community_avatar_url }}" alt="{{ item.target_doctor.username }}">
+                    {% else %}
+                    {{ item.target_doctor.community_avatar_initial|default:item.target_doctor.username|first|upper }}
+                    {% endif %}
+                </div>
+                <div>
+                    <div class="small fw-bold mb-0">Doctor selected: Dr. {{ item.target_doctor.get_full_name|default:item.target_doctor.username }}</div>
+                    {% if item.target_doctor.doctor_profile %}<div class="clar-meta">{{ item.target_doctor.doctor_profile.specialization }}</div>{% endif %}
+                </div>
+            </div>
+            {% endif %}
+
+            <div class="clar-related-box">
+                <div class="small text-muted mb-1">Target content</div>
+                {% if item.post %}
+                <div class="small mb-1"><strong>Post #{{ item.post.id }}</strong> — {{ item.post.content|truncatewords:20 }}</div>
+                <a href="{% url 'chats:post_detail' item.post.id %}?clarification={{ item.id }}" class="small fw-semibold text-decoration-none">Open related post & respond there</a>
+                {% elif item.comment %}
+                <div class="small mb-1"><strong>Comment #{{ item.comment.id }}</strong> — {{ item.comment.content|truncatewords:20 }}</div>
+                <span class="small fw-semibold text-muted">Related comment preview only (not clickable)</span>
+                {% endif %}
+            </div>
+
+            <div class="clar-question">{{ item.question }}</div>
+
+            {% if item.response %}
+            <div class="clar-response-box">
+                <div class="small fw-bold mb-1"><i class="bi bi-patch-check-fill"></i> Response</div>
+                <div class="small mb-1">{{ item.response }}</div>
+                {% if item.responded_by %}<div class="clar-meta">— {{ item.responded_by.username }}</div>{% endif %}
+            </div>
+            {% else %}
+            <form method="post" action="{% url 'chats:clarification_respond' item.id %}" class="clar-respond-form">
+                {% csrf_token %}
+                <textarea name="response" class="form-control mb-2" rows="3" placeholder="Andika ufafanuzi hapa..." required></textarea>
+                <button class="btn btn-primary rounded-pill px-4" type="submit">Jibu</button>
+            </form>
+            {% endif %}
+        </div>
+        {% empty %}
+        <div class="text-muted text-center py-4">Hakuna clarification requests kwa sasa.</div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

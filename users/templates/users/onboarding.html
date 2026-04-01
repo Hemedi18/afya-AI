@@ -1,0 +1,53 @@
+{% extends "base.html" %}
+
+{% block title %}AI Persona Setup - ZanzHub{% endblock %}
+
+{% block content %}
+<div class="py-4" style="max-width: 860px; margin: 0 auto;">
+    <div class="card-custom p-4 p-lg-5">
+        <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap mb-3">
+            <div>
+                <h4 class="fw-bold mb-1">AI Persona Setup</h4>
+                <p class="text-muted mb-0">Step {{ step }} / 3 • {{ step_title }}</p>
+            </div>
+            <a href="{% url 'AI_brain:chat' %}" class="btn btn-sm btn-outline-secondary rounded-pill">Skip for now</a>
+        </div>
+
+        <p class="text-muted small mb-3">{{ step_subtitle }}</p>
+
+        <div class="progress mb-4" role="progressbar" aria-valuemin="0" aria-valuemax="100" aria-valuenow="{{ progress }}" style="height: 10px; border-radius: 999px;">
+            <div class="progress-bar bg-danger" style="width: {{ progress }}%"></div>
+        </div>
+
+        <form method="post" novalidate>
+            {% csrf_token %}
+            {% if form.non_field_errors %}
+            <div class="alert alert-danger rounded-4">{{ form.non_field_errors }}</div>
+            {% endif %}
+
+            <div class="row g-3">
+                {% for field in form %}
+                <div class="col-12 {% if field.name == 'age' or field.name == 'gender' or field.name == 'height_cm' or field.name == 'weight_kg' or field.name == 'sleep_hours' or field.name == 'stress_level' or field.name == 'exercise_frequency' %}col-md-6{% endif %}">
+                    <label class="form-label fw-semibold" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    {{ field }}
+                    {% if field.help_text %}<div class="small text-muted mt-1">{{ field.help_text }}</div>{% endif %}
+                    {% if field.errors %}<div class="small text-danger mt-1">{{ field.errors|striptags }}</div>{% endif %}
+                </div>
+                {% endfor %}
+            </div>
+
+            <div class="d-flex justify-content-between gap-2 mt-4 flex-wrap">
+                {% if step > 1 %}
+                <a href="{% url 'users:onboarding' step=step|add:'-1' %}" class="btn btn-outline-secondary rounded-pill px-4">Back</a>
+                {% else %}
+                <span></span>
+                {% endif %}
+
+                <button type="submit" class="btn btn-danger rounded-pill px-4">
+                    {% if step == 3 %}Finish{% else %}Continue{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

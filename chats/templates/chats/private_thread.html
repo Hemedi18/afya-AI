@@ -1,0 +1,1092 @@
+{% extends 'base.html' %}
+
+{# ─── Hide EVERYTHING from base — we own the full screen ─── #}
+{% block extra_head %}
+<style>
+/* ── Override base layout for full-screen chat ── */
+body            { padding-bottom: 0 !important; overflow: hidden !important; height: 100dvh !important; }
+.navbar         { display: none !important; }
+.mobile-nav     { display: none !important; }
+.desktop-footer { display: none !important; }
+.ai-fab         { display: none !important; }
+.ai-chat-widget { display: none !important; }
+.global-back-row{ display: none !important; }
+main,
+main.container  { padding: 0 !important; margin: 0 !important; display: flex; flex-direction: column; height: 100dvh; overflow: hidden; width: 100vw !important; max-width: 100vw !important; }
+
+/* ═══════════════════════════════
+   WHATSAPP COLOUR TOKENS
+═══════════════════════════════ */
+:root {
+  --wa-header-bg:    #1c222a;
+  --wa-header-text:  #ffffff;
+  --wa-send-btn:     #ff4b4b;
+  --wa-sent-bg:      linear-gradient(135deg,#ff4b4b,#f43f5e);
+  --wa-sent-text:    #ffffff;
+  --wa-recv-bg:      #1c222a;
+  --wa-recv-text:    #eef4ff;
+  --wa-wall-bg:      #0f141a;
+  --wa-wall-pattern: radial-gradient(circle at 18% 12%, rgba(255,255,255,.03), transparent 24%), radial-gradient(circle at 82% 84%, rgba(255,255,255,.03), transparent 24%);
+  --wa-bar-bg:       #1c222a;
+  --wa-input-bg:     #1c222a;
+  --wa-time-color:   #a7b1c0;
+  --wa-tick-read:    #53bdeb;
+  --wa-tail-sent:    #f43f5e;
+  --wa-tail-recv:    #1c222a;
+}
+html[data-theme='dark'] {
+  --wa-header-bg:    #1c222a;
+  --wa-header-text:  #ffffff;
+  --wa-send-btn:     #ff4b4b;
+  --wa-sent-bg:      linear-gradient(135deg,#ff4b4b,#f43f5e);
+  --wa-sent-text:    #ffffff;
+  --wa-recv-bg:      #1c222a;
+  --wa-recv-text:    #eef4ff;
+  --wa-wall-bg:      #0f141a;
+  --wa-wall-pattern: radial-gradient(circle at 18% 12%, rgba(255,255,255,.03), transparent 24%), radial-gradient(circle at 82% 84%, rgba(255,255,255,.03), transparent 24%);
+  --wa-bar-bg:       #1c222a;
+  --wa-input-bg:     #1c222a;
+  --wa-time-color:   #a7b1c0;
+  --wa-tail-sent:    #f43f5e;
+  --wa-tail-recv:    #1c222a;
+}
+
+/* ═══════════════════════════════ WRAPPER ═══════════════════════════════ */
+.wa { display:flex; flex-direction:column; height:100%; overflow:hidden; position:relative; }
+
+/* ═══════════════════════════════ HEADER ═══════════════════════════════ */
+.wa-header {
+  flex-shrink:0; display:flex; align-items:center; gap:.65rem;
+  width: 100%;
+  box-sizing: border-box;
+  padding:.5rem .85rem; background:var(--wa-header-bg); color:var(--wa-header-text); z-index:10;
+}
+.wa-header-back { color:var(--wa-header-text); text-decoration:none; font-size:1.3rem; line-height:1; padding:.2rem; flex-shrink:0; }
+.wa-avatar {
+  width:40px; height:40px; border-radius:50%;
+  background:linear-gradient(135deg,#25d366,#075e54);
+  display:flex; align-items:center; justify-content:center;
+  font-weight:800; font-size:1rem; color:#fff; flex-shrink:0;
+}
+.wa-header-info { flex:1; min-width:0; }
+.wa-header-name  { font-weight:600; font-size:.92rem; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; line-height:1.2; }
+.wa-header-status{ font-size:.72rem; opacity:.82; line-height:1.2; }
+.wa-header-menu  { color:var(--wa-header-text); opacity:.85; font-size:1.25rem; line-height:1; padding:.2rem .3rem; background:none; border:none; cursor:pointer; }
+.wa-theme-toggle {
+  color: var(--wa-header-text);
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  border: 1px solid rgba(255,255,255,.25);
+  background: rgba(255,255,255,.08);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ═══════════════════════════════ WALLPAPER BODY ═══════════════════════ */
+.wa-body {
+  flex:1; overflow-y:auto; overflow-x:hidden; padding:.6rem .75rem 1rem;
+  background-color:var(--wa-wall-bg); background-image:var(--wa-wall-pattern);
+  scroll-behavior:smooth; display:flex; flex-direction:column; gap:.18rem;
+}
+.wa-body::-webkit-scrollbar { width:5px; }
+.wa-body::-webkit-scrollbar-thumb { background:rgba(0,0,0,.18); border-radius:4px; }
+
+/* Date chip */
+.wa-date-chip {
+  align-self:center; background:rgba(255,255,255,.85); color:#667781;
+  font-size:.72rem; padding:.2rem .65rem; border-radius:7px;
+  box-shadow:0 1px 2px rgba(0,0,0,.13); margin:.4rem 0; user-select:none;
+}
+html[data-theme='dark'] .wa-date-chip { background:rgba(31,44,52,.9); color:#8696a0; }
+
+/* ═══════════════════════════════ BUBBLES ═══════════════════════════════ */
+.wa-msg-row { display:flex; align-items:flex-end; gap:.3rem; }
+.wa-msg-row.sent { justify-content:flex-end; }
+.wa-msg-row.recv { justify-content:flex-start; }
+
+.wa-bubble {
+  position:relative; max-width:100%;
+  padding:.58rem .78rem .4rem; border-radius:16px;
+  font-size:1rem; line-height:1.52;
+  box-shadow: 6px 6px 14px #0b0e12, -5px -5px 12px #2a3038;
+  word-break:break-word;
+}
+.wa-msg-row.sent .wa-bubble  { background:var(--wa-sent-bg); color:var(--wa-sent-text); border-top-right-radius:6px; }
+.wa-msg-row.recv .wa-bubble  { background:#00a60742; color:var(--wa-recv-text); border-top-left-radius:6px; }
+
+/* Tails */
+.wa-msg-row.sent .wa-bubble::after  { content:''; position:absolute; top:0; right:-8px; border:8px solid transparent; border-top-color:var(--wa-tail-sent); border-right:0; }
+.wa-msg-row.recv .wa-bubble::before { content:''; position:absolute; top:0; left:-8px;  border:8px solid transparent; border-top-color:var(--wa-tail-recv); border-left:0; }
+
+.wa-sender-name  { font-size:.76rem; font-weight:700; color:#7dd3fc; margin-bottom:.22rem; display:block; }
+.wa-msg-row.sent .wa-sender-name { display:none; }
+.wa-text         { white-space:pre-wrap; overflow-wrap:anywhere; word-break:break-word; }
+
+.wa-meta { display:flex; align-items:center; justify-content:flex-end; gap:.22rem; margin-top:.22rem; font-size:.72rem; color:var(--wa-time-color); user-select:none; }
+.wa-ticks.read   { color:#53bdeb; }
+
+.wa-attach-link  { display:inline-flex; align-items:center; gap:.35rem; margin-top:.3rem; padding:.3rem .55rem; border-radius:6px; font-size:.8rem; text-decoration:none; font-weight:500; }
+.wa-msg-row.sent .wa-attach-link { background:rgba(0,0,0,.12); color:var(--wa-sent-text); }
+.wa-msg-row.recv .wa-attach-link { background:rgba(0,0,0,.07); color:var(--wa-recv-text); }
+
+.wa-empty { align-self:center; margin:auto; background:rgba(255,255,255,.85); color:#667781; padding:.5rem 1.1rem; border-radius:9px; font-size:.82rem; box-shadow:0 1px 2px rgba(0,0,0,.13); }
+html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0; }
+
+/* Typing dots */
+.wa-typing { align-self:flex-start; background:var(--wa-recv-bg); border-radius:7.5px; border-top-left-radius:0; padding:.5rem .75rem; box-shadow:0 1px 2px rgba(0,0,0,.13); display:none; gap:.25rem; align-items:center; }
+.wa-typing.show { display:flex; }
+.wa-dot { width:7px; height:7px; border-radius:50%; background:var(--wa-time-color); animation:waDot 1.3s ease-in-out infinite; }
+.wa-dot:nth-child(2){animation-delay:.2s;} .wa-dot:nth-child(3){animation-delay:.4s;}
+@keyframes waDot { 0%,60%,100%{transform:translateY(0);opacity:.6} 30%{transform:translateY(-6px);opacity:1} }
+
+/* ═══════════════════════════════ INPUT BAR ═══════════════════════════ */
+.wa-footer { flex-shrink:0; display:flex; align-items:flex-end; gap:.5rem; padding:.45rem .55rem; background:var(--wa-bar-bg); z-index:10; }
+.wa-input-wrap { flex:1; display:flex; align-items:flex-end; background:var(--wa-input-bg); border-radius:24px; padding:.38rem .5rem .38rem .85rem; gap:.3rem; border:1px solid rgba(255,255,255,.08); box-shadow: inset 6px 6px 12px #12161b, inset -6px -6px 12px #262d36; }
+.wa-emoji-btn { background:none; border:none; padding:0 .3rem; color:var(--wa-time-color); font-size:1.35rem; cursor:pointer; line-height:1; flex-shrink:0; display:flex; align-items:center; }
+.wa-emoji-btn:hover { color:var(--wa-header-bg); }
+#wa-text-input { flex:1; border:none; outline:none; resize:none; background:transparent; font-size:.9rem; color:var(--wa-recv-text); line-height:1.45; max-height:130px; overflow-y:auto; padding:0; font-family:inherit; }
+#wa-text-input::placeholder { color:var(--wa-time-color); }
+.wa-attach-btn,
+.wa-send-btn { width:46px; height:46px; border-radius:50%; background:var(--wa-send-btn); border:none; cursor:pointer; flex-shrink:0; display:flex; align-items:center; justify-content:center; color:#fff; font-size:1.25rem; transition:transform .15s ease; box-shadow:0 2px 10px rgba(37,211,102,.35); }
+.wa-attach-btn { background: color-mix(in srgb, var(--wa-recv-bg) 86%, transparent); color: var(--wa-recv-text); }
+.wa-attach-btn:hover,
+.wa-send-btn:hover  { transform:scale(1.07); }
+.wa-attach-btn:active,
+.wa-send-btn:active { transform:scale(.94); }
+
+/* File preview strip */
+.wa-file-preview { display:none; align-items:center; gap:.5rem; padding:.3rem .7rem; background:var(--wa-bar-bg); font-size:.8rem; color:var(--wa-time-color); border-top:1px solid rgba(0,0,0,.08); }
+.wa-file-preview.show { display:flex; }
+.wa-file-preview-name { flex:1; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.wa-file-clear { background:none; border:none; color:#e53935; font-size:1rem; cursor:pointer; padding:0 .2rem; }
+
+/* Emoji picker */
+.wa-emoji-picker { position:absolute; bottom:70px; left:8px; background:var(--wa-recv-bg); border:1px solid rgba(0,0,0,.1); border-radius:14px; padding:.55rem; box-shadow:0 8px 28px rgba(0,0,0,.18); display:none; flex-wrap:wrap; gap:.25rem; max-width:270px; z-index:20; }
+.wa-emoji-picker.show { display:flex; }
+.wa-ep-btn { background:none; border:none; cursor:pointer; font-size:1.3rem; padding:.1rem .2rem; border-radius:6px; line-height:1; }
+.wa-ep-btn:hover { background:rgba(0,0,0,.07); }
+
+/* Connection status bar */
+#wa-conn-status { position:absolute; top:0; left:0; right:0; text-align:center; font-size:.7rem; padding:.1rem .5rem; pointer-events:none; z-index:5; transition:opacity .4s; opacity:0; }
+#wa-conn-status.show { opacity:1; }
+#wa-conn-status.ok   { background:#25d366; color:#fff; }
+#wa-conn-status.err  { background:#e53935; color:#fff; }
+
+/* ===== Premium interactive layout ===== */
+.wa-shell {
+  height: 100%;
+  width: 100%;
+  margin: 0 auto;
+  padding: .65rem;
+  display: grid;
+  grid-template-columns: 320px 1fr;
+  gap: .65rem;
+  background: radial-gradient(circle at 18% 10%, rgba(56,189,248,.14), transparent 28%),
+              radial-gradient(circle at 86% 86%, rgba(16,185,129,.14), transparent 24%);
+}
+.wa-side {
+  border-radius: 20px;
+  background: color-mix(in srgb, var(--wa-recv-bg) 84%, transparent);
+  border: 1px solid color-mix(in srgb, var(--wa-time-color) 20%, transparent);
+  box-shadow: 0 20px 40px rgba(0,0,0,.18);
+  padding: .85rem;
+  display: flex;
+  flex-direction: column;
+  gap: .7rem;
+}
+.wa-side-card {
+  border-radius: 14px;
+  border: 1px solid color-mix(in srgb, var(--wa-time-color) 20%, transparent);
+  background: color-mix(in srgb, var(--wa-recv-bg) 88%, transparent);
+  padding: .65rem;
+}
+.wa-side-label { font-size: .68rem; text-transform: uppercase; letter-spacing: .08em; color: var(--wa-time-color); margin-bottom: .25rem; }
+.wa-side-value { font-size: .92rem; font-weight: 700; color: var(--wa-recv-text); }
+.wa-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: .3rem;
+  font-size: .72rem;
+  border-radius: 999px;
+  padding: .2rem .5rem;
+  background: color-mix(in srgb, var(--wa-header-bg) 22%, transparent);
+  color: color-mix(in srgb, var(--wa-header-bg) 64%, #fff);
+  border: 1px solid color-mix(in srgb, var(--wa-header-bg) 36%, transparent);
+}
+.wa-main { border-radius: 24px; border: 1px solid color-mix(in srgb, var(--wa-time-color) 22%, transparent); overflow: hidden; box-shadow: 0 22px 46px rgba(0,0,0,.2); }
+
+.wa-msg-row { animation: waMsgIn .22s ease; }
+@keyframes waMsgIn {
+  from { opacity: 0; transform: translateY(8px) scale(.98); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+.wa-msg-wrap { position: relative; width: fit-content; max-width: min(96%, 980px); }
+.wa-msg-row.sent .wa-msg-wrap { margin-left: auto; }
+.wa-msg-row.recv .wa-msg-wrap { margin-right: auto; }
+.wa-reply-btn,
+.wa-delete-btn { display: none !important; }
+
+.wa-context-menu {
+  position: fixed;
+  z-index: 4000;
+  min-width: 170px;
+  display: none;
+  flex-direction: column;
+  border-radius: 12px;
+  background: #1c222a;
+  border: 1px solid rgba(255,255,255,.14);
+  box-shadow: 10px 10px 20px #0b0e12, -6px -6px 14px #2a3038;
+  overflow: hidden;
+  animation: menuIn .14s ease;
+}
+.wa-context-menu.show { display: flex; }
+.wa-context-btn {
+  border: 0;
+  background: transparent;
+  color: #eaf4ff;
+  text-align: left;
+  padding: .55rem .7rem;
+  font-size: .84rem;
+  display: flex;
+  align-items: center;
+  gap: .45rem;
+}
+.wa-context-btn:hover { background: rgba(255,255,255,.08); }
+.wa-context-btn.danger { color: #fca5a5; }
+@keyframes menuIn {
+  from { opacity: 0; transform: translateY(6px) scale(.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.wa-reply-snippet {
+  border-left: 3px solid #38bdf8;
+  border-radius: 8px;
+  padding: .15rem .45rem;
+  margin-bottom: .3rem;
+  background: rgba(56,189,248,.12);
+}
+.wa-reply-snippet .name { font-size: .72rem; font-weight: 700; color: #38bdf8; }
+.wa-reply-snippet .text { font-size: .72rem; opacity: .86; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+
+.wa-reply-bar {
+  display: none;
+  align-items: center;
+  justify-content: space-between;
+  gap: .6rem;
+  padding: .45rem .7rem;
+  background: color-mix(in srgb, var(--wa-header-bg) 14%, var(--wa-bar-bg));
+  border-top: 1px solid color-mix(in srgb, var(--wa-time-color) 20%, transparent);
+}
+.wa-reply-bar.show { display: flex; }
+.wa-reply-main { min-width: 0; }
+.wa-reply-name { font-size: .72rem; color: #38bdf8; font-weight: 700; }
+.wa-reply-text { font-size: .76rem; color: var(--wa-time-color); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 70vw; }
+.wa-reply-cancel { border: 0; background: transparent; color: #ef4444; font-size: 1rem; }
+
+/* local light mode for this chat only */
+.wa.wa-light {
+  --wa-header-bg: #eef1f5;
+  --wa-header-text: #1f2937;
+  --wa-send-btn: #ff4b4b;
+  --wa-sent-bg: linear-gradient(135deg,#fb7185,#f43f5e);
+  --wa-sent-text: #ffffff;
+  --wa-recv-bg: #eef1f5;
+  --wa-recv-text: #1f2937;
+  --wa-wall-bg: #f3f5f8;
+  --wa-wall-pattern: radial-gradient(circle at 18% 12%, rgba(0,0,0,.03), transparent 24%), radial-gradient(circle at 82% 84%, rgba(0,0,0,.03), transparent 24%);
+  --wa-bar-bg: #eef1f5;
+  --wa-input-bg: #eef1f5;
+  --wa-time-color: #6b7280;
+  --wa-tail-sent: #f43f5e;
+  --wa-tail-recv: #eef1f5;
+}
+.wa.wa-light .wa-msg-row.recv .wa-bubble {
+  background: #00584745 !important;
+}
+.wa.wa-light .wa-side,
+.wa.wa-light .wa-side-card,
+.wa.wa-light .wa-bubble,
+.wa.wa-light .wa-input-wrap,
+.wa.wa-light .wa-context-menu,
+.wa.wa-light .wa-bottom-attach,
+.wa.wa-light .wa-header {
+  box-shadow: 8px 8px 18px #d7dbe1, -8px -8px 18px #ffffff;
+}
+.wa.wa-light .wa-context-btn { color: #1f2937; }
+.wa.wa-light .wa-context-btn.danger { color: #dc2626; }
+.wa.wa-light .wa-input-wrap {
+  border: 1px solid rgba(0,0,0,.08);
+  box-shadow: inset 6px 6px 12px #d7dbe1, inset -6px -6px 12px #ffffff !important;
+}
+.wa.wa-light .wa-send-btn {
+  background: #ff4b4b !important;
+  color: #fff !important;
+  box-shadow: 8px 8px 16px #d7dbe1, -8px -8px 16px #ffffff !important;
+}
+.wa.wa-light .wa-avatar {
+  background: linear-gradient(135deg, #93c5fd, #67e8f9) !important;
+  color: #0f172a !important;
+  box-shadow: 8px 8px 16px #d7dbe1, -8px -8px 16px #ffffff !important;
+}
+
+@media (min-width: 992px) {
+  .wa-shell {
+    width: 100vw;
+    height: 100dvh;
+    box-sizing: border-box;
+    padding: 0;
+    grid-template-columns: 38vw 62vw;
+    gap: 0;
+    justify-content: center;
+  }
+  .wa-side {
+    width: 38vw;
+    max-width: 38vw;
+    height: 100dvh;
+    min-height: 0;
+    border-radius: 0;
+  }
+  .wa-main {
+    width: 62vw;
+    max-width: 62vw;
+    height: 100dvh;
+    min-height: 0;
+    border-radius: 0;
+    display: flex;
+    flex-direction: column;
+  }
+  .wa.wa-light.wa-main {
+    width: 62vw;
+    max-width: 62vw;
+  }
+  .wa-body {
+    min-height: 0;
+    padding-bottom: 1.3rem;
+  }
+}
+
+@media (max-width: 991.98px) {
+  body {
+    background: linear-gradient(145deg,#1c2128,#0f141a) !important;
+  }
+  body.wa-global-light {
+    background: #f3f5f8 !important;
+  }
+  .wa-shell {
+    width: 100%;
+    height: 100%;
+    padding: 0;
+    gap: 0;
+    grid-template-columns: 1fr;
+    background: transparent;
+  }
+  .wa-side { display: none; }
+  .wa-main {
+    border-radius: 0;
+    border: 0;
+    box-shadow: none;
+    background: transparent;
+  }
+
+  .wa-header {
+    margin: 0;
+    border-radius: 0;
+    background: #1c222a;
+    box-shadow: 10px 10px 20px #0b0e12, -10px -10px 20px #2a3038;
+    padding: 10px 12px;
+    position: relative;
+  }
+  .wa-header-back,
+  .wa-header-menu {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #1c222a;
+    box-shadow: 5px 5px 10px #0b0e12, -5px -5px 10px #2a3038;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+  }
+  .wa-theme-toggle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: none;
+    background: #1c222a;
+    color: #fff;
+    box-shadow: 5px 5px 10px #0b0e12, -5px -5px 10px #2a3038;
+  }
+  .wa-avatar {
+    width: 38px;
+    height: 38px;
+    box-shadow: 5px 5px 10px #0b0e12, -5px -5px 10px #2a3038;
+  }
+  .wa-header-name { font-size: 18px; font-weight: 600; }
+  .wa-header-status { font-size: 12px; opacity: .7; }
+
+  .wa-body {
+    padding: 8px 12px 10px;
+    background: transparent;
+    gap: 0;
+  }
+
+  .wa-msg-row { margin: 6px 0; }
+  .wa-msg-wrap {
+    max-width: 76%;
+    width: auto;
+  }
+
+  .wa-bubble {
+    border-radius: 20px;
+    padding: 12px 16px;
+    font-size: 13px;
+    line-height: 1.5;
+    box-shadow: 5px 5px 10px #0b0e12, -5px -5px 10px #2a3038;
+    max-width: 100%;
+  }
+  .wa-msg-row.sent .wa-bubble {
+    background: #ff4b4b;
+    border-top-right-radius: 20px;
+    color: #fff;
+  }
+  .wa-msg-row.recv .wa-bubble {
+    background: #1c222a;
+    border-top-left-radius: 20px;
+    color: #eef4ff;
+  }
+  .wa-msg-row.sent .wa-bubble::after,
+  .wa-msg-row.recv .wa-bubble::before {
+    display: none;
+  }
+  .wa-sender-name { display: none !important; }
+
+  .wa-meta {
+    margin-top: 6px;
+    font-size: 11px;
+  }
+
+  .wa-footer {
+    margin: 0;
+    padding: 4px 0 8px;
+    gap: 6px;
+    background: transparent;
+    border: 0;
+    align-items: center;
+  }
+  .wa-input-wrap {
+    border-radius: 24px;
+    padding: 10px 12px;
+    background: #1c222a;
+    border: 1px solid rgba(255,255,255,.08);
+    box-shadow: inset 6px 6px 12px #12161b, inset -6px -6px 12px #262d36;
+    min-height: 44px;
+    flex: 1;
+  }
+  .wa-emoji-btn {
+    display: none;
+  }
+  #wa-text-input {
+    font-size: 14px;
+    color: #fff;
+    max-height: 96px;
+  }
+  .wa-send-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #ff4b4b;
+    box-shadow: 5px 5px 10px #0b0e12, -5px -5px 10px #2a3038;
+    font-size: 1rem;
+  }
+
+  .wa-attach-btn {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    background: #1c222a;
+    color: #fff;
+    box-shadow: 5px 5px 10px #0b0e12, -5px -5px 10px #2a3038;
+    font-size: 1rem;
+    margin-left: 2px;
+  }
+
+  .wa-reply-bar,
+  .wa-file-preview {
+    margin: 0 12px;
+    border-radius: 14px;
+    border: 0;
+    background: #1c222a;
+    box-shadow: 5px 5px 10px #0b0e12, -5px -5px 10px #2a3038;
+  }
+
+  .wa-context-menu {
+    min-width: 160px;
+    border-radius: 14px;
+    background: #1c222a;
+    box-shadow: 10px 10px 20px #0b0e12, -6px -6px 14px #2a3038;
+  }
+
+  .wa.wa-light .wa-header,
+  .wa.wa-light .wa-header-back,
+  .wa.wa-light .wa-header-menu,
+  .wa.wa-light .wa-theme-toggle,
+  .wa.wa-light .wa-bubble,
+  .wa.wa-light .wa-attach-btn {
+    background: #eef1f5 !important;
+    color: #1f2937 !important;
+    box-shadow: 8px 8px 16px #d7dbe1, -8px -8px 16px #ffffff !important;
+  }
+  .wa.wa-light .wa-input-wrap {
+    background: #eef1f5 !important;
+    color: #1f2937 !important;
+    border: 1px solid rgba(0,0,0,.08) !important;
+    box-shadow: inset 6px 6px 12px #d7dbe1, inset -6px -6px 12px #ffffff !important;
+  }
+  .wa.wa-light .wa-main,
+  .wa.wa-light .wa-body {
+    background: #f3f5f8 !important;
+  }
+}
+</style>
+{% endblock %}
+
+{% block content %}
+{# hidden CSRF for JS fetch calls #}
+{% csrf_token %}
+
+<div class="wa-shell">
+<aside class="wa-side">
+  <div class="wa-side-card">
+    <div class="wa-side-label">Conversation</div>
+    <div class="wa-side-value">{{ conversation.subject }}</div>
+  </div>
+  <div class="wa-side-card">
+    <div class="wa-side-label">Participants</div>
+    <div class="d-flex flex-column gap-2">
+      <span class="wa-chip"><i class="bi bi-person-heart"></i>{{ conversation.patient.get_full_name|default:conversation.patient.username }}</span>
+      <span class="wa-chip"><i class="bi bi-person-badge"></i>{{ conversation.doctor.get_full_name|default:conversation.doctor.username }}</span>
+    </div>
+  </div>
+  <div class="wa-side-card">
+    <div class="wa-side-label">Smart tips</div>
+    <div class="small text-muted">Hover message then click <strong>↩</strong> to reply. Shift + Enter adds new line. Blue ticks mean read.</div>
+  </div>
+</aside>
+
+<div class="wa wa-main" id="waApp" data-delete-url-template="{% url 'chats:conversation_delete_message' conversation.id 0 %}">
+
+  {# ── STATUS BAR ── #}
+  <div id="wa-conn-status"></div>
+
+  {# ── HEADER ── #}
+  <header class="wa-header">
+    <a href="{% url 'chats:inbox' %}" class="wa-header-back"><i class="bi bi-arrow-left"></i></a>
+
+    {% if user == conversation.doctor %}
+      {% with other=conversation.patient %}
+      <div class="wa-avatar">{{ other.username|first|upper }}</div>
+      <div class="wa-header-info">
+        <div class="wa-header-name">{{ other.get_full_name|default:other.username }}</div>
+        <div class="wa-header-status" id="waPresence">online</div>
+      </div>
+      {% endwith %}
+    {% else %}
+      {% with other=conversation.doctor %}
+      <div class="wa-avatar">{{ other.username|first|upper }}</div>
+      <div class="wa-header-info">
+        <div class="wa-header-name">{{ other.get_full_name|default:other.username }}</div>
+        <div class="wa-header-status" id="waPresence">online</div>
+      </div>
+      {% endwith %}
+    {% endif %}
+
+    <button class="wa-theme-toggle" id="waThemeBtn" title="Theme"><i class="bi bi-brightness-high"></i></button>
+    <button class="wa-header-menu" id="waMenuBtn"><i class="bi bi-three-dots-vertical"></i></button>
+    <div id="waMenu" style="display:none;position:absolute;right:12px;top:58px;background:var(--wa-recv-bg);border-radius:10px;box-shadow:0 6px 20px rgba(0,0,0,.18);z-index:30;min-width:170px;">
+      <a href="{% url 'chats:inbox' %}" style="display:block;padding:.65rem 1rem;font-size:.88rem;color:var(--wa-recv-text);text-decoration:none;"><i class="bi bi-inbox me-2"></i>Rudi Inbox</a>
+      <div style="border-top:1px solid rgba(0,0,0,.08);padding:.65rem 1rem;font-size:.78rem;color:var(--wa-time-color);">Mada: {{ conversation.subject }}</div>
+    </div>
+  </header>
+
+  {# ── CHAT BODY ── #}
+  <div class="wa-body" id="waBody">
+
+    {% if not conversation.messages.all %}
+      <div class="wa-empty"><i class="bi bi-chat-heart me-1"></i>Hakuna messages bado. Anza mazungumzo!</div>
+    {% endif %}
+
+    {% for message in conversation.messages.all %}
+      {% if forloop.first %}
+        <div class="wa-date-chip">{{ message.created_at|date:"d M Y" }}</div>
+      {% endif %}
+      <div class="wa-msg-row {% if message.sender == user %}sent{% else %}recv{% endif %}"
+           data-message-id="{{ message.id }}">
+        <div class="wa-msg-wrap">
+        <div class="wa-bubble">
+          <span class="wa-sender-name">{{ message.sender.get_full_name|default:message.sender.username }}</span>
+          <div class="wa-text">{{ message.content }}</div>
+          {% if message.attachment %}
+          <div>
+            <a href="{{ message.attachment.url }}" target="_blank" class="wa-attach-link"><i class="bi bi-paperclip"></i> Fungua faili</a>
+            <a href="{{ message.attachment.url }}" download class="wa-attach-link"><i class="bi bi-download"></i> Pakua</a>
+          </div>
+          {% endif %}
+          <div class="wa-meta">
+            <span>{{ message.created_at|date:"H:i" }}</span>
+            {% if message.sender == user %}
+            <span class="wa-ticks {% if message.is_read %}read{% endif %}">
+              <i class="bi bi-check{% if message.is_read %}-all{% endif %}"></i>
+            </span>
+            {% endif %}
+          </div>
+        </div>
+        </div>
+      </div>
+    {% endfor %}
+
+    <div class="wa-typing" id="waTyping">
+      <div class="wa-dot"></div><div class="wa-dot"></div><div class="wa-dot"></div>
+    </div>
+
+  </div>
+
+  <div class="wa-reply-bar" id="waReplyBar">
+    <div class="wa-reply-main">
+      <div class="wa-reply-name" id="waReplyName">Umechagua ujumbe...</div>
+      <div class="wa-reply-text" id="waReplyText">-</div>
+    </div>
+    <button class="wa-reply-cancel" id="waReplyCancel" type="button"><i class="bi bi-x-lg"></i></button>
+  </div>
+
+  {# ── FILE PREVIEW STRIP ── #}
+  <div class="wa-file-preview" id="waFilePreview">
+    <i class="bi bi-paperclip"></i>
+    <span class="wa-file-preview-name" id="waFileName">—</span>
+    <button class="wa-file-clear" id="waClearFile">✕</button>
+  </div>
+
+  {# ── INPUT BAR ── #}
+  <div class="wa-footer">
+    <button class="wa-attach-btn" id="waAttachBtn" type="button" title="Attachment"><i class="bi bi-paperclip"></i></button>
+    <div class="wa-input-wrap">
+      <button class="wa-emoji-btn" id="waEmojiBtn" type="button"><i class="bi bi-emoji-smile"></i></button>
+      <textarea id="wa-text-input" rows="1" placeholder="Andika ujumbe..." autocomplete="off"></textarea>
+    </div>
+    <button class="wa-send-btn" id="waSendBtn" type="button"><i class="bi bi-send-fill"></i></button>
+    <input type="file" id="waFileInput" style="display:none" accept="image/*,application/pdf,.doc,.docx,.txt">
+    <form id="waPostForm" method="post" action="{% url 'chats:conversation_detail' conversation.id %}" enctype="multipart/form-data" style="display:none">
+      {% csrf_token %}
+    </form>
+  </div>
+
+  {# ── EMOJI PICKER ── #}
+  <div class="wa-emoji-picker" id="waEmojiPicker">
+    <button class="wa-ep-btn" type="button" data-insert=":)"><i class="bi bi-emoji-smile"></i></button>
+    <button class="wa-ep-btn" type="button" data-insert=":D"><i class="bi bi-emoji-laughing"></i></button>
+    <button class="wa-ep-btn" type="button" data-insert="&lt;3"><i class="bi bi-heart"></i></button>
+    <button class="wa-ep-btn" type="button" data-insert="?!"><i class="bi bi-question-circle"></i></button>
+    <button class="wa-ep-btn" type="button" data-insert="ok"><i class="bi bi-check2-circle"></i></button>
+    <button class="wa-ep-btn" type="button" data-insert="no"><i class="bi bi-x-circle"></i></button>
+    <button class="wa-ep-btn" type="button" data-insert="!!!"><i class="bi bi-exclamation-triangle"></i></button>
+    <button class="wa-ep-btn" type="button" data-insert="[med] "><i class="bi bi-heart-pulse"></i></button>
+    <button class="wa-ep-btn" type="button" data-insert="[file] "><i class="bi bi-paperclip"></i></button>
+    <button class="wa-ep-btn" type="button" data-insert="[chat] "><i class="bi bi-chat-dots"></i></button>
+  </div>
+
+  <div class="wa-context-menu" id="waContextMenu">
+    <button class="wa-context-btn" type="button" data-action="reply"><i class="bi bi-reply"></i></button>
+    <button class="wa-context-btn" type="button" data-action="copy"><i class="bi bi-clipboard"></i>Copy</button>
+    <button class="wa-context-btn danger" type="button" data-action="delete"><i class="bi bi-trash"></i>Delete</button>
+  </div>
+
+</div>
+</div>
+
+<script>
+(function () {
+  'use strict';
+  const CONVO_ID = {{ conversation.id }};
+  const MY_UID   = {{ user.id }};
+  const POLL_URL = "{% url 'chats:conversation_poll' conversation.id %}";
+  const POST_URL = "{% url 'chats:conversation_detail' conversation.id %}";
+  const WS_PROTO = location.protocol === 'https:' ? 'wss' : 'ws';
+  const WS_URL   = `${WS_PROTO}://${location.host}/ws/chats/private/${CONVO_ID}/`;
+  const CSRF     = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+
+  const appEl       = document.getElementById('waApp');
+  const DELETE_URL_TEMPLATE = appEl?.dataset?.deleteUrlTemplate || '';
+  const body        = document.getElementById('waBody');
+  const textInput   = document.getElementById('wa-text-input');
+  const sendBtn     = document.getElementById('waSendBtn');
+  const fileInput   = document.getElementById('waFileInput');
+  const filePreview = document.getElementById('waFilePreview');
+  const fileNameEl  = document.getElementById('waFileName');
+  const clearFile   = document.getElementById('waClearFile');
+  const emojiBtn    = document.getElementById('waEmojiBtn');
+  const emojiPicker = document.getElementById('waEmojiPicker');
+  const attachBtn   = document.getElementById('waAttachBtn');
+  const statusBar   = document.getElementById('wa-conn-status');
+  const menuBtn     = document.getElementById('waMenuBtn');
+  const menuEl      = document.getElementById('waMenu');
+  const themeBtn    = document.getElementById('waThemeBtn');
+  const typingEl    = document.getElementById('waTyping');
+  const presenceEl  = document.getElementById('waPresence');
+  const replyBar    = document.getElementById('waReplyBar');
+  const replyNameEl = document.getElementById('waReplyName');
+  const replyTextEl = document.getElementById('waReplyText');
+  const replyCancel = document.getElementById('waReplyCancel');
+  const contextMenu = document.getElementById('waContextMenu');
+
+  let lastId = 0, pollTimer = null, socket = null, wsRetries = 0, pendingFile = null;
+  let replyState = null;
+  let contextTarget = null;
+  let holdTimer = null;
+  const MAX_WS = 5;
+  const REPLY_RE = /^\[\[reply:(.*?)\|(.*?)\]\]\n?([\s\S]*)$/;
+
+  /* ── Init: track existing message IDs & scroll ── */
+  document.querySelectorAll('[data-message-id]').forEach(el => {
+    const id = parseInt(el.dataset.messageId, 10);
+    if (id > lastId) lastId = id;
+  });
+  body.scrollTop = body.scrollHeight;
+
+  /* ── Helpers ── */
+  function esc(s) {
+    return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  }
+
+  function parseReplyPayload(raw) {
+    const text = String(raw || '');
+    const match = text.match(REPLY_RE);
+    if (!match) {
+      return { body: text, replyName: '', replyText: '' };
+    }
+    return {
+      replyName: (match[1] || '').trim(),
+      replyText: (match[2] || '').trim(),
+      body: (match[3] || '').trim(),
+    };
+  }
+
+  function buildReplyMarker() {
+    if (!replyState) return '';
+    return `[[reply:${replyState.name}|${replyState.text}]]\n`;
+  }
+
+  function openReply(name, text) {
+    replyState = {
+      name: String(name || '').trim(),
+      text: String(text || '').trim().slice(0, 120),
+    };
+    replyNameEl.textContent = `Ujumbe wa ${replyState.name || 'message'}`;
+    replyTextEl.textContent = replyState.text || '-';
+    replyBar.classList.add('show');
+    textInput.focus();
+  }
+
+  function clearReply() {
+    replyState = null;
+    replyBar.classList.remove('show');
+  }
+
+  async function deleteMessageRow(row) {
+    const messageId = row?.dataset?.messageId;
+    if (!messageId) return;
+    try {
+      const endpoint = DELETE_URL_TEMPLATE.replace('/0/delete/', `/${messageId}/delete/`);
+      const res = await fetch(endpoint, {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: { 'X-CSRFToken': CSRF },
+      });
+      const data = await res.json();
+      if (!res.ok || !data.ok) throw new Error(data.error || 'Delete failed');
+
+      row.style.transition = 'all .22s ease';
+      row.style.opacity = '0';
+      row.style.transform = 'translateX(20px)';
+      setTimeout(() => row.remove(), 220);
+    } catch {
+      showStatus('Failed to delete message', 'err', true);
+    }
+  }
+
+  function hideContextMenu() {
+    contextMenu.classList.remove('show');
+    contextTarget = null;
+  }
+
+  function showContextMenu(row, x, y) {
+    contextTarget = row;
+    contextMenu.classList.add('show');
+    const menuRect = contextMenu.getBoundingClientRect();
+    const left = Math.min(Math.max(8, x), window.innerWidth - menuRect.width - 8);
+    const top = Math.min(Math.max(8, y), window.innerHeight - menuRect.height - 8);
+    contextMenu.style.left = `${left}px`;
+    contextMenu.style.top = `${top}px`;
+
+    const deleteBtn = contextMenu.querySelector('[data-action="delete"]');
+    if (row.classList.contains('sent')) {
+      deleteBtn.style.display = 'flex';
+    } else {
+      deleteBtn.style.display = 'none';
+    }
+  }
+
+  function bindLongPress(scope) {
+    scope.querySelectorAll('.wa-msg-wrap').forEach((wrap) => {
+      if (wrap.dataset.lpBound === '1') return;
+      wrap.dataset.lpBound = '1';
+      const row = wrap.closest('.wa-msg-row');
+
+      const start = (clientX, clientY) => {
+        holdTimer = setTimeout(() => {
+          showContextMenu(row, clientX, clientY);
+        }, 900);
+      };
+      const clear = () => {
+        if (holdTimer) {
+          clearTimeout(holdTimer);
+          holdTimer = null;
+        }
+      };
+
+      wrap.addEventListener('mousedown', (e) => start(e.clientX, e.clientY));
+      wrap.addEventListener('mouseup', clear);
+      wrap.addEventListener('mouseleave', clear);
+
+      wrap.addEventListener('touchstart', (e) => {
+        const t = e.touches[0];
+        start(t.clientX, t.clientY);
+      }, { passive: true });
+      wrap.addEventListener('touchend', clear);
+      wrap.addEventListener('touchcancel', clear);
+
+      wrap.addEventListener('contextmenu', (e) => {
+        e.preventDefault();
+        showContextMenu(row, e.clientX, e.clientY);
+      });
+    });
+  }
+
+  function hydrateInitialMessages() {
+    document.querySelectorAll('.wa-msg-row').forEach((row) => {
+      const textEl = row.querySelector('.wa-text');
+      if (!textEl) return;
+      const parsed = parseReplyPayload(textEl.textContent || '');
+      textEl.textContent = parsed.body;
+
+      if (parsed.replyName || parsed.replyText) {
+        const snippet = document.createElement('div');
+        snippet.className = 'wa-reply-snippet';
+        snippet.innerHTML = `<div class="name">${esc(parsed.replyName)}</div><div class="text">${esc(parsed.replyText)}</div>`;
+        textEl.parentNode.insertBefore(snippet, textEl);
+      }
+
+      const senderEl = row.querySelector('.wa-sender-name');
+      if (senderEl && !senderEl.textContent.trim()) {
+        senderEl.textContent = 'You';
+      }
+    });
+    bindLongPress(document);
+  }
+
+  function renderMessage(msg) {
+    if (document.querySelector(`[data-message-id="${msg.id}"]`)) return;
+    if (msg.id > lastId) lastId = msg.id;
+    const mine = msg.sender_id === MY_UID;
+    const parsed = parseReplyPayload(msg.content || '');
+    let attachHtml = '';
+    if (msg.has_attachment && msg.attachment_url) {
+      const url = esc(msg.attachment_url);
+      attachHtml = `<div>
+        <a href="${url}" target="_blank" class="wa-attach-link"><i class="bi bi-paperclip"></i> Fungua faili</a>
+        <a href="${url}" download class="wa-attach-link"><i class="bi bi-download"></i> Pakua</a>
+      </div>`;
+    }
+    const replySnippet = (parsed.replyName || parsed.replyText)
+      ? `<div class="wa-reply-snippet"><div class="name">${esc(parsed.replyName)}</div><div class="text">${esc(parsed.replyText)}</div></div>`
+      : '';
+    const tickClass = msg.is_read ? 'wa-ticks read' : 'wa-ticks';
+    const row = document.createElement('div');
+    row.className = `wa-msg-row ${mine ? 'sent' : 'recv'}`;
+    row.setAttribute('data-message-id', msg.id);
+    row.innerHTML = `<div class="wa-msg-wrap">
+      <div class="wa-bubble">
+        ${mine ? '' : `<span class="wa-sender-name">${esc(msg.sender_name)}</span>`}
+        ${replySnippet}
+        <div class="wa-text">${esc(parsed.body)}</div>
+        ${attachHtml}
+        <div class="wa-meta">
+          <span>${esc(msg.created_at)}</span>
+          ${mine ? `<span class="${tickClass}"><i class="bi bi-check-all"></i></span>` : ''}
+        </div>
+      </div>
+    </div>`;
+    bindLongPress(row);
+    body.insertBefore(row, typingEl);
+    body.scrollTo({ top: body.scrollHeight, behavior: 'smooth' });
+  }
+
+  /* ── Status bar ── */
+  let stTimer = null;
+  function showStatus(msg, type, hide) {
+    statusBar.textContent = msg;
+    statusBar.className = `show ${type}`;
+    clearTimeout(stTimer);
+    if (hide) stTimer = setTimeout(() => { statusBar.className = ''; }, 3000);
+  }
+
+  /* ── HTTP Polling ── */
+  function poll() {
+    fetch(`${POLL_URL}?since=${lastId}`, { credentials: 'same-origin' })
+      .then(r => r.json())
+      .then(d => { if (d.ok && d.messages.length) d.messages.forEach(renderMessage); })
+      .catch(() => {})
+      .finally(() => { pollTimer = setTimeout(poll, 3000); });
+  }
+  poll();
+
+  /* ── WebSocket ── */
+  function connectWS() {
+    if (wsRetries >= MAX_WS) return;
+    try { socket = new WebSocket(WS_URL); } catch { wsRetries++; return; }
+    socket.onopen  = () => { wsRetries = 0; showStatus('Imeunganishwa', 'ok', true); if (presenceEl) presenceEl.textContent = 'online'; };
+    socket.onmessage = e => {
+      try {
+        const payload = JSON.parse(e.data);
+        if (payload.sender_id !== MY_UID && typingEl) {
+          typingEl.classList.add('show');
+          if (presenceEl) presenceEl.textContent = 'typing...';
+          setTimeout(() => {
+            typingEl.classList.remove('show');
+            if (presenceEl) presenceEl.textContent = 'online';
+            renderMessage(payload);
+          }, 620);
+          return;
+        }
+        renderMessage(payload);
+      } catch {}
+    };
+    socket.onclose = () => { wsRetries++; if (wsRetries < MAX_WS) setTimeout(connectWS, 4000); };
+  }
+  connectWS();
+
+  /* ── Auto-grow textarea ── */
+  textInput.addEventListener('input', function () {
+    this.style.height = 'auto';
+    this.style.height = Math.min(this.scrollHeight, 130) + 'px';
+  });
+  textInput.addEventListener('keydown', e => {
+    if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); doSend(); }
+  });
+
+  /* ── Send ── */
+  sendBtn.addEventListener('click', doSend);
+  function doSend() {
+    const content = (textInput.value || '').trim();
+    if (!content && !pendingFile) return;
+    const outbound = `${buildReplyMarker()}${content}`.trim();
+    if (pendingFile) {
+      const fd = new FormData();
+      fd.append('content', outbound || ' ');
+      fd.append('attachment', pendingFile);
+      fd.append('csrfmiddlewaretoken', CSRF);
+      fetch(POST_URL, { method: 'POST', body: fd, credentials: 'same-origin' })
+        .then(() => { clearPendingFile(); clearReply(); textInput.value = ''; textInput.style.height = 'auto'; clearTimeout(pollTimer); poll(); })
+        .catch(() => showStatus('Imeshindwa kutuma faili', 'err', true));
+    } else if (socket && socket.readyState === WebSocket.OPEN) {
+      socket.send(JSON.stringify({ content: outbound }));
+      clearReply();
+      textInput.value = ''; textInput.style.height = 'auto';
+    } else {
+      const fd = new FormData();
+      fd.append('content', outbound);
+      fd.append('csrfmiddlewaretoken', CSRF);
+      fetch(POST_URL, { method: 'POST', body: fd, credentials: 'same-origin' })
+        .then(() => { clearReply(); textInput.value = ''; textInput.style.height = 'auto'; clearTimeout(pollTimer); poll(); })
+        .catch(() => showStatus('Imeshindwa kutuma', 'err', true));
+    }
+  }
+
+  /* ── Attachment ── */
+  attachBtn.addEventListener('click', () => fileInput.click());
+  fileInput.addEventListener('change', function () {
+    if (!this.files.length) return;
+    pendingFile = this.files[0];
+    fileNameEl.textContent = pendingFile.name;
+    filePreview.classList.add('show');
+  });
+  clearFile.addEventListener('click', clearPendingFile);
+  function clearPendingFile() {
+    pendingFile = null; fileInput.value = '';
+    filePreview.classList.remove('show'); fileNameEl.textContent = '—';
+  }
+
+  /* ── Emoji ── */
+  emojiBtn.addEventListener('click', e => { e.stopPropagation(); emojiPicker.classList.toggle('show'); });
+  emojiPicker.querySelectorAll('.wa-ep-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      textInput.value += (btn.dataset.insert || '');
+      textInput.dispatchEvent(new Event('input'));
+      textInput.focus();
+      emojiPicker.classList.remove('show');
+    });
+  });
+
+  /* ── Menu ── */
+  menuBtn.addEventListener('click', e => { e.stopPropagation(); menuEl.style.display = menuEl.style.display === 'none' ? 'block' : 'none'; });
+  themeBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    appEl.classList.toggle('wa-light');
+    document.body.classList.toggle('wa-global-light', appEl.classList.contains('wa-light'));
+    localStorage.setItem('wa-chat-light', appEl.classList.contains('wa-light') ? '1' : '0');
+  });
+  contextMenu.addEventListener('click', async (e) => {
+    const btn = e.target.closest('.wa-context-btn');
+    if (!btn || !contextTarget) return;
+    const action = btn.dataset.action;
+
+    if (action === 'reply') {
+      const name = contextTarget.querySelector('.wa-sender-name')?.textContent?.trim() || 'User';
+      const text = contextTarget.querySelector('.wa-text')?.textContent?.trim() || '';
+      openReply(name, text);
+    }
+
+    if (action === 'copy') {
+      const text = contextTarget.querySelector('.wa-text')?.textContent?.trim() || '';
+      try {
+        await navigator.clipboard.writeText(text);
+        showStatus('Copied', 'ok', true);
+      } catch {
+        showStatus('Copy failed', 'err', true);
+      }
+    }
+
+    if (action === 'delete' && contextTarget.classList.contains('sent')) {
+      const ok = window.confirm('Delete this message?');
+      if (ok) await deleteMessageRow(contextTarget);
+    }
+
+    hideContextMenu();
+  });
+
+  replyCancel.addEventListener('click', clearReply);
+  if (localStorage.getItem('wa-chat-light') === '1') {
+    appEl.classList.add('wa-light');
+    document.body.classList.add('wa-global-light');
+  }
+  hydrateInitialMessages();
+  document.addEventListener('click', () => {
+    emojiPicker.classList.remove('show');
+    menuEl.style.display = 'none';
+    hideContextMenu();
+  });
+})();
+</script>
+
+{% endblock %}

@@ -1,0 +1,57 @@
+{% extends "base.html" %}
+{% block title %}Anza Mzunguko - ZanzHub AI Health{% endblock %}
+
+{% block content %}
+<div class="row justify-content-center mt-5">
+    <div class="col-md-6 col-lg-5">
+        <div class="card card-custom p-4 bg-white">
+            <h3 class="fw-bold text-center mb-4 text-danger">Anza Mzunguko Mpya</h3>
+            <p class="text-muted text-center mb-4 small">
+                Weka taarifa kuu za mzunguko ili AI itabiri hedhi ijayo, ovulation, fertile window na kukupa reminders.
+            </p>
+
+            <form method="post">
+                {% csrf_token %}
+                
+                {% if form.non_field_errors %}
+                    <div class="alert alert-danger small py-2">
+                        {{ form.non_field_errors }}
+                    </div>
+                {% endif %}
+
+                <div class="mb-3">
+                    <label for="{{ form.start_date.id_for_label }}" class="form-label fw-bold small">Tarehe ya Kuanza</label>
+                    {{ form.start_date }}
+                    <div class="form-text small">Siku ya kwanza ya kuanza mzunguko.</div>
+                    <div class="text-danger small">{{ form.start_date.errors }}</div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="{{ form.cycle_length.id_for_label }}" class="form-label fw-bold small">Urefu wa Mzunguko (siku)</label>
+                    {{ form.cycle_length }}
+                    <div class="form-text small">Kwa kawaida 28, lakini unaweza kubadilisha kulingana na mwili wako.</div>
+                    <div class="text-danger small">{{ form.cycle_length.errors }}</div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="{{ form.period_duration.id_for_label }}" class="form-label fw-bold small">Muda wa Hedhi (siku)</label>
+                    {{ form.period_duration }}
+                    <div class="text-danger small">{{ form.period_duration.errors }}</div>
+                </div>
+
+                <div class="mb-4">
+                    <label for="{{ form.expected_end_date.id_for_label }}" class="form-label fw-bold small">Tarehe ya Mwisho Inayotarajiwa</label>
+                    {{ form.expected_end_date }}
+                    <div class="form-text small">Unaweza kuiacha wazi, mfumo utaikokotoa kwa muda wa hedhi ulioweka.</div>
+                    <div class="text-danger small">{{ form.expected_end_date.errors }}</div>
+                </div>
+
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-danger rounded-pill py-2 fw-bold">Hifadhi na Anza Mzunguko</button>
+                    <a href="{% url 'menstrual:dashboard' %}" class="btn btn-outline-secondary rounded-pill py-2 small">Ghairi</a>
+                </div>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,893 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block extra_head %}
+<link href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.css" rel="stylesheet">
+<link rel="stylesheet" href="{% static 'base.css' %}">
+{% endblock %}
+
+{% block content %}
+<style>
+    .dashboard-shell {
+        width: min(100%, 1280px);
+        max-width: 1280px;
+        margin: 0 auto;
+        padding-inline: clamp(.75rem, 2vw, 1.25rem);
+        box-sizing: border-box;
+    }
+
+    .hero-ai { border-radius: 24px; background: linear-gradient(135deg,#fff 0%,#fff1f5 100%); box-shadow: 0 18px 40px rgba(201,24,74,.08); position: relative; overflow: hidden; }
+    .hero-ai::after {
+        content: '';
+        position: absolute;
+        width: 220px;
+        height: 220px;
+        right: -70px;
+        top: -90px;
+        border-radius: 50%;
+        background: radial-gradient(circle, rgba(255,133,161,.25), rgba(255,133,161,0));
+        pointer-events: none;
+    }
+    .metric-card { border: 0; border-radius: 20px; background: var(--card-bg); box-shadow: 0 8px 24px rgba(20,20,20,.06); transition: transform .22s ease, box-shadow .22s ease; }
+    .metric-card:hover { transform: translateY(-3px); box-shadow: 0 12px 28px rgba(201,24,74,.14); }
+    @media (max-width: 575.98px) {
+        .metric-card { border-radius: 14px; }
+        .metric-card.p-3 { padding: .65rem !important; }
+        .metric-label { font-size: .68rem; }
+        .metric-value { font-size: 1.25rem; }
+        .metric-card small { font-size: .65rem; }
+    }
+    .top-insight-card {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+    }
+    .metric-label { color: #888; font-size: .78rem; text-transform: uppercase; letter-spacing: .05em; font-weight: 700; }
+    .metric-value { font-size: 1.6rem; font-weight: 800; color: var(--text-main); }
+    .ai-box { border-radius: 20px; background: linear-gradient(135deg,#111827,#1f2937); color: #fff; }
+    .history-item { border-radius: 14px; background: rgba(255,255,255,.65); border: 1px solid #f0f0f0; padding: 14px; }
+    .calendar-wrapper { border-radius: 22px; overflow: hidden; background: var(--card-bg); box-shadow: 0 8px 24px rgba(20,20,20,.06); }
+
+    .dashboard-link-card {
+        cursor: pointer;
+        transition: transform .2s ease, box-shadow .2s ease, border-color .2s ease;
+    }
+
+    .dashboard-link-card:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 14px 28px rgba(0,0,0,.12);
+    }
+
+    .dashboard-link-card:focus-visible {
+        outline: 2px solid color-mix(in srgb, var(--primary) 75%, transparent);
+        outline-offset: 2px;
+    }
+
+    .tip-showcase {
+        overflow: hidden;
+        margin-bottom: 1.25rem;
+    }
+
+
+
+
+
+    .tip-nav-btn {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        z-index: 10;
+        width: 38px;
+        height: 38px;
+        border-radius: 50%;
+        border: none;
+        background: rgba(255,255,255,.72);
+        color: var(--tip-accent, #c9184a);
+        font-size: 1.3rem;
+        line-height: 1;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-shadow: 0 2px 12px rgba(0,0,0,.15);
+        backdrop-filter: blur(6px);
+        cursor: pointer;
+        transition: background .18s, transform .18s;
+    }
+    .tip-nav-btn:hover { background: rgba(255,255,255,.95); transform: translateY(-50%) scale(1.1); }
+    .tip-nav-btn.tip-prev { left: .75rem; }
+    .tip-nav-btn.tip-next { right: .75rem; }
+    html[data-theme='dark'] .tip-nav-btn { background: rgba(27,60,83,.75); color: #D2C1B6; }
+    html[data-theme='dark'] .tip-nav-btn:hover { background: rgba(35,76,106,.95); }
+
+    .tip-showcase-window {
+        overflow: hidden;
+    }
+
+    .tip-showcase-track {
+        display: flex;
+        transition: transform .7s cubic-bezier(.22, 1, .36, 1);
+        will-change: transform;
+    }
+
+    .tip-slide {
+        min-width: 100%;
+        padding: 0;
+    }
+
+    .tip-card {
+        position: relative;
+        min-height: 250px;
+        border-radius: 0;
+        padding: 1.3rem;
+        overflow: hidden;
+        background: linear-gradient(135deg, var(--tip-soft, rgba(201,24,74,.12)), rgba(255,255,255,.96));
+        border: none;
+        border-bottom: 1px solid color-mix(in srgb, var(--tip-accent, #c9184a) 18%, transparent);
+        box-shadow: 0 8px 28px var(--tip-glow, rgba(201,24,74,.14));
+    }
+
+    .tip-content-wrap {
+        max-width: 920px;
+        margin: 0 auto;
+    }
+
+    @media (min-width: 992px) {
+        .tip-content-wrap {
+            text-align: center;
+        }
+        .tip-content-wrap .tip-meta-row {
+            justify-content: center;
+            align-items: center;
+        }
+    }
+
+    .tip-card::before {
+        content: '';
+        position: absolute;
+        inset: auto -40px -60px auto;
+        width: 180px;
+        height: 180px;
+        border-radius: 50%;
+        background: radial-gradient(circle, color-mix(in srgb, var(--tip-accent, #c9184a) 30%, white), transparent 68%);
+        opacity: .85;
+        pointer-events: none;
+    }
+
+    .tip-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: .35rem;
+        padding: .35rem .8rem;
+        border-radius: 999px;
+        background: rgba(255,255,255,.82);
+        color: var(--tip-accent, #c9184a);
+        font-weight: 700;
+        font-size: .75rem;
+        border: 1px solid rgba(255,255,255,.55);
+        backdrop-filter: blur(8px);
+    }
+
+    .tip-card-title {
+        font-size: clamp(1.2rem, 2.5vw, 1.65rem);
+        font-weight: 800;
+        max-width: 700px;
+    }
+
+    .tip-card-copy {
+        font-size: 1rem;
+        line-height: 1.75;
+        max-width: 760px;
+        color: color-mix(in srgb, var(--text-main) 92%, #000 8%);
+    }
+
+    .tip-meta-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: end;
+        gap: 1rem;
+        flex-wrap: wrap;
+    }
+
+    .tip-dots {
+        display: flex;
+        justify-content: center;
+        gap: .45rem;
+        padding: 0 1rem 1rem;
+    }
+
+    .tip-dot {
+        width: 10px;
+        height: 10px;
+        border-radius: 50%;
+        border: 0;
+        background: rgba(201,24,74,.20);
+        transition: transform .2s ease, background .2s ease;
+    }
+
+    .tip-dot.active {
+        background: #c9184a;
+        transform: scale(1.2);
+    }
+
+    .tip-action-btn {
+        border-radius: 999px;
+        padding: .65rem 1rem;
+        font-weight: 700;
+    }
+
+    .reveal {
+        opacity: 0;
+        transform: translateY(16px);
+        transition: opacity .5s ease, transform .5s ease;
+    }
+
+    .reveal.show {
+        opacity: 1;
+        transform: translateY(0);
+    }
+
+    .calendar-legend {
+        display: flex;
+        gap: .5rem;
+        flex-wrap: wrap;
+    }
+
+    .legend-pill {
+        border-radius: 999px;
+        padding: .25rem .65rem;
+        font-size: .75rem;
+        font-weight: 700;
+        border: 1px solid transparent;
+    }
+
+    .legend-danger { background: rgba(255,107,107,.12); border-color: rgba(255,107,107,.35); color: #b42318; }
+    .legend-fertile { background: rgba(46, 204, 113,.12); border-color: rgba(46,204,113,.35); color: #166534; }
+    .legend-ovu { background: rgba(147, 112, 219,.14); border-color: rgba(147,112,219,.35); color: #5b21b6; }
+
+    .fc .fc-toolbar {
+        gap: .5rem;
+        flex-wrap: wrap;
+    }
+
+    .fc .fc-toolbar-title {
+        font-size: 1.05rem;
+        font-weight: 800;
+    }
+
+    .fc .fc-button {
+        border-radius: 999px !important;
+        font-size: .78rem !important;
+        padding: .36rem .7rem !important;
+        border: 1px solid rgba(201,24,74,.2) !important;
+        background: #fff !important;
+        color: #c9184a !important;
+        box-shadow: none !important;
+    }
+
+    .fc .fc-button-primary:not(:disabled):active,
+    .fc .fc-button-primary:not(:disabled).fc-button-active,
+    .fc .fc-button:hover {
+        background: #c9184a !important;
+        color: #fff !important;
+        border-color: #c9184a !important;
+    }
+
+    .fc .fc-daygrid-day {
+        transition: transform .18s ease;
+    }
+
+    .fc .fc-daygrid-day:hover {
+        transform: translateY(-2px);
+    }
+
+    .fc-day-danger {
+        background: linear-gradient(180deg, rgba(255,107,107,.16), rgba(255,107,107,.03));
+        box-shadow: inset 0 0 0 1px rgba(255,107,107,.2);
+    }
+
+    .fc-day-fertile {
+        background: linear-gradient(180deg, rgba(46,204,113,.18), rgba(46,204,113,.04));
+        box-shadow: inset 0 0 0 1px rgba(46,204,113,.2);
+    }
+
+    .fc-day-ovulation {
+        background: linear-gradient(180deg, rgba(147,112,219,.22), rgba(147,112,219,.05));
+        box-shadow: inset 0 0 0 2px rgba(147,112,219,.35);
+        animation: ovuPulse 1.8s ease-in-out infinite;
+    }
+
+    @keyframes ovuPulse {
+        0%, 100% { box-shadow: inset 0 0 0 2px rgba(147,112,219,.35); }
+        50% { box-shadow: inset 0 0 0 3px rgba(147,112,219,.55); }
+    }
+
+    html[data-theme='dark'] .hero-ai { background: linear-gradient(135deg, #234C6A 0%, #1B3C53 100%); }
+    html[data-theme='dark'] .tip-card { background: linear-gradient(135deg, color-mix(in srgb, var(--tip-accent, #456882) 25%, #1B3C53), rgba(27,60,83,.97)); }
+    html[data-theme='dark'] .tip-badge { background: rgba(27,60,83,.88); color: #D2C1B6; border-color: rgba(69,104,130,.40); }
+    html[data-theme='dark'] .history-item { background: rgba(35,76,106,.75); border-color: rgba(69,104,130,.35); }
+    html[data-theme='dark'] .metric-card { background: var(--card-bg); border-color: var(--line-soft); }
+    html[data-theme='dark'] .calendar-wrapper { background: var(--card-bg); border: 1px solid var(--line-soft); }
+    html[data-theme='dark'] .fc .fc-button { background: #234C6A !important; color: #D2C1B6 !important; border-color: rgba(69,104,130,.45) !important; }
+    html[data-theme='dark'] .fc .fc-button:hover,
+    html[data-theme='dark'] .fc .fc-button-primary:not(:disabled).fc-button-active { background: #456882 !important; color: #fff !important; border-color: #456882 !important; }
+    html[data-theme='dark'] .fc-col-header-cell, html[data-theme='dark'] .fc-daygrid-day { border-color: rgba(69,104,130,.22) !important; }
+    html[data-theme='dark'] .fc .fc-col-header-cell-cushion, html[data-theme='dark'] .fc .fc-daygrid-day-number { color: #D2C1B6 !important; }
+
+    @media (min-width: 768px) {
+        .tip-showcase {
+            margin-inline: calc(-1 * clamp(.85rem, 2vw, 1.6rem));
+        }
+    }
+
+    @media (max-width: 767px) {
+        .dashboard-shell {
+            width: 100vw;
+            margin-left: calc(50% - 50vw);
+            margin-right: calc(50% - 50vw);
+            padding-inline: 0;
+            padding-top: 0 !important;
+        }
+        .tip-showcase {
+            margin-bottom: .5rem;
+        }
+        .tip-card {
+            min-height: 220px;
+            padding: .85rem .9rem;
+            box-shadow: none;
+        }
+        .fc .fc-toolbar.fc-header-toolbar {
+            flex-direction: column;
+            align-items: stretch;
+        }
+        .fc .fc-toolbar-chunk {
+            display: flex;
+            justify-content: center;
+            flex-wrap: wrap;
+            gap: .35rem;
+        }
+        .fc .fc-button {
+            font-size: .72rem !important;
+            padding: .32rem .55rem !important;
+        }
+    }
+
+    .sensitive-mask {
+        filter: blur(5px);
+        user-select: none;
+        pointer-events: none;
+    }
+</style>
+
+<div class="dashboard-shell pb-4 pt-0">
+
+    <div class="tip-showcase mb-4 reveal" style="position:relative;">
+            <button id="tipPrev" type="button" class="tip-nav-btn tip-prev" aria-label="Nyuma">&#8249;</button>
+            <button id="tipNext" type="button" class="tip-nav-btn tip-next" aria-label="Mbele">&#8250;</button>
+
+            <div class="tip-showcase-window">
+                <div class="tip-showcase-track" id="tipShowcaseTrack">
+                    {% if tips %}
+                        {% for tip in tips %}
+                        <div class="tip-slide">
+                            <article class="tip-card dashboard-link-card" data-href="{% url 'menstrual:reports' %}" tabindex="0" role="link" style="--tip-accent: {{ tip.ui_structure.accent|default:'#c9184a' }}; --tip-soft: {{ tip.ui_structure.accent_soft|default:'rgba(201,24,74,0.12)' }}; --tip-glow: {{ tip.ui_structure.glow|default:'rgba(201,24,74,0.18)' }};">
+                                <div class="tip-content-wrap">
+                                    <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap mb-3">
+                                        <span class="tip-badge">
+                                            {% if tip.source == 'WEB' %}<i class="bi bi-globe2 me-1"></i>Trusted Web{% elif tip.source == 'DOCTOR' %}<i class="bi bi-heart-pulse me-1"></i>Doctor Tip{% else %}<i class="bi bi-stars me-1"></i>AI Tip{% endif %}
+                                        </span>
+                                        <span class="small text-muted">{{ tip.date_created|date:"d M, Y" }}</span>
+                                    </div>
+                                    <div class="tip-card-title mb-3">{{ tip.title }}</div>
+                                    <div class="tip-card-copy mb-4">{{ tip.content }}</div>
+                                    <div class="tip-meta-row">
+                                        <div>
+                                            <div class="small fw-semibold">Source type: {{ tip.get_source_display }}</div>
+                                            {% if tip.url %}<div class="small text-muted">Trusted reference attached</div>{% endif %}
+                                        </div>
+                                        <div class="d-flex gap-2 flex-wrap">
+                                            {% if tip.url %}
+                                            <a href="{{ tip.url }}" target="_blank" rel="noopener" class="btn btn-light tip-action-btn">Open source</a>
+                                            {% endif %}
+                                            <a href="{% url 'AI_brain:chat' %}" class="btn btn-danger tip-action-btn">Uliza AI Zaidi</a>
+                                        </div>
+                                    </div>
+                                </div>
+                            </article>
+                        </div>
+                        {% endfor %}
+                    {% else %}
+                        <div class="tip-slide">
+                            <article class="tip-card dashboard-link-card" data-href="{% url 'menstrual:reports' %}" tabindex="0" role="link">
+                                <span class="tip-badge"><i class="bi bi-stars me-1"></i>Smart Tip</span>
+                                <div class="tip-card-title mt-3 mb-3">Tips zitajazwa kiotomatiki</div>
+                                <div class="tip-card-copy">App itatafuta tips kutoka trusted websites na AI itazibadilisha kuwa ushauri mfupi wa Kiswahili wenye muonekano mzuri.</div>
+                            </article>
+                        </div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="tip-dots" id="tipDots">
+                {% for tip in tips %}
+                <button type="button" class="tip-dot {% if forloop.first %}active{% endif %}" data-tip-index="{{ forloop.counter0 }}" aria-label="Tip {{ forloop.counter }}"></button>
+                {% endfor %}
+        </div>
+    </div>
+
+    {% if unread_reminders %}
+    <div class="metric-card p-3 mb-3 reveal dashboard-link-card" data-href="{% url 'menstrual:settings' %}" tabindex="0" role="link">
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <h6 class="fw-bold mb-0">Smart reminders</h6>
+            <span class="badge text-bg-danger">{{ unread_reminders_count }}</span>
+        </div>
+        <div class="d-grid gap-2">
+            {% for reminder in unread_reminders|slice:":3" %}
+            <form method="post" action="{% url 'menstrual:mark_reminder_read' reminder.id %}" class="d-flex justify-content-between align-items-center gap-2 bg-light rounded-4 p-2 px-3">
+                {% csrf_token %}
+                <div>
+                    <div class="small fw-semibold">{{ reminder.title }}</div>
+                    <div class="small text-muted">{{ reminder.event_date|date:"d M, Y" }}</div>
+                </div>
+                <button type="submit" class="btn btn-sm btn-outline-success rounded-pill">Mark read</button>
+            </form>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <div class="row g-4">
+        <div class="col-xl-5 col-lg-6">
+            <div class="hero-ai p-4 p-lg-4 reveal top-insight-card dashboard-link-card" data-href="{% url 'menstrual:add_log' %}" tabindex="0" role="link">
+                <div class="row g-4 align-items-center">
+                    <div class="col-12">
+                        <h5 class="fw-bold mb-1">Karibu, {{ request.user.get_full_name|default:request.user.username }}</h5>
+                        <p class="text-muted mb-3">AI inachambua mzunguko wako kila siku na kutoa mapendekezo ya afya ya uzazi.</p>
+                        <div class="d-flex flex-wrap gap-2">
+                            <span class="badge rounded-pill text-bg-{{ ai_dashboard.status_color }} px-3 py-2">AI Status: {{ ai_dashboard.status }}</span>
+                            <span class="badge rounded-pill text-bg-light border px-3 py-2">Health Score: {{ ai_dashboard.health_score }}/100</span>
+                            {% if active_cycle %}
+                            <span class="badge rounded-pill text-bg-light border px-3 py-2">Cycle Day {{ active_cycle.elapsed_days }}</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="col-12">
+                        <a href="{% url 'menstrual:add_log' %}" class="btn btn-danger rounded-pill w-100 mb-2">Weka Rekodi Leo</a>
+                        {% if not active_cycle %}
+                        <a href="{% url 'menstrual:start_cycle' %}" class="btn btn-outline-dark rounded-pill w-100">Anza Mzunguko</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-xl-4 col-lg-6">
+            <div class="metric-card p-3 reveal top-insight-card dashboard-link-card" data-href="{% url 'menstrual:reports' %}" tabindex="0" role="link">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="fw-bold mb-0">Emergency Health Alerts</h6>
+                    <span class="badge text-bg-danger">AI safety</span>
+                </div>
+                {% if ai_dashboard.emergency_alerts %}
+                    {% for alert in ai_dashboard.emergency_alerts %}
+                    <div class="alert alert-warning rounded-4 py-2 mb-2 small"><i class="bi bi-exclamation-triangle-fill me-1"></i>{{ alert }}</div>
+                    {% endfor %}
+                {% else %}
+                    <div class="small text-muted">Hakuna emergency alert kwa sasa. Endelea kuweka log za kila siku.</div>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="col-xl-3 col-lg-12">
+            <div class="metric-card p-3 reveal top-insight-card dashboard-link-card" data-href="{% url 'menstrual:reports' %}" tabindex="0" role="link">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 class="fw-bold mb-0">AI Prediction Note</h6>
+                    <span class="badge text-bg-primary">AI explainable</span>
+                </div>
+                <p class="small mb-0">{{ ai_prediction_note }}</p>
+            </div>
+        </div>
+
+        <div class="col-6 col-md-6 col-xl-3">
+            <div class="metric-card p-3 h-100 reveal dashboard-link-card" data-href="{% url 'menstrual:reports' %}" tabindex="0" role="link">
+                <div class="metric-label"><i class="bi bi-droplet-half me-1"></i>Flow ya leo</div>
+                <div class="metric-value sensitive-value">{{ today_log.flow_intensity|default:"0" }}/5</div>
+                <small class="text-muted">Kutoka kwenye log ya leo</small>
+            </div>
+        </div>
+        <div class="col-6 col-md-6 col-xl-3">
+            <div class="metric-card p-3 h-100 reveal dashboard-link-card" data-href="{% url 'menstrual:reports' %}" tabindex="0" role="link">
+                <div class="metric-label"><i class="bi bi-arrow-repeat me-1"></i>Siku ya mzunguko</div>
+                <div class="metric-value sensitive-value">{% if active_cycle %}{{ active_cycle.elapsed_days }}{% else %}0{% endif %}</div>
+                <small class="text-muted">Urefu wa mzunguko ~{{ cycle_length }} siku</small>
+            </div>
+        </div>
+        <div class="col-6 col-md-6 col-xl-3">
+            <div class="metric-card p-3 h-100 reveal dashboard-link-card" data-href="{% url 'menstrual:reports' %}" tabindex="0" role="link">
+                <div class="metric-label"><i class="bi bi-calendar-event me-1"></i>Kipindi kijacho</div>
+                {% if active_cycle %}
+                <div class="metric-value sensitive-value" style="font-size:1.2rem;">{{ predicted_next_period|date:"d M" }}</div>
+                <small class="text-muted">Siku {{ days_to_next_period|default:"--" }} zimebaki</small>
+                <div class="small text-muted">Prediction mode: {{ prediction_mode }}</div>
+                {% else %}
+                <div class="metric-value">--</div>
+                <small class="text-muted">Data haitoshi</small>
+                {% endif %}
+            </div>
+        </div>
+        <div class="col-6 col-md-6 col-xl-3">
+            <div class="metric-card p-3 h-100 reveal dashboard-link-card" data-href="{% url 'menstrual:reports' %}" tabindex="0" role="link">
+                <div class="metric-label"><i class="bi bi-flower1 me-1"></i>Ovulation / Fertile</div>
+                {% if active_cycle %}
+                <div class="metric-value sensitive-value" style="font-size:1.05rem;">{{ ovulation_date|date:"d M" }}</div>
+                <small class="text-muted">Fertile: {{ fertile_start|date:"d M" }} - {{ fertile_end|date:"d M" }}</small>
+                {% else %}
+                <div class="metric-value">--</div>
+                <small class="text-muted">Data haitoshi</small>
+                {% endif %}
+            </div>
+        </div>
+
+        <div class="col-xl-8">
+            <div class="metric-card p-4 h-100 reveal dashboard-link-card" data-href="{% url 'menstrual:reports' %}" tabindex="0" role="link">
+                <h6 class="fw-bold mb-3">Flow Trend</h6>
+                <div style="height:260px;"><canvas id="flowTrendChart"></canvas></div>
+            </div>
+        </div>
+
+        <div class="col-xl-4">
+            <div class="ai-box p-4 h-100 reveal dashboard-link-card" data-href="{% url 'AI_brain:chat' %}" tabindex="0" role="link">
+                <h6 class="fw-bold mb-3"><i class="bi bi-stars text-warning me-2"></i>AI Insight</h6>
+                <p class="small mb-3">
+                    {% if today_log and today_log.ai_suggestion %}
+                        {{ today_log.ai_suggestion }}
+                    {% else %}
+                        Weka log ya leo ili AI itoe ushauri wa kibinafsi.
+                    {% endif %}
+                </p>
+                <ul class="small ps-3 mb-0">
+                    {% for alert in ai_dashboard.alerts %}
+                    <li>{{ alert }}</li>
+                    {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+        <div class="col-lg-7">
+            <div class="metric-card p-4 h-100 reveal dashboard-link-card" data-href="{% url 'menstrual:reports' %}" tabindex="0" role="link">
+                <h6 class="fw-bold mb-3">Historia ya Karibuni</h6>
+                {% for log in logs|slice:":5" %}
+                <div class="history-item mb-2">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="fw-semibold">{{ log.date|date:"d M, Y" }}</span>
+                        <span class="badge text-bg-danger sensitive-value">Flow {{ log.flow_intensity }}/5</span>
+                    </div>
+                    <div class="small text-muted sensitive-value">{{ log.physical_symptoms|join:", "|default:"Hakuna dalili" }}</div>
+                </div>
+                {% empty %}
+                <p class="text-muted mb-0">Hakuna rekodi bado.</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="col-lg-5">
+            <div class="metric-card p-4 h-100 reveal">
+                <h6 class="fw-bold mb-3">Haraka</h6>
+                <div class="d-grid gap-2">
+                    <a href="{% url 'menstrual:add_log' %}" class="btn btn-danger rounded-pill">Ongeza Log</a>
+                    <a href="{% url 'menstrual:reports' %}" class="btn btn-outline-secondary rounded-pill">AI Reports</a>
+                    <a href="{% url 'chats:feed' %}" class="btn btn-outline-secondary rounded-pill">Jamii</a>
+                    <a href="{% url 'doctor:hub' %}" class="btn btn-outline-secondary rounded-pill">Madaktari</a>
+                    <a href="{% url 'AI_brain:chat' %}" class="btn btn-outline-secondary rounded-pill">AI Chat</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="calendar-wrapper reveal dashboard-link-card" data-href="{% url 'menstrual:reports' %}" tabindex="0" role="link">
+                <div class="p-3 border-bottom d-flex justify-content-between align-items-center">
+                    <h6 class="fw-bold mb-0">Kalenda ya Mzunguko</h6>
+                    <small class="text-muted">Bonyeza siku kutazama/kuongeza log</small>
+                </div>
+                <div class="px-3 pt-3 pb-0">
+                    <div class="calendar-legend">
+                        <span class="legend-pill legend-danger"><i class="bi bi-exclamation-triangle me-1"></i>Danger days (period)</span>
+                        <span class="legend-pill legend-fertile"><i class="bi bi-tree me-1"></i>Fertility window</span>
+                        <span class="legend-pill legend-ovu"><i class="bi bi-flower1 me-1"></i>Ovulation day</span>
+                    </div>
+                </div>
+                <div id="calendar" class="p-2 p-md-3"></div>
+            </div>
+        </div>
+
+        <div class="col-12" id="day-detail-section" style="display:none;">
+            <div class="metric-card p-4 reveal dashboard-link-card" data-href="{% url 'menstrual:reports' %}" tabindex="0" role="link">
+                <div class="d-flex justify-content-between align-items-center mb-2">
+                    <h6 id="selected-date-title" class="fw-bold mb-0"></h6>
+                    <button class="btn btn-sm btn-light border" onclick="hideDayDetail()">Funga</button>
+                </div>
+                <div id="day-content"></div>
+            </div>
+        </div>
+
+        <div class="col-12">
+            <div class="metric-card p-4 reveal dashboard-link-card" data-href="{% url 'menstrual:reports' %}" tabindex="0" role="link">
+                <h6 class="fw-bold mb-3">Elimu ya Hedhi (Myth vs Fact)</h6>
+                <div class="row g-3">
+                    {% for card in myth_busting_cards %}
+                    <div class="col-md-4">
+                        <div class="border rounded-4 p-3 h-100 bg-light">
+                            <div class="fw-semibold text-danger small mb-2">{{ card.title }}</div>
+                            <div class="small text-muted">{{ card.fact }}</div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.15/index.global.min.js"></script>
+<script>
+    const chartData = {{ chart_data_json|default:'{"labels": [], "values": []}'|safe }};
+
+    const flowCtx = document.getElementById('flowTrendChart');
+    if (flowCtx) {
+        new Chart(flowCtx, {
+            type: 'line',
+            data: {
+                labels: chartData.labels,
+                datasets: [{
+                    data: chartData.values,
+                    borderColor: '#c9184a',
+                    backgroundColor: 'rgba(201, 24, 74, 0.12)',
+                    tension: 0.35,
+                    borderWidth: 3,
+                    fill: true,
+                    pointRadius: 3
+                }]
+            },
+            options: {
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    y: { min: 0, max: 5, ticks: { stepSize: 1 } },
+                    x: { grid: { display: false } }
+                }
+            }
+        });
+    }
+
+    function parseDateOnly(dateStr) {
+        return new Date(dateStr + 'T00:00:00');
+    }
+
+    function formatDateOnly(dateObj) {
+        const y = dateObj.getFullYear();
+        const m = String(dateObj.getMonth() + 1).padStart(2, '0');
+        const d = String(dateObj.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
+    }
+
+    function dateInRange(dateStr, startStr, endStr) {
+        if (!startStr || !endStr) return false;
+        const d = parseDateOnly(dateStr);
+        return d >= parseDateOnly(startStr) && d <= parseDateOnly(endStr);
+    }
+
+    function addDays(dateStr, days) {
+        const d = parseDateOnly(dateStr);
+        d.setDate(d.getDate() + days);
+        return formatDateOnly(d);
+    }
+
+    function setupTipShowcase() {
+        const track = document.getElementById('tipShowcaseTrack');
+        const dots = Array.from(document.querySelectorAll('.tip-dot'));
+        const btnPrev = document.getElementById('tipPrev');
+        const btnNext = document.getElementById('tipNext');
+        if (!track) return;
+
+        const slides = Array.from(track.children);
+        let currentIndex = 0;
+        let intervalId;
+
+        function render(index) {
+            currentIndex = (index + slides.length) % slides.length;
+            track.style.transform = `translateX(-${currentIndex * 100}%)`;
+            dots.forEach((dot, idx) => dot.classList.toggle('active', idx === currentIndex));
+            if (btnPrev) btnPrev.disabled = slides.length <= 1;
+            if (btnNext) btnNext.disabled = slides.length <= 1;
+        }
+
+        function next() { render(currentIndex + 1); }
+        function prev() { render(currentIndex - 1); }
+
+        function start() {
+            intervalId = window.setInterval(next, 10000);
+        }
+
+        function restart() {
+            window.clearInterval(intervalId);
+            start();
+        }
+
+        if (btnPrev) btnPrev.addEventListener('click', () => { prev(); restart(); });
+        if (btnNext) btnNext.addEventListener('click', () => { next(); restart(); });
+
+        dots.forEach((dot) => {
+            dot.addEventListener('click', () => {
+                render(Number(dot.dataset.tipIndex || 0));
+                restart();
+            });
+        });
+
+        // Touch / swipe support
+        let touchStartX = 0;
+        track.addEventListener('touchstart', (e) => { touchStartX = e.touches[0].clientX; }, { passive: true });
+        track.addEventListener('touchend', (e) => {
+            const diff = touchStartX - e.changedTouches[0].clientX;
+            if (Math.abs(diff) > 40) { diff > 0 ? next() : prev(); restart(); }
+        }, { passive: true });
+
+        // Pause on hover (desktop)
+        track.addEventListener('mouseenter', () => window.clearInterval(intervalId));
+        track.addEventListener('mouseleave', start);
+
+        if (slides.length > 0) { render(0); start(); }
+    }
+
+    let calendar;
+    document.addEventListener('DOMContentLoaded', function() {
+        setupTipShowcase();
+        const calendarEl = document.getElementById('calendar');
+        const isMobile = window.innerWidth < 768;
+
+        const ovulationDate = {% if ovulation_date %}'{{ ovulation_date|date:"Y-m-d" }}'{% else %}null{% endif %};
+        const fertileStart = {% if fertile_start %}'{{ fertile_start|date:"Y-m-d" }}'{% else %}null{% endif %};
+        const fertileEnd = {% if fertile_end %}'{{ fertile_end|date:"Y-m-d" }}'{% else %}null{% endif %};
+        const nextPeriod = {% if predicted_next_period %}'{{ predicted_next_period|date:"Y-m-d" }}'{% else %}null{% endif %};
+        const periodDuration = {{ period_duration|default:5 }};
+
+        const periodDangerStart = nextPeriod;
+        const periodDangerEnd = nextPeriod ? addDays(nextPeriod, Math.max(periodDuration - 1, 0)) : null;
+
+        calendar = new FullCalendar.Calendar(calendarEl, {
+            initialView: 'dayGridMonth',
+            locale: 'sw',
+            firstDay: 1,
+            height: 'auto',
+            headerToolbar: isMobile
+                ? { left: 'prev,next', center: 'title', right: 'today' }
+                : { left: 'prev,next today', center: 'title', right: 'dayGridMonth,dayGridWeek' },
+            dayMaxEventRows: 2,
+            fixedWeekCount: false,
+            events: [
+                ...(fertileStart && fertileEnd ? [{
+                    title: 'Fertile window',
+                    start: fertileStart,
+                    end: addDays(fertileEnd, 1),
+                    display: 'background',
+                    backgroundColor: 'rgba(46,204,113,0.18)',
+                    borderColor: 'rgba(46,204,113,0.18)'
+                }] : []),
+                ...(ovulationDate ? [{
+                    title: 'Ovulation',
+                    start: ovulationDate,
+                    allDay: true,
+                    display: 'background',
+                    backgroundColor: 'rgba(147,112,219,0.22)',
+                    borderColor: 'rgba(147,112,219,0.22)'
+                }] : []),
+                ...(periodDangerStart && periodDangerEnd ? [{
+                    title: 'Danger days',
+                    start: periodDangerStart,
+                    end: addDays(periodDangerEnd, 1),
+                    display: 'background',
+                    backgroundColor: 'rgba(255,107,107,0.16)',
+                    borderColor: 'rgba(255,107,107,0.16)'
+                }] : []),
+                {% for log in logs %}
+                {
+                    title: 'Flow {{ log.flow_intensity }}/5',
+                    start: '{{ log.date|date:"Y-m-d" }}',
+                    allDay: true,
+                    color: '#c9184a',
+                    extendedProps: {
+                        log_id: {{ log.pk }},
+                        flow: {{ log.flow_intensity|default:0 }},
+                        symptoms: "{{ log.physical_symptoms|join:', '|escapejs }}",
+                        notes: "{{ log.flow_notes|default:''|escapejs }}",
+                        ai_suggestion: "{{ log.ai_suggestion|default:''|escapejs }}"
+                    }
+                },
+                {% endfor %}
+            ],
+            dayCellDidMount: function(info) {
+                const cellDate = info.date.toISOString().slice(0, 10);
+                if (dateInRange(cellDate, periodDangerStart, periodDangerEnd)) {
+                    info.el.classList.add('fc-day-danger');
+                }
+                if (dateInRange(cellDate, fertileStart, fertileEnd)) {
+                    info.el.classList.add('fc-day-fertile');
+                }
+                if (ovulationDate && cellDate === ovulationDate) {
+                    info.el.classList.add('fc-day-ovulation');
+                }
+            },
+            dateClick: function(info) { showDayDetail(info.dateStr); },
+            eventClick: function(info) { showDayDetail(info.event.startStr); }
+        });
+
+        calendar.render();
+    });
+
+    function showDayDetail(dateStr) {
+        const section = document.getElementById('day-detail-section');
+        const content = document.getElementById('day-content');
+        const title = document.getElementById('selected-date-title');
+
+        title.textContent = new Date(dateStr).toLocaleDateString('sw-KE', {
+            weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'
+        });
+
+        const event = calendar.getEvents().find(e => e.startStr === dateStr);
+        if (event) {
+            const editLogUrl = "{% url 'menstrual:edit_log' 0 %}".replace('0', event.extendedProps.log_id);
+            content.innerHTML = `
+                <div class="small mb-2"><strong>Flow:</strong> ${event.extendedProps.flow}/5</div>
+                <div class="small mb-2"><strong>Dalili:</strong> ${event.extendedProps.symptoms || 'Hakuna'}</div>
+                ${event.extendedProps.notes ? `<div class="small mb-2"><strong>Notes:</strong> ${event.extendedProps.notes}</div>` : ''}
+                <div class="mt-3 d-flex flex-column flex-sm-row gap-2">
+                    <a href="${editLogUrl}" class="btn btn-outline-danger btn-sm rounded-pill">Hariri Log</a>
+                    <a href="{% url 'menstrual:add_log' %}?date=${dateStr}" class="btn btn-danger btn-sm rounded-pill">Ongeza Log</a>
+                </div>
+            `;
+        } else {
+            content.innerHTML = `<a href="{% url 'menstrual:add_log' %}?date=${dateStr}" class="btn btn-danger btn-sm rounded-pill">Weka log</a>`;
+        }
+
+        section.style.display = 'block';
+        section.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+
+    function hideDayDetail() {
+        document.getElementById('day-detail-section').style.display = 'none';
+    }
+
+    document.addEventListener('DOMContentLoaded', function () {
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((entry) => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('show');
+                }
+            });
+        }, { threshold: 0.12 });
+
+        document.querySelectorAll('.reveal').forEach((el) => observer.observe(el));
+
+        const privacyMode = {% if menstrual_settings.privacy_mode %}true{% else %}false{% endif %};
+        if (privacyMode) {
+            document.querySelectorAll('.sensitive-value').forEach((el) => el.classList.add('sensitive-mask'));
+        }
+
+        const interactiveSelector = 'a, button, input, select, textarea, form, .fc';
+        document.querySelectorAll('.dashboard-link-card[data-href]').forEach((card) => {
+            card.addEventListener('click', (event) => {
+                if (event.target.closest(interactiveSelector)) return;
+                const href = card.dataset.href;
+                if (href) window.location.href = href;
+            });
+
+            card.addEventListener('keydown', (event) => {
+                if (event.key !== 'Enter' && event.key !== ' ') return;
+                if (event.target.closest(interactiveSelector) && event.target !== card) return;
+                event.preventDefault();
+                const href = card.dataset.href;
+                if (href) window.location.href = href;
+            });
+        });
+    });
+</script>
+{% endblock %}

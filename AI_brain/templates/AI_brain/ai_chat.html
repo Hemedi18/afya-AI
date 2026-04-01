@@ -1,0 +1,605 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .global-back-row { display: none; }
+    body.ai-chat-screen { overflow: hidden; }
+    .ai-fab { display: none !important; }
+
+    .ai-page {
+        position: fixed;
+        left: 0;
+        right: 0;
+        top: 56px;
+        bottom: 65px;
+        background: linear-gradient(180deg, color-mix(in srgb, var(--primary) 20%, var(--app-bg)), var(--app-bg));
+        overflow: hidden;
+        z-index: 5;
+    }
+
+    .ai-layout { width: 100%; height: 100%; display: grid; grid-template-columns: 380px 1fr; }
+
+    .ai-sidebar {
+        border-right: 1px solid var(--line-soft);
+        background: color-mix(in srgb, var(--card-bg) 90%, transparent);
+        padding: .85rem;
+        overflow-y: auto;
+    }
+    .ai-side-card {
+        border: 1px solid var(--line-soft);
+        background: color-mix(in srgb, var(--card-bg) 92%, transparent);
+        border-radius: 14px;
+        padding: .75rem;
+        margin-bottom: .75rem;
+    }
+    .ai-side-title { margin: 0 0 .5rem; font-size: .95rem; font-weight: 800; color: var(--text-main); }
+    .ai-history-item {
+        width: 100%;
+        text-align: left;
+        border: 1px solid var(--line-soft);
+        background: color-mix(in srgb, var(--card-bg) 94%, transparent);
+        color: var(--text-main);
+        border-radius: 12px;
+        font-size: .9rem;
+        padding: .5rem .62rem;
+        margin-bottom: .45rem;
+        cursor: pointer;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+    .ai-chip { display: inline-flex; border-radius: 999px; border: 1px solid var(--line-soft); padding: .36rem .78rem; font-size: .86rem; color: var(--text-main); margin: .2rem; }
+
+    .ai-main { display: grid; grid-template-rows: auto 1fr auto; min-height: 0; }
+    .ai-topbar {
+        border-bottom: 1px solid var(--line-soft);
+        background: color-mix(in srgb, var(--card-bg) 92%, transparent);
+        padding: .8rem 1rem;
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: .6rem;
+    }
+    .ai-top-title { margin: 0; font-size: 1.12rem; font-weight: 800; color: var(--text-main); }
+    .ai-top-sub { font-size: .92rem; color: var(--text-muted); }
+    .ai-side-toggle { display: none; border-radius: 999px; border: 1px solid var(--line-soft); background: color-mix(in srgb, var(--card-bg) 88%, transparent); color: var(--text-main); padding: .32rem .75rem; font-size: .8rem; }
+    .ai-new-chat { border-radius: 999px; border: 1px solid var(--line-soft); background: color-mix(in srgb, var(--card-bg) 88%, transparent); color: var(--text-main); padding: .32rem .75rem; font-size: .8rem; }
+    .ai-top-actions { display: flex; align-items: center; gap: .45rem; }
+
+    .ai-thread {
+        overflow-y: auto;
+        padding: .9rem;
+        display: flex;
+        flex-direction: column;
+        gap: .65rem;
+        min-height: 0;
+    }
+    .ai-bubble { max-width: min(860px, 94%); border-radius: 14px; padding: .84rem 1rem; font-size: 1rem; line-height: 1.6; }
+    .ai-bot { align-self: flex-start; border: 1px solid var(--line-soft); background: color-mix(in srgb, var(--card-bg) 95%, transparent); color: var(--text-main); }
+    .ai-user { align-self: flex-end; background: linear-gradient(135deg, var(--primary), var(--secondary)); color: #fff; }
+
+    .ai-typing-wrap { align-self: flex-start; border: 1px solid var(--line-soft); background: color-mix(in srgb, var(--card-bg) 95%, transparent); border-radius: 14px; padding: .45rem .7rem; }
+    .ai-heartline { width: 128px; height: 24px; }
+    .ai-heartline polyline {
+        fill: none;
+        stroke: color-mix(in srgb, var(--secondary) 75%, #4ed6ff);
+        stroke-width: 2.2;
+        stroke-linecap: round;
+        stroke-linejoin: round;
+        stroke-dasharray: 170;
+        stroke-dashoffset: 170;
+        animation: heartbeatWave 1.25s linear infinite;
+    }
+
+    .ai-input-wrap { border-top: 1px solid var(--line-soft); background: color-mix(in srgb, var(--card-bg) 92%, transparent); padding: .75rem .9rem .85rem; }
+    .ai-compose-row { display: flex; align-items: flex-end; gap: .5rem; position: relative; }
+    .ai-attach-main,
+    .ai-attach-option {
+        border-radius: 999px;
+        border: 1px solid var(--line-soft);
+        background: color-mix(in srgb, var(--card-bg) 90%, transparent);
+        color: var(--text-main);
+        font-size: 1.15rem;
+        width: 44px;
+        height: 44px;
+        padding: 0;
+        flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+    }
+    .ai-send {
+        border-radius: 999px;
+        width: 44px;
+        height: 44px;
+        padding: 0;
+        flex-shrink: 0;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 1.1rem;
+    }
+    .ai-input {
+        flex: 1;
+        border-radius: 18px;
+        border: 1px solid var(--line-soft);
+        background: color-mix(in srgb, var(--card-bg) 95%, transparent);
+        color: var(--text-main);
+        resize: none;
+        min-height: 44px;
+        max-height: calc(1.55em * 4 + 1.3rem);
+        overflow-y: auto;
+        line-height: 1.55;
+        padding: .55rem .8rem;
+        font-size: 1rem;
+        display: block;
+        width: 100%;
+    }
+
+    .ai-attach-sheet {
+        position: fixed;
+        left: 0;
+        right: 0;
+        bottom: 65px;
+        display: none;
+        border-top: 1px solid var(--line-soft);
+        background: color-mix(in srgb, var(--card-bg) 95%, transparent);
+        backdrop-filter: blur(8px);
+        padding: .7rem;
+        z-index: 2200;
+    }
+    .ai-attach-sheet.show { display: block; }
+    .ai-attach-grid {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: .45rem;
+        max-width: 760px;
+        margin: 0 auto;
+    }
+
+    .ai-attachments { display: flex; gap: .4rem; flex-wrap: wrap; margin-top: .45rem; }
+    .ai-attachment-chip { font-size: .82rem; border: 1px solid var(--line-soft); border-radius: 999px; padding: .3rem .66rem; color: var(--text-main); background: color-mix(in srgb, var(--card-bg) 92%, transparent); }
+
+    .ai-camera-panel { margin-top: .55rem; border: 1px solid var(--line-soft); border-radius: 12px; padding: .55rem; display: none; }
+    .ai-camera-panel.show { display: block; }
+    .ai-camera-video { width: 100%; max-height: 190px; border-radius: 10px; background: #000; }
+
+    @keyframes heartbeatWave { from { stroke-dashoffset: 170; } to { stroke-dashoffset: 0; } }
+
+    /* Keep strong neon look on dark theme */
+    html[data-theme='dark'] .ai-page {
+        background: linear-gradient(180deg, #0d1329 0%, #111933 50%, #0c1225 100%);
+    }
+    html[data-theme='dark'] .ai-sidebar {
+        border-right-color: rgba(255,255,255,.11);
+        background: linear-gradient(180deg, rgba(255,255,255,.05), rgba(255,255,255,.02));
+    }
+    html[data-theme='dark'] .ai-side-card,
+    html[data-theme='dark'] .ai-topbar,
+    html[data-theme='dark'] .ai-input-wrap {
+        border-color: rgba(255,255,255,.12);
+        background: rgba(255,255,255,.06);
+    }
+    html[data-theme='dark'] .ai-side-title,
+    html[data-theme='dark'] .ai-top-title,
+    html[data-theme='dark'] .ai-chip,
+    html[data-theme='dark'] .ai-attach-main,
+    html[data-theme='dark'] .ai-attach-option,
+    html[data-theme='dark'] .ai-attachment-chip,
+    html[data-theme='dark'] .ai-history-item {
+        color: #edf2ff;
+    }
+    html[data-theme='dark'] .ai-top-sub { color: rgba(240,246,255,.68); }
+    html[data-theme='dark'] .ai-history-item,
+    html[data-theme='dark'] .ai-bot,
+    html[data-theme='dark'] .ai-input { color: #f4f8ff !important; background: rgba(255,255,255,.08) !important; border-color: rgba(255,255,255,.16) !important; }
+    html[data-theme='dark'] .ai-input,
+    html[data-theme='dark'] .ai-attach-main,
+    html[data-theme='dark'] .ai-attach-option,
+    html[data-theme='dark'] .ai-attachment-chip,
+    html[data-theme='dark'] .ai-side-toggle,
+    html[data-theme='dark'] .ai-attach-sheet {
+        border-color: rgba(255,255,255,.16);
+        background: rgba(255,255,255,.08);
+    }
+    html[data-theme='dark'] .ai-bot { color: #edf2ff; }
+    html[data-theme='dark'] .ai-input { color: #f4f8ff; }
+
+    @media (min-width: 992px) {
+        .ai-page { top: 66px; bottom: 0; }
+    }
+
+    @media (max-width: 991px) {
+        .ai-page { bottom: 65px; }
+        .ai-layout { grid-template-columns: 1fr; }
+        .ai-sidebar { display: none; border-right: none; border-bottom: 1px solid var(--line-soft); max-height: 42vh; }
+        .ai-sidebar.is-open { display: block; }
+        .ai-side-toggle { display: inline-flex; }
+        .ai-bubble { max-width: 96%; }
+    }
+</style>
+
+<section class="ai-page">
+    <div class="ai-layout">
+        <aside class="ai-sidebar" id="aiSidebar">
+            <div class="ai-side-card">
+                <h6 class="ai-side-title">Historia</h6>
+                <div id="aiHistory">
+                    {% if question %}
+                    <button type="button" class="ai-history-item" data-history-question="{{ question|escape }}" title="{{ question|escape }}">{{ question|truncatewords:8 }}</button>
+                    {% else %}
+                    <div class="ai-history-item" style="cursor:default;">Hakuna historia bado.</div>
+                    {% endif %}
+                </div>
+            </div>
+
+            <div class="ai-side-card">
+                <h6 class="ai-side-title">Haraka</h6>
+                <span class="ai-chip">Dalili</span>
+                <span class="ai-chip">Usingizi</span>
+                <span class="ai-chip">Lishe</span>
+                <span class="ai-chip">Stress</span>
+                <span class="ai-chip">Mimba</span>
+            </div>
+
+            {% if not onboarding_complete %}
+            <div class="ai-side-card">
+                <h6 class="ai-side-title">Persona</h6>
+                <a href="{% url 'users:onboarding' step=1 %}" class="btn btn-sm btn-outline-light rounded-pill w-100">Kamilisha setup</a>
+            </div>
+            {% endif %}
+        </aside>
+
+        <section class="ai-main">
+            <div class="ai-topbar">
+                <div></div>
+                <div class="ai-top-actions">
+                    <button type="button" class="ai-new-chat" id="aiNewChatBtn" title="New chat"><i class="bi bi-plus-circle"></i></button>
+                    <button type="button" class="ai-side-toggle" id="aiSideToggle"><i class="bi bi-layout-sidebar-inset"></i> Paneli</button>
+                </div>
+            </div>
+
+            <div class="ai-thread" id="aiThread">
+                <div class="ai-bubble ai-bot"><i class="bi bi-hand-wave me-1"></i>Habari. Uliza swali lako, nitakupa jibu fupi na salama.</div>
+                {% if question %}
+                <div class="ai-bubble ai-user">{{ question }}</div>
+                {% endif %}
+                {% if reply %}
+                <div class="ai-bubble ai-bot">{{ reply }}</div>
+                {% endif %}
+            </div>
+
+            <form method="post" class="ai-input-wrap" id="aiForm" data-chat-url="{% url 'AI_brain:chat_quick' %}">
+                {% csrf_token %}
+                <div class="ai-compose-row">
+                    <button type="button" class="ai-attach-main" id="aiAttachToggle" aria-label="Attach">
+                        <i class="bi bi-paperclip"></i>
+                    </button>
+                    <textarea name="question" class="form-control ai-input" id="aiInput" rows="1" placeholder="Andika ujumbe wako hapa..." required autocomplete="off"></textarea>
+                    <button type="submit" class="btn btn-danger ai-send"><i class="bi bi-send"></i></button>
+                </div>
+                <div class="ai-attachments" id="aiAttachments"></div>
+                <div class="ai-camera-panel" id="aiCameraPanel">
+                    <video id="aiCameraVideo" class="ai-camera-video" autoplay playsinline></video>
+                    <div class="d-flex gap-2 mt-2">
+                        <button type="button" class="ai-attach-option" id="aiCaptureBtn"><i class="bi bi-camera"></i> Capture</button>
+                        <button type="button" class="ai-attach-option" id="aiCloseCameraBtn"><i class="bi bi-x-circle"></i> Close</button>
+                    </div>
+                </div>
+                <input type="file" id="aiImageInput" accept="image/*" hidden>
+                <input type="file" id="aiFileInput" hidden>
+                <input type="file" id="aiDocumentInput" accept=".pdf,.doc,.docx,.txt,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain" hidden>
+                <input type="file" id="aiAudioInput" accept="audio/*" hidden>
+                <input type="file" id="aiVideoInput" accept="video/*" hidden>
+            </form>
+        </section>
+    </div>
+</section>
+
+<div class="ai-attach-sheet" id="aiAttachSheet">
+    <div class="ai-attach-grid">
+        <button type="button" class="ai-attach-option" data-attach-type="image"><i class="bi bi-image"></i> Image</button>
+        <button type="button" class="ai-attach-option" data-attach-type="document"><i class="bi bi-file-earmark-text"></i> Document</button>
+        <button type="button" class="ai-attach-option" data-attach-type="audio"><i class="bi bi-file-music"></i> Audio</button>
+        <button type="button" class="ai-attach-option" data-attach-type="video"><i class="bi bi-file-play"></i> Video</button>
+        <button type="button" class="ai-attach-option" data-attach-type="camera"><i class="bi bi-camera-video"></i> Camera</button>
+        <button type="button" class="ai-attach-option" data-attach-type="voice"><i class="bi bi-mic"></i> Voice</button>
+    </div>
+</div>
+
+<script>
+    (function () {
+        document.body.classList.add('ai-chat-screen');
+        const form = document.getElementById('aiForm');
+        const input = document.getElementById('aiInput');
+        const thread = document.getElementById('aiThread');
+        const history = document.getElementById('aiHistory');
+        const newChatBtn = document.getElementById('aiNewChatBtn');
+        const toggleBtn = document.getElementById('aiSideToggle');
+        const sidebar = document.getElementById('aiSidebar');
+        const attachToggle = document.getElementById('aiAttachToggle');
+        const attachSheet = document.getElementById('aiAttachSheet');
+        const attachOptions = document.querySelectorAll('[data-attach-type]');
+        const imageInput = document.getElementById('aiImageInput');
+        const fileInput = document.getElementById('aiFileInput');
+        const documentInput = document.getElementById('aiDocumentInput');
+        const audioInput = document.getElementById('aiAudioInput');
+        const videoInput = document.getElementById('aiVideoInput');
+        const attachmentsWrap = document.getElementById('aiAttachments');
+        const cameraPanel = document.getElementById('aiCameraPanel');
+        const cameraVideo = document.getElementById('aiCameraVideo');
+        const captureBtn = document.getElementById('aiCaptureBtn');
+        const closeCameraBtn = document.getElementById('aiCloseCameraBtn');
+
+        if (!form || !input || !thread) {
+            return;
+        }
+
+        const csrfInput = form.querySelector('input[name="csrfmiddlewaretoken"]');
+        const chatUrl = form.dataset.chatUrl;
+
+        // Auto-grow textarea
+        function autoGrow() {
+            input.style.height = 'auto';
+            input.style.height = Math.min(input.scrollHeight, parseFloat(getComputedStyle(input).maxHeight) || 9999) + 'px';
+        }
+        input.addEventListener('input', autoGrow);
+        // send on Enter, Shift+Enter = newline
+        input.addEventListener('keydown', function (event) {
+            if (event.key === 'Enter' && !event.shiftKey) {
+                event.preventDefault();
+                form.dispatchEvent(new Event('submit', { cancelable: true, bubbles: true }));
+            }
+        });
+        const historyKey = 'zh-ai-chat-history-v1';
+        let attachments = [];
+        let cameraStream = null;
+
+        function loadHistory() {
+            try { return JSON.parse(localStorage.getItem(historyKey) || '[]'); } catch (e) { return []; }
+        }
+        function saveHistory(items) {
+            localStorage.setItem(historyKey, JSON.stringify(items.slice(0, 40)));
+        }
+        let localHistory = loadHistory();
+
+        function scrollThread() {
+            thread.scrollTop = thread.scrollHeight;
+        }
+
+        function shortText(text, maxWords) {
+            const words = (text || '').trim().split(/\s+/).filter(Boolean);
+            if (words.length <= maxWords) return text;
+            return words.slice(0, maxWords).join(' ') + '...';
+        }
+
+        function resetThread() {
+            thread.innerHTML = '<div class="ai-bubble ai-bot"><i class="bi bi-hand-wave me-1"></i>Habari. Uliza swali lako, nitakupa jibu fupi na salama.</div>';
+            input.value = '';
+            autoGrow();
+            attachments = [];
+            renderAttachments();
+            stopCamera();
+            if (attachSheet) attachSheet.classList.remove('show');
+            scrollThread();
+        }
+
+        function addBubble(text, type) {
+            const div = document.createElement('div');
+            div.className = 'ai-bubble ' + type;
+            div.textContent = text;
+            thread.appendChild(div);
+            scrollThread();
+            return div;
+        }
+
+        function addHistory(text) {
+            if (!history || !text) return;
+            const empty = history.querySelector('.ai-history-item');
+            if (empty && empty.textContent.trim() === 'Hakuna historia bado.') {
+                history.innerHTML = '';
+            }
+            const item = document.createElement('button');
+            item.type = 'button';
+            item.className = 'ai-history-item';
+            item.textContent = shortText(text, 8);
+            item.title = text;
+            item.addEventListener('click', function () {
+                input.value = text;
+                input.focus();
+            });
+            history.prepend(item);
+        }
+
+        function renderStoredHistory() {
+            if (!history) return;
+            if (!localHistory.length) return;
+            history.innerHTML = '';
+            localHistory.slice(0, 10).forEach(function (item) {
+                addHistory(item.q);
+            });
+        }
+
+        function typingBubble() {
+            const wrap = document.createElement('div');
+            wrap.className = 'ai-typing-wrap';
+            wrap.innerHTML = '<svg viewBox="0 0 130 26" class="ai-heartline" role="status" aria-label="AI typing"><polyline points="0,14 16,14 22,6 30,22 38,2 47,14 60,14 70,14 76,10 84,18 92,7 100,14 130,14"></polyline></svg>';
+            thread.appendChild(wrap);
+            scrollThread();
+            return wrap;
+        }
+
+        async function sendQuestion(question) {
+            const cleaned = (question || '').trim();
+            if (!cleaned) return;
+
+            const attachSummary = attachments.length ? `\n\nAttachments: ${attachments.map(function (a) { return a.name; }).join(', ')}` : '';
+            addBubble(cleaned + attachSummary, 'ai-user');
+            addHistory(cleaned);
+            const typing = typingBubble();
+            input.value = '';
+            autoGrow();
+
+            try {
+                const response = await fetch(chatUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+                        'X-CSRFToken': csrfInput ? csrfInput.value : '',
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: new URLSearchParams({ question: cleaned + attachSummary }).toString()
+                });
+
+                const data = await response.json();
+                typing.remove();
+                if (data && data.ok && data.reply) {
+                    addBubble(data.reply, 'ai-bot');
+                    localHistory.unshift({ q: cleaned, r: data.reply, at: Date.now() });
+                    saveHistory(localHistory);
+                } else {
+                    addBubble('Samahani, kuna hitilafu kidogo. Jaribu tena.', 'ai-bot');
+                }
+            } catch (error) {
+                typing.remove();
+                addBubble('Samahani, mtandao una shida kidogo. Jaribu tena.', 'ai-bot');
+            }
+            attachments = [];
+            renderAttachments();
+        }
+
+        function renderAttachments() {
+            if (!attachmentsWrap) return;
+            attachmentsWrap.innerHTML = '';
+            attachments.forEach(function (file, index) {
+                const chip = document.createElement('button');
+                chip.type = 'button';
+                chip.className = 'ai-attachment-chip';
+                chip.textContent = file.name + ' ×';
+                chip.addEventListener('click', function () {
+                    attachments.splice(index, 1);
+                    renderAttachments();
+                });
+                attachmentsWrap.appendChild(chip);
+            });
+        }
+
+        function pushFiles(fileList) {
+            Array.from(fileList || []).forEach(function (f) {
+                attachments.push({ name: f.name, type: f.type || 'file' });
+            });
+            renderAttachments();
+        }
+
+        async function startCamera() {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+                addBubble('Camera haipatikani kwenye kifaa hiki.', 'ai-bot');
+                return;
+            }
+            try {
+                cameraStream = await navigator.mediaDevices.getUserMedia({ video: true, audio: false });
+                cameraVideo.srcObject = cameraStream;
+                cameraPanel.classList.add('show');
+            } catch (e) {
+                addBubble('Imeshindikana kufungua camera.', 'ai-bot');
+            }
+        }
+
+        function stopCamera() {
+            if (cameraStream) {
+                cameraStream.getTracks().forEach(function (t) { t.stop(); });
+                cameraStream = null;
+            }
+            cameraPanel.classList.remove('show');
+        }
+
+        function captureCameraImage() {
+            if (!cameraVideo || !cameraVideo.videoWidth) return;
+            const canvas = document.createElement('canvas');
+            canvas.width = cameraVideo.videoWidth;
+            canvas.height = cameraVideo.videoHeight;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(cameraVideo, 0, 0, canvas.width, canvas.height);
+            const name = 'camera-' + Date.now() + '.png';
+            attachments.push({ name: name, type: 'image/camera' });
+            renderAttachments();
+        }
+
+        function startVoice() {
+            const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
+            if (!SR) {
+                addBubble('Voice input haipo kwenye browser hii.', 'ai-bot');
+                return;
+            }
+            const rec = new SR();
+            rec.lang = 'sw-TZ';
+            rec.interimResults = false;
+            rec.maxAlternatives = 1;
+            rec.onresult = function (event) {
+                const text = event.results && event.results[0] && event.results[0][0] ? event.results[0][0].transcript : '';
+                if (text) input.value = text;
+            };
+            rec.start();
+        }
+
+        form.addEventListener('submit', function (event) {
+            event.preventDefault();
+            sendQuestion(input.value);
+        });
+
+        if (toggleBtn && sidebar) {
+            toggleBtn.addEventListener('click', function () {
+                sidebar.classList.toggle('is-open');
+            });
+        }
+
+        if (newChatBtn) {
+            newChatBtn.addEventListener('click', resetThread);
+        }
+
+        if (attachToggle && attachSheet) {
+            attachToggle.addEventListener('click', function (event) {
+                event.stopPropagation();
+                attachSheet.classList.toggle('show');
+            });
+
+            document.addEventListener('click', function (event) {
+                if (!attachSheet.contains(event.target) && !attachToggle.contains(event.target)) {
+                    attachSheet.classList.remove('show');
+                }
+            });
+        }
+
+        attachOptions.forEach(function (button) {
+            button.addEventListener('click', function () {
+                const type = button.dataset.attachType;
+                if (type === 'image') imageInput.click();
+                if (type === 'file') fileInput.click();
+                if (type === 'document') documentInput.click();
+                if (type === 'audio') audioInput.click();
+                if (type === 'video') videoInput.click();
+                if (type === 'camera') startCamera();
+                if (type === 'voice') startVoice();
+                if (attachSheet) attachSheet.classList.remove('show');
+            });
+        });
+
+        captureBtn.addEventListener('click', captureCameraImage);
+        closeCameraBtn.addEventListener('click', stopCamera);
+        imageInput.addEventListener('change', function () { pushFiles(imageInput.files); imageInput.value = ''; });
+        fileInput.addEventListener('change', function () { pushFiles(fileInput.files); fileInput.value = ''; });
+        documentInput.addEventListener('change', function () { pushFiles(documentInput.files); documentInput.value = ''; });
+        audioInput.addEventListener('change', function () { pushFiles(audioInput.files); audioInput.value = ''; });
+        videoInput.addEventListener('change', function () { pushFiles(videoInput.files); videoInput.value = ''; });
+
+        window.addEventListener('beforeunload', function () {
+            stopCamera();
+            document.body.classList.remove('ai-chat-screen');
+        });
+
+        renderStoredHistory();
+        scrollThread();
+    })();
+</script>
+{% endblock %}
