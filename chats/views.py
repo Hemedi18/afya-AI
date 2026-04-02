@@ -1,6 +1,7 @@
 import base64
 import re
 import uuid
+from urllib.parse import urlencode
 from os.path import basename
 
 import bleach
@@ -14,6 +15,7 @@ from django.http import JsonResponse
 from django.utils import timezone
 from django.utils.html import strip_tags
 from django.shortcuts import get_object_or_404, redirect, render
+from django.urls import reverse
 from django.views import View
 from bleach.css_sanitizer import CSSSanitizer
 
@@ -30,6 +32,7 @@ from .forms import (
 	PrivateMessageForm,
 )
 from .models import ClarificationMessage, ClarificationRequest, ContentReport, PrivateConversation, PrivateMessage
+from users.models import UserAIPersona
 
 
 def _audience_for_user(user):
@@ -321,8 +324,14 @@ class SocialFeedView(LoginRequiredMixin, View):
 		)
 		if user_gender in {'female', 'male'}:
 			posts_qs = posts_qs.filter(audience_gender=user_gender)
-		if selected_group and active_section != 'private':
-			posts_qs = posts_qs.filter(Q(group=selected_group) | Q(groups=selected_group)).distinct()
+		# Apply strict group filter only when user explicitly selected a group.
+		# By default, show all posts in the current gender audience.
+		if selected_group_id and selected_group and active_section != 'private':
+			posts_qs = posts_qs.filter(
+				Q(group=selected_group)
+				| Q(groups=selected_group)
+				| Q(group__isnull=True, groups__isnull=True)
+			).distinct()
 		posts = posts_qs.order_by('-created_at')
 		private_posts = posts_qs.order_by('-created_at') if active_section == 'private' else None
 		recent_posts = posts[:5]
@@ -493,10 +502,39 @@ class CreatePostView(LoginRequiredMixin, View):
 	template_name = 'chats/create_post.html'
 
 	def get(self, request, *args, **kwargs):
+		persona, _ = UserAIPersona.objects.get_or_create(user=request.user)
+		profile_complete = persona.profile_completeness_score >= 100
+		settings_obj, _ = MenstrualUserSetting.objects.get_or_create(user=request.user)
+		
 		context = _community_post_form_context(request.user, request.GET.get('group'))
+		context['persona'] = persona
+		context['profile_complete'] = profile_complete
+		context['profile_completeness'] = persona.profile_completeness_score
+		context['default_anonymous_mode'] = settings_obj.anonymous_mode
+		context['onboarding_next_url'] = request.get_full_path()
 		return render(request, self.template_name, context)
 
 	def post(self, request, *args, **kwargs):
+		persona, _ = UserAIPersona.objects.get_or_create(user=request.user)
+		settings_obj, _ = MenstrualUserSetting.objects.get_or_create(user=request.user)
+		per_post_anon = request.POST.get('is_anonymous') == 'on'
+		is_anonymous = settings_obj.anonymous_mode or per_post_anon
+		profile_incomplete = persona.profile_completeness_score < 100
+		terms_accepted = request.POST.get('terms_accepted') == 'on'
+		group_id = request.POST.get('group') or request.GET.get('group')
+		base_next = reverse('chats:post_create')
+		if group_id and str(group_id).isdigit():
+			base_next = f"{base_next}?{urlencode({'group': group_id})}"
+		
+		if profile_incomplete and not is_anonymous:
+			messages.error(request, f'Kamilizia profile yako 100% kabla ya kupost. (Sasa {persona.profile_completeness_score}%)')
+			onboarding_url = f"{reverse('users:onboarding', kwargs={'step': 1})}?{urlencode({'next': base_next})}"
+			return redirect(onboarding_url)
+		
+		if not terms_accepted:
+			messages.error(request, 'Tafadhali bali terms na conditions kabla ya kupost.')
+			return redirect(base_next)
+		
 		raw_content = request.POST.get('content') or ''
 		content = _sanitize_rich_content(raw_content)
 		plain_content = strip_tags(content).strip()
@@ -506,9 +544,6 @@ class CreatePostView(LoginRequiredMixin, View):
 		group_ids = [group_id for group_id in request.POST.getlist('group_ids') if str(group_id).isdigit()]
 		post_for_all = request.POST.get('post_for_all') == 'on'
 		publish_as_status = request.POST.get('publish_as_status') == 'on'
-		settings_obj, _ = MenstrualUserSetting.objects.get_or_create(user=request.user)
-		per_post_anon = request.POST.get('is_anonymous') == 'on'
-		is_anonymous = settings_obj.anonymous_mode or per_post_anon
 		audience_gender = _audience_for_user(request.user)
 		media_ratio = (request.POST.get('media_ratio') or 'auto')[:20]
 		media_shape = (request.POST.get('media_shape') or 'rounded')[:20]

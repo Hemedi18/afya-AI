@@ -2,6 +2,9 @@ from django.shortcuts import render, redirect
 from django.contrib.auth import login, update_session_auth_hash, logout as auth_logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
+from django.utils.http import url_has_allowed_host_and_scheme
+from django.urls import reverse
+from urllib.parse import urlencode
 
 from .forms import (
     ZanzHubRegisterForm,
@@ -61,6 +64,10 @@ def onboarding(request, step=1):
     }
 
     form_class, title, subtitle = step_map[step]
+    next_url = request.GET.get('next') or request.POST.get('next') or ''
+    if next_url and not url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
+        next_url = ''
+
     if request.method == 'POST':
         form = form_class(request.POST, instance=persona)
         if form.is_valid():
@@ -68,8 +75,13 @@ def onboarding(request, step=1):
             persona.update_quality_metrics(save=True)
             _store_persona_snapshot(request.user, persona, source='onboarding')
             if step < 3:
+                if next_url:
+                    next_step_url = reverse('users:onboarding', kwargs={'step': step + 1})
+                    return redirect(f"{next_step_url}?{urlencode({'next': next_url})}")
                 return redirect('users:onboarding', step=step + 1)
             messages.success(request, 'Asante! AI persona yako imekamilika na sasa majibu yatakuwa personalized zaidi.')
+            if next_url:
+                return redirect(next_url)
             return redirect('main:home')
     else:
         form = form_class(instance=persona)
@@ -83,6 +95,7 @@ def onboarding(request, step=1):
             'step_title': title,
             'step_subtitle': subtitle,
             'progress': int((step / 3) * 100),
+            'next_url': next_url,
         },
     )
 
@@ -109,6 +122,10 @@ def profile(request):
                 avatar_form.save()
                 messages.success(request, 'Taarifa zako zimehifadhiwa!')
                 return redirect(f'{request.path}?tab=account')
+            if avatar_form.errors.get('avatar'):
+                messages.error(request, f"Picha haikuhifadhiwa: {avatar_form.errors['avatar'][0]}")
+            else:
+                messages.error(request, 'Imeshindikana kuhifadhi mabadiliko ya profile. Tafadhali angalia taarifa ulizoingiza.')
             active_tab = 'account'
 
         elif action == 'update_persona':

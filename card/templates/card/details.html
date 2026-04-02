@@ -145,6 +145,20 @@
       </div>
     </div>
 
+    <div class="details-section">
+      <div class="details-title">Scan Page Security</div>
+      <div class="row g-3 mb-1">
+        <div class="col-md-6">{{ form.public_password.label_tag }} {{ form.public_password }}</div>
+        <div class="col-md-6">{{ form.public_password_confirm.label_tag }} {{ form.public_password_confirm }}</div>
+        <div class="col-12">
+          <div class="pick-item">{{ form.clear_public_password }} {{ form.clear_public_password.label_tag }}</div>
+          <div class="hint">Weka password kulinda data ya scan page. Uki-ondoa tiki ya password removal, ulinzi utaondoka.</div>
+          {% if form.public_password.errors %}<div class="text-danger small mt-1">{{ form.public_password.errors.0 }}</div>{% endif %}
+          {% if form.public_password_confirm.errors %}<div class="text-danger small mt-1">{{ form.public_password_confirm.errors.0 }}</div>{% endif %}
+        </div>
+      </div>
+    </div>
+
     <button class="btn btn-danger rounded-pill" type="submit"><i class="bi bi-save me-1"></i>Save Details</button>
   </form>
 </div>

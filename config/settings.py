@@ -123,6 +123,7 @@ TEMPLATES = [
                 'django.contrib.messages.context_processors.messages',
                 'menstrual.context_processors.reminders_processor',
                 'users.context_processors.role_flags',
+                'main.context_processors.admin_dashboard_context',
             ],
         },
     },
@@ -235,6 +236,7 @@ JAZZMIN_SETTINGS = {
     ],
     "topmenu_links": [
         {"name": "Home", "url": "admin:index", "permissions": ["auth.view_user"]},
+        {"name": "Analytics", "url": "main:control_center", "permissions": ["auth.view_user"]},
         {"model": "auth.User"},
         {"model": "menstrual.DoctorProfile"},
         {"model": "menstrual.DailyTip"},
@@ -258,6 +260,10 @@ JAZZMIN_SETTINGS = {
         "auth",
         "menstrual",
     ],
+    "custom_links": {
+        "auth": [{"name": "Admin Analytics Dashboard", "url": "main:control_center", "icon": "fas fa-chart-line", "permissions": ["auth.view_user"]}],
+        "menstrual": [{"name": "AI Content Insights", "url": "main:control_center", "icon": "fas fa-brain", "permissions": ["auth.view_user"]}],
+    },
 }
 
 JAZZMIN_UI_TWEAKS = {

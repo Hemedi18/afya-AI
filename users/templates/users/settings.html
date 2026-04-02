@@ -1,0 +1,381 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<style>
+    .settings-container {
+        max-width: 1200px;
+        margin: 0 auto;
+        padding: 1.5rem;
+    }
+
+    .settings-header {
+        margin-bottom: 2rem;
+    }
+
+    .settings-header h1 {
+        font-size: 1.8rem;
+        font-weight: 800;
+        margin-bottom: .5rem;
+        color: #0f172a;
+    }
+
+    .settings-header p {
+        color: #64748b;
+        font-size: .95rem;
+    }
+
+    .settings-layout {
+        display: grid;
+        grid-template-columns: 280px 1fr;
+        gap: 1.5rem;
+    }
+
+    .settings-sidebar {
+        position: sticky;
+        top: 1rem;
+        height: fit-content;
+    }
+
+    .settings-nav {
+        display: flex;
+        flex-direction: column;
+        gap: .4rem;
+    }
+
+    .settings-nav-item {
+        padding: .65rem .9rem;
+        border-radius: 12px;
+        border: 1px solid transparent;
+        background: rgba(255, 255, 255, .7);
+        color: #64748b;
+        cursor: pointer;
+        display: flex;
+        align-items: center;
+        gap: .6rem;
+        text-decoration: none;
+        transition: all .2s ease;
+        font-weight: 500;
+        font-size: .9rem;
+    }
+
+    .settings-nav-item:hover {
+        background: rgba(255, 255, 255, .95);
+        border-color: rgba(15, 23, 42, .1);
+        color: #0f172a;
+    }
+
+    .settings-nav-item.active {
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        color: #fff;
+        border-color: #1d4ed8;
+    }
+
+    .settings-nav-item i {
+        font-size: 1rem;
+    }
+
+    .settings-content {
+        background: rgba(255, 255, 255, .9);
+        border: 1px solid rgba(15, 23, 42, .08);
+        border-radius: 16px;
+        padding: 2rem;
+        box-shadow: 0 10px 30px rgba(15, 23, 42, .06);
+    }
+
+    .settings-section-title {
+        font-size: 1.3rem;
+        font-weight: 700;
+        margin-bottom: 1.5rem;
+        color: #0f172a;
+        display: flex;
+        align-items: center;
+        gap: .6rem;
+    }
+
+    .settings-section-title i {
+        font-size: 1.3rem;
+        color: #2563eb;
+    }
+
+    .form-group {
+        margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+        display: block;
+        margin-bottom: .5rem;
+        font-weight: 600;
+        color: #0f172a;
+        font-size: .92rem;
+    }
+
+    .form-group .helptext {
+        font-size: .82rem;
+        color: #64748b;
+        margin-top: .35rem;
+        display: block;
+    }
+
+    .form-group input,
+    .form-group textarea,
+    .form-group select {
+        width: 100%;
+        padding: .65rem .85rem;
+        border: 1px solid rgba(15, 23, 42, .12);
+        border-radius: 8px;
+        font-size: .95rem;
+        background: rgba(255, 255, 255, .95);
+        transition: all .2s ease;
+    }
+
+    .form-group input:focus,
+    .form-group textarea:focus,
+    .form-group select:focus {
+        outline: none;
+        border-color: #2563eb;
+        box-shadow: 0 0 0 3px rgba(37, 99, 235, .1);
+        background: #fff;
+    }
+
+    .form-group textarea {
+        resize: vertical;
+        min-height: 100px;
+    }
+
+    .form-actions {
+        display: flex;
+        gap: .8rem;
+        margin-top: 2rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid rgba(15, 23, 42, .08);
+    }
+
+    .btn-save {
+        background: linear-gradient(135deg, #2563eb, #1d4ed8);
+        color: white;
+        border: none;
+        padding: .65rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all .2s ease;
+    }
+
+    .btn-save:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px rgba(37, 99, 235, .3);
+    }
+
+    .btn-cancel {
+        background: rgba(15, 23, 42, .08);
+        color: #0f172a;
+        border: 1px solid rgba(15, 23, 42, .12);
+        padding: .65rem 1.5rem;
+        border-radius: 8px;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all .2s ease;
+    }
+
+    .btn-cancel:hover {
+        background: rgba(15, 23, 42, .12);
+    }
+
+    .errorlist {
+        list-style: none;
+        padding: 0;
+        margin: 0;
+    }
+
+    .errorlist li {
+        background: #fee2e2;
+        color: #991b1b;
+        padding: .5rem .7rem;
+        border-radius: 6px;
+        margin-bottom: .4rem;
+        font-size: .9rem;
+    }
+
+    .avatar-preview {
+        width: 100px;
+        height: 100px;
+        border-radius: 50%;
+        object-fit: cover;
+        margin: 1rem 0;
+        border: 2px solid #e2e8f0;
+    }
+
+    @media (max-width: 768px) {
+        .settings-layout {
+            grid-template-columns: 1fr;
+        }
+
+        .settings-sidebar {
+            position: relative;
+            top: 0;
+        }
+
+        .settings-nav {
+            flex-direction: row;
+            flex-wrap: wrap;
+        }
+
+        .settings-nav-item {
+            flex: 1;
+            min-width: 140px;
+            justify-content: center;
+        }
+
+        .settings-content {
+            padding: 1.5rem;
+        }
+    }
+</style>
+
+<div class="settings-container">
+    <div class="settings-header">
+        <h1><i class="bi bi-gear"></i> Settings</h1>
+        <p>Manage your account, profile, and privacy preferences</p>
+    </div>
+
+    {% if messages %}
+    <div style="margin-bottom: 1.5rem;">
+        {% for message in messages %}
+        <div class="alert alert-{{ message.tags }}" role="alert">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+
+    <div class="settings-layout">
+        <div class="settings-sidebar">
+            <div class="settings-nav">
+                {% for section in sections %}
+                <a href="{% url 'users:settings_section' section.id %}"
+                   class="settings-nav-item {% if section.id == active_section %}active{% endif %}">
+                    <i class="bi {{ section.icon }}"></i>
+                    <span>{{ section.title }}</span>
+                </a>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="settings-content">
+            {% if active_section == 'general' %}
+            <div class="settings-section-title">
+                <i class="bi bi-sliders"></i> General Settings
+            </div>
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="_action" value="general">
+
+                {% for field in forms.general %}
+                    {% if field.field.widget.input_type != 'hidden' %}
+                    <div class="form-group">
+                        {{ field.label_tag }}
+                        {{ field }}
+                        {% if field.errors %}
+                        <ul class="errorlist">
+                            {% for error in field.errors %}
+                            <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                        {% if field.help_text %}
+                        <span class="helptext">{{ field.help_text|safe }}</span>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                {% endfor %}
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-save">
+                        <i class="bi bi-check-circle me-1"></i> Save Changes
+                    </button>
+                    <a href="{% url 'users:settings' %}" class="btn-cancel">Cancel</a>
+                </div>
+            </form>
+
+            {% elif active_section == 'display' %}
+            <div class="settings-section-title">
+                <i class="bi bi-palette"></i> Display & Profile
+            </div>
+            <form method="post" enctype="multipart/form-data">
+                {% csrf_token %}
+                <input type="hidden" name="_action" value="display">
+
+                {% if persona.avatar %}
+                <div>
+                    <label>Current Avatar</label>
+                    <img src="{{ persona.avatar.url }}" alt="Avatar" class="avatar-preview">
+                </div>
+                {% endif %}
+
+                {% for field in forms.display %}
+                    {% if field.field.widget.input_type != 'hidden' %}
+                    <div class="form-group">
+                        {{ field.label_tag }}
+                        {{ field }}
+                        {% if field.errors %}
+                        <ul class="errorlist">
+                            {% for error in field.errors %}
+                            <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                        {% if field.help_text %}
+                        <span class="helptext">{{ field.help_text|safe }}</span>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                {% endfor %}
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-save">
+                        <i class="bi bi-check-circle me-1"></i> Save Changes
+                    </button>
+                    <a href="{% url 'users:settings' %}" class="btn-cancel">Cancel</a>
+                </div>
+            </form>
+
+            {% elif active_section == 'security' %}
+            <div class="settings-section-title">
+                <i class="bi bi-shield-lock"></i> Security & Privacy
+            </div>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="_action" value="security">
+
+                {% for field in forms.security %}
+                    {% if field.field.widget.input_type != 'hidden' %}
+                    <div class="form-group">
+                        {{ field.label_tag }}
+                        {{ field }}
+                        {% if field.errors %}
+                        <ul class="errorlist">
+                            {% for error in field.errors %}
+                            <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                        {% if field.help_text %}
+                        <span class="helptext">{{ field.help_text|safe }}</span>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+                {% endfor %}
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-save">
+                        <i class="bi bi-check-circle me-1"></i> Change Password
+                    </button>
+                    <a href="{% url 'users:settings' %}" class="btn-cancel">Cancel</a>
+                </div>
+            </form>
+
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

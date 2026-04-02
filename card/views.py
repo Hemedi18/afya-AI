@@ -56,16 +56,27 @@ def _build_selected_health_data(card: HealthCard):
 		selected['basic_identity']['age'] = card.display_age
 
 	if persona:
-		if card.show_health_notes and persona.health_notes.strip():
-			selected['persona_health']['health_notes'] = persona.health_notes
-		if card.show_permanent_diseases and persona.permanent_diseases.strip():
-			selected['persona_health']['permanent_diseases'] = persona.permanent_diseases
-		if card.show_medications and persona.medications.strip():
-			selected['persona_health']['medications'] = persona.medications
-		if card.show_goals and persona.goals.strip():
-			selected['persona_health']['goals'] = persona.goals
-		if card.show_lifestyle and persona.lifestyle_notes.strip():
-			selected['persona_health']['lifestyle_notes'] = persona.lifestyle_notes
+		if card.show_health_notes:
+			selected['persona_health']['health_notes'] = persona.health_notes.strip() or 'No health notes provided.'
+		if card.show_permanent_diseases:
+			selected['persona_health']['permanent_diseases'] = persona.permanent_diseases.strip() or 'No permanent diseases reported.'
+		if card.show_medications:
+			selected['persona_health']['medications'] = persona.medications.strip() or 'No medications.'
+		if card.show_goals:
+			selected['persona_health']['goals'] = persona.goals.strip() or 'No health goals specified.'
+		if card.show_lifestyle:
+			selected['persona_health']['lifestyle_notes'] = persona.lifestyle_notes.strip() or 'No lifestyle notes provided.'
+	else:
+		if card.show_health_notes:
+			selected['persona_health']['health_notes'] = 'No health notes provided.'
+		if card.show_permanent_diseases:
+			selected['persona_health']['permanent_diseases'] = 'No permanent diseases reported.'
+		if card.show_medications:
+			selected['persona_health']['medications'] = 'No medications.'
+		if card.show_goals:
+			selected['persona_health']['goals'] = 'No health goals specified.'
+		if card.show_lifestyle:
+			selected['persona_health']['lifestyle_notes'] = 'No lifestyle notes provided.'
 
 	if card.show_menstrual_logs and recent_logs:
 		selected['menstrual']['recent_logs'] = [
@@ -142,7 +153,14 @@ def card_details(request):
 		form = HealthCardForm(request.POST, request.FILES, instance=card)
 		config_form = PersonaReminderConfigForm(request.POST, instance=config)
 		if form.is_valid() and config_form.is_valid():
-			form.save()
+			card_obj = form.save(commit=False)
+			new_pwd = (form.cleaned_data.get('public_password') or '').strip()
+			clear_pwd = form.cleaned_data.get('clear_public_password')
+			if clear_pwd:
+				card_obj.clear_public_password()
+			elif new_pwd:
+				card_obj.set_public_password(new_pwd)
+			card_obj.save()
 			config_form.save()
 			CardNotification.objects.create(
 				user=request.user,
@@ -175,6 +193,26 @@ def card_notifications(request):
 
 def public_profile(request, token):
 	card = get_object_or_404(HealthCard, public_token=token)
+	session_key = f'card_access_{card.public_token}'
+
+	if card.requires_public_password and not request.session.get(session_key):
+		if request.method == 'POST':
+			password = (request.POST.get('access_password') or '').strip()
+			if card.check_public_password(password):
+				request.session[session_key] = True
+				return redirect('card:public_profile', token=card.public_token)
+			return render(request, 'card/public_profile.html', {
+				'locked': True,
+				'owner': card.user,
+				'generated_at': timezone.now(),
+				'access_error': 'Password si sahihi. Jaribu tena.',
+			})
+		return render(request, 'card/public_profile.html', {
+			'locked': True,
+			'owner': card.user,
+			'generated_at': timezone.now(),
+		})
+
 	selected_data = _build_selected_health_data(card)
 	payload = {
 		'meta': {

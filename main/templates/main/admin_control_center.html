@@ -1,36 +1,174 @@
 {% extends 'base.html' %}
 
 {% block content %}
-<div class="py-4">
-    <div class="card-custom p-4 p-lg-5 mb-4">
+<style>
+    .admin-pro-wrap {
+        --panel-bg: rgba(255,255,255,.82);
+        --panel-border: rgba(18, 27, 51, .09);
+        --muted: #667085;
+        --ink: #0f172a;
+        --brand: #6d28d9;
+        --brand-2: #2563eb;
+        --ok: #16a34a;
+        --bad: #dc2626;
+        background: radial-gradient(circle at top right, #e0e7ff 0%, #f8fafc 45%, #eef2ff 100%);
+        border-radius: 22px;
+        padding: 1rem;
+    }
+
+    .admin-pro-hero,
+    .admin-pro-panel,
+    .admin-pro-kpi {
+        border: 1px solid var(--panel-border);
+        background: var(--panel-bg);
+        backdrop-filter: blur(8px);
+        border-radius: 18px;
+        box-shadow: 0 12px 24px rgba(15, 23, 42, .06);
+    }
+
+    .admin-pro-hero {
+        padding: 1.2rem;
+        background: linear-gradient(135deg, rgba(109,40,217,.14), rgba(37,99,235,.12));
+    }
+
+    .admin-pro-title { color: var(--ink); font-weight: 800; margin-bottom: .2rem; }
+    .admin-pro-sub { color: var(--muted); margin-bottom: 0; }
+
+    .admin-pro-kpi { padding: 1rem; height: 100%; }
+    .admin-pro-kpi .label { font-size: .82rem; color: var(--muted); }
+    .admin-pro-kpi .value { font-size: 1.65rem; font-weight: 800; color: var(--ink); line-height: 1.2; }
+    .admin-pro-kpi .mini { font-size: .8rem; color: var(--muted); }
+    .admin-pro-kpi .up { color: var(--ok); font-weight: 700; }
+    .admin-pro-kpi .down { color: var(--bad); font-weight: 700; }
+
+    .admin-pro-panel { padding: 1rem; height: 100%; }
+    .admin-pro-panel h6 { color: var(--ink); font-weight: 700; margin-bottom: .8rem; }
+    .admin-summary { color: var(--muted); font-size: .85rem; margin-top: .6rem; }
+
+    .admin-ai-summary {
+        border-radius: 14px;
+        border: 1px dashed rgba(109,40,217,.35);
+        background: rgba(109,40,217,.06);
+        padding: .85rem;
+        color: #2e1065;
+        white-space: pre-line;
+    }
+
+    .admin-list-item {
+        border: 1px solid var(--panel-border);
+        border-radius: 12px;
+        padding: .7rem;
+        margin-bottom: .55rem;
+        background: rgba(255,255,255,.65);
+    }
+</style>
+
+<div class="py-4 admin-pro-wrap">
+    <div class="admin-pro-hero mb-4">
         <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
             <div>
-                <h4 class="fw-bold mb-1">Admin Control Center</h4>
-                <p class="text-muted mb-0">Control each and every part of the platform from one screen.</p>
+                <h4 class="admin-pro-title">Admin Analytics Pro</h4>
+                <p class="admin-pro-sub">Dashboard ya admin yenye graphs, trend analysis, na AI summarisation.</p>
             </div>
             <div class="d-flex gap-2 flex-wrap">
                 <a href="{% url 'admin:index' %}" class="btn btn-danger rounded-pill">Open Django Admin</a>
                 <a href="{% url 'doctor:approval_dashboard' %}" class="btn btn-outline-danger rounded-pill">Doctor approvals</a>
                 <a href="{% url 'chats:moderator_dashboard' %}" class="btn btn-outline-secondary rounded-pill">Moderation</a>
-                <a href="{% url 'doctor:register' %}" class="btn btn-outline-secondary rounded-pill">Doctor Registration Page</a>
+                <a href="{% url 'doctor:register' %}" class="btn btn-outline-secondary rounded-pill">Doctor Registration</a>
             </div>
+        </div>
+
+        <div class="admin-ai-summary mt-3">
+            <strong><i class="bi bi-stars me-1"></i>AI Dashboard Summary</strong><br>
+            {{ ai_dashboard_summary }}
         </div>
     </div>
 
     <div class="row g-3 mb-4">
-        <div class="col-md-6 col-xl-4"><div class="card-custom p-4"><div class="text-muted small">Users</div><div class="display-6 fw-bold">{{ stats.users }}</div></div></div>
-        <div class="col-md-6 col-xl-4"><div class="card-custom p-4"><div class="text-muted small">Doctors</div><div class="display-6 fw-bold">{{ stats.doctors_total }}</div><div class="small text-success">Verified: {{ stats.doctors_verified }}</div></div></div>
-        <div class="col-md-6 col-xl-4"><div class="card-custom p-4"><div class="text-muted small">Daily Logs</div><div class="display-6 fw-bold">{{ stats.daily_logs }}</div></div></div>
-        <div class="col-md-6 col-xl-4"><div class="card-custom p-4"><div class="text-muted small">Community Posts</div><div class="display-6 fw-bold">{{ stats.community_posts }}</div></div></div>
-        <div class="col-md-6 col-xl-4"><div class="card-custom p-4"><div class="text-muted small">Pending Reminders</div><div class="display-6 fw-bold">{{ stats.pending_reminders }}</div></div></div>
+        <div class="col-md-6 col-xl-3">
+            <div class="admin-pro-kpi">
+                <div class="label">Total Users</div>
+                <div class="value">{{ stats.users }}</div>
+                <div class="mini">New 30d: {{ stats.new_users_30d }}</div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-3">
+            <div class="admin-pro-kpi">
+                <div class="label">Registration Growth (30d vs prev)</div>
+                <div class="value">{{ stats.registration_growth_pct }}%</div>
+                <div class="mini {% if stats.registration_growth_pct >= 0 %}up{% else %}down{% endif %}">
+                    {% if stats.registration_growth_pct >= 0 %}↑ Growth{% else %}↓ Drop{% endif %}
+                </div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-3">
+            <div class="admin-pro-kpi">
+                <div class="label">Community Posts (30d)</div>
+                <div class="value">{{ stats.posts_30d }}</div>
+                <div class="mini">All-time: {{ stats.community_posts }}</div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-3">
+            <div class="admin-pro-kpi">
+                <div class="label">AI Helpful Rate</div>
+                <div class="value">{{ stats.helpful_rate }}%</div>
+                <div class="mini">AI chats 30d: {{ stats.ai_chats_30d }}</div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-3">
+            <div class="admin-pro-kpi">
+                <div class="label">Doctors</div>
+                <div class="value">{{ stats.doctors_total }}</div>
+                <div class="mini">Verified: {{ stats.doctors_verified }}</div>
+            </div>
+        </div>
+        <div class="col-md-6 col-xl-3">
+            <div class="admin-pro-kpi">
+                <div class="label">Daily Logs</div>
+                <div class="value">{{ stats.daily_logs }}</div>
+                <div class="mini">Reminders pending: {{ stats.pending_reminders }}</div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row g-4 mb-4">
+        <div class="col-lg-6">
+            <div class="admin-pro-panel">
+                <h6><i class="bi bi-graph-up-arrow me-1"></i>Registration Rate (last 14 days)</h6>
+                <canvas id="registrationChart" height="130"></canvas>
+                <div class="admin-summary">{{ summary_reg }}</div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="admin-pro-panel">
+                <h6><i class="bi bi-chat-left-dots me-1"></i>Posting Rate (last 14 days)</h6>
+                <canvas id="postingChart" height="130"></canvas>
+                <div class="admin-summary">{{ summary_posts }}</div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="admin-pro-panel">
+                <h6><i class="bi bi-pie-chart me-1"></i>Content Types (last 30 days)</h6>
+                <canvas id="contentTypeChart" height="130"></canvas>
+                <div class="admin-summary">{{ summary_content }}</div>
+            </div>
+        </div>
+        <div class="col-lg-6">
+            <div class="admin-pro-panel">
+                <h6><i class="bi bi-robot me-1"></i>AI Usage + Feedback</h6>
+                <canvas id="aiUsageChart" height="110"></canvas>
+                <div class="mt-3"><canvas id="aiFeedbackChart" height="110"></canvas></div>
+                <div class="admin-summary">{{ summary_ai }} {{ summary_feedback }}</div>
+            </div>
+        </div>
     </div>
 
     <div class="row g-4">
         <div class="col-lg-6">
-            <div class="card-custom p-4 h-100">
+            <div class="admin-pro-panel h-100">
                 <h6 class="fw-bold mb-3">Latest Community Posts</h6>
                 {% for post in latest_posts %}
-                <div class="border rounded-4 p-3 mb-2">
+                <div class="admin-list-item">
                     <div class="d-flex justify-content-between">
                         <strong>{% if post.is_anonymous %}Anonymous sister{% else %}{{ post.user.username }}{% endif %}</strong>
                         <small class="text-muted">{{ post.created_at|timesince }} ago</small>
@@ -43,10 +181,10 @@
             </div>
         </div>
         <div class="col-lg-6">
-            <div class="card-custom p-4 h-100">
+            <div class="admin-pro-panel h-100">
                 <h6 class="fw-bold mb-3">Latest Doctor Applications</h6>
                 {% for doctor in latest_doctors %}
-                <div class="border rounded-4 p-3 mb-2 d-flex justify-content-between align-items-center">
+                <div class="admin-list-item d-flex justify-content-between align-items-center">
                     <div>
                         <div class="fw-semibold">{{ doctor.user.get_full_name|default:doctor.user.username }}</div>
                         <div class="small text-muted">{{ doctor.specialization }} • {{ doctor.hospital_name|default:'N/A' }}</div>
@@ -64,4 +202,88 @@
         </div>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+    (function () {
+        const regLabels = {{ reg_labels|safe }};
+        const regValues = {{ reg_values|safe }};
+        const postLabels = {{ post_labels|safe }};
+        const postValues = {{ post_values|safe }};
+        const aiLabels = {{ ai_labels|safe }};
+        const aiValues = {{ ai_values|safe }};
+
+        const contentTypeLabels = {{ content_type_labels|safe }};
+        const contentTypeCounts = {{ content_type_counts|safe }};
+
+        const feedbackLabels = {{ feedback_labels|safe }};
+        const feedbackCounts = {{ feedback_counts|safe }};
+
+        function lineChart(id, labels, values, color1, color2) {
+            const el = document.getElementById(id);
+            if (!el) return;
+            new Chart(el, {
+                type: 'line',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: id,
+                        data: values,
+                        borderColor: color1,
+                        backgroundColor: color2,
+                        fill: true,
+                        tension: .36,
+                        borderWidth: 2.2,
+                        pointRadius: 3
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+
+        lineChart('registrationChart', regLabels, regValues, '#2563eb', 'rgba(37,99,235,.18)');
+        lineChart('postingChart', postLabels, postValues, '#7c3aed', 'rgba(124,58,237,.18)');
+        lineChart('aiUsageChart', aiLabels, aiValues, '#0ea5e9', 'rgba(14,165,233,.16)');
+
+        const contentEl = document.getElementById('contentTypeChart');
+        if (contentEl) {
+            new Chart(contentEl, {
+                type: 'doughnut',
+                data: {
+                    labels: contentTypeLabels,
+                    datasets: [{
+                        data: contentTypeCounts,
+                        backgroundColor: ['#2563eb', '#7c3aed', '#ec4899'],
+                        borderWidth: 0
+                    }]
+                },
+                options: { responsive: true, plugins: { legend: { position: 'bottom' } } }
+            });
+        }
+
+        const feedbackEl = document.getElementById('aiFeedbackChart');
+        if (feedbackEl) {
+            new Chart(feedbackEl, {
+                type: 'bar',
+                data: {
+                    labels: feedbackLabels,
+                    datasets: [{
+                        data: feedbackCounts,
+                        backgroundColor: ['#16a34a', '#ef4444'],
+                        borderRadius: 9
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true } }
+                }
+            });
+        }
+    })();
+</script>
 {% endblock %}

@@ -10,7 +10,7 @@
                 <h4 class="fw-bold mb-1">AI Persona Setup</h4>
                 <p class="text-muted mb-0">Step {{ step }} / 3 • {{ step_title }}</p>
             </div>
-            <a href="{% url 'AI_brain:chat' %}" class="btn btn-sm btn-outline-secondary rounded-pill">Skip for now</a>
+            <a href="{% if next_url %}{{ next_url }}{% else %}{% url 'AI_brain:chat' %}{% endif %}" class="btn btn-sm btn-outline-secondary rounded-pill">Skip for now</a>
         </div>
 
         <p class="text-muted small mb-3">{{ step_subtitle }}</p>
@@ -21,6 +21,9 @@
 
         <form method="post" novalidate>
             {% csrf_token %}
+            {% if next_url %}
+            <input type="hidden" name="next" value="{{ next_url }}">
+            {% endif %}
             {% if form.non_field_errors %}
             <div class="alert alert-danger rounded-4">{{ form.non_field_errors }}</div>
             {% endif %}
@@ -38,7 +41,7 @@
 
             <div class="d-flex justify-content-between gap-2 mt-4 flex-wrap">
                 {% if step > 1 %}
-                <a href="{% url 'users:onboarding' step=step|add:'-1' %}" class="btn btn-outline-secondary rounded-pill px-4">Back</a>
+                <a href="{% url 'users:onboarding' step=step|add:'-1' %}{% if next_url %}?next={{ next_url|urlencode }}{% endif %}" class="btn btn-outline-secondary rounded-pill px-4">Back</a>
                 {% else %}
                 <span></span>
                 {% endif %}

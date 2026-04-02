@@ -4,6 +4,20 @@ from .models import HealthCard, PersonaReminderConfig
 
 
 class HealthCardForm(forms.ModelForm):
+    public_password = forms.CharField(
+        required=False,
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Weka password ya scan page'}),
+        help_text='Ikiwekwa, anayescan QR atatakiwa kuingiza password hii kuona data.'
+    )
+    public_password_confirm = forms.CharField(
+        required=False,
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Rudia password'}),
+    )
+    clear_public_password = forms.BooleanField(
+        required=False,
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'})
+    )
+
     class Meta:
         model = HealthCard
         fields = [
@@ -48,6 +62,23 @@ class HealthCardForm(forms.ModelForm):
             'show_menstrual_chart': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'show_ai_summary': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['clear_public_password'].label = 'Ondoa password ya scan page'
+
+    def clean(self):
+        cleaned = super().clean()
+        pwd = (cleaned.get('public_password') or '').strip()
+        pwd2 = (cleaned.get('public_password_confirm') or '').strip()
+
+        if pwd or pwd2:
+            if pwd != pwd2:
+                self.add_error('public_password_confirm', 'Password hazifanani.')
+            if len(pwd) < 4:
+                self.add_error('public_password', 'Password iwe angalau herufi 4.')
+
+        return cleaned
 
 
 class PersonaReminderConfigForm(forms.ModelForm):

@@ -329,6 +329,23 @@
 
                 <form method="post" action="{% url 'chats:post_create' %}" enctype="multipart/form-data">
                     {% csrf_token %}
+                    {% if selected_group_ids %}
+                    <input type="hidden" name="group" value="{{ selected_group_ids.0 }}">
+                    {% endif %}
+
+                    {% if not profile_complete %}
+                    <div class="alert alert-danger fade show" role="alert" id="profileWarningBox" style="border-radius: 14px; border: 1px solid rgba(220,53,69,.45); margin-bottom: 1rem;">
+                        <div class="d-flex justify-content-between align-items-start gap-2">
+                            <div>
+                                <strong><i class="bi bi-exclamation-triangle-fill me-1"></i>Profile haijakamilika</strong><br>
+                                Kamilisha usajili wa profile yako (sasa {{ profile_completeness }}%) kabla ya kupost bila anonymous.
+                                Ukibonyeza Publish ukiwa hujakamilisha, utaelekezwa kwenye onboarding.
+                                <a href="{% url 'users:onboarding' step=1 %}?next={{ onboarding_next_url|urlencode }}" class="alert-link" id="completeProfileLink">Kamilisha sasa →</a>
+                            </div>
+                            <button type="button" class="btn-close" aria-label="Close" id="dismissProfileWarning"></button>
+                        </div>
+                    </div>
+                    {% endif %}
 
                     <div class="toolbar-wrap">
                         <div class="toolbar-row">
@@ -485,9 +502,18 @@
                         </details>
                     </div>
 
+                    <div class="clarify-box mb-3">
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" name="terms_accepted" id="id_terms_accepted">
+                            <label class="form-check-label fw-semibold small" for="id_terms_accepted">
+                                Nakubali <a href="#" class="text-decoration-none">community guidelines</a> na <a href="#" class="text-decoration-none">terms of service</a>
+                            </label>
+                        </div>
+                    </div>
+
                     <div class="d-flex gap-2 justify-content-end flex-wrap">
                         <a href="{% url 'chats:feed_posts' %}" class="btn btn-outline-secondary rounded-pill px-4">Cancel</a>
-                        <button class="btn btn-danger rounded-pill px-4" type="submit">Publish post</button>
+                        <button class="btn btn-danger rounded-pill px-4" type="submit" id="publishBtn">Publish post</button>
                     </div>
                 </form>
             </div>
@@ -515,6 +541,15 @@
     const focusY = document.getElementById('mediaFocusY');
     const focusXValue = document.getElementById('focusXValue');
     const focusYValue = document.getElementById('focusYValue');
+    const anonymousCheckbox = document.getElementById('id_is_anonymous_create');
+    const termsCheckbox = document.getElementById('id_terms_accepted');
+    const publishBtn = document.getElementById('publishBtn');
+    const profileWarningBox = document.getElementById('profileWarningBox');
+    const completeProfileLink = document.getElementById('completeProfileLink');
+    const dismissProfileWarning = document.getElementById('dismissProfileWarning');
+    const profileComplete = {{ profile_complete|yesno:'true,false' }};
+    const draftKey = 'create_post_draft_v1';
+    const scrollKey = 'create_post_scroll_v1';
     let cropper = null;
 
     if (!editor || !hiddenInput || !form) return;
@@ -645,6 +680,82 @@
         });
     }
 
+    const getDraftData = () => ({
+        contentHtml: editor.innerHTML,
+        post_for_all: !!document.getElementById('id_post_for_all')?.checked,
+        publish_as_status: !!document.getElementById('id_publish_as_status')?.checked,
+        is_anonymous: !!anonymousCheckbox?.checked,
+        request_clarification: !!document.getElementById('id_request_clarification_create')?.checked,
+        clarify_target_role: document.querySelector('select[name="clarify_target_role"]')?.value || 'doctor',
+        clarify_question: document.querySelector('input[name="clarify_question"]')?.value || '',
+        media_ratio: ratioSelect?.value || 'auto',
+        media_shape: shapeSelect?.value || 'rounded',
+        media_focus_x: focusX?.value || '50',
+        media_focus_y: focusY?.value || '50',
+        selected_groups: Array.from(document.querySelectorAll('input[name="group_ids"]:checked')).map((el) => el.value),
+    });
+
+    const persistDraft = () => {
+        try {
+            localStorage.setItem(draftKey, JSON.stringify(getDraftData()));
+        } catch (e) {
+            // ignore storage errors
+        }
+    };
+
+    const restoreDraft = () => {
+        try {
+            const raw = localStorage.getItem(draftKey);
+            if (!raw) return;
+            const draft = JSON.parse(raw);
+            if (draft.contentHtml) {
+                editor.innerHTML = draft.contentHtml;
+                syncEditor();
+            }
+            const setChecked = (id, value) => {
+                const el = document.getElementById(id);
+                if (el) el.checked = !!value;
+            };
+            setChecked('id_post_for_all', draft.post_for_all);
+            setChecked('id_publish_as_status', draft.publish_as_status);
+            setChecked('id_is_anonymous_create', draft.is_anonymous);
+            setChecked('id_request_clarification_create', draft.request_clarification);
+            if (draft.clarify_target_role) {
+                const roleEl = document.querySelector('select[name="clarify_target_role"]');
+                if (roleEl) roleEl.value = draft.clarify_target_role;
+            }
+            if (typeof draft.clarify_question === 'string') {
+                const qEl = document.querySelector('input[name="clarify_question"]');
+                if (qEl) qEl.value = draft.clarify_question;
+            }
+            if (draft.media_ratio && ratioSelect) ratioSelect.value = draft.media_ratio;
+            if (draft.media_shape && shapeSelect) shapeSelect.value = draft.media_shape;
+            if (draft.media_focus_x && focusX) focusX.value = draft.media_focus_x;
+            if (draft.media_focus_y && focusY) focusY.value = draft.media_focus_y;
+            if (Array.isArray(draft.selected_groups)) {
+                document.querySelectorAll('input[name="group_ids"]').forEach((checkbox) => {
+                    checkbox.checked = draft.selected_groups.includes(checkbox.value);
+                });
+            }
+            applyFramePreview();
+        } catch (e) {
+            // ignore parse/storage errors
+        }
+    };
+
+    form.addEventListener('input', persistDraft);
+    completeProfileLink?.addEventListener('click', () => {
+        persistDraft();
+        localStorage.setItem(scrollKey, String(window.scrollY || 0));
+    });
+    dismissProfileWarning?.addEventListener('click', () => {
+        if (profileWarningBox) profileWarningBox.remove();
+    });
+
+    form.addEventListener('submit', (e) => {
+        persistDraft();
+        localStorage.setItem(scrollKey, String(window.scrollY || 0));
+    });
     imageInput?.addEventListener('change', () => {
         const file = imageInput.files?.[0];
         if (!file) {
@@ -706,6 +817,12 @@
 
     applyFramePreview();
     syncWordCount();
+    restoreDraft();
+    const savedScroll = localStorage.getItem(scrollKey);
+    if (savedScroll) {
+        window.requestAnimationFrame(() => window.scrollTo(0, Number(savedScroll) || 0));
+        localStorage.removeItem(scrollKey);
+    }
 })();
 </script>
 {% endblock %}

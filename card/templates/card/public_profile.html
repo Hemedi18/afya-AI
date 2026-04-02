@@ -6,8 +6,8 @@
   <title>Scanned Health Card</title>
   <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
   <style>
-    body { background: #eef2f7; }
-    .shell { max-width: 980px; }
+    body { background: linear-gradient(180deg, #eef2f7 0%, #f8fafc 100%); }
+    .shell { max-width: 1080px; }
     .section-card {
       border: 1px solid rgba(0,0,0,.08);
       border-radius: 18px;
@@ -25,16 +25,54 @@
     .kpi { border: 1px solid rgba(0,0,0,.08); border-radius: 12px; padding: .55rem .65rem; background: #f8fafc; }
     .kpi .k { font-size: .73rem; color: #667085; }
     .kpi .v { font-weight: 700; color: #111827; }
-    .log-table th { font-size: .74rem; color: #6b7280; text-transform: uppercase; letter-spacing: .04em; }
+    .log-table th { font-size: .74rem; color: #6b7280; text-transform: uppercase; letter-spacing: .04em; white-space: nowrap; }
     .log-table td { font-size: .86rem; }
     .badge-soft { background: #eef2ff; color: #3730a3; border: 1px solid #c7d2fe; }
+    .hero {
+      background: linear-gradient(135deg, #111827, #1f2937 45%, #374151);
+      color: #f8fafc;
+      border-radius: 18px;
+      padding: 1.2rem;
+      border: 1px solid rgba(255,255,255,.12);
+    }
+    .hero .sub { color: #cbd5e1; }
+    .chart-shell {
+      position: relative;
+      height: 320px;
+      min-height: 320px;
+    }
+    .empty-note {
+      border: 1px dashed #cbd5e1;
+      border-radius: 12px;
+      padding: .8rem;
+      color: #64748b;
+      background: #f8fafc;
+      font-size: .9rem;
+    }
   </style>
 </head>
 <body class="bg-light">
   <main class="container py-4 shell">
-    <div class="section-card p-4 mb-3">
+    {% if locked %}
+    <div class="section-card p-4 mx-auto" style="max-width:520px; margin-top: 6vh;">
+      <div class="text-center mb-3">
+        <h4 class="fw-bold mb-1"><i class="bi bi-shield-lock-fill me-1"></i>Protected Health Card</h4>
+        <p class="text-muted mb-0">This scanned card is password protected for privacy.</p>
+      </div>
+      <form method="post" class="mt-3">
+        {% csrf_token %}
+        <label class="form-label fw-semibold">Access password</label>
+        <input type="password" name="access_password" class="form-control" placeholder="Enter card password" required>
+        {% if access_error %}<div class="text-danger small mt-2">{{ access_error }}</div>{% endif %}
+        <button class="btn btn-danger w-100 mt-3" type="submit">Unlock Card Data</button>
+      </form>
+      <div class="small text-muted mt-3">Owner: {{ owner.username }} • {{ generated_at|date:"d M Y H:i" }}</div>
+    </div>
+    {% else %}
+
+    <div class="hero mb-3">
       <h4 class="fw-bold mb-1">Scanned afya-AI Card</h4>
-      <p class="text-muted mb-0">Owner: {{ owner.username }} • Generated {{ generated_at|date:"d M Y H:i" }}</p>
+      <p class="sub mb-0">Official health snapshot • Owner: {{ owner.username }} • Generated {{ generated_at|date:"d M Y H:i" }}</p>
     </div>
 
     <div class="section-card p-4 mb-3">
@@ -53,9 +91,9 @@
       </div>
     </div>
 
-    {% if selected_data.persona_health %}
     <div class="section-card p-4 mb-3">
       <div class="section-title">Persona Health Data</div>
+      {% if selected_data.persona_health %}
       <div class="row g-3">
         {% for key, value in selected_data.persona_health.items %}
         <div class="col-md-6">
@@ -66,8 +104,10 @@
         </div>
         {% endfor %}
       </div>
+      {% else %}
+      <div class="empty-note">No persona health fields were selected for sharing.</div>
+      {% endif %}
     </div>
-    {% endif %}
 
     {% if selected_data.ai_summary %}
     <div class="section-card p-4 mb-3">
@@ -86,7 +126,7 @@
     {% if selected_data.menstrual.chart.labels %}
     <div class="section-card p-4 mb-3">
       <div class="section-title">Menstrual Flow Chart</div>
-      <canvas id="flowChart" height="120"></canvas>
+      <div class="chart-shell"><canvas id="flowChart"></canvas></div>
     </div>
     {% endif %}
 
@@ -118,12 +158,7 @@
     </div>
     {% endif %}
 
-    <div class="section-card p-4">
-      <details>
-        <summary class="text-primary">View raw JSON</summary>
-        <pre class="bg-dark text-white p-3 rounded-3 mt-2 small mb-0">{{ payload_pretty }}</pre>
-      </details>
-    </div>
+    {% endif %}
   </main>
 
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -149,6 +184,7 @@
         },
         options: {
           responsive: true,
+          maintainAspectRatio: false,
           plugins: { legend: { display: false } },
           scales: {
             y: { min: 0, max: 5, ticks: { stepSize: 1 } },

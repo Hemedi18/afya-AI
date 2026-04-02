@@ -1381,7 +1381,7 @@
             <a href="{% url 'chats:notifications' %}" class="afya-main-link afya-primary-link" data-nav-match="/social/notifications/" aria-label="Notifications"><i class="bi bi-bell"></i><span>Notifications</span></a>
             <a href="{% url 'users:profile' %}" class="afya-main-link afya-primary-link d-lg-none" data-nav-match="/users/profile/" aria-label="Account">
                 {% if current_user_avatar_url %}
-                <img src="{{ current_user_avatar_url }}" alt="{{ user.username }} profile photo" class="afya-account-avatar">
+                <img src="{{ current_user_avatar_url }}{% if current_user_avatar_version %}?v={{ current_user_avatar_version }}{% endif %}" alt="{{ user.username }} profile photo" class="afya-account-avatar">
                 {% else %}
                 <span class="afya-account-initial">{{ current_user_initial }}</span>
                 {% endif %}
@@ -1402,13 +1402,20 @@
             </button>
             {% if user.is_authenticated %}
             <span class="afya-user-actions d-none d-lg-inline-flex">
-                <a href="{% url 'users:profile' %}" class="nav-avatar-link mobile" aria-label="Open account profile">
-                    {% if current_user_avatar_url %}
-                    <img src="{{ current_user_avatar_url }}" alt="{{ user.username }} profile photo">
-                    {% else %}
-                    {{ current_user_initial }}
-                    {% endif %}
-                </a>
+                <div class="dropdown">
+                    <button class="nav-avatar-link mobile dropdown-toggle" type="button" id="userMenuDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="border: none; background: none; cursor: pointer;">
+                        {% if current_user_avatar_url %}
+                        <img src="{{ current_user_avatar_url }}{% if current_user_avatar_version %}?v={{ current_user_avatar_version }}{% endif %}" alt="{{ user.username }} profile photo">
+                        {% else %}
+                        <span class="avatar-initials" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; border-radius: 50%; font-weight: bold;">{{ current_user_initial }}</span>
+                        {% endif %}
+                    </button>
+                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenuDropdown" style="border-radius: 12px; border: 1px solid var(--line-soft); box-shadow: 0 10px 25px rgba(0,0,0,.1);">
+                        <li><a class="dropdown-item" href="{% url 'users:profile' %}" style="padding: .6rem 1rem;"><i class="bi bi-person-circle"></i> Profile</a></li>
+                        <li><hr class="dropdown-divider" style="margin: .3rem 0;"></li>
+                        <li><a class="dropdown-item text-danger" href="{% url 'users:logout' %}" style="padding: .6rem 1rem;"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
+                    </ul>
+                </div>
             </span>
             {% endif %}
         </div>

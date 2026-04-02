@@ -4,6 +4,7 @@ import uuid
 from django.conf import settings
 from django.db import models
 from django.utils import timezone
+from django.contrib.auth.hashers import check_password, make_password
 
 from users.models import UserAIPersona
 
@@ -78,6 +79,7 @@ class HealthCard(models.Model):
 	show_menstrual_chart = models.BooleanField(default=False)
 	show_ai_summary = models.BooleanField(default=False)
 	show_lifestyle = models.BooleanField(default=False)
+	public_access_password = models.CharField(max_length=255, blank=True, default='')
 
 	updated_at = models.DateTimeField(auto_now=True)
 
@@ -119,6 +121,24 @@ class HealthCard(models.Model):
 		if persona and persona.avatar:
 			return persona.avatar.url
 		return None
+
+	@property
+	def requires_public_password(self):
+		return bool((self.public_access_password or '').strip())
+
+	def set_public_password(self, raw_password: str):
+		self.public_access_password = make_password(raw_password)
+
+	def clear_public_password(self):
+		self.public_access_password = ''
+
+	def check_public_password(self, raw_password: str) -> bool:
+		stored = (self.public_access_password or '').strip()
+		if not stored:
+			return True
+		if not raw_password:
+			return False
+		return check_password(raw_password, stored)
 
 	def build_public_payload(self):
 		persona = UserAIPersona.objects.filter(user=self.user).first()

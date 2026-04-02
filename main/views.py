@@ -1,9 +1,15 @@
 from django.contrib.auth.models import User
+from django.db.models import Count, Q
+from django.db.models.functions import TruncDate
 from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.templatetags.static import static
+from django.utils import timezone
 from django.views.generic import TemplateView
+import json
 
+from AI_brain.models import AIInteractionLog
+from AI_brain.services import generate_ai_text
 from menstrual.models import CommunityPost, DailyLog, DoctorProfile, Reminder
 from users.permissions import AdminRequiredMixin
 from users.utils import get_user_gender
@@ -131,8 +137,108 @@ def services(request):
 class AdminControlCenterView(AdminRequiredMixin, TemplateView):
     template_name = 'main/admin_control_center.html'
 
+    @staticmethod
+    def _series_by_day(queryset, date_field, days=14):
+        today = timezone.now().date()
+        start = today - timezone.timedelta(days=days - 1)
+        rows = (
+            queryset.filter(**{f'{date_field}__date__gte': start})
+            .annotate(day=TruncDate(date_field))
+            .values('day')
+            .annotate(total=Count('id'))
+            .order_by('day')
+        )
+        mapped = {row['day']: row['total'] for row in rows}
+        labels, values = [], []
+        for i in range(days):
+            d = start + timezone.timedelta(days=i)
+            labels.append(d.strftime('%d %b'))
+            values.append(int(mapped.get(d, 0)))
+        return labels, values
+
+    @staticmethod
+    def _summarize_series(title, labels, values):
+        if not values:
+            return f"{title}: hakuna data ya kutosha kwa sasa."
+        total = sum(values)
+        peak = max(values)
+        peak_idx = values.index(peak)
+        latest = values[-1]
+        avg = round(total / len(values), 2) if values else 0
+        return (
+            f"{title}: Jumla {total}, wastani {avg}/siku, kilele {peak} tarehe {labels[peak_idx]},"
+            f" leo/ya mwisho {latest}."
+        )
+
+    @staticmethod
+    def _safe_feedback_rating(log):
+        payload = log.context_payload or {}
+        feedback = payload.get('feedback') or {}
+        if isinstance(feedback, dict):
+            return (feedback.get('rating') or '').strip().lower()
+        return ''
+
+    def _build_ai_dashboard_summary(self, context):
+        fallback = (
+            "Muhtasari wa AI haujapatikana sasa. Tafadhali tumia takwimu na grafu zilizo juu"
+            " kufanya maamuzi ya admin."
+        )
+        prompt = (
+            "You are an analytics assistant for a health platform admin dashboard. "
+            "Summarize trends in clear Swahili with practical actions. Keep it short and professional.\n\n"
+            f"Stats: {context['stats']}\n"
+            f"Registration series: {context['reg_values']}\n"
+            f"Post series: {context['post_values']}\n"
+            f"AI chat series: {context['ai_values']}\n"
+            f"Content types: {context['content_type_counts']}\n"
+            f"Feedback: {context['feedback_counts']}\n"
+            "Return 4 bullets: growth, engagement, content, AI quality."
+        )
+        return generate_ai_text(prompt, fallback)
+
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
+        now = timezone.now()
+        thirty_days_ago = now - timezone.timedelta(days=30)
+
+        registrations_qs = User.objects.filter(date_joined__gte=thirty_days_ago)
+        posts_qs = CommunityPost.objects.filter(created_at__gte=thirty_days_ago)
+        ai_chat_qs = AIInteractionLog.objects.filter(created_at__gte=thirty_days_ago).exclude(question='[USER_FEEDBACK]')
+        feedback_qs = AIInteractionLog.objects.filter(created_at__gte=thirty_days_ago, question='[USER_FEEDBACK]')
+
+        reg_labels, reg_values = self._series_by_day(User.objects.all(), 'date_joined', days=14)
+        post_labels, post_values = self._series_by_day(CommunityPost.objects.all(), 'created_at', days=14)
+        ai_labels, ai_values = self._series_by_day(AIInteractionLog.objects.exclude(question='[USER_FEEDBACK]'), 'created_at', days=14)
+
+        text_only_posts = posts_qs.filter(Q(image__isnull=True) | Q(image=''), Q(video__isnull=True) | Q(video='')).count()
+        image_posts = posts_qs.filter(Q(image__isnull=False) & ~Q(image='')).count()
+        video_posts = posts_qs.filter(Q(video__isnull=False) & ~Q(video='')).count()
+
+        female_audience = posts_qs.filter(audience_gender=CommunityPost.AUDIENCE_FEMALE).count()
+        male_audience = posts_qs.filter(audience_gender=CommunityPost.AUDIENCE_MALE).count()
+        anonymous_posts = posts_qs.filter(is_anonymous=True).count()
+
+        feedback_up = 0
+        feedback_down = 0
+        for fb in feedback_qs:
+            rating = self._safe_feedback_rating(fb)
+            if rating == 'up':
+                feedback_up += 1
+            elif rating == 'down':
+                feedback_down += 1
+
+        feedback_total = feedback_up + feedback_down
+        helpful_rate = round((feedback_up / feedback_total) * 100, 1) if feedback_total else 0
+
+        prev_start = now - timezone.timedelta(days=60)
+        prev_end = thirty_days_ago
+        previous_registrations = User.objects.filter(date_joined__gte=prev_start, date_joined__lt=prev_end).count()
+        current_registrations = registrations_qs.count()
+        if previous_registrations == 0:
+            registration_growth_pct = 100.0 if current_registrations > 0 else 0.0
+        else:
+            registration_growth_pct = round(((current_registrations - previous_registrations) / previous_registrations) * 100, 1)
+
         context['stats'] = {
             'users': User.objects.count(),
             'doctors_total': DoctorProfile.objects.count(),
@@ -140,7 +246,40 @@ class AdminControlCenterView(AdminRequiredMixin, TemplateView):
             'daily_logs': DailyLog.objects.count(),
             'community_posts': CommunityPost.objects.count(),
             'pending_reminders': Reminder.objects.filter(is_notified=False).count(),
+            'new_users_30d': current_registrations,
+            'registration_growth_pct': registration_growth_pct,
+            'posts_30d': posts_qs.count(),
+            'ai_chats_30d': ai_chat_qs.count(),
+            'helpful_rate': helpful_rate,
         }
+
+        context['reg_labels'] = json.dumps(reg_labels)
+        context['reg_values'] = reg_values
+        context['post_labels'] = json.dumps(post_labels)
+        context['post_values'] = post_values
+        context['ai_labels'] = json.dumps(ai_labels)
+        context['ai_values'] = ai_values
+
+        context['content_type_labels'] = json.dumps(['Text Only', 'Image', 'Video'])
+        context['content_type_counts'] = [text_only_posts, image_posts, video_posts]
+
+        context['audience_labels'] = json.dumps(['Female audience', 'Male audience', 'Anonymous posts'])
+        context['audience_counts'] = [female_audience, male_audience, anonymous_posts]
+
+        context['feedback_labels'] = json.dumps(['Helpful', 'Not Helpful'])
+        context['feedback_counts'] = [feedback_up, feedback_down]
+
+        context['summary_reg'] = self._summarize_series('Usajili (siku 14)', reg_labels, reg_values)
+        context['summary_posts'] = self._summarize_series('Posti (siku 14)', post_labels, post_values)
+        context['summary_ai'] = self._summarize_series('AI chats (siku 14)', ai_labels, ai_values)
+        context['summary_content'] = (
+            f"Content type ndani ya siku 30: Text {text_only_posts}, Image {image_posts}, Video {video_posts}."
+        )
+        context['summary_feedback'] = (
+            f"Feedback ya AI: Helpful {feedback_up}, Not helpful {feedback_down}, Helpful rate {helpful_rate}%."
+        )
+        context['ai_dashboard_summary'] = self._build_ai_dashboard_summary(context)
+
         context['latest_posts'] = CommunityPost.objects.select_related('user').order_by('-created_at')[:5]
         context['latest_doctors'] = DoctorProfile.objects.select_related('user').order_by('-id')[:5]
         return context

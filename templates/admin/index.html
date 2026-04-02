@@ -1,0 +1,171 @@
+{% extends "admin/base_site.html" %}
+{% load i18n static %}
+
+{% block extrastyle %}
+{{ block.super }}
+<style>
+  .pro-grid { display: grid; grid-template-columns: 2fr 1fr; gap: 1rem; margin-bottom: 1rem; }
+  .pro-panel {
+    background: rgba(255,255,255,.88);
+    border: 1px solid rgba(15,23,42,.08);
+    border-radius: 14px;
+    padding: 1rem;
+    box-shadow: 0 10px 20px rgba(15,23,42,.06);
+  }
+  .pro-title { font-size: 1rem; font-weight: 700; margin-bottom: .55rem; }
+  .kpis { display: grid; grid-template-columns: repeat(5, minmax(0,1fr)); gap: .7rem; margin-bottom: 1rem; }
+  .kpi { background: rgba(255,255,255,.95); border: 1px solid rgba(15,23,42,.08); border-radius: 12px; padding: .7rem; }
+  .kpi .l { color: #64748b; font-size: .78rem; }
+  .kpi .v { font-size: 1.2rem; font-weight: 800; color: #0f172a; }
+  .charts { display:grid; grid-template-columns: 1fr 1fr; gap: .9rem; }
+  .summary { margin-top: .5rem; color: #64748b; font-size: .82rem; }
+  .ai-box {
+    border: 1px dashed rgba(124,58,237,.35);
+    background: rgba(124,58,237,.08);
+    border-radius: 10px;
+    padding: .7rem;
+    white-space: pre-line;
+    color: #3b0764;
+    font-size: .85rem;
+  }
+  .notif { list-style: none; margin: 0; padding: 0; }
+  .notif li { display:flex; justify-content:space-between; gap: .5rem; padding: .38rem 0; border-bottom: 1px dashed rgba(15,23,42,.1); }
+  .notif li:last-child { border-bottom: 0; }
+  .badge-pill { border-radius: 999px; padding: .1rem .5rem; font-size: .75rem; background: #fee2e2; color: #991b1b; }
+  .suggestions { margin: .2rem 0 0; padding-left: 1rem; }
+  .suggestions li { margin-bottom: .35rem; }
+  @media (max-width: 1200px){
+    .kpis { grid-template-columns: repeat(2, minmax(0,1fr)); }
+    .charts { grid-template-columns: 1fr; }
+    .pro-grid { grid-template-columns: 1fr; }
+  }
+</style>
+{% endblock %}
+
+{% block content %}
+<div id="content-main">
+  {% if admin_dash %}
+  <div class="kpis">
+    <div class="kpi"><div class="l">Users</div><div class="v">{{ admin_dash.kpis.users }}</div></div>
+    <div class="kpi"><div class="l">Posts (30d)</div><div class="v">{{ admin_dash.kpis.posts_30d }}</div></div>
+    <div class="kpi"><div class="l">Daily Logs (30d)</div><div class="v">{{ admin_dash.kpis.daily_logs_30d }}</div></div>
+    <div class="kpi"><div class="l">AI Chats (30d)</div><div class="v">{{ admin_dash.kpis.ai_chats_30d }}</div></div>
+    <div class="kpi"><div class="l">AI Helpful Rate</div><div class="v">{{ admin_dash.kpis.helpful_rate }}%</div></div>
+  </div>
+
+  <div class="pro-grid">
+    <div class="pro-panel">
+      <div class="pro-title">Analytics Graphs</div>
+      <div class="charts">
+        <div>
+          <canvas id="regChart" height="120"></canvas>
+          <div class="summary">{{ admin_dash.summaries.reg }}</div>
+        </div>
+        <div>
+          <canvas id="postChart" height="120"></canvas>
+          <div class="summary">{{ admin_dash.summaries.post }}</div>
+        </div>
+        <div>
+          <canvas id="logChart" height="110"></canvas>
+          <div class="summary">{{ admin_dash.summaries.log }}</div>
+        </div>
+        <div>
+          <canvas id="contentChart" height="110"></canvas>
+          <div class="summary">{{ admin_dash.summaries.ai }}</div>
+        </div>
+        <div>
+          <canvas id="aiChart" height="110"></canvas>
+        </div>
+        <div>
+          <canvas id="feedbackChart" height="110"></canvas>
+        </div>
+      </div>
+    </div>
+
+    <div class="pro-panel">
+      <div class="pro-title">AI Suggestions & Analysis</div>
+      <div class="ai-box">{{ admin_dash.ai_summary }}</div>
+
+      <div class="pro-title" style="margin-top: .9rem;">Notifications</div>
+      <ul class="notif">
+        <li><span>Pending reminders</span><span class="badge-pill">{{ admin_dash.notifications.pending_reminders }}</span></li>
+        <li><span>Unverified doctors</span><span class="badge-pill">{{ admin_dash.notifications.unverified_doctors }}</span></li>
+        <li><span>Negative feedback (30d)</span><span class="badge-pill">{{ admin_dash.notifications.negative_feedback_30d }}</span></li>
+      </ul>
+
+      <div class="pro-title" style="margin-top: .9rem;">Action Suggestions</div>
+      <ul class="suggestions">
+        {% for suggestion in admin_dash.suggestions %}
+        <li>{{ suggestion }}</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+  {% endif %}
+
+  <div class="pro-panel">
+    <div class="pro-title">Management Tables</div>
+    {% include "admin/app_list.html" with app_list=app_list show_changelinks=True %}
+  </div>
+</div>
+{% endblock %}
+
+{% block extrahead %}
+{{ block.super }}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+{% endblock %}
+
+{% block footer %}
+{{ block.super }}
+{% if admin_dash %}
+<script>
+(function(){
+  const regLabels = {{ admin_dash.charts.reg_labels|safe }};
+  const regValues = {{ admin_dash.charts.reg_values|safe }};
+  const postLabels = {{ admin_dash.charts.post_labels|safe }};
+  const postValues = {{ admin_dash.charts.post_values|safe }};
+  const logLabels = {{ admin_dash.charts.log_labels|safe }};
+  const logValues = {{ admin_dash.charts.log_values|safe }};
+  const aiLabels = {{ admin_dash.charts.ai_labels|safe }};
+  const aiValues = {{ admin_dash.charts.ai_values|safe }};
+  const contentLabels = {{ admin_dash.charts.content_labels|safe }};
+  const contentValues = {{ admin_dash.charts.content_values|safe }};
+  const feedbackLabels = {{ admin_dash.charts.feedback_labels|safe }};
+  const feedbackValues = {{ admin_dash.charts.feedback_values|safe }};
+
+  function line(id, labels, values, color){
+    const el = document.getElementById(id);
+    if (!el) return;
+    new Chart(el, {
+      type: 'line',
+      data: { labels, datasets: [{ data: values, borderColor: color, backgroundColor: color + '33', tension: .35, fill: true, borderWidth: 2 }]},
+      options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+    });
+  }
+
+  line('regChart', regLabels, regValues, '#2563eb');
+  line('postChart', postLabels, postValues, '#7c3aed');
+  line('logChart', logLabels, logValues, '#059669');
+  line('aiChart', aiLabels, aiValues, '#0ea5e9');
+
+  const content = document.getElementById('contentChart');
+  if (content){
+    new Chart(content, {
+      type: 'doughnut',
+      data: { labels: contentLabels, datasets: [{ data: contentValues, backgroundColor: ['#2563eb','#7c3aed','#ec4899'], borderWidth: 0 }] },
+      options: { plugins: { legend: { position: 'bottom' } } }
+    });
+  }
+
+  const feedback = document.getElementById('feedbackChart');
+  if (feedback){
+    new Chart(feedback, {
+      type: 'bar',
+      data: { labels: feedbackLabels, datasets: [{ data: feedbackValues, backgroundColor: ['#16a34a','#ef4444'], borderRadius: 8 }] },
+      options: { plugins: { legend: { display: false } }, scales: { y: { beginAtZero: true } } }
+    });
+  }
+})();
+</script>
+{% endif %}
+{% endblock %}

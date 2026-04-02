@@ -280,13 +280,10 @@ class MenstrualDashboardView(FemaleMenstrualOnlyMixin, LoginRequiredMixin, Templ
         return context
 
 
-class MenstrualSettingsView(LoginRequiredMixin, TemplateView):
-    template_name = 'menstrual/settings.html'
-
+class MenstrualSettingsView(LoginRequiredMixin, View):
     def get(self, request, *args, **kwargs):
-        settings_obj, _ = MenstrualUserSetting.objects.get_or_create(user=request.user)
-        form = MenstrualUserSettingForm(instance=settings_obj)
-        return render(request, self.template_name, {'form': form})
+        from django.shortcuts import redirect
+        return redirect('users:settings')
 
     def post(self, request, *args, **kwargs):
         settings_obj, _ = MenstrualUserSetting.objects.get_or_create(user=request.user)

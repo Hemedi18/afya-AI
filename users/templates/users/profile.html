@@ -224,7 +224,7 @@
     <div class="avatar-hero">
         <div class="avatar-ring">
             {% if persona.avatar %}
-                <img src="{{ persona.avatar.url }}" alt="Avatar" onerror="this.style.display='none'; this.nextElementSibling?.style.display='flex';">
+                <img src="{{ persona.avatar.url }}?v={{ persona.updated_at|date:'U' }}" alt="Avatar" onerror="this.style.display='none'; this.nextElementSibling?.style.display='flex';">
                 <div class="avatar-initials" style="display:none;">
                     {{ user.first_name|first|upper|default:user.username|first|upper }}
                 </div>
@@ -251,6 +251,10 @@
                 {% endif %}
                 <span class="badge text-bg-primary">Quality {{ persona.profile_completeness_score }}%</span>
             </div>
+            {% if avatar_form.avatar.errors %}
+                <div class="text-danger small mt-2">{{ avatar_form.avatar.errors.0 }}</div>
+            {% endif %}
+            <div class="small text-muted mt-2">Bonyeza kamera kuchagua picha. Ukichagua, ita-save moja kwa moja.</div>
         </div>
     </div>
 
@@ -262,9 +266,6 @@
         <a href="?tab=persona" class="ptab {% if active_tab == 'persona' %}active{% endif %}">
             <i class="bi bi-stars"></i> AI Persona
         </a>
-        <a href="?tab=security" class="ptab {% if active_tab == 'security' %}active{% endif %}">
-            <i class="bi bi-shield-lock-fill"></i> Usalama
-        </a>
     </div>
 
     <!-- ═══════════════════════════════════════
@@ -272,7 +273,7 @@
     ═══════════════════════════════════════ -->
     <div class="tab-panel {% if active_tab == 'account' %}active{% endif %}">
 
-        <form method="post" enctype="multipart/form-data">
+        <form method="post" enctype="multipart/form-data" id="profileInfoForm">
             {% csrf_token %}
             <input type="hidden" name="_action" value="update_info">
 
@@ -535,4 +536,16 @@
     </div>
 
 </div>
+<script>
+(() => {
+    const avatarInput = document.getElementById('id_avatar');
+    const profileForm = document.getElementById('profileInfoForm');
+    if (!avatarInput || !profileForm) return;
+    avatarInput.addEventListener('change', () => {
+        if (avatarInput.files && avatarInput.files.length) {
+            profileForm.submit();
+        }
+    });
+})();
+</script>
 {% endblock %}
