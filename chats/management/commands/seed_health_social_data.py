@@ -1,4 +1,5 @@
 import random
+from html import escape
 from urllib.parse import quote_plus
 from urllib.request import Request, urlopen
 
@@ -61,6 +62,18 @@ class Command(BaseCommand):
         parser.add_argument("--statuses-per-user", type=int, default=2, help="Statuses per account (default: 2)")
         parser.add_argument("--password", type=str, default="AfyaTest@123", help="Password for created users")
         parser.add_argument(
+            "--image-source",
+            choices=["svg", "online"],
+            default="svg",
+            help="Image generation mode: svg (fast/local, default) or online (download placeholders)",
+        )
+        parser.add_argument(
+            "--online-timeout",
+            type=int,
+            default=6,
+            help="Timeout in seconds per online image request (default: 6)",
+        )
+        parser.add_argument(
             "--reset",
             action="store_true",
             help="Delete previously generated seed data (users/groups/posts/statuses from this command) before creating new data",
@@ -74,6 +87,8 @@ class Command(BaseCommand):
         statuses_per_user = max(0, options["statuses_per_user"])
         password = options["password"]
         do_reset = options["reset"]
+        self.image_source = options["image_source"]
+        self.online_timeout = max(2, int(options["online_timeout"]))
 
         User = get_user_model()
         image_cache = {}
@@ -293,14 +308,35 @@ class Command(BaseCommand):
     def _build_image_file(self, topic, image_cache):
         key = topic.strip().lower()
         if key not in image_cache:
-            image_cache[key] = self._download_topic_image_bytes(topic)
+            if self.image_source == "online":
+                image_cache[key] = self._download_topic_image_bytes(topic)
+            else:
+                image_cache[key] = self._svg_topic_image_bytes(topic)
 
         image_bytes = image_cache[key]
         if not image_bytes:
-            image_bytes = self._download_topic_image_bytes("health awareness")
+            image_bytes = self._svg_topic_image_bytes("health awareness")
 
         slug = key.replace(" ", "-")[:35]
-        return ContentFile(image_bytes, name=f"{slug}-{random.randint(1000, 9999)}.png")
+        extension = "png" if self.image_source == "online" else "svg"
+        return ContentFile(image_bytes, name=f"{slug}-{random.randint(1000, 9999)}.{extension}")
+
+    def _svg_topic_image_bytes(self, topic):
+        safe_text = escape((topic or "health awareness")[:60])
+        svg = f"""<svg xmlns='http://www.w3.org/2000/svg' width='1080' height='1080' viewBox='0 0 1080 1080'>
+<defs>
+  <linearGradient id='g' x1='0' y1='0' x2='1' y2='1'>
+    <stop offset='0%' stop-color='#0ea5e9'/>
+    <stop offset='100%' stop-color='#22c55e'/>
+  </linearGradient>
+</defs>
+<rect width='1080' height='1080' fill='url(#g)'/>
+<circle cx='900' cy='180' r='150' fill='rgba(255,255,255,0.18)'/>
+<circle cx='160' cy='900' r='220' fill='rgba(255,255,255,0.14)'/>
+<text x='540' y='500' text-anchor='middle' fill='white' font-family='Arial, sans-serif' font-size='74' font-weight='700'>Health Topic</text>
+<text x='540' y='605' text-anchor='middle' fill='white' font-family='Arial, sans-serif' font-size='56' font-weight='600'>{safe_text}</text>
+</svg>"""
+        return svg.encode("utf-8")
 
     def _download_topic_image_bytes(self, topic):
         topic_text = quote_plus(topic)
@@ -312,14 +348,10 @@ class Command(BaseCommand):
         for url in urls:
             try:
                 request = Request(url, headers={"User-Agent": "Mozilla/5.0 (AfyaTestSeeder)"})
-                with urlopen(request, timeout=20) as response:
+                with urlopen(request, timeout=self.online_timeout) as response:
                     return response.read()
             except Exception:
                 continue
 
-        # hard fallback (1x1 transparent PNG bytes) to avoid command crash
-        return (
-            b'\x89PNG\r\n\x1a\n\x00\x00\x00\rIHDR\x00\x00\x00\x01\x00\x00\x00\x01'
-            b'\x08\x06\x00\x00\x00\x1f\x15\xc4\x89\x00\x00\x00\x0cIDATx\x9cc``\x00\x00\x00\x02\x00\x01'
-            b'\xe2!\xbc3\x00\x00\x00\x00IEND\xaeB`\x82'
-        )
+        # fallback to fast local SVG to avoid slow or failed network runs
+        return self._svg_topic_image_bytes(topic)
