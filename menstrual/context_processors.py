@@ -36,21 +36,29 @@ THEME_PALETTES = {
 
 def reminders_processor(request):
     theme_key = MenstrualUserSetting.THEME_DEFAULT
-    selected_palette = THEME_PALETTES[theme_key]
+    selected_palette = THEME_PALETTES[theme_key].copy()
 
     if request.user.is_authenticated:
         unread_reminders = Reminder.objects.filter(user=request.user, is_notified=False).order_by('-event_date')
         settings_obj, _ = MenstrualUserSetting.objects.get_or_create(user=request.user)
+        
+        # Get the base palette from color_theme choice
         theme_key = settings_obj.color_theme or MenstrualUserSetting.THEME_DEFAULT
         selected_palette = THEME_PALETTES.get(theme_key, THEME_PALETTES[MenstrualUserSetting.THEME_DEFAULT]).copy()
-        if settings_obj.use_custom_palette:
-            selected_palette['primary'] = settings_obj.custom_primary or selected_palette['primary']
-            selected_palette['secondary'] = settings_obj.custom_secondary or selected_palette['secondary']
-            selected_palette['accent'] = settings_obj.custom_secondary or selected_palette['accent']
+        
+        # CRITICAL: Apply custom colors if use_custom_palette is enabled
+        # This ensures colors are actually used on the frontend
+        if settings_obj.use_custom_palette and settings_obj.custom_primary and settings_obj.custom_secondary:
+            selected_palette['primary'] = settings_obj.custom_primary
+            selected_palette['secondary'] = settings_obj.custom_secondary
+            # Use secondary for accent too for color harmony
+            selected_palette['accent'] = settings_obj.custom_secondary
+            # Darken the on_color for better contrast on custom backgrounds
             selected_palette['on_color'] = '#0f172a'
 
         bg_style = settings_obj.background_style or MenstrualUserSetting.BG_LINEAR
         bg_intensity = settings_obj.background_intensity if settings_obj.background_intensity is not None else 24
+        
         return {
             'unread_reminders': unread_reminders,
             'unread_reminders_count': unread_reminders.count(),
@@ -60,6 +68,7 @@ def reminders_processor(request):
             'ui_bg_style': bg_style,
             'ui_bg_intensity': bg_intensity,
         }
+    
     return {
         'unread_reminders': [],
         'unread_reminders_count': 0,

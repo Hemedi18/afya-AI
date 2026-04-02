@@ -2,6 +2,32 @@
 
 {% block extra_head %}
 <style>
+.inbox-top-nav {
+    display: inline-flex;
+    gap: .55rem;
+    align-items: center;
+}
+
+.inbox-nav-btn,
+.inbox-theme-toggle {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+    border: 1px solid var(--line-soft);
+    background: var(--card-bg);
+    color: var(--text-main);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    text-decoration: none;
+}
+
+.inbox-nav-btn.is-active {
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: #fff;
+    border-color: transparent;
+}
+
 @media (max-width: 991.98px) {
     body {
         background: var(--mobile-page-bg) !important;
@@ -28,7 +54,7 @@
     }
 
     .py-4 {
-        padding: 14px !important;
+        padding: 0 !important;
         min-height: 100dvh;
         color: var(--mobile-text);
     }
@@ -38,71 +64,48 @@
         border-radius: 0 !important;
         border: 1px solid var(--mobile-border) !important;
         box-shadow: 20px 20px 40px var(--neo-out-a), -20px -20px 40px var(--neo-out-b) !important;
-        padding: 16px !important;
-        margin-bottom: 14px !important;
+        padding: 12px 12px 10px !important;
+        margin-bottom: 0 !important;
+        margin-top: 0 !important;
         position: relative;
         width: 100vw;
         margin-left: calc(50% - 50vw) !important;
         margin-right: calc(50% - 50vw) !important;
     }
 
-    .card-custom.p-4.mb-4 h4 {
-        font-size: 24px !important;
-        margin-bottom: 12px !important;
-        color: var(--mobile-text) !important;
+    .inbox-top-nav {
+        display: grid;
+        grid-template-columns: repeat(5, minmax(0, 1fr));
+        gap: 8px;
+        margin-bottom: 10px;
     }
 
-    .card-custom.p-4.mb-4 p {
-        display: none !important;
-    }
-
-    .card-custom.p-4.mb-4 .btn {
-        width: 40px;
-        height: 40px;
-        min-width: 40px;
-        border-radius: 50% !important;
-        padding: 0 !important;
-        font-size: 0 !important;
+    .inbox-nav-btn,
+    .inbox-theme-toggle {
+        width: 100%;
+        height: 42px;
+        border-radius: 12px;
+        border: 1px solid var(--mobile-border) !important;
         background: var(--mobile-solid) !important;
         color: var(--mobile-text) !important;
-        border: 1px solid var(--mobile-border) !important;
         box-shadow: 5px 5px 10px var(--neo-out-a), -5px -5px 10px var(--neo-out-b) !important;
-        position: absolute;
-        top: 18px;
-        right: 16px;
-    }
-
-    .card-custom.p-4.mb-4 .btn::before {
-        content: '+';
-        font-size: 22px;
-        line-height: 40px;
-        color: var(--mobile-text);
-        display: block;
-        text-align: center;
-    }
-
-    .inbox-theme-toggle {
-        position: absolute;
-        top: 18px;
-        right: 62px;
-        width: 40px;
-        height: 40px;
-        border-radius: 50%;
-        border: none;
-        background: var(--mobile-solid);
-        color: var(--mobile-text);
-        border: 1px solid var(--mobile-border);
-        box-shadow: 5px 5px 10px var(--neo-out-a), -5px -5px 10px var(--neo-out-b);
         display: inline-flex;
         align-items: center;
         justify-content: center;
-        z-index: 2;
+        text-decoration: none;
+        font-size: 1rem;
+    }
+
+    .inbox-nav-btn.is-active {
+        background: linear-gradient(135deg, var(--primary), var(--secondary)) !important;
+        color: #fff !important;
+        border-color: transparent !important;
     }
 
     .card-custom.p-4.mb-4::after {
         content: 'Search';
         display: block;
-        margin-top: 12px;
+        margin-top: 8px;
         width: 100%;
         padding: 14px 20px;
         border-radius: 30px;
@@ -226,13 +229,22 @@
 {% block content %}
 <div class="py-4">
     <div class="card-custom p-4 mb-4">
-        <button class="inbox-theme-toggle" id="inboxThemeToggle" type="button" title="Theme"><i class="bi bi-brightness-high"></i></button>
-        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
-            <div>
-                <h4 class="fw-bold mb-1">Private Inbox</h4>
-                <p class="text-muted mb-0">Mazungumzo binafsi kati ya user na doctor yaliyohifadhiwa kwa faragha.</p>
-            </div>
-            <a href="{% url 'doctor:hub' %}" class="btn btn-outline-secondary rounded-pill">Find doctors</a>
+        <div class="inbox-top-nav" aria-label="Private chat quick navigation">
+            <a href="javascript:history.back()" class="inbox-nav-btn" title="Back" aria-label="Back">
+                <i class="bi bi-arrow-left"></i>
+            </a>
+            <a href="{% url 'AI_brain:chat' %}" class="inbox-nav-btn" title="Chat with AI" aria-label="Chat with AI">
+                <i class="bi bi-robot"></i>
+            </a>
+            <a href="{% url 'chats:feed_groups' %}" class="inbox-nav-btn" title="Group Chat" aria-label="Group Chat">
+                <i class="bi bi-people-fill"></i>
+            </a>
+            <a href="{% url 'chats:inbox' %}" class="inbox-nav-btn is-active" title="Private Chat" aria-label="Private Chat">
+                <i class="bi bi-chat-dots-fill"></i>
+            </a>
+            <button class="inbox-theme-toggle" id="inboxThemeToggle" type="button" title="Theme" aria-label="Theme toggle">
+                <i class="bi bi-moon-stars"></i>
+            </button>
         </div>
     </div>
 

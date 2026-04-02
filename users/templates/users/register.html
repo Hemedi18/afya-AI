@@ -4,17 +4,52 @@
 
 {% block content %}
 <style>
-    .auth-shell { max-width: 980px; margin: 0 auto; }
-    .auth-card { border-radius: 24px; overflow: hidden; }
+    .auth-shell { 
+        max-width: 980px; 
+        margin: 0 auto;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem 0;
+    }
+    .auth-card { 
+        border-radius: 24px; 
+        overflow: hidden; 
+        width: 100%;
+    }
     .auth-panel {
         background: linear-gradient(135deg, rgba(201,24,74,.08), rgba(255,133,161,.12));
         border-right: 1px solid rgba(201,24,74,.12);
     }
-    .field-help { font-size: .83rem; color: var(--text-muted); margin-top: .3rem; }
+    .auth-form-panel {
+        background: var(--card-bg) !important;
+    }
+    .bg-white {
+        --bs-bg-opacity: 1;
+        /* background-color: rgba(var(--bs-white-rgb), var(--bs-bg-opacity)) !important; */
+        background-color: var(--card-bg) !important;
+    }
     .field-error { font-size: .82rem; color: #dc3545; margin-top: .25rem; }
+    
+    @media (max-width: 992px) {
+        .auth-shell {
+            padding: 1rem;
+        }
+        
+        .auth-panel {
+            border-right: none !important;
+            border-bottom: 1px solid rgba(201,24,74,.12) !important;
+            padding: 2rem 1rem !important;
+        }
+        
+        .auth-form-panel {
+            background: var(--card-bg) !important;
+        }
+    }
 </style>
 
-<div class="py-4 auth-shell">
+<div class="auth-shell">
     <div class="card-custom auth-card p-0">
         <div class="row g-0">
             <div class="col-lg-5 d-none d-lg-block auth-panel p-4 p-xl-5">
@@ -27,7 +62,7 @@
                 </ul>
             </div>
 
-            <div class="col-lg-7 p-4 p-xl-5 bg-white">
+            <div class="col-lg-7 p-4 p-xl-5 auth-form-panel">
                 <h3 class="fw-bold mb-1">Jisajili kwa afya-AI</h3>
                 <p class="text-muted small mb-4">Ni dakika chache tu kuanza.</p>
 
@@ -41,21 +76,18 @@
                     <div class="mb-3">
                         <label class="form-label fw-semibold" for="{{ form.username.id_for_label }}">Username</label>
                         {{ form.username }}
-                        {% if form.username.help_text %}<div class="field-help">{{ form.username.help_text }}</div>{% endif %}
                         {% if form.username.errors %}<div class="field-error">{{ form.username.errors|striptags }}</div>{% endif %}
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label fw-semibold" for="{{ form.password1.id_for_label }}">Password</label>
                         {{ form.password1 }}
-                        {% if form.password1.help_text %}<div class="field-help">{{ form.password1.help_text }}</div>{% endif %}
                         {% if form.password1.errors %}<div class="field-error">{{ form.password1.errors|striptags }}</div>{% endif %}
                     </div>
 
                     <div class="mb-4">
                         <label class="form-label fw-semibold" for="{{ form.password2.id_for_label }}">Password confirmation</label>
                         {{ form.password2 }}
-                        {% if form.password2.help_text %}<div class="field-help">{{ form.password2.help_text }}</div>{% endif %}
                         {% if form.password2.errors %}<div class="field-error">{{ form.password2.errors|striptags }}</div>{% endif %}
                     </div>
 

@@ -27,7 +27,7 @@ if not SECRET_KEY:
         SECRET_KEY = get_random_secret_key()
         secret_file.write_text(SECRET_KEY, encoding='utf-8')
 
-DEBUG = os.getenv('DEBUG') == 'True'
+DEBUG = (os.getenv('DEBUG', 'True') or 'True').strip().lower() in ('1', 'true', 'yes', 'on')
 
 ALLOWED_HOSTS = ['.pythonanywhere.com', 'localhost', '127.0.0.1']
 
@@ -40,6 +40,9 @@ CSRF_TRUSTED_ORIGINS = [
 ]
 
 GROQ_API_KEY = os.getenv('GROQ_API_KEY')
+AI_PROVIDER = (os.getenv('AI_PROVIDER', 'groq') or 'groq').strip().lower()
+OPENROUTER_API_KEY = os.getenv('OPENROUTER_API_KEY')
+OPENROUTER_MODEL = os.getenv('OPENROUTER_MODEL', 'qwen/qwen-2.5-72b-instruct:free')
 OLLAMA_HOST = os.getenv('OLLAMA_HOST', 'http://127.0.0.1:11434')
 OLLAMA_MODEL = os.getenv('OLLAMA_MODEL', 'llama3.2:3b')
 AT_USERNAME = (os.getenv('AT_USERNAME', '') or '').strip().strip('"').strip("'")
@@ -279,3 +282,17 @@ CHANNEL_LAYERS = {
         'BACKEND': 'channels.layers.InMemoryChannelLayer',
     },
 }
+
+# File Upload Configuration
+# Allow large file uploads (500MB max)
+DATA_UPLOAD_MAX_MEMORY_SIZE = 524288000  # 500MB
+FILE_UPLOAD_MAX_MEMORY_SIZE = 524288000  # 500MB
+DATA_UPLOAD_MAX_NUMBER_FIELDS = 10000
+
+# Temporary file upload location (ensure it exists and is writable)
+FILE_UPLOAD_TEMP_DIR = BASE_DIR / 'tmp_uploads'
+FILE_UPLOAD_PERMISSIONS = 0o644
+
+# Create tmp_uploads directory if it doesn't exist
+import os
+os.makedirs(FILE_UPLOAD_TEMP_DIR, exist_ok=True)

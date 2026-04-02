@@ -10,7 +10,7 @@
         position: fixed;
         left: 0;
         right: 0;
-        top: 56px;
+        top: 0;
         bottom: 65px;
         background: linear-gradient(180deg, color-mix(in srgb, var(--primary) 20%, var(--app-bg)), var(--app-bg));
         overflow: hidden;
@@ -92,6 +92,43 @@
     }
 
     .ai-input-wrap { border-top: 1px solid var(--line-soft); background: color-mix(in srgb, var(--card-bg) 92%, transparent); padding: .75rem .9rem .85rem; }
+    
+    .ai-disclaimer {
+        font-size: .75rem;
+        color: var(--text-muted);
+        text-align: center;
+        margin-top: .6rem;
+        padding-top: .6rem;
+        border-top: 1px solid rgba(255,255,255,.08);
+        opacity: 0.75;
+        line-height: 1.3;
+    }
+    
+    .ai-back-btn {
+        border-radius: 999px;
+        border: 1px solid var(--line-soft);
+        background: color-mix(in srgb, var(--card-bg) 88%, transparent);
+        color: var(--text-main);
+        padding: .32rem .75rem;
+        font-size: .9rem;
+        display: none;
+        align-items: center;
+        gap: .4rem;
+        cursor: pointer;
+        transition: all .2s ease;
+    }
+    
+    .ai-back-btn:hover {
+        background: color-mix(in srgb, var(--card-bg) 95%, transparent);
+        transform: translateX(-2px);
+    }
+    
+    .ai-topbar-left {
+        display: flex;
+        align-items: center;
+        gap: .4rem;
+    }
+    
     .ai-compose-row { display: flex; align-items: flex-end; gap: .5rem; position: relative; }
     .ai-attach-main,
     .ai-attach-option {
@@ -165,6 +202,273 @@
     .ai-camera-panel.show { display: block; }
     .ai-camera-video { width: 100%; max-height: 190px; border-radius: 10px; background: #000; }
 
+    /* AI Suggestions */
+    .ai-suggestions {
+        display: flex;
+        gap: .5rem;
+        flex-wrap: wrap;
+        padding: .6rem 0;
+        margin-top: .5rem;
+        border-top: 1px solid rgba(255,255,255,.08);
+    }
+
+    .ai-suggestion-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: .4rem;
+        padding: .45rem .75rem;
+        border-radius: 999px;
+        border: 1px solid var(--line-soft);
+        background: color-mix(in srgb, var(--primary) 12%, var(--card-bg));
+        color: var(--text-main);
+        font-size: .85rem;
+        cursor: pointer;
+        transition: all .2s ease;
+        text-decoration: none;
+        white-space: nowrap;
+    }
+
+    .ai-suggestion-chip:hover {
+        background: color-mix(in srgb, var(--primary) 18%, var(--card-bg));
+        border-color: var(--primary);
+        transform: translateY(-1px);
+    }
+
+    .ai-suggestion-chip i {
+        font-size: .8rem;
+        opacity: 0.8;
+    }
+
+    /* Diagnostic Questions */
+    @keyframes slideInDiag {
+        from {
+            opacity: 0;
+            transform: translateY(8px);
+        }
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+
+    @keyframes checkboxPulse {
+        0%, 100% { transform: scale(1); }
+        50% { transform: scale(1.08); }
+    }
+
+    .ai-diagnostic {
+        display: flex;
+        flex-direction: column;
+        gap: .65rem;
+        padding: 1rem;
+        margin-top: .8rem;
+        border-radius: 16px;
+        border: 1px solid var(--line-soft);
+        background: linear-gradient(135deg, color-mix(in srgb, var(--primary) 8%, transparent), color-mix(in srgb, var(--secondary) 6%, transparent));
+        animation: slideInDiag .4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .ai-diagnostic-title {
+        font-size: .95rem;
+        font-weight: 700;
+        color: var(--primary);
+        margin-bottom: .3rem;
+        display: flex;
+        align-items: center;
+        gap: .4rem;
+    }
+
+    .ai-diagnostic-title i {
+        font-size: 1.1rem;
+    }
+
+    .ai-diagnostic-question {
+        display: flex;
+        align-items: center;
+        gap: .65rem;
+        padding: .7rem;
+        border-radius: 12px;
+        background: color-mix(in srgb, var(--card-bg) 85%, transparent);
+        cursor: pointer;
+        transition: all .25s cubic-bezier(0.34, 1.56, 0.64, 1);
+        border: 1.5px solid transparent;
+    }
+
+    .ai-diagnostic-question:hover {
+        background: color-mix(in srgb, var(--card-bg) 92%, var(--primary) 8%);
+        border-color: var(--primary);
+        transform: translateX(2px);
+    }
+
+    .ai-diagnostic-question input[type="checkbox"] {
+        width: 20px;
+        height: 20px;
+        accent-color: var(--primary);
+        cursor: pointer;
+        flex-shrink: 0;
+        transition: all .2s ease;
+    }
+
+    .ai-diagnostic-question input[type="checkbox"]:checked {
+        animation: checkboxPulse .3s ease-out;
+    }
+
+    .ai-diagnostic-question input[type="checkbox"]:checked + label {
+        color: var(--primary);
+        font-weight: 600;
+    }
+
+    .ai-diagnostic-question label {
+        flex: 1;
+        cursor: pointer;
+        margin-bottom: 0;
+        user-select: none;
+        transition: all .2s ease;
+        font-size: .95rem;
+    }
+
+    .ai-diagnostic-answers {
+        display: flex;
+        gap: .5rem;
+        flex-wrap: wrap;
+        margin-top: .8rem;
+        padding-top: .8rem;
+        border-top: 1px solid rgba(255,255,255,.1);
+    }
+
+    .ai-diagnostic-btn {
+        padding: .5rem 1rem;
+        border-radius: 8px;
+        border: none;
+        font-size: .9rem;
+        font-weight: 600;
+        cursor: pointer;
+        transition: all .2s ease;
+        flex: 1;
+        min-width: 100px;
+    }
+
+    .ai-diagnostic-btn.submit {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: #fff;
+    }
+
+    .ai-diagnostic-btn.submit:hover {
+        transform: translateY(-2px);
+        box-shadow: 0 8px 16px color-mix(in srgb, var(--primary) 40%, transparent);
+    }
+
+    .ai-diagnostic-btn.clear {
+        background: color-mix(in srgb, var(--card-bg) 92%, transparent);
+        color: var(--text-main);
+        border: 1px solid var(--line-soft);
+    }
+
+    .ai-diagnostic-btn.clear:hover {
+        background: color-mix(in srgb, var(--card-bg) 98%, transparent);
+        border-color: var(--primary);
+    }
+
+    .ai-diagnosis-result {
+        padding: 1rem;
+        border-radius: 14px;
+        background: linear-gradient(135deg, color-mix(in srgb, var(--secondary) 15%, transparent), color-mix(in srgb, var(--primary) 10%, transparent));
+        border: 1px solid color-mix(in srgb, var(--primary) 30%, transparent);
+        animation: slideInDiag .4s cubic-bezier(0.34, 1.56, 0.64, 1);
+    }
+
+    .ai-diagnosis-result h6 {
+        margin: 0 0 .6rem;
+        font-size: 1rem;
+        color: var(--primary);
+        display: flex;
+        align-items: center;
+        gap: .4rem;
+    }
+
+    .ai-diagnosis-result p {
+        margin: 0 0 .4rem;
+        font-size: .9rem;
+        line-height: 1.5;
+    }
+
+    .ai-preanalysis {
+        align-self: flex-start;
+        max-width: min(860px, 94%);
+        border-radius: 14px;
+        border: 1px solid var(--line-soft);
+        background: color-mix(in srgb, var(--card-bg) 95%, transparent);
+        padding: .82rem .95rem;
+        animation: slideInDiag .35s ease-out;
+    }
+
+    .ai-preanalysis-title {
+        margin: 0 0 .45rem;
+        font-size: .92rem;
+        font-weight: 700;
+        color: var(--primary);
+    }
+
+    .ai-preanalysis-list {
+        margin: 0;
+        padding-left: 1rem;
+        color: var(--text-main);
+        font-size: .9rem;
+        line-height: 1.45;
+    }
+
+    .ai-disease-deepdive {
+        align-self: flex-start;
+        max-width: min(860px, 94%);
+        border: 1px dashed color-mix(in srgb, var(--primary) 45%, var(--line-soft));
+        border-radius: 12px;
+        padding: .72rem .85rem;
+        background: color-mix(in srgb, var(--primary) 7%, var(--card-bg));
+        animation: slideInDiag .35s ease-out;
+    }
+
+    .ai-disease-deepdive label {
+        display: inline-flex;
+        align-items: center;
+        gap: .45rem;
+        font-size: .9rem;
+        color: var(--text-main);
+        cursor: pointer;
+        margin: 0;
+    }
+
+    .ai-disease-note {
+        margin-top: .45rem;
+        font-size: .78rem;
+        color: var(--text-muted);
+    }
+
+    .ai-feedback-actions {
+        align-self: flex-start;
+        display: inline-flex;
+        gap: .35rem;
+        margin-top: -.35rem;
+        margin-bottom: .1rem;
+    }
+
+    .ai-feedback-btn {
+        border-radius: 999px;
+        border: 1px solid var(--line-soft);
+        background: color-mix(in srgb, var(--card-bg) 95%, transparent);
+        color: var(--text-main);
+        width: 30px;
+        height: 30px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        transition: all .2s ease;
+        font-size: .82rem;
+    }
+
+    .ai-feedback-btn:hover { border-color: var(--primary); transform: translateY(-1px); }
+    .ai-feedback-btn.active { background: color-mix(in srgb, var(--primary) 18%, var(--card-bg)); border-color: var(--primary); }
+
     @keyframes heartbeatWave { from { stroke-dashoffset: 170; } to { stroke-dashoffset: 0; } }
 
     /* Keep strong neon look on dark theme */
@@ -207,7 +511,7 @@
     html[data-theme='dark'] .ai-input { color: #f4f8ff; }
 
     @media (min-width: 992px) {
-        .ai-page { top: 66px; bottom: 0; }
+        .ai-page { top: 0; bottom: 0; }
     }
 
     @media (max-width: 991px) {
@@ -217,6 +521,20 @@
         .ai-sidebar.is-open { display: block; }
         .ai-side-toggle { display: inline-flex; }
         .ai-bubble { max-width: 96%; }
+        .global-back-row { display: none !important; }
+        .afya-mobile-sub-nav { display: none !important; }
+        .afya-mobile-primary-nav { display: none !important; }
+        .afya-mobile-primary-links { display: none !important; }
+        .ai-page { bottom: 0; }
+        .ai-back-btn { display: flex; }
+        .ai-disclaimer {
+            font-size: .7rem;
+            margin-top: .4rem;
+            padding-top: .4rem;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
     }
 </style>
 
@@ -253,7 +571,9 @@
 
         <section class="ai-main">
             <div class="ai-topbar">
-                <div></div>
+                <div class="ai-topbar-left">
+                    <button type="button" class="ai-back-btn" id="aiBackBtn" title="Back"><i class="bi bi-chevron-left"></i>Back</button>
+                </div>
                 <div class="ai-top-actions">
                     <button type="button" class="ai-new-chat" id="aiNewChatBtn" title="New chat"><i class="bi bi-plus-circle"></i></button>
                     <button type="button" class="ai-side-toggle" id="aiSideToggle"><i class="bi bi-layout-sidebar-inset"></i> Paneli</button>
@@ -265,18 +585,59 @@
                 {% if question %}
                 <div class="ai-bubble ai-user">{{ question }}</div>
                 {% endif %}
+                {% if pre_answer_questions %}
+                <div class="ai-preanalysis">
+                    <h6 class="ai-preanalysis-title"><i class="bi bi-diagram-3 me-1"></i>Uchambuzi wa kina (kabla ya jibu)</h6>
+                    <ul class="ai-preanalysis-list">
+                        {% for pre_q in pre_answer_questions %}
+                        <li>{{ pre_q }}</li>
+                        {% endfor %}
+                    </ul>
+                </div>
+                {% endif %}
                 {% if reply %}
                 <div class="ai-bubble ai-bot">{{ reply }}</div>
+                {% if suggestions %}
+                <div class="ai-suggestions">
+                    {% for suggestion in suggestions %}
+                    <a href="{% url suggestion.url %}" class="ai-suggestion-chip" title="{{ suggestion.text }}">
+                        <i class="bi bi-{{ suggestion.icon }}"></i>
+                        <span>{{ suggestion.text }}</span>
+                    </a>
+                    {% endfor %}
+                </div>
+                {% endif %}
+                {% if diagnostic_questions %}
+                <div class="ai-diagnostic" id="diagnosticPanel" data-symptom="{{ symptom }}">
+                    <div class="ai-diagnostic-title">
+                        <i class="bi bi-clipboard-check"></i>Dalili: {{ symptom|default:"Swali" }}
+                    </div>
+                    {% for question in diagnostic_questions %}
+                    <div class="ai-diagnostic-question">
+                        <input type="checkbox" id="diag-q-{{ forloop.counter }}" value="{{ question }}" data-question="{{ question }}">
+                        <label for="diag-q-{{ forloop.counter }}">{{ question }}</label>
+                    </div>
+                    {% endfor %}
+                    <div class="ai-diagnostic-answers">
+                        <button type="button" class="ai-diagnostic-btn submit" id="diagSubmitBtn">
+                            <i class="bi bi-check-circle"></i> Tuma Jibu
+                        </button>
+                        <button type="button" class="ai-diagnostic-btn clear" id="diagClearBtn">
+                            <i class="bi bi-x-circle"></i> Futa
+                        </button>
+                    </div>
+                </div>
+                {% endif %}
                 {% endif %}
             </div>
 
-            <form method="post" class="ai-input-wrap" id="aiForm" data-chat-url="{% url 'AI_brain:chat_quick' %}">
+            <form method="post" class="ai-input-wrap" id="aiForm" data-chat-url="{% url 'AI_brain:chat_quick' %}" data-feedback-url="{% url 'AI_brain:chat_feedback' %}">
                 {% csrf_token %}
                 <div class="ai-compose-row">
                     <button type="button" class="ai-attach-main" id="aiAttachToggle" aria-label="Attach">
                         <i class="bi bi-paperclip"></i>
                     </button>
-                    <textarea name="question" class="form-control ai-input" id="aiInput" rows="1" placeholder="Andika ujumbe wako hapa..." required autocomplete="off"></textarea>
+                    <textarea name="question" class="form-control ai-input" id="aiInput" rows="1" placeholder="Andika ujumbe" required autocomplete="off"></textarea>
                     <button type="submit" class="btn btn-danger ai-send"><i class="bi bi-send"></i></button>
                 </div>
                 <div class="ai-attachments" id="aiAttachments"></div>
@@ -292,6 +653,10 @@
                 <input type="file" id="aiDocumentInput" accept=".pdf,.doc,.docx,.txt,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document,text/plain" hidden>
                 <input type="file" id="aiAudioInput" accept="audio/*" hidden>
                 <input type="file" id="aiVideoInput" accept="video/*" hidden>
+                
+                <div class="ai-disclaimer">
+                    <i class="bi bi-exclamation-circle me-1"></i>Afyacom si daktari. Wasiliana na daktari.
+                </div>
             </form>
         </section>
     </div>
@@ -314,7 +679,7 @@
         const form = document.getElementById('aiForm');
         const input = document.getElementById('aiInput');
         const thread = document.getElementById('aiThread');
-        const history = document.getElementById('aiHistory');
+        const historyEl = document.getElementById('aiHistory');
         const newChatBtn = document.getElementById('aiNewChatBtn');
         const toggleBtn = document.getElementById('aiSideToggle');
         const sidebar = document.getElementById('aiSidebar');
@@ -332,12 +697,14 @@
         const captureBtn = document.getElementById('aiCaptureBtn');
         const closeCameraBtn = document.getElementById('aiCloseCameraBtn');
 
+    const backBtn = document.getElementById('aiBackBtn');
         if (!form || !input || !thread) {
             return;
         }
 
         const csrfInput = form.querySelector('input[name="csrfmiddlewaretoken"]');
         const chatUrl = form.dataset.chatUrl;
+        const feedbackUrl = form.dataset.feedbackUrl;
 
         // Auto-grow textarea
         function autoGrow() {
@@ -374,6 +741,37 @@
             return words.slice(0, maxWords).join(' ') + '...';
         }
 
+        function buildHistorySummary(item) {
+            if (!item) return '';
+            const q = shortText(item.q || '', 5);
+            const a = shortText(item.r || '', 5);
+            const tags = [];
+            if (item.needsClarification) tags.push('Maswali');
+            if (item.advice && item.advice.length) tags.push('Ushauri');
+            if (item.warning) tags.push('Warning');
+            const tagText = tags.length ? ` [${tags.join(', ')}]` : '';
+            return `Q: ${q} | A: ${a}${tagText}`;
+        }
+
+        function renderConversationFromHistory(item) {
+            if (!item) return;
+            thread.innerHTML = '';
+            if (item.q) addBubble(item.q, 'ai-user');
+            if (item.preQuestions && item.preQuestions.length) {
+                renderPreAnswerQuestions(item.preQuestions);
+            }
+            if (item.needsClarification && item.diagQuestions && item.diagQuestions.length) {
+                renderDiagnosticQuestions(item.diagQuestions, item.symptom || 'Swali');
+            }
+            if (item.r) addBubble(item.r, 'ai-bot');
+            if (!item.needsClarification && item.advice && item.advice.length) {
+                renderClarificationAdvice(item.advice);
+            }
+            if (item.warning) {
+                addBubble(item.warning, 'ai-bot');
+            }
+        }
+
         function resetThread() {
             thread.innerHTML = '<div class="ai-bubble ai-bot"><i class="bi bi-hand-wave me-1"></i>Habari. Uliza swali lako, nitakupa jibu fupi na salama.</div>';
             input.value = '';
@@ -394,30 +792,99 @@
             return div;
         }
 
-        function addHistory(text) {
-            if (!history || !text) return;
-            const empty = history.querySelector('.ai-history-item');
+        async function sendFeedback(rating, questionText, replyText, button) {
+            if (!feedbackUrl || !csrfInput) return;
+            try {
+                const response = await fetch(feedbackUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
+                        'X-CSRFToken': csrfInput.value,
+                        'X-Requested-With': 'XMLHttpRequest'
+                    },
+                    body: new URLSearchParams({
+                        rating: rating,
+                        last_question: questionText || '',
+                        last_reply: replyText || ''
+                    }).toString()
+                });
+                const data = await response.json();
+                if (data && data.ok && button) {
+                    const wrap = button.closest('.ai-feedback-actions');
+                    if (wrap) {
+                        wrap.querySelectorAll('.ai-feedback-btn').forEach(function (b) { b.classList.remove('active'); });
+                    }
+                    button.classList.add('active');
+                }
+            } catch (e) {
+                // silent fail
+            }
+        }
+
+        function addFeedbackActions(questionText, replyText) {
+            const wrap = document.createElement('div');
+            wrap.className = 'ai-feedback-actions';
+
+            const up = document.createElement('button');
+            up.type = 'button';
+            up.className = 'ai-feedback-btn';
+            up.title = 'Helpful';
+            up.innerHTML = '<i class="bi bi-hand-thumbs-up"></i>';
+            up.addEventListener('click', function () {
+                sendFeedback('up', questionText, replyText, up);
+            });
+
+            const down = document.createElement('button');
+            down.type = 'button';
+            down.className = 'ai-feedback-btn';
+            down.title = 'Not helpful';
+            down.innerHTML = '<i class="bi bi-hand-thumbs-down"></i>';
+            down.addEventListener('click', function () {
+                sendFeedback('down', questionText, replyText, down);
+            });
+
+            wrap.appendChild(up);
+            wrap.appendChild(down);
+            thread.appendChild(wrap);
+            scrollThread();
+        }
+
+        function addHistory(text, questionObj) {
+            if (!historyEl || !text) return;
+            const empty = historyEl.querySelector('.ai-history-item');
             if (empty && empty.textContent.trim() === 'Hakuna historia bado.') {
-                history.innerHTML = '';
+                historyEl.innerHTML = '';
             }
             const item = document.createElement('button');
             item.type = 'button';
             item.className = 'ai-history-item';
-            item.textContent = shortText(text, 8);
-            item.title = text;
-            item.addEventListener('click', function () {
-                input.value = text;
-                input.focus();
+            const summary = buildHistorySummary(questionObj) || shortText(text, 8);
+            item.textContent = summary;
+            item.title = summary;
+            item.addEventListener('click', function (e) {
+                e.preventDefault();
+                // Load the full chat from history
+                if (questionObj && questionObj.r) {
+                    renderConversationFromHistory(questionObj);
+                    // Clear input and focus
+                    input.value = '';
+                    input.focus();
+                    autoGrow();
+                } else {
+                    // Fallback: just put question in input
+                    input.value = text;
+                    input.focus();
+                }
             });
-            history.prepend(item);
+            historyEl.prepend(item);
         }
 
         function renderStoredHistory() {
-            if (!history) return;
+            if (!historyEl) return;
             if (!localHistory.length) return;
-            history.innerHTML = '';
+            historyEl.innerHTML = '';
             localHistory.slice(0, 10).forEach(function (item) {
-                addHistory(item.q);
+                addHistory(item.q, item);
             });
         }
 
@@ -430,13 +897,46 @@
             return wrap;
         }
 
+        function renderPreAnswerQuestions(questions) {
+            if (!Array.isArray(questions) || !questions.length) return;
+            const box = document.createElement('div');
+            box.className = 'ai-preanalysis';
+
+            const title = document.createElement('h6');
+            title.className = 'ai-preanalysis-title';
+            title.innerHTML = '<i class="bi bi-diagram-3 me-1"></i>Uchambuzi wa kina (kabla ya jibu)';
+            box.appendChild(title);
+
+            const list = document.createElement('ul');
+            list.className = 'ai-preanalysis-list';
+            questions.forEach(function (q) {
+                const li = document.createElement('li');
+                li.textContent = q;
+                list.appendChild(li);
+            });
+            box.appendChild(list);
+            thread.appendChild(box);
+            scrollThread();
+        }
+
+        function renderClarificationAdvice(items) {
+            if (!Array.isArray(items) || !items.length) return;
+            const adviceLines = items.filter(function (x) { return !!(x && String(x).trim()); });
+            if (!adviceLines.length) return;
+            addBubble('Ushauri: ' + adviceLines.join(' • '), 'ai-bot');
+        }
+
         async function sendQuestion(question) {
             const cleaned = (question || '').trim();
             if (!cleaned) return;
 
+            const isClarifyPayload = cleaned.startsWith('CLARIFY_DATA:');
+            const visibleQuestion = isClarifyPayload
+                ? 'Majibu ya uchambuzi yametumwa.'
+                : cleaned;
+
             const attachSummary = attachments.length ? `\n\nAttachments: ${attachments.map(function (a) { return a.name; }).join(', ')}` : '';
-            addBubble(cleaned + attachSummary, 'ai-user');
-            addHistory(cleaned);
+            addBubble(visibleQuestion + (isClarifyPayload ? '' : attachSummary), 'ai-user');
             const typing = typingBubble();
             input.value = '';
             autoGrow();
@@ -455,9 +955,66 @@
                 const data = await response.json();
                 typing.remove();
                 if (data && data.ok && data.reply) {
+                    const hasPendingQuestions = !!(data.needs_clarification && data.diagnostic_questions && data.diagnostic_questions.length > 0);
+
+                    if (data.pre_answer_questions && data.pre_answer_questions.length > 0) {
+                        renderPreAnswerQuestions(data.pre_answer_questions);
+                    }
+
+                    // Questions first, answer later
+                    if (hasPendingQuestions) {
+                        renderDiagnosticQuestions(data.diagnostic_questions, data.symptom);
+                    }
+
                     addBubble(data.reply, 'ai-bot');
-                    localHistory.unshift({ q: cleaned, r: data.reply, at: Date.now() });
+
+                    // Advice only after diagnosis stage, not before clarification
+                    if (!data.needs_clarification && data.clarification_advice && data.clarification_advice.length > 0) {
+                        renderClarificationAdvice(data.clarification_advice);
+                    }
+
+                    // Add suggestions if available
+                    if (data.suggestions && data.suggestions.length > 0) {
+                        const suggestionsDiv = document.createElement('div');
+                        suggestionsDiv.className = 'ai-suggestions';
+                        data.suggestions.forEach(function(sugg) {
+                            const chip = document.createElement('a');
+                            chip.href = sugg.url;
+                            chip.className = 'ai-suggestion-chip';
+                            chip.title = sugg.text;
+                            chip.innerHTML = `<i class="bi bi-${sugg.icon}"></i><span>${sugg.text}</span>`;
+                            suggestionsDiv.appendChild(chip);
+                        });
+                        thread.appendChild(suggestionsDiv);
+                        scrollThread();
+                    }
+                    
+                    // Render diagnostic questions if present (non-clarification cases)
+                    if (data.diagnostic_questions && data.diagnostic_questions.length > 0 && !data.needs_clarification) {
+                        renderDiagnosticQuestions(data.diagnostic_questions, data.symptom);
+                    }
+
+                    // Feedback appears only at end of chat step when there are final answers/advice
+                    if (!hasPendingQuestions && (data.reply || (data.clarification_advice && data.clarification_advice.length > 0))) {
+                        addFeedbackActions(cleaned, data.reply);
+                    }
+                    
+                    // Save to local history with full QA pair
+                    const chatObj = {
+                        q: cleaned,
+                        r: data.reply,
+                        at: Date.now(),
+                        symptom: data.symptom || '',
+                        preQuestions: data.pre_answer_questions || [],
+                        diagQuestions: data.diagnostic_questions || [],
+                        advice: data.clarification_advice || [],
+                        needsClarification: !!data.needs_clarification,
+                        warning: (data.triage === 'EMERGENCY' || data.risk_level === 'HIGH') ? 'Warning: Dalili zako zinaweza kuwa hatari, tafadhali tafuta huduma ya haraka.' : ''
+                    };
+                    localHistory.unshift(chatObj);
                     saveHistory(localHistory);
+                    // Update history button to include full object
+                    addHistory(cleaned, chatObj);
                 } else {
                     addBubble('Samahani, kuna hitilafu kidogo. Jaribu tena.', 'ai-bot');
                 }
@@ -526,6 +1083,140 @@
             renderAttachments();
         }
 
+        function renderDiagnosticQuestions(questions, symptom) {
+            if (!questions || !questions.length) return;
+            const seenQuestionKeys = new Set();
+            const onlyQuestions = questions.filter(function(question) {
+                if (!(typeof question === 'string' && question.trim().endsWith('?'))) {
+                    return false;
+                }
+                const key = question.trim().toLowerCase().replace(/[?.!,;:]+$/g, '').replace(/\s+/g, ' ');
+                if (!key || seenQuestionKeys.has(key)) {
+                    return false;
+                }
+                seenQuestionKeys.add(key);
+                return true;
+            });
+            if (!onlyQuestions.length) return;
+            
+            const container = document.createElement('div');
+            container.className = 'ai-diagnostic';
+            
+            // Title with symptom
+            const title = document.createElement('div');
+            title.className = 'ai-diagnostic-title';
+            title.innerHTML = '<i class="bi bi-clipboard-check"></i>Dalili: ' + (symptom || 'Swali');
+            container.appendChild(title);
+            
+            const questionIds = {};
+            onlyQuestions.forEach(function(question, index) {
+                const qId = 'diag-q-' + Date.now() + '-' + index;
+                questionIds[qId] = question;
+                
+                const qDiv = document.createElement('div');
+                qDiv.className = 'ai-diagnostic-question';
+                
+                const checkbox = document.createElement('input');
+                checkbox.type = 'checkbox';
+                checkbox.id = qId;
+                checkbox.value = question;
+                checkbox.dataset.question = question;
+                
+                const label = document.createElement('label');
+                label.htmlFor = qId;
+                label.textContent = question;
+                
+                qDiv.appendChild(checkbox);
+                qDiv.appendChild(label);
+                
+                // Add click animation feedback
+                checkbox.addEventListener('change', function() {
+                    if (this.checked) {
+                        qDiv.style.backgroundColor = 'var(--primary)';
+                        setTimeout(() => {
+                            qDiv.style.backgroundColor = '';
+                        }, 300);
+                    }
+                });
+                
+                container.appendChild(qDiv);
+            });
+            
+            // Action buttons
+            const actions = document.createElement('div');
+            actions.className = 'ai-diagnostic-answers';
+            
+            const submitBtn = document.createElement('button');
+            submitBtn.type = 'button';
+            submitBtn.className = 'ai-diagnostic-btn submit';
+            submitBtn.innerHTML = '<i class="bi bi-check-circle"></i> Tuma Jibu';
+            submitBtn.addEventListener('click', function() {
+                const checked = container.querySelectorAll('input[type="checkbox"]:checked');
+                if (!checked.length) {
+                    addBubble('Tafadhali chagua angalau swali moja.', 'ai-bot');
+                    return;
+                }
+                
+                const responses = Array.from(checked).map(c => c.value);
+                showDiagnosisResult(responses, symptom);
+                container.style.display = 'none';
+                const clarificationPayload = 'CLARIFY_DATA: ' + responses.join(' | ');
+                sendQuestion(clarificationPayload);
+            });
+            
+            const clearBtn = document.createElement('button');
+            clearBtn.type = 'button';
+            clearBtn.className = 'ai-diagnostic-btn clear';
+            clearBtn.innerHTML = '<i class="bi bi-x-circle"></i> Futa';
+            clearBtn.addEventListener('click', function() {
+                container.querySelectorAll('input[type="checkbox"]').forEach(c => c.checked = false);
+            });
+            
+            actions.appendChild(submitBtn);
+            actions.appendChild(clearBtn);
+            container.appendChild(actions);
+            
+            thread.appendChild(container);
+            scrollThread();
+        }
+
+        function showDiagnosisResult(checkedQuestions, symptom) {
+            const result = document.createElement('div');
+            result.className = 'ai-diagnosis-result';
+            
+            const title = document.createElement('h6');
+            title.innerHTML = '<i class="bi bi-heart-pulse"></i>Kuchunguza matokeo';
+            result.appendChild(title);
+            
+            const summary = document.createElement('p');
+            summary.innerHTML = '<strong>Dalili:</strong> ' + (symptom || 'Haijulikani');
+            result.appendChild(summary);
+            
+            const answersTitle = document.createElement('p');
+            answersTitle.innerHTML = '<strong>Nlichoona:</strong>';
+            result.appendChild(answersTitle);
+            
+            const answersList = document.createElement('ul');
+            answersList.style.marginLeft = '1.2rem';
+            checkedQuestions.forEach(function(q) {
+                const li = document.createElement('li');
+                li.style.marginBottom = '0.3rem';
+                li.textContent = q;
+                answersList.appendChild(li);
+            });
+            result.appendChild(answersList);
+            
+            const advice = document.createElement('p');
+            advice.style.marginTop = '0.8rem';
+            advice.innerHTML = '<strong><i class="bi bi-exclamation-triangle-fill"></i> Idbori:</strong><br>' +
+                'Hii ni nadhani tu. Kwa usalama wako, wasiliana na daktari kama dalili ni kubwa. ' +
+                'Daktari anaweza kufanya uchunguzi madhubuti na kutoa matibabu sahihi.';
+            result.appendChild(advice);
+            
+            thread.appendChild(result);
+            scrollThread();
+        }
+
         function startVoice() {
             const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
             if (!SR) {
@@ -558,6 +1249,11 @@
             newChatBtn.addEventListener('click', resetThread);
         }
 
+        if (backBtn) {
+            backBtn.addEventListener('click', function() {
+                window.history.back();
+            });
+        }
         if (attachToggle && attachSheet) {
             attachToggle.addEventListener('click', function (event) {
                 event.stopPropagation();
@@ -593,12 +1289,47 @@
         audioInput.addEventListener('change', function () { pushFiles(audioInput.files); audioInput.value = ''; });
         videoInput.addEventListener('change', function () { pushFiles(videoInput.files); videoInput.value = ''; });
 
+        // Handle static page diagnostic panel buttons
+        const diagSubmitBtn = document.getElementById('diagSubmitBtn');
+        const diagClearBtn = document.getElementById('diagClearBtn');
+        const diagPanel = document.getElementById('diagnosticPanel');
+        
+        if (diagSubmitBtn && diagPanel) {
+            diagSubmitBtn.addEventListener('click', function() {
+                const checked = diagPanel.querySelectorAll('input[type="checkbox"]:checked');
+                if (!checked.length) {
+                    addBubble('Tafadhali chagua angalau swali moja.', 'ai-bot');
+                    return;
+                }
+                
+                const responses = Array.from(checked).map(c => c.value);
+                const symptom = diagPanel.dataset.symptom;
+                showDiagnosisResult(responses, symptom);
+                diagPanel.style.display = 'none';
+            });
+        }
+        
+        if (diagClearBtn && diagPanel) {
+            diagClearBtn.addEventListener('click', function() {
+                diagPanel.querySelectorAll('input[type="checkbox"]').forEach(c => c.checked = false);
+            });
+        }
         window.addEventListener('beforeunload', function () {
             stopCamera();
             document.body.classList.remove('ai-chat-screen');
         });
 
+        // Load stored history and restore initial display
         renderStoredHistory();
+        
+        // If page has question and reply, ensure they're displayed properly
+        const pageQuestion = '{{ question|escapejs }}';
+        const pageReply = '{{ reply|escapejs }}';
+        if (pageQuestion && pageReply) {
+            // Page already has content from server, just scroll
+            scrollThread();
+        }
+        
         scrollThread();
     })();
 </script>

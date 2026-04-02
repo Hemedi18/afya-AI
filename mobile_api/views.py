@@ -19,11 +19,11 @@ from .models import MobileAuthToken
 
 User = get_user_model()
 
-MAX_ATTACHMENT_MB = 20
+MAX_ATTACHMENT_MB = 100  # Increased from 20MB to 100MB for better UX
 ALLOWED_ATTACHMENT_EXTENSIONS = {
-    'jpg', 'jpeg', 'png', 'gif', 'webp',
-    'mp4', 'mov', 'webm', 'avi', 'mkv',
-    'pdf', 'doc', 'docx', 'txt', 'xls', 'xlsx', 'ppt', 'pptx', 'zip', 'rar',
+    'jpg', 'jpeg', 'png', 'gif', 'webp', 'bmp', 'svg',
+    'mp4', 'mov', 'webm', 'avi', 'mkv', 'flv', 'wmv',
+    'pdf', 'doc', 'docx', 'txt', 'xls', 'xlsx', 'ppt', 'pptx', 'zip', 'rar', 'odt', 'rtf',
 }
 
 
@@ -59,12 +59,28 @@ def _mobile_user(request):
 def _validate_attachment(attachment):
     if not attachment:
         return None
-    ext = Path(attachment.name or '').suffix.lower().replace('.', '')
-    if ext not in ALLOWED_ATTACHMENT_EXTENSIONS:
-        return 'Unsupported attachment type'
+    
+    # Validate file name exists
+    if not attachment.name:
+        return 'Attachment missing filename'
+    
+    # Get extension safely
+    ext = Path(attachment.name).suffix.lower().lstrip('.')
+    if not ext or ext not in ALLOWED_ATTACHMENT_EXTENSIONS:
+        return f'File type .{ext} not allowed'
+    
+    # Validate file size
+    if not hasattr(attachment, 'size') or attachment.size is None:
+        return 'Unable to determine file size'
+    
     size_mb = attachment.size / (1024 * 1024)
     if size_mb > MAX_ATTACHMENT_MB:
-        return f'Attachment too large. Max {MAX_ATTACHMENT_MB}MB'
+        return f'Faili ni kubwa. Max {MAX_ATTACHMENT_MB}MB, Yako: {size_mb:.1f}MB'
+    
+    # Minimum file size check (at least 1KB)
+    if attachment.size < 1024:
+        return 'Faili ni ndogo sana (minimum 1KB)'
+    
     return None
 
 

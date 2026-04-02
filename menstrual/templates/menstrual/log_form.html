@@ -58,7 +58,7 @@
 
     .flow-grid {
         display: grid;
-        grid-template-columns: repeat(5, minmax(0, 1fr));
+        grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
         gap: 12px;
     }
 
@@ -71,31 +71,31 @@
         position: relative;
     }
 
-    .flow-card {
+    .flow-chip-label {
         display: flex;
-        flex-direction: column;
         align-items: center;
-        justify-content: center;
-        min-height: 112px;
-        border-radius: 20px;
-        background: linear-gradient(180deg, #fff, #fff8fa);
-        border: 1px solid rgba(201, 24, 74, 0.12);
+        gap: .7rem;
+        min-height: 60px;
+        padding: .95rem 1rem;
+        border-radius: 18px;
+        border: 1px solid rgba(203, 213, 225, .8);
+        background: rgba(255,255,255,.9);
         cursor: pointer;
-        transition: all .25s ease;
-        color: #9ca3af;
+        transition: all .22s ease;
+        font-weight: 600;
+        color: var(--text-main);
     }
 
-    .flow-card i {
-        font-size: 2rem;
-        margin-bottom: .45rem;
-    }
-
-    .flow-choice input:checked + .flow-card {
+    .flow-chip-label i {
+        font-size: 1.2rem;
         color: #c9184a;
-        transform: translateY(-4px);
+    }
+
+    .flow-choice input:checked + .flow-chip-label {
+        background: #fff1f5;
         border-color: rgba(201, 24, 74, .45);
-        box-shadow: 0 14px 30px rgba(201, 24, 74, .16);
-        background: linear-gradient(180deg, #fff0f4, #fff);
+        transform: translateY(-2px);
+        box-shadow: 0 10px 24px rgba(201, 24, 74, .12);
     }
 
     .chip-grid {
@@ -168,14 +168,14 @@
         background: linear-gradient(135deg, rgba(17,24,39,.96), rgba(31,41,55,.96));
     }
 
-    html[data-theme='dark'] .flow-card,
+    html[data-theme='dark'] .flow-chip-label,
     html[data-theme='dark'] .chip-label {
         background: rgba(17,24,39,.9);
         border-color: rgba(255,255,255,.12);
         color: #e5e7eb;
     }
 
-    html[data-theme='dark'] .flow-choice input:checked + .flow-card,
+    html[data-theme='dark'] .flow-choice input:checked + .flow-chip-label,
     html[data-theme='dark'] .choice-chip input:checked + .chip-label {
         background: rgba(201, 24, 74, .14);
     }
@@ -254,12 +254,14 @@
                                value="{{ value }}"
                                id="id_flow_intensity_{{ forloop.counter }}"
                                {% if form.flow_intensity.value|stringformat:'s' == value|stringformat:'s' %}checked{% endif %}>
-                        <label for="id_flow_intensity_{{ forloop.counter }}" class="flow-card">
+                        <label for="id_flow_intensity_{{ forloop.counter }}" class="flow-chip-label">
                             <i class="bi bi-droplet-fill"></i>
-                            <div class="fw-bold">{{ value }}/5</div>
-                            <small class="text-muted">
-                                {% if value == '1' %}Very light{% elif value == '2' %}Light{% elif value == '3' %}Normal{% elif value == '4' %}Heavy{% else %}Very heavy{% endif %}
-                            </small>
+                            <span class="chip-text">
+                                <strong>{{ value }}/5</strong>
+                                <small>
+                                    {% if value == '1' %}Very light{% elif value == '2' %}Light{% elif value == '3' %}Normal{% elif value == '4' %}Heavy{% else %}Very heavy{% endif %}
+                                </small>
+                            </span>
                         </label>
                     </div>
                     {% endfor %}

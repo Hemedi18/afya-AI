@@ -1,12 +1,84 @@
 from django.conf import settings
 from groq import Groq
+import requests
+
+try:
+    import ollama
+except Exception:  # pragma: no cover - optional runtime dependency behavior
+    ollama = None
 
 
-def generate_ai_text(prompt: str, fallback: str) -> str:
-    """Centralized AI text generation helper for the project."""
+def _generate_with_ollama(prompt: str) -> str | None:
+    if ollama is None:
+        return None
+
+    model = getattr(settings, 'OLLAMA_MODEL', 'llama3.2:3b')
+    host = getattr(settings, 'OLLAMA_HOST', 'http://127.0.0.1:11434')
+
+    try:
+        client = ollama.Client(host=host)
+        response = client.chat(
+            model=model,
+            messages=[
+                {
+                    'role': 'system',
+                    'content': (
+                        'You are a women health AI assistant. Reply in simple Swahili, '
+                        'empathetic, short, practical, and medically safe.'
+                    ),
+                },
+                {'role': 'user', 'content': prompt},
+            ],
+            options={'temperature': 0.4},
+        )
+        content = (((response or {}).get('message') or {}).get('content') or '').strip()
+        return content or None
+    except Exception:
+        return None
+
+
+def _generate_with_openrouter(prompt: str) -> str | None:
+    api_key = getattr(settings, 'OPENROUTER_API_KEY', None)
+    if not api_key:
+        return None
+
+    model = getattr(settings, 'OPENROUTER_MODEL', 'qwen/qwen-2.5-72b-instruct:free')
+    try:
+        response = requests.post(
+            'https://openrouter.ai/api/v1/chat/completions',
+            headers={
+                'Authorization': f'Bearer {api_key}',
+                'Content-Type': 'application/json',
+            },
+            json={
+                'model': model,
+                'messages': [
+                    {
+                        'role': 'system',
+                        'content': (
+                            'You are a women health AI assistant. Reply in simple Swahili, '
+                            'empathetic, short, practical, and medically safe.'
+                        ),
+                    },
+                    {'role': 'user', 'content': prompt},
+                ],
+                'temperature': 0.4,
+            },
+            timeout=40,
+        )
+        if response.status_code >= 400:
+            return None
+        data = response.json() or {}
+        content = (((data.get('choices') or [{}])[0].get('message') or {}).get('content') or '').strip()
+        return content or None
+    except Exception:
+        return None
+
+
+def _generate_with_groq(prompt: str) -> str | None:
     api_key = getattr(settings, 'GROQ_API_KEY', None)
     if not api_key:
-        return fallback
+        return None
 
     try:
         client = Groq(api_key=api_key)
@@ -26,7 +98,21 @@ def generate_ai_text(prompt: str, fallback: str) -> str:
         )
         return completion.choices[0].message.content.strip()
     except Exception:
-        return fallback
+        return None
+
+
+def generate_ai_text(prompt: str, fallback: str) -> str:
+    """Centralized AI text generation helper for the project."""
+    provider = getattr(settings, 'AI_PROVIDER', 'groq').lower()
+
+    if provider == 'openrouter':
+        return _generate_with_openrouter(prompt) or _generate_with_groq(prompt) or _generate_with_ollama(prompt) or fallback
+
+    if provider == 'ollama':
+        return _generate_with_ollama(prompt) or _generate_with_groq(prompt) or _generate_with_openrouter(prompt) or fallback
+
+    # default: groq
+    return _generate_with_groq(prompt) or _generate_with_openrouter(prompt) or _generate_with_ollama(prompt) or fallback
 
 
 def ask_ai_brain(message_text: str) -> str:
@@ -34,7 +120,7 @@ def ask_ai_brain(message_text: str) -> str:
     return generate_ai_text(
         prompt=message_text,
         fallback=(
-            "Asante kwa ujumbe wako. Kwa sasa huduma ya AI imepumzika kidogo. "
-            "Tafadhali jaribu tena baada ya muda mfupi."
+            "Samahani, kwa sasa AI haijapatikana. Kwa usalama wako, fuatilia dalili zako "
+            "na wasiliana na daktari kama maumivu ni makali."
         ),
     )

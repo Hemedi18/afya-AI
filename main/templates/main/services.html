@@ -1,0 +1,263 @@
+{% extends 'base.html' %}
+{% load static %}
+
+{% block title %}Services - ZanzHub AI Health{% endblock %}
+
+{% block content %}
+<style>
+    .services-shell {
+        max-width: 1160px;
+        margin: 0 auto;
+        padding: 1.25rem 1rem 6rem;
+    }
+
+    .services-hero {
+        position: relative;
+        overflow: hidden;
+        border-radius: 24px;
+        padding: 1.4rem 1.3rem;
+        background: linear-gradient(140deg, color-mix(in srgb, var(--primary) 16%, var(--card-bg)), color-mix(in srgb, var(--secondary) 14%, var(--card-bg)));
+        border: 1px solid color-mix(in srgb, var(--primary) 22%, transparent);
+        box-shadow: 0 16px 38px color-mix(in srgb, var(--primary) 16%, transparent);
+        margin-bottom: 1.2rem;
+    }
+
+    .services-title {
+        font-weight: 900;
+        margin: 0;
+        letter-spacing: .01em;
+    }
+
+    .services-sub {
+        margin: .35rem 0 0;
+        color: var(--text-muted);
+    }
+
+    .services-meta {
+        display: inline-flex;
+        align-items: center;
+        gap: .45rem;
+        margin-top: .8rem;
+        background: color-mix(in srgb, var(--card-bg) 72%, transparent);
+        border: 1px solid var(--line-soft);
+        border-radius: 999px;
+        padding: .38rem .75rem;
+        font-size: .86rem;
+    }
+
+    .service-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+        gap: 1rem;
+    }
+
+    .service-card {
+        position: relative;
+        border-radius: 18px;
+        overflow: hidden;
+        background: var(--card-bg);
+        border: 1px solid var(--line-soft);
+        box-shadow: 0 10px 24px color-mix(in srgb, var(--text-main) 10%, transparent);
+        transform: translateY(8px);
+        opacity: 0;
+        animation: cardIn .65s ease-out forwards;
+    }
+
+    .service-card:nth-child(2) { animation-delay: .06s; }
+    .service-card:nth-child(3) { animation-delay: .12s; }
+    .service-card:nth-child(4) { animation-delay: .18s; }
+    .service-card:nth-child(5) { animation-delay: .24s; }
+    .service-card:nth-child(6) { animation-delay: .30s; }
+
+    .service-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 18px 34px color-mix(in srgb, var(--primary) 22%, transparent);
+        transition: transform .25s ease, box-shadow .25s ease;
+    }
+
+    .service-cover {
+        position: relative;
+        height: 150px;
+        overflow: hidden;
+    }
+
+    .service-cover img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        transition: transform .5s ease;
+    }
+
+    .service-card:hover .service-cover img {
+        transform: scale(1.06);
+    }
+
+    .service-cover::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(to top, rgba(0, 0, 0, .48), rgba(0, 0, 0, .08));
+    }
+
+    .service-icon {
+        position: absolute;
+        left: .8rem;
+        bottom: .72rem;
+        z-index: 2;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        color: #fff;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        box-shadow: 0 8px 18px color-mix(in srgb, var(--primary) 36%, transparent);
+        font-size: 1rem;
+    }
+
+    .service-body {
+        padding: .95rem .95rem 1rem;
+    }
+
+    .service-head {
+        display: flex;
+        justify-content: space-between;
+        gap: .6rem;
+        align-items: flex-start;
+    }
+
+    .service-title {
+        margin: 0;
+        font-weight: 800;
+        font-size: 1rem;
+    }
+
+    .audience-badge {
+        font-size: .68rem;
+        border: 1px solid var(--line-soft);
+        border-radius: 999px;
+        padding: .2rem .42rem;
+        white-space: nowrap;
+    }
+
+    .service-desc {
+        color: var(--text-muted);
+        margin: .55rem 0 .82rem;
+        font-size: .9rem;
+        min-height: 50px;
+    }
+
+    .service-action {
+        border: 0;
+        border-radius: 999px;
+        width: 100%;
+        padding: .62rem .8rem;
+        font-weight: 700;
+        letter-spacing: .01em;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: var(--seed-on-color);
+        box-shadow: 0 10px 24px color-mix(in srgb, var(--primary) 34%, transparent);
+        text-decoration: none;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: .45rem;
+        transition: transform .2s ease, box-shadow .2s ease, filter .2s ease;
+    }
+
+    .service-action:hover {
+        transform: translateY(-2px);
+        filter: brightness(1.03);
+        box-shadow: 0 14px 30px color-mix(in srgb, var(--primary) 45%, transparent);
+    }
+
+    .service-action.coming {
+        background: color-mix(in srgb, var(--card-bg) 86%, transparent);
+        color: var(--text-main);
+        border: 1px solid var(--line-soft);
+        box-shadow: none;
+    }
+
+    .service-action.coming:hover {
+        box-shadow: 0 8px 20px color-mix(in srgb, var(--text-main) 10%, transparent);
+    }
+
+    .notice-banner {
+        margin-top: 1rem;
+        border-radius: 14px;
+        padding: .8rem .95rem;
+        border: 1px dashed color-mix(in srgb, var(--primary) 32%, transparent);
+        background: color-mix(in srgb, var(--primary) 7%, var(--card-bg));
+        font-size: .92rem;
+    }
+
+    @keyframes cardIn {
+        to {
+            opacity: 1;
+            transform: translateY(0);
+        }
+    }
+</style>
+
+<div class="services-shell">
+    <section class="services-hero">
+        <h3 class="services-title"><i class="bi bi-grid-1x2-fill me-2"></i>Services</h3>
+        <p class="services-sub">Chagua huduma unayotaka. Huduma zinazopatikana zinafunguka moja kwa moja; ambazo bado zinaandaliwa zitaonyesha taarifa.</p>
+        <div class="services-meta">
+            <i class="bi bi-collection"></i>
+            <span>Idadi ya services: <strong>{{ service_count }}</strong></span>
+            {% if user_gender %}
+                <span>• Gender: <strong>{{ user_gender|title }}</strong></span>
+            {% endif %}
+        </div>
+    </section>
+
+    <section class="service-grid">
+        {% for service in service_cards %}
+            <article class="service-card">
+                <div class="service-cover">
+                    <img src="{{ service.image }}" alt="{{ service.title }}">
+                    <span class="service-icon"><i class="bi {{ service.icon }}"></i></span>
+                </div>
+
+                <div class="service-body">
+                    <div class="service-head">
+                        <h4 class="service-title">{{ service.title }}</h4>
+                        <span class="audience-badge">{{ service.audience }}</span>
+                    </div>
+                    <p class="service-desc">{{ service.description }}</p>
+
+                    {% if service.is_live and service.url %}
+                        <a class="service-action" href="{% url service.url %}">
+                            <i class="bi bi-box-arrow-up-right"></i> Fungua Service
+                        </a>
+                    {% else %}
+                        <button type="button" class="service-action coming js-coming-soon" data-service="{{ service.title }}">
+                            <i class="bi bi-tools"></i> Coming Soon
+                        </button>
+                    {% endif %}
+                </div>
+            </article>
+        {% endfor %}
+    </section>
+
+    <div id="serviceNotice" class="notice-banner d-none" role="status" aria-live="polite"></div>
+</div>
+
+<script>
+(function () {
+    const notice = document.getElementById('serviceNotice');
+    const buttons = document.querySelectorAll('.js-coming-soon');
+
+    buttons.forEach((btn) => {
+        btn.addEventListener('click', function () {
+            const serviceName = this.getAttribute('data-service') || 'Service hii';
+            notice.classList.remove('d-none');
+            notice.innerHTML = `<strong>${serviceName}</strong> bado iko under construction. Tafadhali jaribu tena hivi karibuni.`;
+            notice.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        });
+    });
+})();
+</script>
+{% endblock %}

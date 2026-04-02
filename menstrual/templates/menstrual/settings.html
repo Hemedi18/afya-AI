@@ -87,4 +87,72 @@
         </form>
     </div>
 </div>
+
+<script>
+(function() {
+    const customPaletteCheckbox = document.querySelector('#id_use_custom_palette');
+    const customColorInputs = document.querySelectorAll('#id_custom_primary, #id_custom_secondary');
+    const colorLabels = document.querySelectorAll('label[for="id_custom_primary"], label[for="id_custom_secondary"]');
+
+    function toggleColorInputVisibility() {
+        const isChecked = customPaletteCheckbox.checked;
+        customColorInputs.forEach(input => {
+            input.closest('.col-md-6').style.opacity = isChecked ? '1' : '0.5';
+            input.closest('.col-md-6').style.pointerEvents = isChecked ? 'auto' : 'none';
+        });
+        colorLabels.forEach(label => {
+            label.style.color = isChecked ? 'inherit' : 'var(--text-muted)';
+        });
+    }
+
+    function updatePreviewColors() {
+        if (!customPaletteCheckbox.checked) return;
+        
+        const primaryColor = document.querySelector('#id_custom_primary').value;
+        const secondaryColor = document.querySelector('#id_custom_secondary').value;
+        
+        if (primaryColor && secondaryColor) {
+            // Update CSS variables in real-time for preview
+            document.documentElement.style.setProperty('--seed-primary', primaryColor);
+            document.documentElement.style.setProperty('--seed-secondary', secondaryColor);
+            
+            // Store in sessionStorage so preview persists while editing
+            sessionStorage.setItem('preview-primary', primaryColor);
+            sessionStorage.setItem('preview-secondary', secondaryColor);
+        }
+    }
+
+    if (customPaletteCheckbox) {
+        // Initial state
+        toggleColorInputVisibility();
+        
+        // Listen to checkbox changes
+        customPaletteCheckbox.addEventListener('change', () => {
+            toggleColorInputVisibility();
+            updatePreviewColors();
+        });
+        
+        // Live color updates
+        customColorInputs.forEach(input => {
+            input.addEventListener('input', updatePreviewColors);
+            input.addEventListener('change', updatePreviewColors);
+        });
+        
+        // Restore preview if page was navigated back to
+        const previewPrimary = sessionStorage.getItem('preview-primary');
+        const previewSecondary = sessionStorage.getItem('preview-secondary');
+        if (previewPrimary && previewSecondary && customPaletteCheckbox.checked) {
+            document.querySelector('#id_custom_primary').value = previewPrimary;
+            document.querySelector('#id_custom_secondary').value = previewSecondary;
+            updatePreviewColors();
+        }
+    }
+    
+    // After form submission, reload page to apply context processor changes
+    document.querySelector('form').addEventListener('submit', function(e) {
+        sessionStorage.removeItem('preview-primary');
+        sessionStorage.removeItem('preview-secondary');
+    });
+})();
+</script>
 {% endblock %}

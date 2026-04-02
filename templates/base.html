@@ -281,7 +281,7 @@
         /* ── Global inheritance enforcement layer (single-point color system) ── */
         html[data-theme] .card,
         html[data-theme] .card-custom,
-        html[data-theme] [class*="card"],
+        html[data-theme] [class*="card"]:not(.tip-card-title):not(.tip-card-copy),
         html[data-theme] .modal-content,
         html[data-theme] .offcanvas,
         html[data-theme] .dropdown-menu,
@@ -328,10 +328,17 @@
             accent-color: var(--primary) !important;
         }
 
+        /* Normalize Bootstrap white utility classes to theme surfaces */
+        html[data-theme] .bg-white,
+        html[data-theme] .text-bg-light {
+            background: var(--card-bg) !important;
+            color: var(--text-main) !important;
+            border-color: var(--line-soft) !important;
+        }
+
         /* High-specificity normalization for custom page components */
         html[data-theme] body .hero-ai,
         html[data-theme] body .metric-card,
-        html[data-theme] body .tip-card,
         html[data-theme] body .history-item,
         html[data-theme] body .calendar-wrapper,
         html[data-theme] body .post-card,
@@ -962,7 +969,6 @@
             .metric-card,
             .ai-box,
             .calendar-wrapper,
-            .tip-card,
             .post-card,
             .c-card,
             .alert,
@@ -1142,7 +1148,6 @@
 
             /* Hard lock for stubborn mobile sections with local custom CSS */
             .hero-ai,
-            .tip-card,
             .metric-card,
             .history-item,
             .calendar-wrapper,
@@ -1227,10 +1232,125 @@
             }
         }
 
+        /* ── Global Heartbeat Loading Animation ── */
+        @keyframes heartbeat {
+            0%, 100% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            14% {
+                transform: scale(1.1);
+                opacity: 1;
+            }
+            28% {
+                transform: scale(1);
+                opacity: 1;
+            }
+            42% {
+                transform: scale(1.1);
+                opacity: 1;
+            }
+            70% {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes heartbeatPulse {
+            0%, 100% {
+                box-shadow: 0 0 0 0 rgba(47, 107, 63, 0.7);
+            }
+            50% {
+                box-shadow: 0 0 0 12px rgba(47, 107, 63, 0);
+            }
+        }
+
+        .global-loading-overlay {
+            position: fixed;
+            inset: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(135deg, rgba(47, 107, 63, 0.05), rgba(127, 183, 126, 0.05));
+            backdrop-filter: blur(2px);
+            z-index: 9999;
+            opacity: 0;
+            visibility: hidden;
+            transition: opacity 0.3s ease, visibility 0.3s ease;
+            pointer-events: none;
+            display: none !important;
+        }
+
+        .global-loading-overlay.show {
+            opacity: 1;
+            visibility: visible;
+            pointer-events: auto;
+        }
+
+        .loading-heart {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+        }
+
+        .heart-icon {
+            font-size: 48px;
+            color: var(--primary);
+            animation: heartbeat 1.2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            filter: drop-shadow(0 0 4px rgba(47, 107, 63, 0.3));
+        }
+
+        .heart-pulse {
+            position: absolute;
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            border: 2px solid var(--primary);
+            animation: heartbeatPulse 1.2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+            opacity: 0.6;
+        }
+
+        .loading-text {
+            position: absolute;
+            bottom: 20%;
+            left: 50%;
+            transform: translateX(-50%);
+            text-align: center;
+            font-size: 0.95rem;
+            color: var(--text-main);
+            font-weight: 500;
+            opacity: 0.8;
+        }
+
+        @media (max-width: 768px) {
+            .heart-icon {
+                font-size: 40px;
+            }
+            .heart-pulse {
+                width: 50px;
+                height: 50px;
+            }
+            .loading-text {
+                font-size: 0.85rem;
+            }
+        }
+
     </style>
 </head>
 <body>
 <canvas id="space-canvas" aria-hidden="true"></canvas>
+
+<!-- Global Heartbeat Loading Overlay -->
+<div class="global-loading-overlay" id="globalLoading">
+    <div class="loading-heart">
+        <div class="heart-pulse"></div>
+        <i class="bi bi-heart-fill heart-icon"></i>
+    </div>
+    <div class="loading-text" id="loadingText">Inapakia...</div>
+</div>
 
 <button type="button" class="pwa-install-fab" id="pwaInstallFab" aria-label="Download app">
     <i class="bi bi-download"></i>
@@ -1256,7 +1376,7 @@
         </a>
         <div class="afya-main-links">
             {% if user.is_authenticated %}
-            <a href="{% url 'doctor:hub' %}" class="afya-main-link afya-primary-link" data-nav-match="/doctor/" aria-label="Services"><i class="bi bi-person-badge-fill"></i><span>Services</span></a>
+            <a href="{% url 'main:services' %}" class="afya-main-link afya-primary-link" data-nav-match="/services/" aria-label="Services"><i class="bi bi-person-badge-fill"></i><span>Services</span></a>
             <a href="{% url 'menstrual:settings' %}" class="afya-main-link afya-primary-link" data-nav-match="/menstrual/settings/" aria-label="Settings"><i class="bi bi-gear"></i><span>Settings</span></a>
             <a href="{% url 'chats:notifications' %}" class="afya-main-link afya-primary-link" data-nav-match="/social/notifications/" aria-label="Notifications"><i class="bi bi-bell"></i><span>Notifications</span></a>
             <a href="{% url 'users:profile' %}" class="afya-main-link afya-primary-link d-lg-none" data-nav-match="/users/profile/" aria-label="Account">
@@ -1312,7 +1432,7 @@
 <nav class="afya-mobile-primary-nav d-lg-none" aria-label="Primary mobile navigation">
     <div class="afya-mobile-primary-links">
         {% if user.is_authenticated %}
-        <a href="{% url 'doctor:hub' %}" class="afya-mobile-primary-link" data-nav-match="/doctor/" aria-label="Services"><i class="bi bi-person-badge-fill"></i><span>Services</span></a>
+        <a href="{% url 'main:services' %}" class="afya-mobile-primary-link" data-nav-match="/services/" aria-label="Services"><i class="bi bi-person-badge-fill"></i><span>Services</span></a>
         <a href="{% url 'menstrual:settings' %}" class="afya-mobile-primary-link" data-nav-match="/menstrual/settings/" aria-label="Settings"><i class="bi bi-gear"></i><span>Settings</span></a>
         <a href="{% url 'chats:notifications' %}" class="afya-mobile-primary-link" data-nav-match="/social/notifications/" aria-label="Notifications"><i class="bi bi-bell"></i><span>Alerts</span></a>
         <a href="{% url 'users:profile' %}" class="afya-mobile-primary-link" data-nav-match="/users/profile/" aria-label="Account"><i class="bi bi-person-circle"></i><span>Account</span></a>
@@ -1792,6 +1912,22 @@
             if (submitter) submitter.disabled = false;
         }
     }, true);
+
+    /* ── Global Loading Animation Control (Disabled) ── */
+    window.GlobalLoading = {
+        show: function(text = 'Inapakia...') {
+            // Disabled - use local loading indicators instead
+        },
+        hide: function() {
+            // Disabled - use local loading indicators instead
+        },
+        toggle: function(force) {
+            // Disabled - use local loading indicators instead
+        }
+    };
+
+    // Navigation and form submissions handled by browser naturally
+    // Local loading indicators used in chat, forms, etc.
 }());
 </script>
 </body>

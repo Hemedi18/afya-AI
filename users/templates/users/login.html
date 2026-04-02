@@ -3,23 +3,62 @@
 {% block title %}Ingia - ZanzHub AI Health{% endblock %}
 
 {% block content %}
-<div class="row justify-content-center">
-    <div class="col-md-6">
-        <div class="card card-custom p-4 bg-white">
+<style>
+    .login-container {
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 1rem;
+    }
+    
+    .login-card {
+        width: 100%;
+        max-width: 420px;
+    }
+    .field-error {
+        font-size: .82rem;
+        color: #dc3545;
+        margin-top: .35rem;
+    }
+    
+    @media (max-width: 576px) {
+        .login-container {
+            padding: 0.5rem;
+        }
+        
+        .login-card {
+            max-width: 100%;
+        }
+    }
+</style>
+
+<div class="login-container">
+    <div class="login-card">
+        <div class="card card-custom p-4 p-md-5">
             <h3 class="fw-bold text-center mb-4">Ingia kwenye ZanzHub AI Health</h3>
             <form method="post" action="{% url 'users:login' %}">
                 {% csrf_token %}
+
+                {% if form.non_field_errors %}
+                <div class="alert alert-danger rounded-4 py-2 px-3" role="alert">
+                    {{ form.non_field_errors|striptags }}
+                </div>
+                {% endif %}
+
                 <div class="mb-3">
                     <label for="id_username" class="form-label">Jina la Mtumiaji</label>
-                    <input type="text" name="username" class="form-control" id="id_username" required>
+                    <input type="text" name="username" class="form-control" id="id_username" value="{{ form.username.value|default_if_none:'' }}" required autofocus autocomplete="username">
+                    {% if form.username.errors %}<div class="field-error">{{ form.username.errors|striptags }}</div>{% endif %}
                 </div>
                 <div class="mb-3">
                     <label for="id_password" class="form-label">Nenosiri</label>
-                    <input type="password" name="password" class="form-control" id="id_password" required>
+                    <input type="password" name="password" class="form-control" id="id_password" required autocomplete="current-password">
+                    {% if form.password.errors %}<div class="field-error">{{ form.password.errors|striptags }}</div>{% endif %}
                 </div>
                 <button type="submit" class="btn btn-danger w-100 rounded-pill">Ingia</button>
             </form>
-            <p class="text-center mt-3">Huna akaunti? <a href="{% url 'users:register' %}">Jisajili hapa</a></p>
+            <p class="text-center mt-3 small">Huna akaunti? <a href="{% url 'users:register' %}">Jisajili hapa</a></p>
         </div>
     </div>
 </div>

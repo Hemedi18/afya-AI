@@ -121,10 +121,10 @@
         border-radius: 0;
         padding: 1.3rem;
         overflow: hidden;
-        background: linear-gradient(135deg, var(--tip-soft, rgba(201,24,74,.12)), rgba(255,255,255,.96));
+        background: linear-gradient(135deg, var(--tip-soft, rgba(201,24,74,.12)), rgba(255,255,255,.96)) !important;
         border: none;
         border-bottom: 1px solid color-mix(in srgb, var(--tip-accent, #c9184a) 18%, transparent);
-        box-shadow: 0 8px 28px var(--tip-glow, rgba(201,24,74,.14));
+        box-shadow: 0 8px 28px var(--tip-glow, rgba(201,24,74,.14)) !important;
     }
 
     .tip-content-wrap {
@@ -172,13 +172,67 @@
         font-size: clamp(1.2rem, 2.5vw, 1.65rem);
         font-weight: 800;
         max-width: 700px;
+        margin-bottom: .85rem;
+        background-color: transparent !important;
+        background-image: none !important;
+        background: transparent !important;
+        box-shadow: none !important;
+        color: inherit !important;
     }
 
     .tip-card-copy {
         font-size: 1rem;
         line-height: 1.75;
         max-width: 760px;
-        color: color-mix(in srgb, var(--text-main) 92%, #000 8%);
+        color: color-mix(in srgb, var(--text-main) 92%, #000 8%) !important;
+        margin-bottom: 1rem;
+        background-color: transparent !important;
+        background-image: none !important;
+        background: transparent !important;
+        box-shadow: none !important;
+    }
+
+    /* Ensure Bootstrap utilities don't override */
+    .tip-card-title.bg-light,
+    .tip-card-title.bg-white,
+    .tip-card-title[class*="bg-"],
+    .tip-card-copy.bg-light,
+    .tip-card-copy.bg-white,
+    .tip-card-copy[class*="bg-"] {
+        background: transparent !important;
+    }
+
+    /* Mobile-specific overrides for tip cards */
+    @media (max-width: 768px) {
+        .tip-card-title {
+            background: transparent !important;
+            background-color: transparent !important;
+            background-image: none !important;
+        }
+        .tip-card-copy {
+            background: transparent !important;
+            background-color: transparent !important;
+            background-image: none !important;
+        }
+    }
+
+    .reminder-inline-card,
+    .myth-card-surface {
+        background: color-mix(in srgb, var(--card-bg) 92%, transparent);
+        border-color: var(--line-soft) !important;
+        color: var(--text-main);
+    }
+
+    html[data-theme='dark'] .reminder-inline-card,
+    html[data-theme='dark'] .myth-card-surface {
+        background: color-mix(in srgb, var(--card-bg) 96%, #0b1220 4%) !important;
+        border-color: var(--line-soft) !important;
+        color: var(--text-main) !important;
+    }
+
+    html[data-theme='dark'] .myth-card-surface .text-muted,
+    html[data-theme='dark'] .reminder-inline-card .text-muted {
+        color: color-mix(in srgb, var(--text-main) 70%, transparent) !important;
     }
 
     .tip-meta-row {
@@ -303,7 +357,7 @@
     }
 
     html[data-theme='dark'] .hero-ai { background: linear-gradient(135deg, #234C6A 0%, #1B3C53 100%); }
-    html[data-theme='dark'] .tip-card { background: linear-gradient(135deg, color-mix(in srgb, var(--tip-accent, #456882) 25%, #1B3C53), rgba(27,60,83,.97)); }
+    html[data-theme='dark'] .tip-card { background: linear-gradient(135deg, color-mix(in srgb, var(--tip-accent, #456882) 25%, #1B3C53), rgba(27,60,83,.97)) !important; }
     html[data-theme='dark'] .tip-badge { background: rgba(27,60,83,.88); color: #D2C1B6; border-color: rgba(69,104,130,.40); }
     html[data-theme='dark'] .history-item { background: rgba(35,76,106,.75); border-color: rgba(69,104,130,.35); }
     html[data-theme='dark'] .metric-card { background: var(--card-bg); border-color: var(--line-soft); }
@@ -378,8 +432,8 @@
                                         </span>
                                         <span class="small text-muted">{{ tip.date_created|date:"d M, Y" }}</span>
                                     </div>
-                                    <div class="tip-card-title mb-3">{{ tip.title }}</div>
-                                    <div class="tip-card-copy mb-4">{{ tip.content }}</div>
+                                    <div class="tip-card-title">{{ tip.title }}</div>
+                                    <div class="tip-card-copy">{{ tip.content }}</div>
                                     <div class="tip-meta-row">
                                         <div>
                                             <div class="small fw-semibold">Source type: {{ tip.get_source_display }}</div>
@@ -400,7 +454,7 @@
                         <div class="tip-slide">
                             <article class="tip-card dashboard-link-card" data-href="{% url 'menstrual:reports' %}" tabindex="0" role="link">
                                 <span class="tip-badge"><i class="bi bi-stars me-1"></i>Smart Tip</span>
-                                <div class="tip-card-title mt-3 mb-3">Tips zitajazwa kiotomatiki</div>
+                                <div class="tip-card-title mt-3">Tips zitajazwa kiotomatiki</div>
                                 <div class="tip-card-copy">App itatafuta tips kutoka trusted websites na AI itazibadilisha kuwa ushauri mfupi wa Kiswahili wenye muonekano mzuri.</div>
                             </article>
                         </div>
@@ -423,7 +477,7 @@
         </div>
         <div class="d-grid gap-2">
             {% for reminder in unread_reminders|slice:":3" %}
-            <form method="post" action="{% url 'menstrual:mark_reminder_read' reminder.id %}" class="d-flex justify-content-between align-items-center gap-2 bg-light rounded-4 p-2 px-3">
+            <form method="post" action="{% url 'menstrual:mark_reminder_read' reminder.id %}" class="d-flex justify-content-between align-items-center gap-2 bg-light rounded-4 p-2 px-3 reminder-inline-card">
                 {% csrf_token %}
                 <div>
                     <div class="small fw-semibold">{{ reminder.title }}</div>
@@ -438,7 +492,7 @@
 
     <div class="row g-4">
         <div class="col-xl-5 col-lg-6">
-            <div class="hero-ai p-4 p-lg-4 reveal top-insight-card dashboard-link-card" data-href="{% url 'menstrual:add_log' %}" tabindex="0" role="link">
+            <div class="hero-ai p-4 p-lg-4 reveal top-insight-card dashboard-link-card" data-href="{% if active_cycle %}{% url 'menstrual:add_log' %}{% else %}{% url 'menstrual:start_cycle' %}{% endif %}" tabindex="0" role="link">
                 <div class="row g-4 align-items-center">
                     <div class="col-12">
                         <h5 class="fw-bold mb-1">Karibu, {{ request.user.get_full_name|default:request.user.username }}</h5>
@@ -452,8 +506,9 @@
                         </div>
                     </div>
                     <div class="col-12">
+                        {% if active_cycle %}
                         <a href="{% url 'menstrual:add_log' %}" class="btn btn-danger rounded-pill w-100 mb-2">Weka Rekodi Leo</a>
-                        {% if not active_cycle %}
+                        {% else %}
                         <a href="{% url 'menstrual:start_cycle' %}" class="btn btn-outline-dark rounded-pill w-100">Anza Mzunguko</a>
                         {% endif %}
                     </div>
@@ -615,7 +670,7 @@
                 <div class="row g-3">
                     {% for card in myth_busting_cards %}
                     <div class="col-md-4">
-                        <div class="border rounded-4 p-3 h-100 bg-light">
+                        <div class="border rounded-4 p-3 h-100 bg-light myth-card-surface">
                             <div class="fw-semibold text-danger small mb-2">{{ card.title }}</div>
                             <div class="small text-muted">{{ card.fact }}</div>
                         </div>

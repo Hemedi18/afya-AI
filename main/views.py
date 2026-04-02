@@ -52,6 +52,82 @@ def documentation(request):
     return render(request, 'main/documentation.html')
 
 
+def services(request):
+    gender = get_user_gender(request.user) if request.user.is_authenticated else None
+
+    common_services = [
+        {
+            'title': 'Medication & Drugs',
+            'description': 'Mwongozo wa dawa, matumizi salama, na maelezo ya muhimu ya matibabu.',
+            'image': 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?auto=format&fit=crop&w=1200&q=80',
+            'icon': 'bi-capsule-pill',
+            'audience': 'Wote',
+            'is_live': False,
+            'url': None,
+        },
+        {
+            'title': 'Diseases',
+            'description': 'Elimu ya magonjwa, dalili, prevention, na hatua za awali za kujitunza.',
+            'image': 'https://images.unsplash.com/photo-1579165466741-7f35e4755660?auto=format&fit=crop&w=1200&q=80',
+            'icon': 'bi-virus2',
+            'audience': 'Wote',
+            'is_live': False,
+            'url': None,
+        },
+        {
+            'title': 'Puberty & Reproduction',
+            'description': 'Maelezo ya mabadiliko ya balehe na afya ya uzazi kwa lugha rahisi.',
+            'image': 'https://images.unsplash.com/photo-1491438590914-bc09fcaaf77a?auto=format&fit=crop&w=1200&q=80',
+            'icon': 'bi-person-hearts',
+            'audience': 'Wote',
+            'is_live': False,
+            'url': None,
+        },
+        {
+            'title': 'Child Growth',
+            'description': 'Ufuatiliaji wa ukuaji wa mtoto, milestones, na vidokezo vya malezi.',
+            'image': 'https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=1200&q=80',
+            'icon': 'bi-balloon-heart',
+            'audience': 'Wote',
+            'is_live': False,
+            'url': None,
+        },
+    ]
+
+    female_services = [
+        {
+            'title': 'Menstrual',
+            'description': 'Track mzunguko wako, dalili, na reminders kwa usahihi zaidi.',
+            'image': 'https://images.unsplash.com/photo-1511174511562-5f7f18b874f8?auto=format&fit=crop&w=1200&q=80',
+            'icon': 'bi-calendar-heart',
+            'audience': 'Wanawake',
+            'is_live': True,
+            'url': 'menstrual:dashboard',
+        },
+        {
+            'title': 'Pregnancy',
+            'description': 'Huduma za ujauzito, ufuatiliaji wa hatua kwa hatua, na ushauri salama.',
+            'image': 'https://images.unsplash.com/photo-1544776193-352d25ca82cd?auto=format&fit=crop&w=1200&q=80',
+            'icon': 'bi-heart-pulse',
+            'audience': 'Wanawake',
+            'is_live': False,
+            'url': None,
+        },
+    ]
+
+    cards = common_services + (female_services if gender == 'female' else [])
+
+    return render(
+        request,
+        'main/services.html',
+        {
+            'service_cards': cards,
+            'service_count': len(cards),
+            'user_gender': gender,
+        },
+    )
+
+
 class AdminControlCenterView(AdminRequiredMixin, TemplateView):
     template_name = 'main/admin_control_center.html'
 
@@ -114,8 +190,25 @@ def pwa_manifest(request):
 
 def service_worker(request):
         js = """
-const CACHE_NAME = 'afya-ai-v1';
-const URLS = ['/', '/sw/', '/en/', '/static/base.css'];
+const CACHE_NAME = 'afya-ai-v2';
+const URLS = ['/static/base.css'];
+
+function isStaticAsset(requestUrl) {
+    const path = new URL(requestUrl).pathname;
+    return (
+        path.startsWith('/static/') ||
+        path.endsWith('.css') ||
+        path.endsWith('.js') ||
+        path.endsWith('.png') ||
+        path.endsWith('.jpg') ||
+        path.endsWith('.jpeg') ||
+        path.endsWith('.svg') ||
+        path.endsWith('.webp') ||
+        path.endsWith('.ico') ||
+        path.endsWith('.woff') ||
+        path.endsWith('.woff2')
+    );
+}
 
 self.addEventListener('install', (event) => {
     event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(URLS)).then(() => self.skipWaiting()));
@@ -129,6 +222,19 @@ self.addEventListener('activate', (event) => {
 
 self.addEventListener('fetch', (event) => {
     if (event.request.method !== 'GET') return;
+
+    // Never cache HTML navigations/forms to avoid stale CSRF tokens.
+    if (event.request.mode === 'navigate') {
+        event.respondWith(fetch(event.request).catch(() => caches.match('/')));
+        return;
+    }
+
+    // Cache only static assets.
+    if (!isStaticAsset(event.request.url)) {
+        event.respondWith(fetch(event.request));
+        return;
+    }
+
     event.respondWith(
         caches.match(event.request).then((cached) => {
             if (cached) return cached;
@@ -138,7 +244,7 @@ self.addEventListener('fetch', (event) => {
                     caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
                     return response;
                 })
-                .catch(() => caches.match('/sw/'));
+                .catch(() => caches.match(event.request));
         })
     );
 });

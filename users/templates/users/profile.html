@@ -84,13 +84,13 @@
         text-align: center;
         padding: .55rem .8rem;
         border-radius: 12px;
-        border: none;
+            border: 2px solid transparent;
         background: transparent;
         color: var(--text-muted);
         font-size: .82rem;
         font-weight: 600;
         cursor: pointer;
-        transition: background .18s, color .18s;
+            transition: background .18s, color .18s, box-shadow .18s;
         white-space: nowrap;
         text-decoration: none;
         display: inline-flex;
@@ -99,11 +99,16 @@
         gap: .35rem;
     }
     .ptab.active {
-        background: var(--primary);
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
         color: #fff;
-        box-shadow: 0 3px 10px rgba(0,0,0,.12);
+        border-color: var(--primary);
+        box-shadow: 0 8px 20px color-mix(in srgb, var(--primary) 35%, transparent);
     }
-    .ptab:not(.active):hover { background: rgba(0,0,0,.06); color: var(--text-main); }
+        .ptab:not(.active):hover { 
+            background: rgba(0,0,0,.08); 
+            color: var(--text-main);
+            box-shadow: 0 4px 12px color-mix(in srgb, var(--text-main) 10%, transparent);
+        }
     html[data-theme='dark'] .ptab:not(.active):hover { background: rgba(255,255,255,.08); }
 
     /* ── Section cards ── */
@@ -159,6 +164,38 @@
         color: var(--text-main);
     }
     html[data-theme='dark'] .username-readonly { background: rgba(255,255,255,.08); }
+    /* ── Button elevation styling ── */
+    .profile-card button,
+    .profile-card .btn {
+        box-shadow: 0 8px 20px color-mix(in srgb, var(--primary) 25%, transparent) !important;
+        transition: box-shadow .25s, transform .15s !important;
+    }
+    .profile-card button:hover,
+    .profile-card .btn:hover {
+        box-shadow: 0 12px 28px color-mix(in srgb, var(--primary) 35%, transparent) !important;
+        transform: translateY(-2px) !important;
+    }
+    .profile-card button:active,
+    .profile-card .btn:active {
+        box-shadow: 0 4px 12px color-mix(in srgb, var(--primary) 20%, transparent) !important;
+        transform: translateY(0) !important;
+    }
+    .profile-action-btn {
+        background: linear-gradient(135deg, var(--primary), var(--secondary)) !important;
+        border: 1px solid color-mix(in srgb, var(--primary) 55%, transparent) !important;
+        color: var(--seed-on-color, #fff) !important;
+        box-shadow: 0 12px 28px color-mix(in srgb, var(--primary) 36%, transparent) !important;
+        letter-spacing: .01em;
+    }
+    .profile-action-btn:hover {
+        filter: brightness(1.03);
+        transform: translateY(-2px);
+        box-shadow: 0 16px 34px color-mix(in srgb, var(--primary) 45%, transparent) !important;
+    }
+    .profile-action-btn:active {
+        transform: translateY(0);
+        box-shadow: 0 7px 16px color-mix(in srgb, var(--primary) 28%, transparent) !important;
+    }
 
     @media (max-width: 991.98px) {
         .profile-shell {
@@ -187,7 +224,10 @@
     <div class="avatar-hero">
         <div class="avatar-ring">
             {% if persona.avatar %}
-                <img src="{{ persona.avatar.url }}" alt="Avatar">
+                <img src="{{ persona.avatar.url }}" alt="Avatar" onerror="this.style.display='none'; this.nextElementSibling?.style.display='flex';">
+                <div class="avatar-initials" style="display:none;">
+                    {{ user.first_name|first|upper|default:user.username|first|upper }}
+                </div>
             {% else %}
                 <div class="avatar-initials">
                     {{ user.first_name|first|upper|default:user.username|first|upper }}
@@ -287,7 +327,7 @@
                 {% endif %}
             </div>
 
-            <button type="submit" class="btn btn-primary w-100 rounded-pill fw-bold py-2">
+            <button type="submit" class="btn btn-primary profile-action-btn w-100 rounded-pill fw-bold py-2">
                 <i class="bi bi-check2-circle me-1"></i> Hifadhi Mabadiliko
             </button>
         </form>
@@ -430,7 +470,7 @@
                 </div>
             </div>
 
-            <button type="submit" class="btn btn-primary w-100 rounded-pill fw-bold py-2">
+            <button type="submit" class="btn btn-primary profile-action-btn w-100 rounded-pill fw-bold py-2">
                 <i class="bi bi-stars me-1"></i> Sasisha AI Persona
             </button>
         </form>
@@ -446,6 +486,10 @@
             <form method="post">
                 {% csrf_token %}
                 <input type="hidden" name="_action" value="change_password">
+                
+                <!-- Hidden username field for accessibility -->
+                <input type="text" name="username" value="{{ user.username }}" autocomplete="username" style="display:none;">
+                
                 <div class="row g-3">
                     <div class="col-12">
                         <label class="form-label">Nenosiri la Zamani</label>

@@ -1,4 +1,6 @@
 from django import forms
+from django.core.validators import FileExtensionValidator
+from django.core.files.uploadedfile import UploadedFile
 
 from menstrual.models import CommunityGroup
 
@@ -26,6 +28,13 @@ class PrivateMessageForm(forms.Form):
         attachment = cleaned.get('attachment')
         if not content and not attachment:
             raise forms.ValidationError('Andika ujumbe au chagua attachment.')
+        
+        # Validate file size (max 100MB)
+        if attachment and isinstance(attachment, UploadedFile):
+            max_size = 100 * 1024 * 1024  # 100MB
+            if attachment.size and attachment.size > max_size:
+                raise forms.ValidationError(f'Faili ni kubwa sana. Max: 100MB, Yako: {attachment.size / (1024*1024):.1f}MB')
+        
         cleaned['content'] = content
         return cleaned
 
