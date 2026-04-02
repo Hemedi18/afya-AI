@@ -1,9 +1,11 @@
+db.sqlite3
 # Python / Django
 venv/
 __pycache__/
 *.py[cod]
 *.sqlite3
 db.sqlite3
+
 .env
 .env.*
 .runtime_secret_key
@@ -37,3 +39,5 @@ mobile_app/android/local.properties
 mobile_app/android/app/debug/
 mobile_app/android/app/profile/
 mobile_app/android/app/release/
+
+db.sqlite3
