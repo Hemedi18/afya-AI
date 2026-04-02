@@ -2,7 +2,19 @@ from django.db import models, transaction
 from django.conf import settings
 from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
-from django_q.tasks import async_task
+from importlib import import_module
+
+try:
+    from django_q.tasks import async_task
+except Exception:
+    def async_task(task_path, *args, **kwargs):
+        """Fallback runner when django-q is unavailable in current environment."""
+        if isinstance(task_path, str) and '.' in task_path:
+            module_path, func_name = task_path.rsplit('.', 1)
+            module = import_module(module_path)
+            func = getattr(module, func_name)
+            return func(*args, **kwargs)
+        raise RuntimeError('Task path must be a dotted string when django-q is unavailable')
 
 User = settings.AUTH_USER_MODEL
 

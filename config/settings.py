@@ -3,6 +3,12 @@ import os
 from dotenv import load_dotenv
 load_dotenv(override=True)
 
+try:
+    import django_q  # noqa: F401
+    DJANGO_Q_AVAILABLE = True
+except Exception:
+    DJANGO_Q_AVAILABLE = False
+
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -57,7 +63,6 @@ INSTALLED_APPS = [
     'card',
     'offline_chat',
     'mobile_api',
-    'django_q',
 
     # Third-party apps
 
@@ -70,6 +75,9 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
 ]
+
+if DJANGO_Q_AVAILABLE:
+    INSTALLED_APPS.append('django_q')
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
@@ -183,15 +191,16 @@ LOGIN_URL = 'users:login'  # Or whatever your login name is
 LOGIN_REDIRECT_URL = 'main:home'
 LOGOUT_REDIRECT_URL = 'main:home'
 
-Q_CLUSTER = {
-    'name': 'DjangORM',
-    'workers': 4,
-    'timeout': 60,
-    'retry': 120,
-    'queue_limit': 50,
-    'bulk': 10,
-    'orm': 'default'
-}
+if DJANGO_Q_AVAILABLE:
+    Q_CLUSTER = {
+        'name': 'DjangORM',
+        'workers': 4,
+        'timeout': 60,
+        'retry': 120,
+        'queue_limit': 50,
+        'bulk': 10,
+        'orm': 'default'
+    }
 
 JAZZMIN_SETTINGS = {
     "site_title": "ZanzHub Admin",
