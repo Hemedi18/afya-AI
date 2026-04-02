@@ -1,6 +1,7 @@
 from pathlib import Path
 import os
 from dotenv import load_dotenv
+from django.core.management.utils import get_random_secret_key
 load_dotenv(override=True)
 
 DJANGO_Q_ENABLED = os.getenv('ENABLE_DJANGO_Q', 'False') == 'True'
@@ -17,8 +18,14 @@ else:
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
-
-SECRET_KEY = os.getenv('SECRET_KEY')
+SECRET_KEY = os.getenv('SECRET_KEY') or os.getenv('DJANGO_SECRET_KEY')
+if not SECRET_KEY:
+    secret_file = BASE_DIR / '.runtime_secret_key'
+    if secret_file.exists():
+        SECRET_KEY = secret_file.read_text(encoding='utf-8').strip()
+    else:
+        SECRET_KEY = get_random_secret_key()
+        secret_file.write_text(SECRET_KEY, encoding='utf-8')
 
 DEBUG = os.getenv('DEBUG') == 'True'
 
