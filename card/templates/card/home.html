@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}afya-AI Card{% endblock %}
+{% block title %}AfyaSmart Card{% endblock %}
 
 {% block extra_head %}
 <style>
@@ -73,7 +73,7 @@
 {% block content %}
 <div class="card-shell">
   <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-    <h4 class="mb-0 fw-bold"><i class="bi bi-credit-card-2-front me-2"></i>afya-AI Online Card</h4>
+    <h4 class="mb-0 fw-bold"><i class="bi bi-credit-card-2-front me-2"></i>AfyaSmart Online Card</h4>
     <div class="d-flex gap-2">
       <a href="{% url 'card:details' %}" class="btn btn-outline-danger rounded-pill"><i class="bi bi-sliders me-1"></i>Update Card Details</a>
       <a href="{% url 'card:notifications' %}" class="btn btn-danger rounded-pill">
@@ -88,9 +88,9 @@
       <div class="card-stage">
         <div class="health-card" id="healthCard">
           <article class="health-face health-front theme-{{ card_obj.style_theme }}">
-            {% if card_obj.show_watermark %}<span class="health-watermark">{{ card_obj.watermark_text|default:'afya-AI' }}</span>{% endif %}
+            {% if card_obj.show_watermark %}<span class="health-watermark">{{ card_obj.watermark_text|default:'AfyaSmart' }}</span>{% endif %}
             <div class="d-flex justify-content-between align-items-start mb-3">
-              <div class="small text-muted">afya-AI Health Identity</div>
+              <div class="small text-muted">AfyaSmart Health Identity</div>
               <span class="badge text-bg-danger">Front</span>
             </div>
             <div class="d-flex align-items-center gap-3 mb-3">
@@ -111,7 +111,7 @@
           </article>
 
           <article class="health-face health-back theme-{{ card_obj.style_theme }}">
-            {% if card_obj.show_watermark %}<span class="health-watermark">{{ card_obj.watermark_text|default:'afya-AI' }}</span>{% endif %}
+            {% if card_obj.show_watermark %}<span class="health-watermark">{{ card_obj.watermark_text|default:'AfyaSmart' }}</span>{% endif %}
             <span class="badge text-bg-primary">Back</span>
             <div class="qr-box">
               <img src="{{ qr_image }}" alt="Card QR code">

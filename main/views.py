@@ -27,7 +27,7 @@ def home(request):
         primary_url = 'main:male_dashboard'
         primary_label = 'Fungua Male Dashboard'
     else:
-        welcome_tag = 'Karibu ZanzHub AI — Jisajili ili upate huduma zilizobinafsishwa.'
+        welcome_tag = 'Karibu AfyaSmart — Jisajili ili upate huduma zilizobinafsishwa.'
         primary_url = 'users:register'
         primary_label = 'Anza Kujisajili'
 
@@ -287,8 +287,8 @@ class AdminControlCenterView(AdminRequiredMixin, TemplateView):
 
 def pwa_manifest(request):
         data = {
-                'name': 'afya-AI Health Assistant',
-                'short_name': 'afya-AI',
+        'name': 'AfyaSmart Health Assistant',
+        'short_name': 'AfyaSmart',
                 'description': 'Smart private reproductive and health care assistant.',
         'id': '/',
         'start_url': '/',
@@ -329,7 +329,7 @@ def pwa_manifest(request):
 
 def service_worker(request):
         js = """
-const CACHE_NAME = 'afya-ai-v2';
+const CACHE_NAME = 'afyasmart-v3';
 const URLS = ['/static/base.css'];
 
 function isStaticAsset(requestUrl) {

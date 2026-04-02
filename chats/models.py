@@ -1,7 +1,7 @@
 from django.conf import settings
 from django.db import models
 
-from menstrual.models import CommunityPost, CommunityReply
+from menstrual.models import CommunityGroup, CommunityPost, CommunityReply
 
 
 User = settings.AUTH_USER_MODEL
@@ -67,9 +67,11 @@ class ContentReport(models.Model):
 class ClarificationRequest(models.Model):
 	TARGET_ADMIN = 'admin'
 	TARGET_DOCTOR = 'doctor'
+	TARGET_GROUP_ADMIN = 'group_admin'
 	TARGET_CHOICES = [
 		(TARGET_ADMIN, 'Admin'),
 		(TARGET_DOCTOR, 'Doctor'),
+		(TARGET_GROUP_ADMIN, 'Group Admin'),
 	]
 
 	STATUS_OPEN = 'open'
@@ -82,6 +84,7 @@ class ClarificationRequest(models.Model):
 	asker = models.ForeignKey(User, on_delete=models.CASCADE, related_name='clarification_requests')
 	post = models.ForeignKey(CommunityPost, on_delete=models.CASCADE, null=True, blank=True, related_name='clarifications')
 	comment = models.ForeignKey(CommunityReply, on_delete=models.CASCADE, null=True, blank=True, related_name='clarifications')
+	group = models.ForeignKey(CommunityGroup, on_delete=models.CASCADE, null=True, blank=True, related_name='clarifications')
 	target_role = models.CharField(max_length=20, choices=TARGET_CHOICES, default=TARGET_DOCTOR)
 	target_doctor = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='clarification_targets')
 	question = models.TextField()

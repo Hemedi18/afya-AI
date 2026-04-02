@@ -64,6 +64,7 @@
 }
 .clar-target-pill.doctor { background: color-mix(in srgb, #3b82f6 14%, var(--card-bg)); color: #2563eb; }
 .clar-target-pill.admin { background: color-mix(in srgb, #ef4444 14%, var(--card-bg)); color: #dc2626; }
+.clar-target-pill.group_admin { background: color-mix(in srgb, #8b5cf6 16%, var(--card-bg)); color: #6d28d9; }
 .clar-target-pill.answered { background: color-mix(in srgb, #22c55e 14%, var(--card-bg)); color: #15803d; }
 .clar-target-pill.open { background: color-mix(in srgb, #f59e0b 14%, var(--card-bg)); color: #d97706; }
 .clar-question {
@@ -117,7 +118,7 @@
                     </div>
                 </div>
                 <div class="d-flex flex-wrap gap-2 justify-content-end">
-                    <span class="clar-target-pill {% if item.target_role == 'admin' %}admin{% else %}doctor{% endif %}">{{ item.target_role|title }}</span>
+                    <span class="clar-target-pill {% if item.target_role == 'admin' %}admin{% elif item.target_role == 'group_admin' %}group_admin{% else %}doctor{% endif %}">{{ item.target_role|title }}</span>
                     <span class="clar-target-pill {% if item.status == 'answered' %}answered{% else %}open{% endif %}">{{ item.status|title }}</span>
                 </div>
             </div>
@@ -146,6 +147,9 @@
                 {% elif item.comment %}
                 <div class="small mb-1"><strong>Comment #{{ item.comment.id }}</strong> — {{ item.comment.content|truncatewords:20 }}</div>
                 <span class="small fw-semibold text-muted">Related comment preview only (not clickable)</span>
+                {% elif item.group %}
+                <div class="small mb-1"><strong>Group #{{ item.group.id }}</strong> — {{ item.group.name }}</div>
+                <a href="{% url 'chats:group_detail' item.group.id %}" class="small fw-semibold text-decoration-none">Open related group</a>
                 {% endif %}
             </div>
 

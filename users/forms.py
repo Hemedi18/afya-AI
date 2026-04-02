@@ -2,6 +2,7 @@ from django import forms
 from django.contrib.auth.forms import UserCreationForm, PasswordChangeForm
 from django.contrib.auth.models import User
 from .models import UserAIPersona
+from menstrual.models import MenstrualUserSetting
 
 
 class ProfileInfoForm(forms.ModelForm):
@@ -22,6 +23,27 @@ class AvatarBioForm(forms.ModelForm):
         widgets = {
             'bio': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Jielezesha kwa ufupi...'}),
             'avatar': forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/*'}),
+        }
+
+
+class DisplayThemeForm(forms.ModelForm):
+    class Meta:
+        model = MenstrualUserSetting
+        fields = [
+            'color_theme',
+            'use_custom_palette',
+            'custom_primary',
+            'custom_secondary',
+            'background_style',
+            'background_intensity',
+        ]
+        widgets = {
+            'color_theme': forms.Select(attrs={'class': 'form-select'}),
+            'use_custom_palette': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'custom_primary': forms.TextInput(attrs={'class': 'form-control', 'type': 'color'}),
+            'custom_secondary': forms.TextInput(attrs={'class': 'form-control', 'type': 'color'}),
+            'background_style': forms.Select(attrs={'class': 'form-select'}),
+            'background_intensity': forms.NumberInput(attrs={'class': 'form-control', 'min': 0, 'max': 100}),
         }
 
 

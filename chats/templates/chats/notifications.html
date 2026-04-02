@@ -134,7 +134,21 @@
         </div>
     </div>
 
-    {% if not recent_comment_notifications and not recent_clarification_answers and not recent_report_updates %}
+    <div class="card notification-card mb-3">
+        <div class="card-body">
+            <h6 class="fw-bold mb-3">Group join approvals</h6>
+            {% for req in recent_group_join_approvals %}
+            <a href="{% url 'chats:group_detail' req.group.id %}" class="notification-item">
+                <div class="small" style="color:var(--text-main);">Ombi lako la kujiunga limekubaliwa: <strong>{{ req.group.name }}</strong></div>
+                <div class="small text-muted">{{ req.updated_at|timesince }} ago</div>
+            </a>
+            {% empty %}
+            <div class="small text-muted">Hakuna group approvals mpya.</div>
+            {% endfor %}
+        </div>
+    </div>
+
+    {% if not recent_comment_notifications and not recent_clarification_answers and not recent_report_updates and not recent_group_join_approvals %}
     <div class="alert alert-light border rounded-4 small text-muted">Hakuna notifications mpya kwa sasa.</div>
     {% endif %}
 </div>

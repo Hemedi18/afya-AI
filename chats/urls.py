@@ -2,6 +2,7 @@ from django.urls import path
 
 from .views import (
     AddCommentView,
+    AddStatusCommentView,
     ClarificationCommentRequestView,
     ClarificationInboxView,
     ClarificationMessageCreateView,
@@ -19,6 +20,8 @@ from .views import (
     CreateStatusView,
     DeleteCommentView,
     DeletePostView,
+    GroupDetailView,
+    GroupJoinRequestDecisionView,
     JoinGroupView,
     ModeratorDashboardView,
     NotificationsView,
@@ -27,9 +30,12 @@ from .views import (
     ReportCommentView,
     ReportPostView,
     ResolveReportView,
+    ShareStatusView,
     SocialFeedView,
+    StatusDetailView,
     ToggleCommentReactionView,
     ToggleLikeView,
+    ToggleStatusLikeView,
 )
 
 app_name = 'chats'
@@ -55,8 +61,14 @@ urlpatterns = [
     path('report/<int:report_id>/resolve/', ResolveReportView.as_view(), name='report_resolve'),
     path('groups/create/', CreateGroupView.as_view(), name='group_create'),
     path('groups/<int:group_id>/join/', JoinGroupView.as_view(), name='group_join'),
+    path('groups/<int:group_id>/', GroupDetailView.as_view(), name='group_detail'),
+    path('groups/join-request/<int:request_id>/decision/', GroupJoinRequestDecisionView.as_view(), name='group_join_request_decision'),
     path('status/create/', CreateStatusView.as_view(), name='status_create'),
     path('status/new/', CreateStatusPageView.as_view(), name='status_new'),
+    path('status/<int:status_id>/', StatusDetailView.as_view(), name='status_detail'),
+    path('status/<int:status_id>/like/', ToggleStatusLikeView.as_view(), name='status_like'),
+    path('status/<int:status_id>/comment/', AddStatusCommentView.as_view(), name='status_comment'),
+    path('status/<int:status_id>/share/', ShareStatusView.as_view(), name='status_share'),
     path('post/create/', CreatePostView.as_view(), name='post_create'),
     path('post/<int:post_id>/', PostDetailView.as_view(), name='post_detail'),
     path('post/<int:post_id>/like/', ToggleLikeView.as_view(), name='post_like'),

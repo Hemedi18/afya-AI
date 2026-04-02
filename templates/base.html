@@ -8,8 +8,9 @@
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <link rel="manifest" href="/manifest.webmanifest">
-    <title>{% block title %}afya-AI{% endblock %}</title>
-    <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232f6b3f'/%3E%3Cpath d='M32 12l5.6 11.3L50 25.1l-9 8.8 2.1 12.3L32 40.1 20.9 46.2 23 33.9l-9-8.8 12.4-1.8L32 12z' fill='%23fff6c0'/%3E%3C/svg%3E">
+    <title>{% block title %}AfyaSmart{% endblock %}</title>
+    <link rel="icon" type="image/png" href="{% static 'favicon.png' %}">
+    <link rel="apple-touch-icon" href="{% static 'favicon.png' %}">
     <script>
         (function () {
             const hasCustomColor = '{{ ui_color_theme|default:"default" }}' !== 'default';
@@ -370,14 +371,16 @@
         .text-muted { color: var(--text-muted) !important; }
 
         .afya-main-nav .container {
-            max-width: 100vw;
-            width: 100vw;
-            padding-left: .7rem;
-            padding-right: .7rem;
+            max-width: 1320px;
+            width: 100%;
+            padding-left: 1.1rem;
+            padding-right: 1.1rem;
+            margin-left: auto;
+            margin-right: auto;
         }
 
         .afya-brand {
-            font-size: .96rem;
+            font-size: 1.08rem;
             font-weight: 800;
             letter-spacing: .01em;
             display: inline-flex;
@@ -386,14 +389,33 @@
             text-decoration: none;
         }
 
+        .afya-brand-logo {
+            width: 34px;
+            height: 34px;
+            border-radius: 8px;
+            object-fit: cover;
+            display: block;
+            box-shadow: 0 4px 10px rgba(0, 0, 0, .15);
+        }
+
         .afya-main-links {
             display: flex;
             align-items: center;
-            gap: .25rem;
+            gap: .4rem;
             flex-wrap: nowrap;
             overflow-x: auto;
             scrollbar-width: none;
             margin-left: auto;
+        }
+
+        @media (min-width: 1200px) {
+            .afya-main-nav .container {
+                padding-left: 1.6rem;
+                padding-right: 1.6rem;
+            }
+            .afya-main-link {
+                padding: .38rem .72rem;
+            }
         }
 
         .afya-main-links::-webkit-scrollbar { display: none; }
@@ -447,6 +469,59 @@
             backdrop-filter: blur(14px);
         }
 
+        .afya-mobile-sub-shell {
+            display: flex;
+            flex-direction: column;
+            gap: .25rem;
+            width: 100%;
+        }
+
+        .afya-mobile-brand-head {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: .2rem .15rem .15rem;
+            max-height: 48px;
+            opacity: 1;
+            overflow: hidden;
+            transition: max-height .22s ease, opacity .2s ease, padding .2s ease, margin .2s ease;
+        }
+
+        .afya-mobile-brand-link {
+            display: inline-flex;
+            align-items: center;
+            gap: .4rem;
+            text-decoration: none;
+            color: var(--text-main);
+            font-weight: 800;
+            letter-spacing: .01em;
+            font-size: 1.02rem;
+        }
+
+        .afya-mobile-brand-link .afya-brand-logo {
+            width: 30px;
+            height: 30px;
+            border-radius: 7px;
+        }
+
+        .afya-mobile-brand-motto {
+            font-size: .68rem;
+            font-weight: 700;
+            color: var(--text-muted);
+            text-align: right;
+            white-space: nowrap;
+            letter-spacing: .01em;
+        }
+
+        body.afya-mobile-scrolled .afya-mobile-brand-head {
+            max-height: 0;
+            opacity: 0;
+            padding-top: 0;
+            padding-bottom: 0;
+            margin: 0;
+            pointer-events: none;
+        }
+
         .afya-mobile-primary-nav {
             display: none;
         }
@@ -479,6 +554,16 @@
 
         .afya-mobile-primary-link i {
             font-size: clamp(.98rem, .86rem + .32vw, 1.12rem);
+        }
+
+        .afya-mobile-primary-form {
+            flex: 1 1 0;
+            min-width: 0;
+            margin: 0;
+        }
+
+        .afya-mobile-primary-btn {
+            width: 100%;
         }
 
         .afya-mobile-primary-link:hover,
@@ -869,6 +954,14 @@
                 border-radius: 10px;
             }
 
+            button, .btn, [class*="btn"], input[type="button"], input[type="submit"], input[type="reset"] {
+                background: var(--mobile-solid) !important;
+                background-image: none !important;
+                color: var(--mobile-text) !important;
+                border: 1px solid var(--mobile-border) !important;
+                box-shadow: 6px 6px 12px var(--neo-out-a), -6px -6px 12px var(--neo-out-b) !important;
+            }
+
             .group-chip,
             .community-chip,
             .avatar-hero,
@@ -960,6 +1053,19 @@
             body {
                 background: var(--mobile-page-bg) !important;
                 background-image: none !important;
+            }
+
+            .afya-mobile-brand-head {
+                max-height: 56px;
+            }
+
+            .afya-mobile-brand-link {
+                font-size: 1.06rem;
+            }
+
+            .afya-mobile-brand-motto {
+                display: block;
+                max-width: 52vw;
             }
 
             /* GLOBAL SURFACES — force theme consistency sitewide */
@@ -1359,7 +1465,7 @@
 
 <div class="pwa-install-banner" id="pwaInstallBanner" role="dialog" aria-label="Install app">
     <div class="msg">
-        <strong>Install afya-AI app</strong>
+        <strong>Install AfyaSmart app</strong>
         <span>Use app like native on this device.</span>
     </div>
     <div class="pwa-install-actions">
@@ -1371,8 +1477,8 @@
 <nav class="navbar sticky-top afya-main-nav py-1">
     <div class="container d-flex justify-content-between align-items-center">
         <a class="afya-brand text-danger" href="{% url 'main:home' %}">
-            <i class="bi bi-heart-pulse-fill"></i>
-            <span>afya-AI</span>
+            <img src="{% static 'favicon.png' %}" alt="AfyaSmart logo" class="afya-brand-logo">
+            <span>AfyaSmart</span>
         </a>
         <div class="afya-main-links">
             {% if user.is_authenticated %}
@@ -1403,7 +1509,7 @@
             {% if user.is_authenticated %}
             <span class="afya-user-actions d-none d-lg-inline-flex">
                 <div class="dropdown">
-                    <button class="nav-avatar-link mobile dropdown-toggle" type="button" id="userMenuDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="border: none; background: none; cursor: pointer;">
+                    <button class="nav-avatar-link mobile" type="button" id="userMenuDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="border: none; background: none; cursor: pointer;">
                         {% if current_user_avatar_url %}
                         <img src="{{ current_user_avatar_url }}{% if current_user_avatar_version %}?v={{ current_user_avatar_version }}{% endif %}" alt="{{ user.username }} profile photo">
                         {% else %}
@@ -1413,7 +1519,12 @@
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenuDropdown" style="border-radius: 12px; border: 1px solid var(--line-soft); box-shadow: 0 10px 25px rgba(0,0,0,.1);">
                         <li><a class="dropdown-item" href="{% url 'users:profile' %}" style="padding: .6rem 1rem;"><i class="bi bi-person-circle"></i> Profile</a></li>
                         <li><hr class="dropdown-divider" style="margin: .3rem 0;"></li>
-                        <li><a class="dropdown-item text-danger" href="{% url 'users:logout' %}" style="padding: .6rem 1rem;"><i class="bi bi-box-arrow-right"></i> Logout</a></li>
+                        <li>
+                            <form method="post" action="{% url 'users:logout' %}" data-confirm-title="Logout" data-confirm-message="Una uhakika unataka kutoka kwenye akaunti yako?" data-confirm-variant="danger" style="margin:0;">
+                                {% csrf_token %}
+                                <button class="dropdown-item text-danger" type="submit" style="padding: .6rem 1rem;"><i class="bi bi-box-arrow-right"></i> Logout</button>
+                            </form>
+                        </li>
                     </ul>
                 </div>
             </span>
@@ -1425,12 +1536,21 @@
 {% if user.is_authenticated %}
 <nav class="navbar afya-mobile-sub-nav py-1 d-lg-none">
     <div class="container">
-        <div class="afya-sub-links-mobile">
-            <a href="{% url 'AI_brain:chat' %}" class="afya-sub-mobile-link" data-nav-match="/ai/chat/"><i class="bi bi-robot"></i><span>AI</span></a>
-            <a href="{% url 'chats:feed' %}" class="afya-sub-mobile-link" data-nav-match="/social/"><i class="bi bi-people"></i><span>Jamii</span></a>
-            <a href="{% url 'chats:inbox' %}" class="afya-sub-mobile-link" data-nav-match="/social/inbox/"><i class="bi bi-chat-dots"></i><span>Chat</span></a>
-            <a href="{% url 'card:home' %}" class="afya-sub-mobile-link" data-nav-match="/card/"><i class="bi bi-credit-card-2-front"></i><span>Card</span></a>
-            <button class="afya-sub-mobile-link afya-theme-btn" type="button" data-theme-toggle aria-label="Toggle theme"><i class="bi bi-moon-stars"></i><span>Theme</span></button>
+        <div class="afya-mobile-sub-shell">
+            <div class="afya-mobile-brand-head">
+                <a class="afya-mobile-brand-link" href="{% url 'main:home' %}">
+                    <img src="{% static 'favicon.png' %}" alt="AfyaSmart logo" class="afya-brand-logo">
+                    <span>AfyaSmart</span>
+                </a>
+                <span class="afya-mobile-brand-motto">usiri, usahihi na uaminifu</span>
+            </div>
+            <div class="afya-sub-links-mobile">
+                <a href="{% url 'AI_brain:chat' %}" class="afya-sub-mobile-link" data-nav-match="/ai/chat/"><i class="bi bi-robot"></i><span>AI</span></a>
+                <a href="{% url 'chats:feed' %}" class="afya-sub-mobile-link" data-nav-match="/social/"><i class="bi bi-people"></i><span>Jamii</span></a>
+                <a href="{% url 'chats:inbox' %}" class="afya-sub-mobile-link" data-nav-match="/social/inbox/"><i class="bi bi-chat-dots"></i><span>Chat</span></a>
+                <a href="{% url 'card:home' %}" class="afya-sub-mobile-link" data-nav-match="/card/"><i class="bi bi-credit-card-2-front"></i><span>Card</span></a>
+                <button class="afya-sub-mobile-link afya-theme-btn" type="button" data-theme-toggle aria-label="Toggle theme"><i class="bi bi-moon-stars"></i><span>Theme</span></button>
+            </div>
         </div>
     </div>
 </nav>
@@ -1443,6 +1563,10 @@
         <a href="{% url 'menstrual:settings' %}" class="afya-mobile-primary-link" data-nav-match="/menstrual/settings/" aria-label="Settings"><i class="bi bi-gear"></i><span>Settings</span></a>
         <a href="{% url 'chats:notifications' %}" class="afya-mobile-primary-link" data-nav-match="/social/notifications/" aria-label="Notifications"><i class="bi bi-bell"></i><span>Alerts</span></a>
         <a href="{% url 'users:profile' %}" class="afya-mobile-primary-link" data-nav-match="/users/profile/" aria-label="Account"><i class="bi bi-person-circle"></i><span>Account</span></a>
+        <form method="post" action="{% url 'users:logout' %}" class="afya-mobile-primary-form" data-confirm-title="Logout" data-confirm-message="Una uhakika unataka kutoka kwenye akaunti yako?" data-confirm-variant="danger">
+            {% csrf_token %}
+            <button type="submit" class="afya-mobile-primary-link afya-mobile-primary-btn" aria-label="Logout"><i class="bi bi-box-arrow-right"></i><span>Logout</span></button>
+        </form>
         {% else %}
         <a href="{% url 'main:home' %}" class="afya-mobile-primary-link" data-nav-match="/" aria-label="Home"><i class="bi bi-house-door"></i><span>Home</span></a>
         <a href="{% url 'users:login' %}" class="afya-mobile-primary-link" data-nav-match="/users/login/" aria-label="Login"><i class="bi bi-box-arrow-in-right"></i><span>Login</span></a>
@@ -1473,7 +1597,7 @@
 
 <footer class="desktop-footer">
     <div class="container d-flex justify-content-between align-items-center">
-        <span>© {% now "Y" %} afya-AI</span>
+        <span>© {% now "Y" %} AfyaSmart</span>
         <span>Built for smart, private reproductive care</span>
     </div>
 </footer>
@@ -1486,7 +1610,7 @@
 
 <section class="ai-chat-widget" id="aiChatWidget" aria-live="polite">
     <div class="ai-chat-head">
-        <div class="fw-semibold small"><i class="bi bi-stars text-warning me-1"></i> afya-AI Assistant</div>
+        <div class="fw-semibold small"><i class="bi bi-stars text-warning me-1"></i> AfyaSmart Assistant</div>
         <button type="button" class="btn btn-sm btn-light rounded-pill" id="aiChatClose" aria-label="Close AI chat"><i class="bi bi-x-lg"></i></button>
     </div>
     <div class="ai-chat-body" id="aiChatBody">
@@ -1505,6 +1629,22 @@
     </form>
 </section>
 {% endif %}
+
+<div class="modal fade site-confirm-modal" id="siteConfirmModal" tabindex="-1" aria-hidden="true" data-variant="default">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-body p-4 text-center">
+                <div class="site-confirm-icon"><i class="bi bi-question-lg"></i></div>
+                <h5 class="fw-bold mb-2" id="siteConfirmTitle">Please confirm</h5>
+                <p class="text-muted mb-0" id="siteConfirmMessage">Are you sure you want to continue?</p>
+            </div>
+            <div class="modal-footer border-0 pt-0 px-4 pb-4 d-flex justify-content-center gap-2">
+                <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal" id="siteConfirmCancel">Cancel</button>
+                <button type="button" class="btn btn-danger rounded-pill px-4" id="siteConfirmApprove">Continue</button>
+            </div>
+        </div>
+    </div>
+</div>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
@@ -1628,6 +1768,108 @@
         });
     }
 
+    function setupMobileSubNavScrollState() {
+        const mobileSubNav = document.querySelector('nav.afya-mobile-sub-nav.d-lg-none');
+        if (!mobileSubNav) return;
+
+        const sync = () => {
+            const isMobile = window.matchMedia('(max-width: 991.98px)').matches;
+            const shouldHideHeader = isMobile && window.scrollY > 8;
+            document.body.classList.toggle('afya-mobile-scrolled', shouldHideHeader);
+        };
+
+        sync();
+        window.addEventListener('scroll', sync, { passive: true });
+        window.addEventListener('resize', sync);
+    }
+
+    function setupGlobalConfirmModal() {
+        const modalEl = document.getElementById('siteConfirmModal');
+        const titleEl = document.getElementById('siteConfirmTitle');
+        const messageEl = document.getElementById('siteConfirmMessage');
+        const approveEl = document.getElementById('siteConfirmApprove');
+        if (!modalEl || !titleEl || !messageEl || !approveEl || typeof bootstrap === 'undefined') return;
+
+        const modal = bootstrap.Modal.getOrCreateInstance(modalEl);
+        let resolver = null;
+
+        window.showSiteConfirmModal = ({
+            title = 'Please confirm',
+            message = 'Are you sure you want to continue?',
+            confirmText = 'Continue',
+            variant = 'default'
+        } = {}) => new Promise((resolve) => {
+            resolver = resolve;
+            modalEl.dataset.variant = variant;
+            titleEl.textContent = title;
+            messageEl.textContent = message;
+            approveEl.textContent = confirmText;
+            approveEl.className = `btn ${variant === 'danger' ? 'btn-danger' : 'btn-primary'} rounded-pill px-4`;
+            modal.show();
+        });
+
+        approveEl.addEventListener('click', () => {
+            modal.hide();
+            if (resolver) resolver(true);
+            resolver = null;
+        });
+
+        modalEl.addEventListener('hidden.bs.modal', () => {
+            if (resolver) resolver(false);
+            resolver = null;
+        });
+
+        const inferConfirmConfig = (form, submitter) => {
+            const action = (form.getAttribute('action') || '').toLowerCase();
+            const actionName = form.querySelector('input[name="_action"]')?.value || '';
+            const label = ((submitter?.innerText || submitter?.value || '') + ' ' + actionName).toLowerCase();
+
+            if (form.dataset.confirmMessage) {
+                return {
+                    title: form.dataset.confirmTitle || 'Please confirm',
+                    message: form.dataset.confirmMessage,
+                    confirmText: form.dataset.confirmText || 'Continue',
+                    variant: form.dataset.confirmVariant || 'default',
+                };
+            }
+
+            if (action.includes('logout') || label.includes('logout') || label.includes('ondoka')) {
+                return { title: 'Logout', message: 'Una uhakika unataka kutoka kwenye akaunti yako?', confirmText: 'Logout', variant: 'danger' };
+            }
+            if (action.includes('delete') || label.includes('delete') || label.includes('futa')) {
+                return { title: 'Delete item', message: 'Una uhakika unataka kufuta hiki kitu? Hii action haiwezi kurudishwa.', confirmText: 'Delete', variant: 'danger' };
+            }
+            if (
+                ['update_info', 'update_persona', 'general', 'display', 'security', 'change_password'].includes(actionName) ||
+                label.includes('save') || label.includes('hifadhi') || label.includes('sasisha') || label.includes('badilisha')
+            ) {
+                return { title: 'Confirm changes', message: 'Unataka kuhifadhi mabadiliko haya?', confirmText: 'Save', variant: 'default' };
+            }
+            return null;
+        };
+
+        document.addEventListener('submit', async (event) => {
+            const form = event.target;
+            if (!(form instanceof HTMLFormElement)) return;
+            if (form.dataset.confirmBypass === '1') {
+                delete form.dataset.confirmBypass;
+                return;
+            }
+            const submitter = event.submitter || document.activeElement;
+            const config = inferConfirmConfig(form, submitter);
+            if (!config) return;
+            event.preventDefault();
+            const ok = await window.showSiteConfirmModal(config);
+            if (!ok) return;
+            form.dataset.confirmBypass = '1';
+            if (typeof form.requestSubmit === 'function') {
+                form.requestSubmit(submitter instanceof HTMLElement ? submitter : undefined);
+            } else {
+                form.submit();
+            }
+        }, true);
+    }
+
     document.addEventListener('DOMContentLoaded', function () {
         const current = document.documentElement.getAttribute('data-theme') || 'light';
         applyThemeIcon(current);
@@ -1663,6 +1905,8 @@
 
         setupAutoDismissAlerts();
         setupQuickAIWidget();
+        setupGlobalConfirmModal();
+        setupMobileSubNavScrollState();
     });
 </script>
 <script>

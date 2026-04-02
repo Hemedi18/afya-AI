@@ -4,10 +4,8 @@
 <style>
 /* ══════════════════════════════════════════════════
    COMMUNITY – Full Style Overhaul
-   Uses CSS variables from base.html
 ══════════════════════════════════════════════════ */
 
-/* ── Shell ── */
 .community-shell {
     padding: .75rem 0 0;
     height: 100vh;
@@ -34,7 +32,12 @@
     padding-right: 0;
 }
 
-/* Posts column scrolls independently */
+/* Desktop column scrolling */
+.community-body > .row {
+    height: 100%;
+    margin: 0;
+}
+
 #social-posts {
     height: 100%;
     overflow-y: auto;
@@ -43,13 +46,13 @@
     scrollbar-width: thin;
     scrollbar-color: color-mix(in srgb, var(--primary) 34%, transparent) transparent;
 }
+
 #social-posts::-webkit-scrollbar { width: 7px; }
 #social-posts::-webkit-scrollbar-thumb {
     background: color-mix(in srgb, var(--primary) 34%, transparent);
     border-radius: 999px;
 }
 
-/* Sidebar column: independent scroll */
 #social-groups {
     height: 100%;
     overflow-y: auto;
@@ -58,30 +61,13 @@
     scrollbar-width: thin;
     scrollbar-color: color-mix(in srgb, var(--primary) 28%, transparent) transparent;
 }
+
 #social-groups::-webkit-scrollbar { width: 6px; }
 #social-groups::-webkit-scrollbar-thumb {
     background: color-mix(in srgb, var(--primary) 28%, transparent);
     border-radius: 999px;
 }
 
-/* The two-col row must fill the remaining height */
-.community-body > .row {
-    height: 100%;
-    margin: 0;
-}
-
-/* ── Shared card ── */
-.c-card {
-    background: var(--card-bg);
-    border: 1px solid var(--line-soft);
-    border-radius: 20px;
-    box-shadow: 0 6px 22px rgba(0,0,0,.07);
-    margin-bottom: 1rem;
-    overflow: hidden;
-}
-.c-card-body { padding: 1rem 1.1rem; }
-
-/* ── Hero banner ── */
 .community-hero {
     background: linear-gradient(119deg,
         color-mix(in srgb, #bb4900 18%, var(--card-bg)),
@@ -94,17 +80,25 @@
     position: relative;
     overflow: hidden;
 }
+
 .community-hero::before {
     content: '';
     position: absolute;
-    top: -40px; right: -40px;
-    width: 160px; height: 160px;
+    top: -40px;
+    right: -40px;
+    width: 160px;
+    height: 160px;
     border-radius: 50%;
     background: radial-gradient(circle, color-mix(in srgb, var(--primary) 20%, transparent), transparent 70%);
     pointer-events: none;
 }
-.hero-title { font-size: 1.15rem; font-weight: 800; margin-bottom: .2rem; }
-.hero-sub   { font-size: .82rem; color: var(--text-muted); }
+
+.hero-title {
+    font-size: 1.15rem;
+    font-weight: 800;
+    margin-bottom: .2rem;
+}
+
 .community-hero-bar {
     display: flex;
     align-items: center;
@@ -112,9 +106,10 @@
     gap: .9rem;
 }
 
-/* ── Chip nav ── */
 .community-chip-row {
-    display: flex; gap: .45rem; flex-wrap: wrap;
+    display: flex;
+    gap: .45rem;
+    flex-wrap: wrap;
     margin: 0;
     padding: 0;
     flex: 1;
@@ -129,6 +124,7 @@
     margin: 0;
     padding: 0;
 }
+
 .community-chip {
     display: inline-flex; align-items: center; gap: .45rem;
     padding: .42rem .9rem;
@@ -426,6 +422,381 @@
     margin-bottom: .5rem;
 }
 
+.status-click-link {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+.jamii-top-social {
+    background: var(--app-bg);
+    border: 1px solid #dfe3ea;
+    border-radius: 14px;
+    padding: .7rem .75rem .55rem;
+    margin-bottom: .85rem;
+    box-shadow: 0 1px 2px rgba(16,24,40,.06);
+}
+
+.jamii-composer-row {
+    display: flex;
+    align-items: center;
+    gap: .55rem;
+    padding-bottom: .55rem;
+    margin-bottom: .55rem;
+    border-bottom: 1px solid #ebeff5;
+}
+
+.jamii-composer-pill {
+    flex: 1;
+    border: 1px solid #dde3ec;
+    background: #f0f2f5;
+    color: #5f6775;
+    border-radius: 999px;
+    min-height: 42px;
+    display: flex;
+    align-items: center;
+    padding: 0 .95rem;
+    font-weight: 600;
+    font-size: .92rem;
+    text-decoration: none;
+}
+
+.jamii-composer-pill:hover { color: #273246; }
+
+.jamii-status-cycles {
+    display: flex;
+    align-items: flex-start;
+    gap: .58rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: .2rem;
+}
+
+.jamii-status-cycles::-webkit-scrollbar { display: none; }
+
+.status-cycle-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .3rem;
+    text-decoration: none;
+    color: inherit;
+    flex: 0 0 auto;
+    width: 60px;
+}
+
+.status-cycle-ring {
+    width: 58px;
+    height: 58px;
+    border-radius: 50%;
+    padding: 2.2px;
+    background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+}
+
+.status-cycle-inner {
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    background: #fff;
+    border: 2px solid #fff;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+    font-weight: 800;
+    color: #2563eb;
+    font-size: 1rem;
+}
+
+.status-cycle-inner img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.status-cycle-name {
+    max-width: 60px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    font-size: .66rem;
+    font-weight: 700;
+    color: #4f5b6c;
+    text-align: center;
+}
+
+.jamii-status-cards {
+    display: flex;
+    gap: .52rem;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding: .2rem 0 .25rem;
+}
+
+.jamii-status-cards::-webkit-scrollbar { display: none; }
+
+.status-story-card {
+    position: relative;
+    width: 116px;
+    height: 182px;
+    border-radius: 14px;
+    overflow: hidden;
+    flex: 0 0 auto;
+    border: 1px solid #dbe1ea;
+    text-decoration: none;
+    background: linear-gradient(165deg, #5f6775, #202734);
+    color: #fff;
+}
+
+.status-story-bg {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.status-story-overlay {
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(0,0,0,.2) 24%, rgba(0,0,0,.76));
+}
+
+.status-story-top {
+    position: absolute;
+    top: .45rem;
+    left: .45rem;
+    right: .45rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+
+.status-rank-badge {
+    min-width: 22px;
+    height: 22px;
+    border-radius: 7px;
+    background: #1877f2;
+    color: #fff;
+    font-size: .78rem;
+    font-weight: 800;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 .35rem;
+}
+
+.status-story-bottom {
+    position: absolute;
+    left: .55rem;
+    right: .55rem;
+    bottom: .58rem;
+}
+
+.status-story-user {
+    font-size: .72rem;
+    font-weight: 800;
+    line-height: 1.2;
+}
+
+.status-story-text {
+    font-size: .68rem;
+    opacity: .95;
+    line-height: 1.25;
+    margin-top: .14rem;
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+}
+
+.status-story-card.create-card {
+    background: #f0f2f5;
+    color: #1f2937;
+}
+
+.status-story-card.create-card .status-story-overlay { display: none; }
+
+.status-story-create-body {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: flex-end;
+    align-items: center;
+    padding: .7rem .45rem;
+    text-align: center;
+}
+
+.status-story-create-plus {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    margin-bottom: .5rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    background: #1877f2;
+    color: #fff;
+    border: 3px solid #fff;
+    box-shadow: 0 6px 18px rgba(24,119,242,.28);
+}
+
+.status-story-create-text {
+    font-size: .72rem;
+    font-weight: 800;
+    color: #1f2937;
+}
+
+.status-viewer-dialog {
+    margin-top: 5vh;
+    max-width: 430px;
+}
+
+.status-viewer-content {
+    border: 0;
+    border-radius: 16px;
+    overflow: hidden;
+    height: 90vh;
+}
+
+.status-viewer-body {
+    background: #0f172a;
+    color: #fff;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.status-viewer-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .5rem;
+    padding: .72rem .85rem;
+    background: rgba(2, 6, 23, .72);
+}
+
+.status-viewer-user {
+    font-size: .86rem;
+    font-weight: 800;
+}
+
+.status-viewer-media-wrap {
+    flex: 1;
+    min-height: 0;
+    background: #111827;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.status-viewer-media-wrap img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.status-viewer-text {
+    padding: .8rem .9rem;
+    font-size: .9rem;
+    line-height: 1.45;
+}
+
+.status-viewer-stats {
+    display: flex;
+    gap: .45rem;
+    flex-wrap: wrap;
+    padding: 0 .9rem .8rem;
+}
+
+.status-viewer-pill {
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,.22);
+    padding: .2rem .52rem;
+    font-size: .72rem;
+    color: #e5e7eb;
+}
+
+.group-inline-section {
+    margin: .9rem 0 1rem;
+    border: 1px solid var(--line-soft);
+    border-radius: 18px;
+    background: var(--card-bg);
+    padding: .9rem;
+    box-shadow: 0 4px 16px rgba(0,0,0,.06);
+}
+
+.group-inline-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .6rem;
+    margin-bottom: .7rem;
+}
+
+.group-inline-grid {
+    display: flex;
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    overflow-y: hidden;
+    -webkit-overflow-scrolling: touch;
+    gap: .65rem;
+    scrollbar-width: none;
+}
+
+.group-inline-grid::-webkit-scrollbar { display: none; }
+
+.group-preview-card {
+    flex: 0 0 210px;
+    border: 1px solid var(--line-soft);
+    border-radius: 14px;
+    background: color-mix(in srgb, var(--card-bg) 90%, var(--app-bg));
+    overflow: hidden;
+}
+
+.group-preview-image {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    display: block;
+    background: color-mix(in srgb, var(--primary) 14%, var(--card-bg));
+}
+
+.group-preview-body {
+    padding: .55rem .6rem .65rem;
+}
+
+.group-preview-name {
+    font-size: .82rem;
+    font-weight: 800;
+    color: var(--text-main);
+    text-decoration: none;
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.group-preview-row {
+    margin-top: .4rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .4rem;
+}
+
+.group-preview-members {
+    font-size: .72rem;
+    color: var(--text-muted);
+}
+
 /* ── Notifications ── */
 .notif-row {
     display: flex; align-items: flex-start; gap: .65rem;
@@ -576,7 +947,7 @@
 }
 .action-btn {
     display: inline-flex; align-items: center; gap: .35rem;
-    padding: .42rem .85rem; border-radius: 999px;
+    padding: .42rem .62rem; border-radius: 999px;
     font-size: .8rem; font-weight: 700;
     border: 1.5px solid var(--line-soft);
     background: color-mix(in srgb, var(--card-bg) 92%, var(--app-bg));
@@ -589,6 +960,20 @@
 .action-btn-like  { color: #ef4444; border-color: color-mix(in srgb, #ef4444 30%, var(--line-soft)); }
 .action-btn-like:hover { background: color-mix(in srgb, #ef4444 10%, var(--card-bg)); border-color: #ef4444; color: #ef4444; }
 .comment-count-badge { font-size: .78rem; color: var(--text-muted); align-self: center; margin-left: auto; }
+.comment-count-badge {
+    border: 1.5px solid var(--line-soft);
+    background: color-mix(in srgb, var(--card-bg) 92%, var(--app-bg));
+    border-radius: 999px;
+    padding: .38rem .62rem;
+    display: inline-flex;
+    align-items: center;
+    gap: .25rem;
+    cursor: pointer;
+}
+.comment-count-badge:hover { border-color: var(--primary); color: var(--primary); }
+.action-btn .btn-label { display: none; }
+.action-btn i { font-size: 1rem; }
+.action-btn.action-btn-like .btn-count { display: inline; font-size: .78rem; font-weight: 800; margin-left: .1rem; }
 
 /* ── Comments ── */
 .comment-thread { margin-top: .9rem; }
@@ -696,6 +1081,164 @@
     box-shadow: 0 5px 18px rgba(0,0,0,.06);
 }
 
+/* ── Desktop social refresh (Instagram-inspired, not exact clone) ── */
+@media (min-width: 992px) {
+    .community-shell {
+        background: #f5f6f7;
+        padding-top: .35rem;
+    }
+
+    .community-hero {
+        background: linear-gradient(135deg,
+            color-mix(in srgb, var(--primary) 16%, var(--card-bg)),
+            color-mix(in srgb, var(--secondary) 12%, var(--card-bg)));
+        border: 1px solid color-mix(in srgb, var(--primary) 28%, var(--line-soft));
+        border-radius: 14px;
+        margin: 0 auto .9rem;
+        max-width: 1240px;
+        box-shadow: 0 8px 20px color-mix(in srgb, var(--primary) 18%, transparent);
+        padding: .65rem .9rem;
+    }
+    .community-hero::before { display: none; }
+    .hero-title {
+        font-size: .98rem;
+        color: var(--text-main);
+        margin: 0;
+    }
+    .community-chip-row {
+        justify-content: flex-start;
+        gap: .3rem;
+    }
+    .community-chip {
+        background: transparent;
+        border: none;
+        border-bottom: 2px solid transparent;
+        border-radius: 0;
+        box-shadow: none;
+        font-weight: 700;
+        font-size: .8rem;
+        color: #262626;
+        padding: .45rem .55rem;
+    }
+    .community-chip i {
+        background: transparent;
+        color: #262626;
+        width: auto;
+        height: auto;
+    }
+    .community-chip:hover {
+        transform: none;
+        border-bottom-color: #8e8e8e;
+        color: #262626;
+        box-shadow: none;
+    }
+    .community-chip.chip-active {
+        background: transparent;
+        color: #111 !important;
+        border-color: transparent;
+        border-bottom-color: #111;
+        box-shadow: none;
+    }
+    .community-chip.chip-active i { color: #111; }
+
+    .community-body {
+        max-width: 1240px;
+        width: 100%;
+        margin: 0 auto;
+    }
+    .community-body > .row {
+        gap: 1rem;
+    }
+    #social-groups {
+        width: 360px;
+        flex: 0 0 360px;
+    }
+    #social-posts {
+        flex: 1;
+        padding-right: 0;
+    }
+
+    #social-posts > section {
+        background: inherit !important;
+    }
+
+    .sidebar-card,
+    .c-card,
+    .post-card,
+    .section-hero {
+        border: 1px solid #dbdbdb;
+        border-radius: 12px;
+        box-shadow: none;
+        background: #fff;
+    }
+
+    .posts-topbar {
+        background: var(--card-bg);
+        border: 1px solid var(--line-soft);
+        border-radius: 12px;
+        padding: .7rem .9rem;
+        margin-bottom: .9rem;
+    }
+
+    /* Desktop CTA buttons: elevated + themed (no flat white) */
+    #social-chat .sidebar-card-body > a.action-btn,
+    .posts-topbar > a.action-btn,
+    .section-hero .action-btn {
+        background: linear-gradient(135deg, var(--primary), color-mix(in srgb, var(--secondary) 72%, var(--primary)));
+        color: #fff !important;
+        border: 1px solid color-mix(in srgb, var(--primary) 55%, transparent);
+        box-shadow: 0 10px 22px color-mix(in srgb, var(--primary) 35%, transparent);
+        font-weight: 800;
+    }
+
+    #social-chat .sidebar-card-body > a.action-btn:hover,
+    .posts-topbar > a.action-btn:hover,
+    .section-hero .action-btn:hover {
+        transform: translateY(-1px);
+        filter: brightness(1.03);
+        box-shadow: 0 14px 28px color-mix(in srgb, var(--primary) 45%, transparent);
+    }
+
+    .post-card {
+        padding: .9rem 1rem 1rem;
+        margin-bottom: .85rem;
+    }
+    .post-card:hover {
+        box-shadow: 0 3px 12px rgba(0,0,0,.05);
+    }
+
+    .post-avatar {
+        width: 40px;
+        height: 40px;
+        box-shadow: none;
+    }
+    .post-body {
+        font-size: .9rem;
+        line-height: 1.55;
+    }
+
+    .action-row {
+        border-top: 1px solid #efefef;
+    }
+    .action-btn {
+        border: 1px solid var(--line-soft);
+        background: color-mix(in srgb, var(--card-bg) 92%, var(--app-bg));
+        color: var(--text-main);
+    }
+    .action-btn:hover {
+        border-color: #b8b8b8;
+        color: #111;
+    }
+
+    .story-ring {
+        background: linear-gradient(45deg, #f09433, #e6683c, #dc2743, #cc2366, #bc1888);
+        box-shadow: none;
+    }
+    .story-ring-inner {
+        border: 2px solid #fff;
+    }
+}
+
 /* ── Responsive ── */
 @media (max-width: 767px) {
     .community-shell {
@@ -714,25 +1257,9 @@
         height: auto;
     }
 
-    /* Related sidebar cards: horizontal scroll on mobile */
+    /* Hide left sidebar completely on mobile */
     #social-groups {
-        display: flex;
-        flex-wrap: nowrap;
-        gap: .7rem;
-        overflow-x: auto;
-        overflow-y: hidden;
-        -webkit-overflow-scrolling: touch;
-        touch-action: pan-x;
-        scrollbar-width: none;
-        height: auto;
-        padding-bottom: .45rem;
-    }
-    #social-groups::-webkit-scrollbar { display: none; }
-    #social-groups .sidebar-card {
-        flex: 0 0 84vw;
-        min-width: 84vw;
-        max-width: 84vw;
-        margin-bottom: 0;
+        display: none !important;
     }
 
     /* Social posts keep vertical scroll */
@@ -795,11 +1322,44 @@
         border-radius: 0;
         padding: .85rem;
     }
+
+    .jamii-top-social {
+        width: 100vw;
+        margin-left: calc(50% - 50vw);
+        margin-right: calc(50% - 50vw);
+        border-radius: 0;
+        padding: .55rem .55rem .5rem;
+        margin-bottom: .55rem;
+    }
+
+    .jamii-composer-pill {
+        min-height: 40px;
+        font-size: .86rem;
+    }
+
+    .jamii-status-cards {
+        padding-bottom: .1rem;
+    }
+
+    .status-story-card {
+        width: 104px;
+        height: 166px;
+        border-radius: 12px;
+    }
+
+    .status-viewer-dialog {
+        margin-top: 5vh;
+    }
+
+    .status-viewer-content {
+        height: 90vh;
+        border-radius: 14px;
+    }
 }
 </style>
 
 <div class="community-shell {% if active_section != 'posts' %}community-shell-free{% endif %}">
-    <div class="community-hero">
+    <div class="community-hero{% if is_regular_user %} d-none{% endif %}">
         <div class="community-hero-bar">
             <div class="hero-title"><i class="bi bi-flower1 me-1"></i>Jamii ya Afya ya {{ community_gender_label }}</div>
             <div class="community-chip-scroll d-flex gap-2 flex-wrap align-items-center">
@@ -833,30 +1393,53 @@
     </div>
     <div class="c-card">
         <div class="c-card-body">
-            <div class="d-flex flex-wrap gap-2 mb-3">
+            <div class="group-inline-grid mb-3">
                 {% for group in groups %}
-                    <a href="{% url 'chats:feed_groups' %}?group={{ group.id }}" data-community-partial="true" class="group-chip {% if selected_group and selected_group.id == group.id %}active{% endif %}">
-                        <i class="bi bi-people"></i> {{ group.name }}
+                <article class="group-preview-card {% if selected_group and selected_group.id == group.id %}border-primary{% endif %}">
+                    <a href="{% url 'chats:group_detail' group.id %}">
+                        {% if group.image %}
+                        <img src="{{ group.image.url }}" alt="{{ group.name }}" class="group-preview-image">
+                        {% else %}
+                        <img src="https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&w=900&q=80" alt="{{ group.name }}" class="group-preview-image">
+                        {% endif %}
                     </a>
-                    {% if group.id not in my_group_ids %}
-                    <form method="post" action="{% url 'chats:group_join' group.id %}" class="d-inline js-partial-submit">
-                        {% csrf_token %}
-                        <button class="group-chip" style="cursor:pointer;" type="submit"><i class="bi bi-plus-circle"></i> Join</button>
-                    </form>
-                    {% endif %}
+                    <div class="group-preview-body">
+                        <a href="{% url 'chats:group_detail' group.id %}" class="group-preview-name">{{ group.name }}</a>
+                        <div class="group-preview-row">
+                            <span class="group-preview-members">{{ group.members.count }} followers</span>
+                            {% if group.id not in my_group_ids %}
+                            <form method="post" action="{% url 'chats:group_join' group.id %}" class="d-inline js-partial-submit">
+                                {% csrf_token %}
+                                <button class="comment-action-btn" type="submit"><i class="bi bi-plus-circle"></i> Join</button>
+                            </form>
+                            {% else %}
+                            <a href="{% url 'chats:group_detail' group.id %}" class="comment-action-btn">Open</a>
+                            {% endif %}
+                        </div>
+                    </div>
+                </article>
                 {% empty %}
                 <span class="text-muted small">Hakuna groups bado.</span>
                 {% endfor %}
             </div>
             <hr style="border-color:var(--line-soft);opacity:.6;">
             <div class="fw-bold mb-2 small"><i class="bi bi-plus-lg" style="color:var(--primary);"></i> Tengeneza Group Mpya</div>
-            <form method="post" action="{% url 'chats:group_create' %}" class="row g-2 js-partial-submit" id="create-group-form">
+            <form method="post" action="{% url 'chats:group_create' %}" enctype="multipart/form-data" class="row g-2 js-partial-submit" id="create-group-form">
                 {% csrf_token %}
                 <div class="col-12 col-md-5">{{ group_form.name }}</div>
                 <div class="col-12 col-md-5">{{ group_form.description }}</div>
                 <div class="col-12 col-md-2 d-grid">
                     <button class="add-comment-btn" style="border-radius:12px;padding:.55rem .9rem;" type="submit">Create</button>
                 </div>
+                <div class="col-12 col-md-6">
+                    {{ group_form.image }}
+                    <div class="small text-muted mt-1">Picha ya group inapendekezwa (si lazima).</div>
+                </div>
+                <div class="col-12 col-md-6 d-flex align-items-center gap-3 flex-wrap">
+                    <label class="d-inline-flex align-items-center gap-2 small">{{ group_form.require_join_approval }} <span>Require approval for new members</span></label>
+                    <label class="d-inline-flex align-items-center gap-2 small">{{ group_form.send_admin_preview }} <span>Send for admin preview</span></label>
+                </div>
+                <div class="col-12">{{ group_form.preview_note }}</div>
             </form>
         </div>
     </div>
@@ -1011,6 +1594,47 @@
         <!-- ══ LEFT SIDEBAR ══ -->
         <div class="col-lg-4 px-0 pe-lg-2" id="social-groups">
 
+            {% if is_regular_user %}
+            <div class="sidebar-card sidebar-clickable" id="social-chat" data-sidebar-link="{% url 'chats:feed_status' %}" data-community-partial="true">
+                <div class="sidebar-card-head">
+                    <h6><i class="bi bi-broadcast" style="color:var(--primary);"></i> Status (24h)</h6>
+                    <a href="{% url 'chats:feed_status' %}" data-community-partial="true" class="sidebar-see-all"><i class="bi bi-broadcast"></i> <span>All</span></a>
+                </div>
+                <div class="sidebar-card-body">
+                    <a href="{% url 'chats:status_new' %}{% if selected_group %}?group={{ selected_group.id }}{% endif %}" class="action-btn w-100 justify-content-center mb-2">
+                        <i class="bi bi-plus-circle-fill"></i> Add Status
+                    </a>
+                    {% if statuses %}
+                    <div class="story-row mb-2">
+                        {% for st in statuses %}
+                        <a href="{% url 'chats:status_detail' st.id %}" class="story-item status-click-link">
+                            <div class="story-ring">
+                                <div class="story-ring-inner">
+                                    {% if st.image %}<img src="{{ st.image.url }}" alt="">{% else %}{{ st.user.username|first|upper }}{% endif %}
+                                </div>
+                            </div>
+                            <div class="story-name">{{ st.user.username }}</div>
+                        </a>
+                        {% endfor %}
+                    </div>
+                    {% endif %}
+                    <div style="max-height:210px;overflow-y:auto;">
+                        {% for st in statuses %}
+                        <a href="{% url 'chats:status_detail' st.id %}" class="status-click-link d-flex align-items-center gap-2 mb-2">
+                            <div class="comment-avatar" style="width:28px;height:28px;font-size:.72rem;">{{ st.user.username|first|upper }}</div>
+                            <div style="min-width:0;">
+                                <div class="comment-username" style="font-size:.76rem;">{{ st.user.username }}</div>
+                                <div class="story-text">{{ st.content }}</div>
+                            </div>
+                        </a>
+                        {% empty %}
+                        <span class="text-muted small">Hakuna status.</span>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+            {% else %}
+
             <!-- Groups -->
             <div class="sidebar-card sidebar-clickable" data-sidebar-link="{% url 'chats:feed_groups' %}" data-community-partial="true">
                 <div class="sidebar-card-head">
@@ -1033,10 +1657,17 @@
                         <span class="text-muted small">Hakuna groups bado.</span>
                         {% endfor %}
                     </div>
-                    <form method="post" action="{% url 'chats:group_create' %}" class="row g-2 js-partial-submit">
+                    <form method="post" action="{% url 'chats:group_create' %}" enctype="multipart/form-data" class="row g-2 js-partial-submit">
                         {% csrf_token %}
                         <div class="col-12">{{ group_form.name }}</div>
                         <div class="col-12">{{ group_form.description }}</div>
+                        <div class="col-12">
+                            {{ group_form.image }}
+                            <div class="small text-muted mt-1">Picha ya group inapendekezwa (si lazima).</div>
+                        </div>
+                        <div class="col-12 small d-flex align-items-center gap-2">{{ group_form.require_join_approval }} <span>Require approval</span></div>
+                        <div class="col-12 small d-flex align-items-center gap-2">{{ group_form.send_admin_preview }} <span>Send admin preview</span></div>
+                        <div class="col-12">{{ group_form.preview_note }}</div>
                         <div class="col-12 d-grid">
                             <button class="add-comment-btn" style="border-radius:12px;padding:.55rem;" type="submit"><i class="bi bi-plus-lg"></i> Add Group</button>
                         </div>
@@ -1057,26 +1688,26 @@
                     {% if statuses %}
                     <div class="story-row mb-2">
                         {% for st in statuses %}
-                        <div class="story-item">
+                        <a href="{% url 'chats:status_detail' st.id %}" class="story-item status-click-link">
                             <div class="story-ring">
                                 <div class="story-ring-inner">
                                     {% if st.image %}<img src="{{ st.image.url }}" alt="">{% else %}{{ st.user.username|first|upper }}{% endif %}
                                 </div>
                             </div>
                             <div class="story-name">{{ st.user.username }}</div>
-                        </div>
+                        </a>
                         {% endfor %}
                     </div>
                     {% endif %}
                     <div style="max-height:160px;overflow-y:auto;">
                         {% for st in statuses %}
-                        <div class="d-flex align-items-center gap-2 mb-2">
+                        <a href="{% url 'chats:status_detail' st.id %}" class="status-click-link d-flex align-items-center gap-2 mb-2">
                             <div class="comment-avatar" style="width:28px;height:28px;font-size:.72rem;">{{ st.user.username|first|upper }}</div>
                             <div style="min-width:0;">
                                 <div class="comment-username" style="font-size:.76rem;">{{ st.user.username }}</div>
                                 <div class="story-text">{{ st.content }}</div>
                             </div>
-                        </div>
+                        </a>
                         {% empty %}
                         <span class="text-muted small">Hakuna status.</span>
                         {% endfor %}
@@ -1176,11 +1807,74 @@
                     {% endfor %}
                 </div>
             </div>
+            {% endif %}
         </div>
         <!-- ══ END SIDEBAR ══ -->
 
         <!-- ══ POSTS COLUMN ══ -->
         <div class="col-lg-8 px-0 ps-lg-2" id="social-posts">
+
+            <section class="jamii-top-social">
+                <div class="jamii-composer-row">
+                    <div class="post-avatar" style="width:40px;height:40px;">{{ request.user.username|first|upper }}</div>
+                    <a href="{% url 'chats:post_create' %}{% if selected_group %}?group={{ selected_group.id }}{% endif %}" class="jamii-composer-pill">What's on your mind?</a>
+                </div>
+
+                <div class="jamii-status-cycles mb-2">
+                    <a href="{% url 'chats:status_new' %}{% if selected_group %}?group={{ selected_group.id }}{% endif %}" class="status-cycle-item" aria-label="Add status">
+                        <span class="status-cycle-ring">
+                            <span class="status-cycle-inner"><i class="bi bi-plus-lg"></i></span>
+                        </span>
+                        <span class="status-cycle-name">Your story</span>
+                    </a>
+                    {% for st in status_featured %}
+                    <a href="{% url 'chats:status_detail' st.id %}" class="status-cycle-item js-status-open"
+                       data-status-user="{{ st.user.username }}"
+                       data-status-content="{{ st.content|striptags|truncatechars:450 }}"
+                       data-status-image="{% if st.image %}{{ st.image.url }}{% endif %}"
+                       data-status-likes="{{ st.likes_total }}"
+                       data-status-comments="{{ st.comments_total }}"
+                       data-status-shares="{{ st.shares_total }}"
+                       data-status-link="{% url 'chats:status_detail' st.id %}">
+                        <span class="status-cycle-ring">
+                            <span class="status-cycle-inner">
+                                {% if st.image %}<img src="{{ st.image.url }}" alt="{{ st.user.username }} status">{% else %}{{ st.user.username|first|upper }}{% endif %}
+                            </span>
+                        </span>
+                        <span class="status-cycle-name">{{ st.user.username }}</span>
+                    </a>
+                    {% endfor %}
+                </div>
+
+                <div class="jamii-status-cards">
+                    <a href="{% url 'chats:status_new' %}{% if selected_group %}?group={{ selected_group.id }}{% endif %}" class="status-story-card create-card">
+                        <span class="status-story-create-body">
+                            <span class="status-story-create-plus"><i class="bi bi-plus-lg"></i></span>
+                            <span class="status-story-create-text">Create story</span>
+                        </span>
+                    </a>
+                    {% for st in status_featured %}
+                    <a href="{% url 'chats:status_detail' st.id %}" class="status-story-card js-status-open"
+                       data-status-user="{{ st.user.username }}"
+                       data-status-content="{{ st.content|striptags|truncatechars:450 }}"
+                       data-status-image="{% if st.image %}{{ st.image.url }}{% endif %}"
+                       data-status-likes="{{ st.likes_total }}"
+                       data-status-comments="{{ st.comments_total }}"
+                       data-status-shares="{{ st.shares_total }}"
+                       data-status-link="{% url 'chats:status_detail' st.id %}">
+                        {% if st.image %}<img src="{{ st.image.url }}" alt="{{ st.user.username }} story" class="status-story-bg">{% endif %}
+                        <span class="status-story-overlay"></span>
+                        <span class="status-story-top">
+                            <span class="status-rank-badge">{{ forloop.counter }}</span>
+                        </span>
+                        <span class="status-story-bottom">
+                            <span class="status-story-user">{{ st.user.username }}</span>
+                            <span class="status-story-text">{{ st.content|striptags|truncatechars:40 }}</span>
+                        </span>
+                    </a>
+                    {% endfor %}
+                </div>
+            </section>
 
             <div class="posts-topbar">
                 <div>
@@ -1238,41 +1932,27 @@
         </div>
         {% url 'chats:post_detail' post.id as post_detail_url %}
         {% include 'chats/includes/post_media.html' with post=post autoplay_to_post=1 post_url=post_detail_url %}
-        {% for clarification in post.clarifications.all %}
-            {% if clarification.status == 'answered' and request.user.id == clarification.asker_id or clarification.status == 'answered' and request.user.id == clarification.responded_by_id or clarification.status == 'answered' and can_moderate %}
-            <div class="clarification-answer">
-                <div class="clarification-answer-head">
-                    <span class="clarification-answer-title"><i class="bi bi-patch-check-fill"></i> Jibu la clarification</span>
-                    <span class="clarification-answer-meta">
-                        {% if clarification.responded_by %}{{ clarification.responded_by.username }}{% endif %}
-                        {% if clarification.updated_at %}• {{ clarification.updated_at|timesince }} ago{% endif %}
-                    </span>
-                </div>
-                <div class="small text-muted mb-1">Swali: {{ clarification.question }}</div>
-                <div class="clarification-answer-body">{{ clarification.response }}</div>
-            </div>
-            {% endif %}
-        {% endfor %}
-
         <div id="post-engagement-{{ post.id }}">
         <div class="action-row">
             <form method="post" action="{% url 'chats:post_like' post.id %}" class="js-like-form" data-post-id="{{ post.id }}">
                 {% csrf_token %}
-                <button class="action-btn action-btn-like" type="submit">
-                    <i class="bi bi-heart-fill"></i> <span id="like-count-{{ post.id }}">{{ post.likes.count }}</span>
+                <button class="action-btn action-btn-like" type="submit" aria-label="Like post" title="Like">
+                    <i class="bi bi-heart-fill"></i><span class="btn-count" id="like-count-{{ post.id }}">{{ post.likes.count }}</span>
                 </button>
             </form>
-            <button class="action-btn" type="button" data-bs-toggle="collapse" data-bs-target="#clarify-post-{{ post.id }}">
-                <i class="bi bi-patch-question"></i> Clarify
+            <button class="action-btn" type="button" data-bs-toggle="collapse" data-bs-target="#clarify-post-{{ post.id }}" aria-label="Clarify" title="Clarify">
+                <i class="bi bi-patch-question"></i>
             </button>
-            <button class="action-btn" type="button" data-bs-toggle="collapse" data-bs-target="#report-post-{{ post.id }}">
-                <i class="bi bi-flag"></i> Report
+            <button class="action-btn" type="button" data-bs-toggle="collapse" data-bs-target="#report-post-{{ post.id }}" aria-label="Report" title="Report">
+                <i class="bi bi-flag"></i>
             </button>
-            <button class="action-btn" type="button" data-ai-prompt="Explain this health community post in simple Swahili. Summarize it, mention possible health concerns, and say when the user should see a doctor: {{ post.content|striptags|truncatechars:700|escapejs }}">
-                <i class="bi bi-stars"></i> Explain with AI
+            <button class="action-btn" type="button" data-ai-prompt="Explain this health community post in simple Swahili. Summarize it, mention possible health concerns, and say when the user should see a doctor: {{ post.content|striptags|truncatechars:700|escapejs }}" aria-label="Explain with AI" title="AI Explain">
+                <i class="bi bi-stars"></i>
             </button>
-            <a href="{% url 'chats:post_detail' post.id %}" class="action-btn"><i class="bi bi-arrows-angle-expand"></i> View full post</a>
-            <span class="comment-count-badge"><i class="bi bi-chat"></i> <span id="comment-count-{{ post.id }}">{{ post.replies.count }}</span></span>
+            <a href="{% url 'chats:post_detail' post.id %}" class="action-btn" aria-label="Open post" title="Open post"><i class="bi bi-arrows-angle-expand"></i></a>
+            <button class="comment-count-badge" type="button" data-bs-toggle="collapse" data-bs-target="#comments-post-{{ post.id }}" aria-label="Toggle comments" title="Comments">
+                <i class="bi bi-chat"></i> <span id="comment-count-{{ post.id }}">{{ post.replies.count }}</span>
+            </button>
         </div>
 
         <div class="collapse mb-2" id="clarify-post-{{ post.id }}">
@@ -1283,6 +1963,7 @@
                         <select name="target_role" class="form-select form-select-sm" style="border-radius:10px;" required>
                             <option value="doctor">Doctor</option>
                             <option value="admin">Admin</option>
+                            <option value="group_admin">Group Admin Preview</option>
                         </select>
                     </div>
                     <div class="col-md-7"><textarea name="question" rows="2" class="form-control form-control-sm" placeholder="Ni sehemu gani unahitaji ufafanuzi?" required autocomplete="off" style="border-radius:10px;"></textarea></div>
@@ -1306,6 +1987,31 @@
                     </div>
                 </details>
             </form>
+
+            {% if post.clarifications.all %}
+            <div class="inline-form-box mt-2">
+                <div class="small fw-bold mb-2"><i class="bi bi-collection"></i> Clarification History</div>
+                {% for clarification in post.clarifications.all %}
+                <div class="clarification-answer mb-2">
+                    <div class="small text-muted mb-1">Swali: {{ clarification.question }}</div>
+                    {% if clarification.status == 'answered' %}
+                        {% if request.user.id == clarification.asker_id or request.user.id == clarification.responded_by_id or can_moderate %}
+                        <div class="clarification-answer-head">
+                            <span class="clarification-answer-title"><i class="bi bi-patch-check-fill"></i> Jibu</span>
+                            <span class="clarification-answer-meta">
+                                {% if clarification.responded_by %}{{ clarification.responded_by.username }}{% endif %}
+                                {% if clarification.updated_at %}• {{ clarification.updated_at|timesince }} ago{% endif %}
+                            </span>
+                        </div>
+                        <div class="clarification-answer-body">{{ clarification.response }}</div>
+                        {% endif %}
+                    {% else %}
+                    <div class="small text-muted"><i class="bi bi-hourglass-split"></i> Inasubiri majibu...</div>
+                    {% endif %}
+                </div>
+                {% endfor %}
+            </div>
+            {% endif %}
         </div>
 
         <div class="collapse mb-2" id="report-post-{{ post.id }}">
@@ -1317,6 +2023,7 @@
             </form>
         </div>
 
+        <div class="collapse" id="comments-post-{{ post.id }}">
         <!-- Featured comment preview -->
         <div class="comment-thread">
             <div class="comment-list" data-post-id="{{ post.id }}">
@@ -1370,7 +2077,43 @@
             </form>
         </div>
         </div>
+        </div>
     </article>
+    {% if is_regular_user and forloop.counter|divisibleby:5 and groups_for_inline %}
+    <section class="group-inline-section">
+        <div class="group-inline-head">
+            <div class="fw-bold" style="font-size:.9rem;"><i class="bi bi-people-fill me-1" style="color:var(--primary);"></i> Discover Groups</div>
+            <a href="{% url 'chats:feed_groups' %}" data-community-partial="true" class="sidebar-see-all">See all</a>
+        </div>
+        <div class="group-inline-grid">
+            {% for group in groups_for_inline %}
+            <article class="group-preview-card">
+                <a href="{% url 'chats:group_detail' group.id %}">
+                    {% if group.image %}
+                    <img src="{{ group.image.url }}" alt="{{ group.name }}" class="group-preview-image">
+                    {% else %}
+                    <img src="https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&w=900&q=80" alt="{{ group.name }}" class="group-preview-image">
+                    {% endif %}
+                </a>
+                <div class="group-preview-body">
+                    <a href="{% url 'chats:group_detail' group.id %}" class="group-preview-name">{{ group.name }}</a>
+                    <div class="group-preview-row">
+                        <span class="group-preview-members">{{ group.member_total }} followers</span>
+                        {% if group.id not in my_group_ids %}
+                        <form method="post" action="{% url 'chats:group_join' group.id %}" class="d-inline js-partial-submit">
+                            {% csrf_token %}
+                            <button class="comment-action-btn" type="submit"><i class="bi bi-plus-circle"></i> Join</button>
+                        </form>
+                        {% else %}
+                        <a href="{% url 'chats:group_detail' group.id %}" class="comment-action-btn">Open</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </article>
+            {% endfor %}
+        </div>
+    </section>
+    {% endif %}
     {% empty %}
     <div class="c-card c-card-body text-center text-muted py-4">
         <i class="bi bi-chat-square-dots fs-2 d-block mb-2" style="color:var(--primary);opacity:.5;"></i>
@@ -1398,6 +2141,31 @@
     {% endif %}
     </div>
 </div>
+
+<div class="modal fade" id="statusViewerModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered status-viewer-dialog">
+        <div class="modal-content status-viewer-content">
+            <div class="status-viewer-body">
+                <div class="status-viewer-head">
+                    <div class="d-flex align-items-center gap-2">
+                        <div class="comment-avatar" id="statusViewerInitial" style="width:30px;height:30px;font-size:.78rem;">S</div>
+                        <div class="status-viewer-user" id="statusViewerUser">Status</div>
+                    </div>
+                    <a href="#" id="statusViewerOpenLink" class="btn btn-sm btn-light rounded-pill px-2 py-1" style="font-size:.72rem;">Open</a>
+                </div>
+                <div class="status-viewer-media-wrap" id="statusViewerMediaWrap">
+                    <img id="statusViewerImage" src="" alt="status" hidden>
+                </div>
+                <div class="status-viewer-text" id="statusViewerText">No status content.</div>
+                <div class="status-viewer-stats">
+                    <span class="status-viewer-pill"><i class="bi bi-heart-fill"></i> <span id="statusViewerLikes">0</span></span>
+                    <span class="status-viewer-pill"><i class="bi bi-chat-left-text-fill"></i> <span id="statusViewerComments">0</span></span>
+                    <span class="status-viewer-pill"><i class="bi bi-send-fill"></i> <span id="statusViewerShares">0</span></span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
 <script>
 (() => {
     let feedVideoObserver;
@@ -1421,6 +2189,64 @@
     const getCsrfToken = () => {
         const csrfTokenInput = document.querySelector('input[name="csrfmiddlewaretoken"]');
         return csrfTokenInput ? csrfTokenInput.value : '';
+    };
+
+    let statusViewerModal = null;
+    const getStatusViewerModal = () => {
+        const modalEl = document.getElementById('statusViewerModal');
+        if (!modalEl || !window.bootstrap || !window.bootstrap.Modal) return null;
+        statusViewerModal = window.bootstrap.Modal.getOrCreateInstance(modalEl);
+        return statusViewerModal;
+    };
+
+    const openStatusViewer = (statusLink) => {
+        if (!statusLink) return;
+        const modal = getStatusViewerModal();
+        if (!modal) {
+            const fallbackHref = statusLink.getAttribute('href');
+            if (fallbackHref) window.location.href = fallbackHref;
+            return;
+        }
+
+        const user = statusLink.dataset.statusUser || 'Status';
+        const content = statusLink.dataset.statusContent || 'No status content.';
+        const image = statusLink.dataset.statusImage || '';
+        const likes = statusLink.dataset.statusLikes || '0';
+        const comments = statusLink.dataset.statusComments || '0';
+        const shares = statusLink.dataset.statusShares || '0';
+        const detailLink = statusLink.dataset.statusLink || statusLink.getAttribute('href') || '#';
+
+        const userEl = document.getElementById('statusViewerUser');
+        const initialEl = document.getElementById('statusViewerInitial');
+        const textEl = document.getElementById('statusViewerText');
+        const imgEl = document.getElementById('statusViewerImage');
+        const mediaWrap = document.getElementById('statusViewerMediaWrap');
+        const openLink = document.getElementById('statusViewerOpenLink');
+        const likesEl = document.getElementById('statusViewerLikes');
+        const commentsEl = document.getElementById('statusViewerComments');
+        const sharesEl = document.getElementById('statusViewerShares');
+
+        if (userEl) userEl.textContent = user;
+        if (initialEl) initialEl.textContent = (user || 'S').trim().charAt(0).toUpperCase();
+        if (textEl) textEl.textContent = content;
+        if (likesEl) likesEl.textContent = likes;
+        if (commentsEl) commentsEl.textContent = comments;
+        if (sharesEl) sharesEl.textContent = shares;
+        if (openLink) openLink.setAttribute('href', detailLink);
+
+        if (imgEl && mediaWrap) {
+            if (image) {
+                imgEl.src = image;
+                imgEl.hidden = false;
+                mediaWrap.style.justifyContent = 'center';
+            } else {
+                imgEl.hidden = true;
+                imgEl.removeAttribute('src');
+                mediaWrap.style.justifyContent = 'flex-start';
+            }
+        }
+
+        modal.show();
     };
 
     const setupFeedVideos = () => {
@@ -1668,6 +2494,14 @@
             return;
         }
 
+        const statusLink = event.target.closest('.js-status-open');
+        if (statusLink) {
+            if (event.metaKey || event.ctrlKey || event.shiftKey || event.altKey) return;
+            event.preventDefault();
+            openStatusViewer(statusLink);
+            return;
+        }
+
         const postCard = event.target.closest('.post-card[data-post-url]');
         if (postCard) {
             if (event.target.closest('a,button,input,select,textarea,form,label,[data-bs-toggle],video')) return;
@@ -1702,6 +2536,13 @@
     });
 
     document.addEventListener('keydown', (event) => {
+        const statusLink = event.target.closest('.js-status-open');
+        if (statusLink && (event.key === 'Enter' || event.key === ' ')) {
+            event.preventDefault();
+            openStatusViewer(statusLink);
+            return;
+        }
+
         const postCard = event.target.closest('.post-card[data-post-url]');
         if (!postCard) return;
         if (event.key !== 'Enter' && event.key !== ' ') return;

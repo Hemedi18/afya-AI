@@ -45,7 +45,7 @@ class HealthCardForm(forms.ModelForm):
             'birth_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
             'full_name_override': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Acha wazi kutumia jina la profile'}),
             'gender_override': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Acha wazi kutumia gender ya persona'}),
-            'watermark_text': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Mfano: afya-AI • VERIFIED'}),
+            'watermark_text': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Mfano: AfyaSmart • VERIFIED'}),
             'style_theme': forms.Select(attrs={'class': 'form-select'}),
             'photo': forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/*'}),
             'show_watermark': forms.CheckboxInput(attrs={'class': 'form-check-input'}),

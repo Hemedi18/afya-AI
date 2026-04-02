@@ -111,6 +111,44 @@
     cursor: pointer; transition: all .15s;
 }
 .comment-action-btn:hover { border-color: var(--primary); color: var(--primary); }
+.comments-sort-desktop {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .5rem;
+}
+
+.comments-sort-mobile {
+    display: none;
+}
+
+.comment-sort-filter-btn {
+    width: 36px;
+    height: 36px;
+    border-radius: 999px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0;
+}
+
+.comment-sort-menu {
+    min-width: 170px;
+    border-radius: 12px;
+    border: 1px solid var(--line-soft);
+    background: var(--card-bg);
+}
+
+.comment-sort-menu .dropdown-item {
+    font-size: .84rem;
+    font-weight: 600;
+    color: var(--text-main);
+}
+
+.comment-sort-menu .dropdown-item.active,
+.comment-sort-menu .dropdown-item:active {
+    background: color-mix(in srgb, var(--primary) 14%, var(--card-bg));
+    color: var(--primary);
+}
 .child-reply {
     margin-top: .5rem; margin-left: 1rem; padding: .5rem .75rem;
     background: color-mix(in srgb, var(--card-bg) 68%, var(--app-bg));
@@ -268,6 +306,8 @@
 @media (max-width: 767px) {
     .detail-shell { padding-top: .4rem; }
     .detail-card { padding: .9rem; }
+    .comments-sort-desktop { display: none; }
+    .comments-sort-mobile { display: inline-flex; }
 }
 </style>
 
@@ -349,6 +389,7 @@
                                     <select name="target_role" class="form-select form-select-sm" style="border-radius:10px;" required>
                                         <option value="doctor">Doctor</option>
                                         <option value="admin">Admin</option>
+                                        <option value="group_admin">Group Admin Preview</option>
                                     </select>
                                 </div>
                                 <div class="col-md-7"><textarea name="question" rows="2" class="form-control form-control-sm" placeholder="Ni sehemu gani unahitaji ufafanuzi?" required autocomplete="off" style="border-radius:10px;"></textarea></div>
@@ -392,11 +433,22 @@
             <div class="detail-card" id="comments-panel">
                 <div class="d-flex align-items-center justify-content-between mb-3">
                     <div class="fw-bold" style="font-size:1rem;"><i class="bi bi-chat-fill" style="color:var(--primary);"></i> Comments <span class="text-muted fw-normal">({{ post.replies.count }})</span></div>
-                    <div class="d-flex flex-wrap gap-2">
+                    <div class="comments-sort-desktop">
                         <a href="?comments=recent{% if focused_clarification_id %}&clarification={{ focused_clarification_id }}{% endif %}" class="comment-action-btn {% if comment_sort == 'recent' %}active{% endif %}">Newest</a>
                         <a href="?comments=oldest{% if focused_clarification_id %}&clarification={{ focused_clarification_id }}{% endif %}" class="comment-action-btn {% if comment_sort == 'oldest' %}active{% endif %}">Oldest</a>
                         <a href="?comments=likes{% if focused_clarification_id %}&clarification={{ focused_clarification_id }}{% endif %}" class="comment-action-btn {% if comment_sort == 'likes' %}active{% endif %}">Most liked</a>
                         <a href="?comments=replies{% if focused_clarification_id %}&clarification={{ focused_clarification_id }}{% endif %}" class="comment-action-btn {% if comment_sort == 'replies' or comment_sort == 'reviews' %}active{% endif %}">Most replies</a>
+                    </div>
+                    <div class="dropdown comments-sort-mobile">
+                        <button class="comment-action-btn comment-sort-filter-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Filter comments">
+                            <i class="bi bi-funnel"></i>
+                        </button>
+                        <ul class="dropdown-menu dropdown-menu-end comment-sort-menu">
+                            <li><a class="dropdown-item {% if comment_sort == 'recent' %}active{% endif %}" href="?comments=recent{% if focused_clarification_id %}&clarification={{ focused_clarification_id }}{% endif %}">Newest</a></li>
+                            <li><a class="dropdown-item {% if comment_sort == 'oldest' %}active{% endif %}" href="?comments=oldest{% if focused_clarification_id %}&clarification={{ focused_clarification_id }}{% endif %}">Oldest</a></li>
+                            <li><a class="dropdown-item {% if comment_sort == 'likes' %}active{% endif %}" href="?comments=likes{% if focused_clarification_id %}&clarification={{ focused_clarification_id }}{% endif %}">Most liked</a></li>
+                            <li><a class="dropdown-item {% if comment_sort == 'replies' or comment_sort == 'reviews' %}active{% endif %}" href="?comments=replies{% if focused_clarification_id %}&clarification={{ focused_clarification_id }}{% endif %}">Most replies</a></li>
+                        </ul>
                     </div>
                 </div>
 
@@ -458,7 +510,7 @@
                             <form method="post" action="{% url 'chats:comment_clarify' reply.id %}" data-ajax-refresh-target="#comments-panel">
                                 {% csrf_token %}<input type="hidden" name="next" value="{{ request.path }}">
                                 <div class="row g-2">
-                                    <div class="col-md-3"><select name="target_role" class="form-select form-select-sm" style="border-radius:10px;" required><option value="doctor">Doctor</option><option value="admin">Admin</option></select></div>
+                                    <div class="col-md-3"><select name="target_role" class="form-select form-select-sm" style="border-radius:10px;" required><option value="doctor">Doctor</option><option value="admin">Admin</option><option value="group_admin">Group Admin Preview</option></select></div>
                                     <div class="col-md-7"><input type="text" name="question" class="form-control form-control-sm" placeholder="Ufafanuzi..." required autocomplete="off" style="border-radius:10px;"></div>
                                     <div class="col-md-2 d-grid"><button class="add-comment-btn" style="border-radius:10px;" type="submit">Send</button></div>
                                 </div>

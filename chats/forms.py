@@ -51,12 +51,26 @@ class ContentReportForm(forms.Form):
 
 
 class CommunityGroupForm(forms.ModelForm):
+    send_admin_preview = forms.BooleanField(
+        required=False,
+        initial=False,
+        widget=forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        label='Send for admin preview',
+    )
+    preview_note = forms.CharField(
+        required=False,
+        widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Maelezo kwa admin kuhusu group hii...'}),
+        label='Preview note',
+    )
+
     class Meta:
         model = CommunityGroup
-        fields = ['name', 'description']
+        fields = ['name', 'description', 'image', 'require_join_approval']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Mfano: Afya na Lishe'}),
             'description': forms.Textarea(attrs={'class': 'form-control', 'rows': 2, 'placeholder': 'Lengo la group hii...'}),
+            'image': forms.ClearableFileInput(attrs={'class': 'form-control', 'accept': 'image/*'}),
+            'require_join_approval': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
         }
 
 
@@ -71,7 +85,7 @@ class CommunityStatusForm(forms.Form):
 
 class ClarificationRequestForm(forms.Form):
     target_role = forms.ChoiceField(
-        choices=[('doctor', 'Doctor'), ('admin', 'Admin')],
+        choices=[('doctor', 'Doctor'), ('admin', 'Admin'), ('group_admin', 'Group Admin Preview')],
         widget=forms.Select(attrs={'class': 'form-select'}),
     )
     doctor_id = forms.IntegerField(required=False, widget=forms.HiddenInput())

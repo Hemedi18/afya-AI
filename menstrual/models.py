@@ -4,17 +4,25 @@ from django.utils import timezone
 from django.utils.translation import gettext_lazy as _
 from importlib import import_module
 
-try:
-    from django_q.tasks import async_task
-except Exception:
-    def async_task(task_path, *args, **kwargs):
-        """Fallback runner when django-q is unavailable in current environment."""
-        if isinstance(task_path, str) and '.' in task_path:
-            module_path, func_name = task_path.rsplit('.', 1)
-            module = import_module(module_path)
-            func = getattr(module, func_name)
-            return func(*args, **kwargs)
-        raise RuntimeError('Task path must be a dotted string when django-q is unavailable')
+django_q_async_task = None
+if getattr(settings, 'DJANGO_Q_AVAILABLE', False):
+    try:
+        from django_q.tasks import async_task as django_q_async_task
+    except Exception:
+        django_q_async_task = None
+
+
+def async_task(task_path, *args, **kwargs):
+    """Queue a task with Django Q when enabled, otherwise run it inline."""
+    if django_q_async_task is not None:
+        return django_q_async_task(task_path, *args, **kwargs)
+
+    if isinstance(task_path, str) and '.' in task_path:
+        module_path, func_name = task_path.rsplit('.', 1)
+        module = import_module(module_path)
+        func = getattr(module, func_name)
+        return func(*args, **kwargs)
+    raise RuntimeError('Task path must be a dotted string when django-q is unavailable')
 
 User = settings.AUTH_USER_MODEL
 
@@ -150,9 +158,11 @@ class CommunityReply(models.Model):
 class CommunityGroup(models.Model):
     name = models.CharField(max_length=120)
     description = models.TextField(blank=True)
+    image = models.ImageField(upload_to='community_groups/', blank=True, null=True)
     audience_gender = models.CharField(max_length=10, choices=CommunityPost.AUDIENCE_CHOICES, default=CommunityPost.AUDIENCE_FEMALE)
     created_by = models.ForeignKey(User, on_delete=models.CASCADE, related_name='created_community_groups')
     members = models.ManyToManyField(User, related_name='community_groups', blank=True)
+    require_join_approval = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
@@ -169,6 +179,7 @@ class CommunityStatus(models.Model):
     audience_gender = models.CharField(max_length=10, choices=CommunityPost.AUDIENCE_CHOICES, default=CommunityPost.AUDIENCE_FEMALE)
     content = models.CharField(max_length=250)
     image = models.ImageField(upload_to='community_status/', blank=True, null=True)
+    likes = models.ManyToManyField(User, related_name='community_status_likes', blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     expires_at = models.DateTimeField(default=default_status_expiry)
 
@@ -177,6 +188,59 @@ class CommunityStatus(models.Model):
 
     def __str__(self):
         return f"Status by {self.user}"
+
+
+class CommunityStatusComment(models.Model):
+    status = models.ForeignKey(CommunityStatus, on_delete=models.CASCADE, related_name='comments')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='community_status_comments')
+    content = models.CharField(max_length=400)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+
+    def __str__(self):
+        return f"Comment by {self.user} on status {self.status_id}"
+
+
+class CommunityStatusShare(models.Model):
+    status = models.ForeignKey(CommunityStatus, on_delete=models.CASCADE, related_name='shares')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='community_status_shares')
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        unique_together = ('status', 'user')
+
+    def __str__(self):
+        return f"Share by {self.user} on status {self.status_id}"
+
+
+class CommunityGroupJoinRequest(models.Model):
+    STATUS_PENDING = 'pending'
+    STATUS_APPROVED = 'approved'
+    STATUS_REJECTED = 'rejected'
+    STATUS_CHOICES = [
+        (STATUS_PENDING, _('Pending')),
+        (STATUS_APPROVED, _('Approved')),
+        (STATUS_REJECTED, _('Rejected')),
+    ]
+
+    group = models.ForeignKey(CommunityGroup, on_delete=models.CASCADE, related_name='join_requests')
+    user = models.ForeignKey(User, on_delete=models.CASCADE, related_name='community_group_join_requests')
+    status = models.CharField(max_length=20, choices=STATUS_CHOICES, default=STATUS_PENDING)
+    message = models.CharField(max_length=220, blank=True)
+    reviewed_by = models.ForeignKey(User, on_delete=models.SET_NULL, null=True, blank=True, related_name='reviewed_group_join_requests')
+    is_notified = models.BooleanField(default=False)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
+    class Meta:
+        ordering = ['-created_at']
+        unique_together = ('group', 'user')
+
+    def __str__(self):
+        return f"{self.user} -> {self.group} ({self.status})"
 
 # 5. DOCTOR PROFILE & CONTACT
 class DoctorProfile(models.Model):

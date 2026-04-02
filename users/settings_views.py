@@ -9,10 +9,12 @@ from users.models import UserAIPersona, PersonaDataSnapshot
 from .forms import (
     ProfileInfoForm,
     AvatarBioForm,
+    DisplayThemeForm,
     PersonaFullEditForm,
     ZanzPasswordChangeForm,
 )
 from django.contrib.auth import update_session_auth_hash
+from menstrual.models import MenstrualUserSetting
 
 
 def _store_persona_snapshot(user, persona, source='settings_update'):
@@ -39,10 +41,12 @@ class UserSettingsView(LoginRequiredMixin, View):
 
     def get(self, request, section='general'):
         persona, _ = UserAIPersona.objects.get_or_create(user=request.user)
+        settings_obj, _ = MenstrualUserSetting.objects.get_or_create(user=request.user)
         
         forms = {
             'general': ProfileInfoForm(instance=request.user),
             'display': AvatarBioForm(instance=persona),
+            'display_theme': DisplayThemeForm(instance=settings_obj, prefix='theme'),
             'security': ZanzPasswordChangeForm(user=request.user),
         }
         
@@ -60,6 +64,7 @@ class UserSettingsView(LoginRequiredMixin, View):
 
     def post(self, request, section='general'):
         persona, _ = UserAIPersona.objects.get_or_create(user=request.user)
+        settings_obj, _ = MenstrualUserSetting.objects.get_or_create(user=request.user)
         
         action = request.POST.get('_action', section)
         success_msg = ''
@@ -74,11 +79,13 @@ class UserSettingsView(LoginRequiredMixin, View):
         
         elif action == 'display':
             form = AvatarBioForm(request.POST, request.FILES, instance=persona)
-            if form.is_valid():
+            theme_form = DisplayThemeForm(request.POST, instance=settings_obj, prefix='theme')
+            if form.is_valid() and theme_form.is_valid():
                 form.save()
+                theme_form.save()
                 success_msg = 'Display settings updated!'
             else:
-                return self._render_with_errors(request, section, {'display': form})
+                return self._render_with_errors(request, section, {'display': form, 'display_theme': theme_form})
         
         elif action == 'security':
             form = ZanzPasswordChangeForm(user=request.user, data=request.POST)
@@ -99,9 +106,11 @@ class UserSettingsView(LoginRequiredMixin, View):
 
     def _render_with_errors(self, request, section, form_dict):
         persona, _ = UserAIPersona.objects.get_or_create(user=request.user)
+        settings_obj, _ = MenstrualUserSetting.objects.get_or_create(user=request.user)
         forms = {
             'general': form_dict.get('general', ProfileInfoForm(instance=request.user)),
             'display': form_dict.get('display', AvatarBioForm(instance=persona)),
+            'display_theme': form_dict.get('display_theme', DisplayThemeForm(instance=settings_obj, prefix='theme')),
             'security': form_dict.get('security', ZanzPasswordChangeForm(user=request.user)),
         }
         

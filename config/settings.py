@@ -219,12 +219,12 @@ if DJANGO_Q_AVAILABLE:
     }
 
 JAZZMIN_SETTINGS = {
-    "site_title": "ZanzHub Admin",
-    "site_header": "ZanzHub AI Health",
-    "site_brand": "ZanzHub Admin",
+    "site_title": "AfyaSmart Admin",
+    "site_header": "AfyaSmart Health",
+    "site_brand": "AfyaSmart Admin",
     "site_logo_classes": "img-circle",
-    "welcome_sign": "Karibu kwenye control center ya ZanzHub",
-    "copyright": "ZanzHub AI Health",
+    "welcome_sign": "Karibu kwenye control center ya AfyaSmart",
+    "copyright": "AfyaSmart Health",
     "search_model": [
         "auth.User",
         "menstrual.DoctorProfile",

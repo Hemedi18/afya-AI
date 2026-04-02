@@ -16,52 +16,63 @@
         font-size: 1.8rem;
         font-weight: 800;
         margin-bottom: .5rem;
-        color: #0f172a;
+        color: var(--text-main);
     }
 
     .settings-header p {
-        color: #64748b;
+        color: var(--text-muted);
         font-size: .95rem;
     }
 
     .settings-layout {
         display: grid;
-        grid-template-columns: 280px 1fr;
+        grid-template-columns: 1fr;
         gap: 1.5rem;
     }
 
     .settings-sidebar {
-        position: sticky;
-        top: 1rem;
+        position: relative;
+        top: 0;
         height: fit-content;
     }
 
     .settings-nav {
         display: flex;
-        flex-direction: column;
+        flex-direction: row;
+        flex-wrap: nowrap;
         gap: .4rem;
+        overflow-x: auto;
+        scrollbar-width: none;
+    }
+
+    .settings-nav::-webkit-scrollbar {
+        display: none;
     }
 
     .settings-nav-item {
-        padding: .65rem .9rem;
+        width: 46px;
+        height: 46px;
+        padding: 0;
         border-radius: 12px;
-        border: 1px solid transparent;
-        background: rgba(255, 255, 255, .7);
-        color: #64748b;
+        border: 1px solid var(--line-soft);
+        background: color-mix(in srgb, var(--card-bg) 90%, transparent);
+        color: var(--text-muted);
         cursor: pointer;
         display: flex;
         align-items: center;
+        justify-content: center;
         gap: .6rem;
         text-decoration: none;
         transition: all .2s ease;
         font-weight: 500;
         font-size: .9rem;
+        flex: 0 0 auto;
     }
 
     .settings-nav-item:hover {
-        background: rgba(255, 255, 255, .95);
-        border-color: rgba(15, 23, 42, .1);
-        color: #0f172a;
+        background: color-mix(in srgb, var(--card-bg) 98%, transparent);
+        border-color: color-mix(in srgb, var(--primary) 30%, var(--line-soft));
+        color: var(--text-main);
     }
 
     .settings-nav-item.active {
@@ -71,22 +82,29 @@
     }
 
     .settings-nav-item i {
-        font-size: 1rem;
+        font-size: 1.1rem;
+    }
+
+    .settings-nav-item span {
+        display: none;
     }
 
     .settings-content {
-        background: rgba(255, 255, 255, .9);
-        border: 1px solid rgba(15, 23, 42, .08);
+        background: var(--card-bg);
+        border: 1px solid var(--line-soft);
         border-radius: 16px;
         padding: 2rem;
         box-shadow: 0 10px 30px rgba(15, 23, 42, .06);
+        color: var(--text-main);
+        max-width: 100%;
+        overflow: hidden;
     }
 
     .settings-section-title {
         font-size: 1.3rem;
         font-weight: 700;
         margin-bottom: 1.5rem;
-        color: #0f172a;
+        color: var(--text-main);
         display: flex;
         align-items: center;
         gap: .6rem;
@@ -105,13 +123,13 @@
         display: block;
         margin-bottom: .5rem;
         font-weight: 600;
-        color: #0f172a;
+        color: var(--text-main);
         font-size: .92rem;
     }
 
     .form-group .helptext {
         font-size: .82rem;
-        color: #64748b;
+        color: var(--text-muted);
         margin-top: .35rem;
         display: block;
     }
@@ -121,10 +139,11 @@
     .form-group select {
         width: 100%;
         padding: .65rem .85rem;
-        border: 1px solid rgba(15, 23, 42, .12);
+        border: 1px solid var(--line-soft);
         border-radius: 8px;
         font-size: .95rem;
-        background: rgba(255, 255, 255, .95);
+        background: color-mix(in srgb, var(--card-bg) 92%, transparent);
+        color: var(--text-main);
         transition: all .2s ease;
     }
 
@@ -134,7 +153,7 @@
         outline: none;
         border-color: #2563eb;
         box-shadow: 0 0 0 3px rgba(37, 99, 235, .1);
-        background: #fff;
+        background: var(--card-bg);
     }
 
     .form-group textarea {
@@ -167,9 +186,9 @@
     }
 
     .btn-cancel {
-        background: rgba(15, 23, 42, .08);
-        color: #0f172a;
-        border: 1px solid rgba(15, 23, 42, .12);
+        background: color-mix(in srgb, var(--card-bg) 80%, var(--app-bg));
+        color: var(--text-main);
+        border: 1px solid var(--line-soft);
         padding: .65rem 1.5rem;
         border-radius: 8px;
         font-weight: 600;
@@ -178,7 +197,7 @@
     }
 
     .btn-cancel:hover {
-        background: rgba(15, 23, 42, .12);
+        background: color-mix(in srgb, var(--card-bg) 95%, var(--app-bg));
     }
 
     .errorlist {
@@ -206,10 +225,6 @@
     }
 
     @media (max-width: 768px) {
-        .settings-layout {
-            grid-template-columns: 1fr;
-        }
-
         .settings-sidebar {
             position: relative;
             top: 0;
@@ -217,13 +232,12 @@
 
         .settings-nav {
             flex-direction: row;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
         }
 
         .settings-nav-item {
-            flex: 1;
-            min-width: 140px;
-            justify-content: center;
+            width: 44px;
+            height: 44px;
         }
 
         .settings-content {
@@ -330,6 +344,47 @@
                     </div>
                     {% endif %}
                 {% endfor %}
+
+                <div class="form-group" style="margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid rgba(15, 23, 42, .08);">
+                    <label><i class="bi bi-palette2 me-1"></i> Theme Color Selection</label>
+                    <div class="form-group">
+                        {{ forms.display_theme.color_theme.label_tag }}
+                        {{ forms.display_theme.color_theme }}
+                        {% if forms.display_theme.color_theme.errors %}
+                        <ul class="errorlist">
+                            {% for error in forms.display_theme.color_theme.errors %}
+                            <li>{{ error }}</li>
+                            {% endfor %}
+                        </ul>
+                        {% endif %}
+                    </div>
+
+                    <div class="form-group">
+                        <div class="form-check">
+                            {{ forms.display_theme.use_custom_palette }}
+                            <label class="form-check-label" for="{{ forms.display_theme.use_custom_palette.id_for_label }}">Use custom colors</label>
+                        </div>
+                    </div>
+
+                    <div class="row g-3">
+                        <div class="col-md-6 form-group">
+                            {{ forms.display_theme.custom_primary.label_tag }}
+                            {{ forms.display_theme.custom_primary }}
+                        </div>
+                        <div class="col-md-6 form-group">
+                            {{ forms.display_theme.custom_secondary.label_tag }}
+                            {{ forms.display_theme.custom_secondary }}
+                        </div>
+                        <div class="col-md-6 form-group">
+                            {{ forms.display_theme.background_style.label_tag }}
+                            {{ forms.display_theme.background_style }}
+                        </div>
+                        <div class="col-md-6 form-group">
+                            {{ forms.display_theme.background_intensity.label_tag }}
+                            {{ forms.display_theme.background_intensity }}
+                        </div>
+                    </div>
+                </div>
 
                 <div class="form-actions">
                     <button type="submit" class="btn-save">

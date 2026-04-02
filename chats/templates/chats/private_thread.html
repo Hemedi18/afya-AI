@@ -1602,7 +1602,14 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
     }
 
     if (action === 'delete' && contextTarget.classList.contains('sent')) {
-      const ok = window.confirm('Delete this message?');
+      const ok = window.showSiteConfirmModal
+        ? await window.showSiteConfirmModal({
+            title: 'Delete message',
+            message: 'Una uhakika unataka kufuta ujumbe huu?',
+            confirmText: 'Delete',
+            variant: 'danger'
+          })
+        : true;
       if (ok) await deleteMessageRow(contextTarget);
     }
 

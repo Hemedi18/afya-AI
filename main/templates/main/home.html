@@ -152,7 +152,15 @@
     .landing-card { padding: 1.15rem; height: 100%; }
     .landing-card h6 { font-weight: 800; margin-bottom: .45rem; }
     .landing-card p { margin-bottom: 0; color: var(--text-muted); line-height: 1.65; }
-    .section-head { font-size: .82rem; font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--primary); }
+    .section-head {
+        font-size: clamp(1.02rem, .98rem + .28vw, 1.2rem);
+        font-weight: 800;
+        letter-spacing: .02em;
+        text-transform: none;
+        color: var(--text-main);
+        margin: 0;
+        line-height: 1.25;
+    }
 
     .service-icon {
         width: 42px;
@@ -311,12 +319,12 @@
                         <h3 class="hero-kicker">{{ welcome_tag }}</h3>
                         <h2 class="hero-title mb-2">
                             <span class="tone-a">Karibu</span>
-                            <span class="tone-b">afya-AI</span>
+                            <span class="tone-b">AfyaSmart</span>
                             <span class="tone-c">Health Assistant</span>
                         </h2>
                     </div>
                     <p class="hero-sub mb-4">
-                        afya-AI ni platform ya afya ya uzazi na ustawi wa kila siku. Hapa utapata mfumo wa ku-track mzunguko,
+                        AfyaSmart ni platform ya afya ya uzazi na ustawi wa kila siku. Hapa utapata mfumo wa ku-track mzunguko,
                         AI chat kwa majibu ya haraka, support ya jamii, na mwongozo wa wataalamu. Mtumiaji mpya anayejisajili
                         ataelekezwa hapa kwanza ili apate maelezo kamili ya huduma, documentation, na njia za mawasiliano.
                     </p>
@@ -356,7 +364,7 @@
         </section>
 
         <section class="mb-4">
-            <div class="section-head mb-2">Services</div>
+            <h2 class="section-head mb-2">Services</h2>
             <div class="row g-3">
                 <div class="col-md-6 col-lg-3">
                     <div class="landing-card">
@@ -394,7 +402,7 @@
         </section>
 
         <section class="mb-4">
-            <div class="section-head mb-2">How It Works</div>
+            <h2 class="section-head mb-2">How It Works</h2>
             <div class="row g-3">
                 <div class="col-md-6 col-lg-3">
                     <div class="step-item">
@@ -428,7 +436,7 @@
         </section>
 
         <section class="mb-4">
-            <div class="section-head mb-2">Documentation</div>
+            <h2 class="section-head mb-2">Documentation</h2>
             <div class="landing-card">
                 <div class="row g-3 align-items-center">
                     <div class="col-lg-8">
@@ -445,7 +453,7 @@
         </section>
 
         <section class="mb-4">
-            <div class="section-head mb-2">Contact & Support</div>
+            <h2 class="section-head mb-2">Contact & Support</h2>
             <div class="row g-3">
                 <div class="col-md-7">
                     <div class="landing-card">
@@ -461,7 +469,7 @@
                 </div>
                 <div class="col-md-5">
                     <div class="landing-card">
-                        <h6><i class="bi bi-info-circle me-1"></i>Kuhusu afya-AI</h6>
+                        <h6><i class="bi bi-info-circle me-1"></i>Kuhusu AfyaSmart</h6>
                         <p class="mb-3">Fahamu dhamira, usalama wa data, na mwelekeo wa huduma zetu za afya kidigitali kwa muda mrefu.</p>
                         <a href="{% url 'main:about' %}" class="btn btn-outline-secondary rounded-pill px-4">Soma About</a>
                     </div>
@@ -470,7 +478,7 @@
         </section>
 
         <section class="mb-2">
-            <div class="section-head mb-2">FAQ</div>
+            <h2 class="section-head mb-2">FAQ</h2>
             <div class="landing-glass p-3 p-md-4">
                 <div class="faq-item">
                     <div class="faq-q"><i class="bi bi-patch-question"></i>Kwa nini niweke log kila siku?</div>

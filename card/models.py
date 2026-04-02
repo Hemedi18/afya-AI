@@ -63,7 +63,7 @@ class HealthCard(models.Model):
 	birth_date = models.DateField(null=True, blank=True)
 	photo = models.ImageField(upload_to='health_cards/photos/', null=True, blank=True)
 	style_theme = models.CharField(max_length=20, choices=STYLE_CHOICES, default=STYLE_CLASSIC)
-	watermark_text = models.CharField(max_length=80, blank=True, default='afya-AI')
+	watermark_text = models.CharField(max_length=80, blank=True, default='AfyaSmart')
 	show_watermark = models.BooleanField(default=True)
 
 	# Selective visibility for scan payload

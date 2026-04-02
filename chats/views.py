@@ -10,7 +10,7 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
 from django.core.files.base import ContentFile
 from django.core.paginator import Paginator
-from django.db.models import Count, Prefetch, Q
+from django.db.models import Count, ExpressionWrapper, F, IntegerField, Prefetch, Q
 from django.http import JsonResponse
 from django.utils import timezone
 from django.utils.html import strip_tags
@@ -19,7 +19,16 @@ from django.urls import reverse
 from django.views import View
 from bleach.css_sanitizer import CSSSanitizer
 
-from menstrual.models import CommunityGroup, CommunityPost, CommunityReply, CommunityStatus, MenstrualUserSetting
+from menstrual.models import (
+	CommunityGroup,
+	CommunityGroupJoinRequest,
+	CommunityPost,
+	CommunityReply,
+	CommunityStatus,
+	CommunityStatusComment,
+	CommunityStatusShare,
+	MenstrualUserSetting,
+)
 from users.permissions import DoctorRequiredMixin, ModeratorRequiredMixin, can_moderate, is_admin, is_doctor
 from users.utils import get_user_gender
 
@@ -69,6 +78,10 @@ def _resolve_target_doctor(target_role, doctor_id):
 	if not doctor_id or not str(doctor_id).isdigit():
 		return None
 	return _verified_doctors_queryset().filter(pk=doctor_id).first()
+
+
+def _is_regular_user(user):
+	return not (is_admin(user) or is_doctor(user) or can_moderate(user))
 
 
 RICH_TEXT_ALLOWED_TAGS = [
@@ -217,6 +230,12 @@ def _can_respond_to_clarification(user, clarification):
 		if clarification.target_doctor_id and clarification.target_doctor_id != user.id and not is_admin(user):
 			return False
 		return True
+	if clarification.target_role == ClarificationRequest.TARGET_GROUP_ADMIN:
+		if is_admin(user):
+			return True
+		if clarification.group_id and clarification.group and clarification.group.created_by_id == user.id:
+			return True
+		return False
 	return False
 
 
@@ -254,6 +273,12 @@ def _notification_context_for_user(user, limit=5):
 		reporter=user,
 	).exclude(status=ContentReport.STATUS_OPEN).order_by('-created_at')[:limit]
 
+	recent_group_join_approvals = CommunityGroupJoinRequest.objects.select_related('group').filter(
+		user=user,
+		status=CommunityGroupJoinRequest.STATUS_APPROVED,
+		is_notified=False,
+	).order_by('-updated_at')[:limit]
+
 	unread_private_count = PrivateMessage.objects.filter(
 		Q(conversation__patient=user) | Q(conversation__doctor=user),
 		is_read=False,
@@ -264,6 +289,7 @@ def _notification_context_for_user(user, limit=5):
 		'recent_clarification_answers': recent_clarification_answers,
 		'recent_clarification_requests': recent_clarification_requests,
 		'recent_report_updates': recent_report_updates,
+		'recent_group_join_approvals': recent_group_join_approvals,
 		'unread_private_count': unread_private_count,
 	}
 
@@ -340,10 +366,20 @@ class SocialFeedView(LoginRequiredMixin, View):
 		posts_page = paginator.get_page(page_number)
 		_prepare_posts_for_feed(posts_page.object_list)
 
-		statuses = CommunityStatus.objects.select_related('user', 'group').filter(
+		statuses = list(CommunityStatus.objects.select_related('user', 'group').filter(
 			audience_gender=audience_gender,
 			expires_at__gt=timezone.now(),
-		).order_by('-created_at')[:20]
+		).annotate(
+			likes_total=Count('likes', distinct=True),
+			comments_total=Count('comments', distinct=True),
+			shares_total=Count('shares', distinct=True),
+			rating_score=ExpressionWrapper(
+				(F('likes_total') * 4) + (F('comments_total') * 3) + (F('shares_total') * 5),
+				output_field=IntegerField(),
+			),
+		).order_by('-rating_score', '-created_at')[:30])
+
+		groups_for_inline = groups.annotate(member_total=Count('members', distinct=True))[:10]
 		notification_context = _notification_context_for_user(request.user, limit=5)
 
 		settings_obj, _ = MenstrualUserSetting.objects.get_or_create(user=request.user)
@@ -360,6 +396,7 @@ class SocialFeedView(LoginRequiredMixin, View):
 				'available_doctors': all_doctors,
 				'selected_group': selected_group,
 				'statuses': statuses,
+				'status_featured': statuses[:12],
 				'group_form': CommunityGroupForm(),
 				'status_form': CommunityStatusForm(initial={'group_id': selected_group.id if selected_group else None}),
 				'clarification_form': ClarificationRequestForm(),
@@ -373,6 +410,8 @@ class SocialFeedView(LoginRequiredMixin, View):
 				'is_moderator_user': can_moderate(request.user),
 				'is_admin_user': is_admin(request.user),
 				'is_doctor_user': is_doctor(request.user),
+				'is_regular_user': _is_regular_user(request.user),
+				'groups_for_inline': groups_for_inline,
 			},
 		)
 
@@ -382,6 +421,9 @@ class NotificationsView(LoginRequiredMixin, View):
 
 	def get(self, request, *args, **kwargs):
 		context = _notification_context_for_user(request.user, limit=40)
+		approval_ids = [item.id for item in context.get('recent_group_join_approvals', [])]
+		if approval_ids:
+			CommunityGroupJoinRequest.objects.filter(id__in=approval_ids).update(is_notified=True)
 		return render(request, self.template_name, context)
 
 
@@ -779,7 +821,7 @@ class DeleteCommentView(LoginRequiredMixin, View):
 
 class CreateGroupView(LoginRequiredMixin, View):
 	def post(self, request, *args, **kwargs):
-		form = CommunityGroupForm(request.POST)
+		form = CommunityGroupForm(request.POST, request.FILES)
 		if not form.is_valid():
 			messages.error(request, 'Group haijaundwa. Hakikisha jina na maelezo ni sahihi.')
 			return redirect('chats:feed')
@@ -790,17 +832,50 @@ class CreateGroupView(LoginRequiredMixin, View):
 		group.created_by = request.user
 		group.save()
 		group.members.add(request.user)
+
+		if form.cleaned_data.get('send_admin_preview'):
+			ClarificationRequest.objects.create(
+				asker=request.user,
+				group=group,
+				target_role=ClarificationRequest.TARGET_GROUP_ADMIN,
+				question=(form.cleaned_data.get('preview_note') or '').strip() or f'Naomba admin preview ya group: {group.name}',
+			)
+			messages.success(request, 'Group imeundwa. Ombi la admin preview limetumwa.')
+			return redirect('chats:group_detail', group_id=group.id)
+
 		messages.success(request, 'Group imeundwa na umejiunga moja kwa moja.')
-		return redirect('chats:feed')
+		return redirect('chats:group_detail', group_id=group.id)
 
 
 class JoinGroupView(LoginRequiredMixin, View):
 	def post(self, request, group_id, *args, **kwargs):
 		audience_gender = _audience_for_user(request.user)
 		group = get_object_or_404(CommunityGroup, pk=group_id, audience_gender=audience_gender)
+
+		if group.members.filter(pk=request.user.id).exists():
+			messages.info(request, f'Tayari uko ndani ya group: {group.name}.')
+			return redirect('chats:group_detail', group_id=group.id)
+
+		if group.require_join_approval:
+			join_request, created = CommunityGroupJoinRequest.objects.get_or_create(
+				group=group,
+				user=request.user,
+				defaults={
+					'status': CommunityGroupJoinRequest.STATUS_PENDING,
+					'message': (request.POST.get('message') or '').strip(),
+				},
+			)
+			if not created and join_request.status == CommunityGroupJoinRequest.STATUS_REJECTED:
+				join_request.status = CommunityGroupJoinRequest.STATUS_PENDING
+				join_request.message = (request.POST.get('message') or '').strip() or join_request.message
+				join_request.is_notified = False
+				join_request.save(update_fields=['status', 'message', 'is_notified', 'updated_at'])
+			messages.success(request, f'Ombi la kujiunga limetumwa kwa admin wa group: {group.name}.')
+			return redirect('chats:group_detail', group_id=group.id)
+
 		group.members.add(request.user)
 		messages.success(request, f'Umejiunga kwenye group: {group.name}.')
-		return redirect(f"{redirect('chats:feed').url}?group={group.id}")
+		return redirect('chats:group_detail', group_id=group.id)
 
 
 class CreateStatusView(LoginRequiredMixin, View):
@@ -841,16 +916,141 @@ class CreateStatusPageView(LoginRequiredMixin, View):
 		return render(request, self.template_name, context)
 
 
+class StatusDetailView(LoginRequiredMixin, View):
+	template_name = 'chats/status_detail.html'
+
+	def get(self, request, status_id, *args, **kwargs):
+		status = get_object_or_404(
+			CommunityStatus.objects.select_related('user', 'group').prefetch_related('likes', 'comments__user', 'shares__user'),
+			pk=status_id,
+			audience_gender=_audience_for_user(request.user),
+		)
+		status_comments = status.comments.select_related('user').all()
+		return render(
+			request,
+			self.template_name,
+			{
+				'status': status,
+				'status_comments': status_comments,
+				'is_liked': status.likes.filter(pk=request.user.id).exists(),
+			},
+		)
+
+
+class ToggleStatusLikeView(LoginRequiredMixin, View):
+	def post(self, request, status_id, *args, **kwargs):
+		status = get_object_or_404(CommunityStatus, pk=status_id, audience_gender=_audience_for_user(request.user))
+		if status.likes.filter(pk=request.user.id).exists():
+			status.likes.remove(request.user)
+		else:
+			status.likes.add(request.user)
+		messages.success(request, 'Status reaction imehifadhiwa.')
+		return redirect('chats:status_detail', status_id=status.id)
+
+
+class AddStatusCommentView(LoginRequiredMixin, View):
+	def post(self, request, status_id, *args, **kwargs):
+		status = get_object_or_404(CommunityStatus, pk=status_id, audience_gender=_audience_for_user(request.user))
+		content = (request.POST.get('content') or '').strip()
+		if not content:
+			messages.warning(request, 'Andika comment kwanza.')
+			return redirect('chats:status_detail', status_id=status.id)
+		CommunityStatusComment.objects.create(status=status, user=request.user, content=content[:400])
+		messages.success(request, 'Comment imeongezwa kwenye status.')
+		return redirect('chats:status_detail', status_id=status.id)
+
+
+class ShareStatusView(LoginRequiredMixin, View):
+	def post(self, request, status_id, *args, **kwargs):
+		status = get_object_or_404(CommunityStatus, pk=status_id, audience_gender=_audience_for_user(request.user))
+		CommunityStatusShare.objects.get_or_create(status=status, user=request.user)
+		messages.success(request, 'Status imesharewa.')
+		return redirect('chats:status_detail', status_id=status.id)
+
+
+class GroupDetailView(LoginRequiredMixin, View):
+	template_name = 'chats/group_detail.html'
+
+	def get(self, request, group_id, *args, **kwargs):
+		audience_gender = _audience_for_user(request.user)
+		group = get_object_or_404(
+			CommunityGroup.objects.select_related('created_by').prefetch_related('members'),
+			pk=group_id,
+			audience_gender=audience_gender,
+		)
+		posts_qs = CommunityPost.objects.select_related('user', 'group').prefetch_related('groups', 'likes', 'replies').filter(
+			Q(group=group) | Q(groups=group)
+		).distinct().order_by('-created_at')
+		paginator = Paginator(posts_qs, 8)
+		posts_page = paginator.get_page(request.GET.get('page'))
+		_prepare_posts_for_feed(posts_page.object_list)
+
+		pending_requests = []
+		if group.created_by_id == request.user.id or is_admin(request.user):
+			pending_requests = group.join_requests.select_related('user').filter(status=CommunityGroupJoinRequest.STATUS_PENDING)[:30]
+
+		user_request = group.join_requests.filter(user=request.user).first()
+
+		return render(
+			request,
+			self.template_name,
+			{
+				'group': group,
+				'posts': posts_page,
+				'can_moderate': can_moderate(request.user),
+				'is_member': group.members.filter(pk=request.user.id).exists(),
+				'pending_requests': pending_requests,
+				'user_join_request': user_request,
+			},
+		)
+
+
+class GroupJoinRequestDecisionView(LoginRequiredMixin, View):
+	def post(self, request, request_id, *args, **kwargs):
+		join_request = get_object_or_404(CommunityGroupJoinRequest.objects.select_related('group', 'user'), pk=request_id)
+		group = join_request.group
+		if not (is_admin(request.user) or group.created_by_id == request.user.id):
+			messages.error(request, 'Huna ruhusa ya kusimamia maombi ya group hii.')
+			return redirect('chats:group_detail', group_id=group.id)
+
+		action = (request.POST.get('action') or '').strip().lower()
+		if action == 'approve':
+			join_request.status = CommunityGroupJoinRequest.STATUS_APPROVED
+			join_request.reviewed_by = request.user
+			join_request.is_notified = False
+			join_request.save(update_fields=['status', 'reviewed_by', 'is_notified', 'updated_at'])
+			group.members.add(join_request.user)
+			messages.success(request, f'Umeidhinisha {join_request.user.username} kujiunga.')
+		elif action == 'reject':
+			join_request.status = CommunityGroupJoinRequest.STATUS_REJECTED
+			join_request.reviewed_by = request.user
+			join_request.is_notified = True
+			join_request.save(update_fields=['status', 'reviewed_by', 'is_notified', 'updated_at'])
+			messages.info(request, f'Ombi la {join_request.user.username} limekataliwa.')
+
+		return redirect('chats:group_detail', group_id=group.id)
+
+
 class ClarificationPostRequestView(LoginRequiredMixin, View):
 	def post(self, request, post_id, *args, **kwargs):
 		post = get_object_or_404(CommunityPost, pk=post_id)
 		form = ClarificationRequestForm(request.POST)
 		if form.is_valid():
+			target_role = form.cleaned_data['target_role']
+			target_group = None
+			if target_role == ClarificationRequest.TARGET_GROUP_ADMIN:
+				target_group = post.group or post.groups.first()
+				if not target_group:
+					if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+						return JsonResponse({'ok': False, 'error': 'Post hii haina group ya kutuma preview.'}, status=400)
+					messages.error(request, 'Post hii haina group ya kutuma preview.')
+					return redirect('chats:feed')
 			target_doctor = _resolve_target_doctor(form.cleaned_data['target_role'], form.cleaned_data.get('doctor_id'))
 			ClarificationRequest.objects.create(
 				asker=request.user,
 				post=post,
-				target_role=form.cleaned_data['target_role'],
+				group=target_group,
+				target_role=target_role,
 				target_doctor=target_doctor,
 				question=form.cleaned_data['question'],
 			)
@@ -869,11 +1069,21 @@ class ClarificationCommentRequestView(LoginRequiredMixin, View):
 		comment = get_object_or_404(CommunityReply, pk=comment_id)
 		form = ClarificationRequestForm(request.POST)
 		if form.is_valid():
+			target_role = form.cleaned_data['target_role']
+			target_group = None
+			if target_role == ClarificationRequest.TARGET_GROUP_ADMIN:
+				target_group = comment.post.group or comment.post.groups.first()
+				if not target_group:
+					if request.headers.get('X-Requested-With') == 'XMLHttpRequest':
+						return JsonResponse({'ok': False, 'error': 'Comment hii haina group ya kutuma preview.'}, status=400)
+					messages.error(request, 'Comment hii haina group ya kutuma preview.')
+					return redirect('chats:feed')
 			target_doctor = _resolve_target_doctor(form.cleaned_data['target_role'], form.cleaned_data.get('doctor_id'))
 			ClarificationRequest.objects.create(
 				asker=request.user,
 				comment=comment,
-				target_role=form.cleaned_data['target_role'],
+				group=target_group,
+				target_role=target_role,
 				target_doctor=target_doctor,
 				question=form.cleaned_data['question'],
 			)
@@ -887,16 +1097,27 @@ class ClarificationCommentRequestView(LoginRequiredMixin, View):
 		return redirect('chats:feed')
 
 
-class ClarificationInboxView(DoctorRequiredMixin, View):
+class ClarificationInboxView(LoginRequiredMixin, View):
 	template_name = 'chats/clarification_inbox.html'
 
 	def get(self, request, *args, **kwargs):
-		queries = ClarificationRequest.objects.select_related('asker', 'post__user', 'comment__user', 'responded_by', 'target_doctor', 'asker__ai_persona', 'target_doctor__ai_persona').prefetch_related('messages__user', 'likes', 'dislikes')
+		if not (is_admin(request.user) or is_doctor(request.user) or request.user.created_community_groups.exists()):
+			messages.error(request, 'Huna ruhusa kuona clarification inbox.')
+			return redirect('chats:feed')
+		queries = ClarificationRequest.objects.select_related('asker', 'post__user', 'comment__user', 'group', 'responded_by', 'target_doctor', 'asker__ai_persona', 'target_doctor__ai_persona').prefetch_related('messages__user', 'likes', 'dislikes')
 		if is_admin(request.user):
-			queries = queries.filter(target_role=ClarificationRequest.TARGET_ADMIN)
+			queries = queries.filter(
+				Q(target_role=ClarificationRequest.TARGET_ADMIN)
+				| Q(target_role=ClarificationRequest.TARGET_GROUP_ADMIN)
+			)
 		elif is_doctor(request.user):
 			queries = queries.filter(target_role=ClarificationRequest.TARGET_DOCTOR).filter(
 				Q(target_doctor=request.user) | Q(target_doctor__isnull=True)
+			)
+		else:
+			queries = queries.filter(
+				target_role=ClarificationRequest.TARGET_GROUP_ADMIN,
+				group__created_by=request.user,
 			)
 		for clarification in queries:
 			_prepare_user_avatar(clarification.asker)
@@ -909,7 +1130,7 @@ class ClarificationInboxView(DoctorRequiredMixin, View):
 		return render(request, self.template_name, {'requests': queries})
 
 
-class ClarificationRespondView(DoctorRequiredMixin, View):
+class ClarificationRespondView(LoginRequiredMixin, View):
 	def post(self, request, clarification_id, *args, **kwargs):
 		clarification = get_object_or_404(ClarificationRequest, pk=clarification_id)
 		next_url = request.POST.get('next') or 'chats:clarification_inbox'

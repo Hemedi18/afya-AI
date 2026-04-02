@@ -15,8 +15,8 @@ from .models import (
 )
 
 
-admin.site.site_header = "ZanzHub AI Health Admin"
-admin.site.site_title = "ZanzHub Admin"
+admin.site.site_header = "AfyaSmart Health Admin"
+admin.site.site_title = "AfyaSmart Admin"
 admin.site.index_title = "Control every part of the platform"
 
 
