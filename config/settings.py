@@ -3,10 +3,15 @@ import os
 from dotenv import load_dotenv
 load_dotenv(override=True)
 
-try:
-    import django_q  # noqa: F401
-    DJANGO_Q_AVAILABLE = True
-except Exception:
+DJANGO_Q_ENABLED = os.getenv('ENABLE_DJANGO_Q', 'False') == 'True'
+
+if DJANGO_Q_ENABLED:
+    try:
+        import django_q  # noqa: F401
+        DJANGO_Q_AVAILABLE = True
+    except Exception:
+        DJANGO_Q_AVAILABLE = False
+else:
     DJANGO_Q_AVAILABLE = False
 
 
