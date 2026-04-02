@@ -4,10 +4,14 @@ from django.conf.urls.i18n import i18n_patterns
 from django.conf import settings
 from django.conf.urls.static import static
 from offline_chat.views import sms_webhook, android_sms_webhook, twilio_sms_webhook
+from main.views import pwa_manifest, service_worker
 
 urlpatterns = [
     # URLs ambazo hazihitaji lugha ziwe hapa (kama API)
     path('i18n/', include('django.conf.urls.i18n')),
+    path('api/mobile/', include('mobile_api.urls')),
+    path('manifest.webmanifest', pwa_manifest, name='pwa_manifest'),
+    path('service-worker.js', service_worker, name='pwa_service_worker'),
     # SMS webhook routes (no i18n prefix, no redirect)
     path('sms/webhook/', sms_webhook, name='sms_webhook_public'),
     path('sms/webhook', sms_webhook),

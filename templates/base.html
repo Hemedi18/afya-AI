@@ -4,6 +4,10 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <meta name="theme-color" content="#2F6B3F">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <link rel="manifest" href="/manifest.webmanifest">
     <title>{% block title %}afya-AI{% endblock %}</title>
     <link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%232f6b3f'/%3E%3Cpath d='M32 12l5.6 11.3L50 25.1l-9 8.8 2.1 12.3L32 40.1 20.9 46.2 23 33.9l-9-8.8 12.4-1.8L32 12z' fill='%23fff6c0'/%3E%3C/svg%3E">
     <script>
@@ -191,6 +195,64 @@
             box-shadow: 0 10px 24px color-mix(in srgb, var(--primary) 40%, transparent);
         }
 
+        .pwa-install-fab {
+            position: fixed;
+            right: 16px;
+            bottom: 18px;
+            z-index: 1085;
+            display: none;
+            align-items: center;
+            gap: .45rem;
+            border: 0;
+            border-radius: 999px;
+            padding: .68rem .95rem;
+            color: var(--seed-on-color);
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+            box-shadow: 0 12px 28px color-mix(in srgb, var(--primary) 42%, transparent);
+            font-weight: 700;
+            font-size: .85rem;
+        }
+
+        .pwa-install-fab.show { display: inline-flex; }
+
+        .pwa-install-banner {
+            position: fixed;
+            left: 12px;
+            right: 12px;
+            bottom: 12px;
+            z-index: 1086;
+            display: none;
+            align-items: center;
+            justify-content: space-between;
+            gap: .65rem;
+            border-radius: 16px;
+            padding: .7rem .8rem;
+            background: var(--card-bg);
+            border: 1px solid var(--line-soft);
+            box-shadow: var(--shadow-soft);
+        }
+
+        .pwa-install-banner.show { display: flex; }
+
+        .pwa-install-banner .msg {
+            display: flex;
+            flex-direction: column;
+            line-height: 1.25;
+        }
+
+        .pwa-install-banner .msg strong { font-size: .88rem; }
+        .pwa-install-banner .msg span { font-size: .74rem; color: var(--text-muted); }
+
+        .pwa-install-actions { display: inline-flex; gap: .35rem; }
+
+        @media (max-width: 991.98px) {
+            .pwa-install-fab { display: none !important; }
+        }
+
+        @media (min-width: 992px) {
+            .pwa-install-banner { display: none !important; }
+        }
+
         .btn-outline-danger {
             color: var(--primary) !important;
             border-color: var(--primary) !important;
@@ -376,6 +438,48 @@
             border-bottom: 1px solid var(--line-soft);
             background: var(--glass) !important;
             backdrop-filter: blur(14px);
+        }
+
+        .afya-mobile-primary-nav {
+            display: none;
+        }
+
+        .afya-mobile-primary-links {
+            display: flex;
+            align-items: stretch;
+            gap: .28rem;
+            width: 100%;
+        }
+
+        .afya-mobile-primary-link {
+            flex: 1 1 0;
+            min-width: 0;
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            gap: .08rem;
+            padding: .3rem .2rem;
+            border-radius: 14px;
+            text-decoration: none;
+            color: var(--text-main);
+            background: color-mix(in srgb, var(--card-bg) 92%, transparent);
+            border: 1px solid var(--line-soft);
+            line-height: 1;
+            font-size: clamp(.58rem, .52rem + .22vw, .72rem);
+            white-space: nowrap;
+        }
+
+        .afya-mobile-primary-link i {
+            font-size: clamp(.98rem, .86rem + .32vw, 1.12rem);
+        }
+
+        .afya-mobile-primary-link:hover,
+        .afya-mobile-primary-link.is-active,
+        .afya-mobile-primary-link:focus-visible {
+            color: var(--text-main);
+            background: color-mix(in srgb, var(--card-bg) 78%, transparent);
+            border-color: var(--line-soft);
         }
 
         .afya-sub-links-mobile {
@@ -807,6 +911,45 @@
         }
 
         @media (max-width: 991.98px) {
+            .afya-main-nav {
+                display: none !important;
+            }
+
+            .afya-mobile-sub-nav {
+                position: sticky;
+                top: 0;
+                z-index: 1060;
+            }
+
+            .afya-mobile-primary-nav {
+                position: fixed;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                z-index: 1080;
+                display: block;
+                border-top: 1px solid var(--mobile-border);
+                background: var(--mobile-solid) !important;
+                box-shadow: 8px 8px 18px var(--neo-out-a), -8px -8px 18px var(--neo-out-b);
+                padding: .35rem .45rem calc(.35rem + env(safe-area-inset-bottom));
+            }
+
+            main.container {
+                padding-bottom: 92px;
+            }
+
+            .global-back-row {
+                bottom: 90px;
+            }
+
+            .ai-fab {
+                bottom: 90px;
+            }
+
+            .pwa-install-banner {
+                bottom: 96px;
+            }
+
             body {
                 background: var(--mobile-page-bg) !important;
                 background-image: none !important;
@@ -914,6 +1057,27 @@
                 box-shadow: 8px 8px 18px var(--neo-out-a), -8px -8px 18px var(--neo-out-b);
             }
 
+            .afya-mobile-primary-link {
+                background: var(--mobile-solid) !important;
+                color: var(--mobile-text) !important;
+                border: 1px solid var(--mobile-border) !important;
+                box-shadow: 6px 6px 14px var(--neo-out-a), -6px -6px 14px var(--neo-out-b) !important;
+                padding: .42rem .32rem !important;
+                transition: box-shadow .15s ease, background .15s ease;
+            }
+
+            .afya-mobile-primary-link:active {
+                box-shadow: inset 4px 4px 8px var(--neo-in-a), inset -4px -4px 8px var(--neo-in-b) !important;
+            }
+
+            .afya-mobile-primary-link.is-active,
+            .afya-mobile-primary-link:focus-visible {
+                background: linear-gradient(135deg, var(--primary), var(--secondary)) !important;
+                color: var(--seed-on-color) !important;
+                border-color: color-mix(in srgb, var(--primary) 60%, transparent) !important;
+                box-shadow: 0 10px 24px color-mix(in srgb, var(--primary) 40%, transparent) !important;
+            }
+
             .ai-chat-head,
             .ai-chat-body,
             .ai-chat-form,
@@ -935,6 +1099,7 @@
 
             .afya-main-link,
             .afya-sub-mobile-link,
+            .afya-mobile-primary-link,
             .theme-toggle-btn,
             .btn,
             .action-btn,
@@ -1067,6 +1232,22 @@
 <body>
 <canvas id="space-canvas" aria-hidden="true"></canvas>
 
+<button type="button" class="pwa-install-fab" id="pwaInstallFab" aria-label="Download app">
+    <i class="bi bi-download"></i>
+    <span>Download app</span>
+</button>
+
+<div class="pwa-install-banner" id="pwaInstallBanner" role="dialog" aria-label="Install app">
+    <div class="msg">
+        <strong>Install afya-AI app</strong>
+        <span>Use app like native on this device.</span>
+    </div>
+    <div class="pwa-install-actions">
+        <button type="button" class="btn btn-sm btn-outline-secondary" id="pwaDismissBtn">Not now</button>
+        <button type="button" class="btn btn-sm btn-primary" id="pwaInstallBtn"><i class="bi bi-download me-1"></i>Install</button>
+    </div>
+</div>
+
 <nav class="navbar sticky-top afya-main-nav py-1">
     <div class="container d-flex justify-content-between align-items-center">
         <a class="afya-brand text-danger" href="{% url 'main:home' %}">
@@ -1127,6 +1308,22 @@
     </div>
 </nav>
 {% endif %}
+
+<nav class="afya-mobile-primary-nav d-lg-none" aria-label="Primary mobile navigation">
+    <div class="afya-mobile-primary-links">
+        {% if user.is_authenticated %}
+        <a href="{% url 'doctor:hub' %}" class="afya-mobile-primary-link" data-nav-match="/doctor/" aria-label="Services"><i class="bi bi-person-badge-fill"></i><span>Services</span></a>
+        <a href="{% url 'menstrual:settings' %}" class="afya-mobile-primary-link" data-nav-match="/menstrual/settings/" aria-label="Settings"><i class="bi bi-gear"></i><span>Settings</span></a>
+        <a href="{% url 'chats:notifications' %}" class="afya-mobile-primary-link" data-nav-match="/social/notifications/" aria-label="Notifications"><i class="bi bi-bell"></i><span>Alerts</span></a>
+        <a href="{% url 'users:profile' %}" class="afya-mobile-primary-link" data-nav-match="/users/profile/" aria-label="Account"><i class="bi bi-person-circle"></i><span>Account</span></a>
+        {% else %}
+        <a href="{% url 'main:home' %}" class="afya-mobile-primary-link" data-nav-match="/" aria-label="Home"><i class="bi bi-house-door"></i><span>Home</span></a>
+        <a href="{% url 'users:login' %}" class="afya-mobile-primary-link" data-nav-match="/users/login/" aria-label="Login"><i class="bi bi-box-arrow-in-right"></i><span>Login</span></a>
+        <a href="{% url 'users:register' %}" class="afya-mobile-primary-link" data-nav-match="/users/register/" aria-label="Register"><i class="bi bi-person-plus"></i><span>Register</span></a>
+        <a href="{% url 'main:about' %}" class="afya-mobile-primary-link" data-nav-match="/about/" aria-label="About"><i class="bi bi-info-circle"></i><span>About</span></a>
+        {% endif %}
+    </div>
+</nav>
 
 <main class="container">
     <div class="global-back-row">
@@ -1322,7 +1519,7 @@
         });
 
         const path = window.location.pathname;
-        ['.afya-main-links', '.afya-sub-links-mobile'].forEach((scope) => {
+        ['.afya-main-links', '.afya-sub-links-mobile', '.afya-mobile-primary-links'].forEach((scope) => {
             const row = document.querySelector(scope);
             if (!row) return;
             const links = Array.from(row.querySelectorAll('[data-nav-match]'));
@@ -1442,6 +1639,94 @@
 </script>
 <script>
 (function () {
+    let deferredPrompt = null;
+    const PWA_INSTALLED_KEY = 'pwa_installed';
+    const PWA_DISMISSED_KEY = 'pwa_install_dismissed';
+
+    function isStandaloneMode() {
+        return window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+    }
+
+    function getFlag(key) {
+        try {
+            return localStorage.getItem(key) === '1';
+        } catch (_) {
+            return false;
+        }
+    }
+
+    function setFlag(key) {
+        try {
+            localStorage.setItem(key, '1');
+        } catch (_) {}
+    }
+
+    function shouldShowInstallUI() {
+        return !isStandaloneMode() && !getFlag(PWA_INSTALLED_KEY) && !getFlag(PWA_DISMISSED_KEY);
+    }
+
+    function showInstallUI() {
+        if (!shouldShowInstallUI()) return;
+        const fab = document.getElementById('pwaInstallFab');
+        const banner = document.getElementById('pwaInstallBanner');
+        if (!fab || !banner) return;
+        if (window.innerWidth >= 992) {
+            fab.classList.add('show');
+        } else {
+            banner.classList.add('show');
+        }
+    }
+
+    function hideInstallUI() {
+        document.getElementById('pwaInstallFab')?.classList.remove('show');
+        document.getElementById('pwaInstallBanner')?.classList.remove('show');
+    }
+
+    async function promptInstall() {
+        if (!deferredPrompt) {
+            window.alert('Fungua menu ya browser (⋮) kisha chagua "Install app" au "Add to Home screen".');
+            return;
+        }
+        deferredPrompt.prompt();
+        const choice = await deferredPrompt.userChoice;
+        if (choice?.outcome === 'dismissed') {
+            setFlag(PWA_DISMISSED_KEY);
+        }
+        deferredPrompt = null;
+        hideInstallUI();
+    }
+
+    window.addEventListener('beforeinstallprompt', (event) => {
+        event.preventDefault();
+        deferredPrompt = event;
+        showInstallUI();
+    });
+
+    window.addEventListener('appinstalled', () => {
+        setFlag(PWA_INSTALLED_KEY);
+        deferredPrompt = null;
+        hideInstallUI();
+    });
+
+    document.getElementById('pwaInstallFab')?.addEventListener('click', promptInstall);
+    document.getElementById('pwaInstallBtn')?.addEventListener('click', promptInstall);
+    document.getElementById('pwaDismissBtn')?.addEventListener('click', () => {
+        setFlag(PWA_DISMISSED_KEY);
+        hideInstallUI();
+    });
+
+    if (shouldShowInstallUI()) {
+        showInstallUI();
+    } else {
+        hideInstallUI();
+    }
+
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('/service-worker.js').catch(() => {});
+        });
+    }
+
     function getCookie(name) {
         const value = `; ${document.cookie}`;
         const parts = value.split(`; ${name}=`);

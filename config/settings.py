@@ -56,6 +56,7 @@ INSTALLED_APPS = [
     'reproduction',
     'card',
     'offline_chat',
+    'mobile_api',
     'django_q',
 
     # Third-party apps
@@ -155,6 +156,7 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [
     BASE_DIR / "static",
     BASE_DIR / "assests",
+    BASE_DIR / "mobile_app" / "web",
 ]
 STATIC_ROOT = BASE_DIR / "staticfiles"
 

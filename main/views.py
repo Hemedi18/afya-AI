@@ -1,5 +1,7 @@
 from django.contrib.auth.models import User
+from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
+from django.templatetags.static import static
 from django.views.generic import TemplateView
 
 from menstrual.models import CommunityPost, DailyLog, DoctorProfile, Reminder
@@ -66,3 +68,79 @@ class AdminControlCenterView(AdminRequiredMixin, TemplateView):
         context['latest_posts'] = CommunityPost.objects.select_related('user').order_by('-created_at')[:5]
         context['latest_doctors'] = DoctorProfile.objects.select_related('user').order_by('-id')[:5]
         return context
+
+
+def pwa_manifest(request):
+        data = {
+                'name': 'afya-AI Health Assistant',
+                'short_name': 'afya-AI',
+                'description': 'Smart private reproductive and health care assistant.',
+        'id': '/',
+        'start_url': '/',
+                'scope': '/',
+                'display': 'standalone',
+                'background_color': '#F6F1FB',
+                'theme_color': '#2F6B3F',
+                'orientation': 'portrait',
+                'icons': [
+                        {
+                'src': static('icons/Icon-192.png'),
+                                'sizes': '192x192',
+                'type': 'image/png',
+                'purpose': 'any',
+            },
+            {
+                'src': static('icons/Icon-512.png'),
+                'sizes': '512x512',
+                'type': 'image/png',
+                'purpose': 'any',
+            },
+            {
+                'src': static('icons/Icon-maskable-192.png'),
+                'sizes': '192x192',
+                'type': 'image/png',
+                'purpose': 'maskable',
+            },
+            {
+                'src': static('icons/Icon-maskable-512.png'),
+                'sizes': '512x512',
+                'type': 'image/png',
+                'purpose': 'maskable',
+                        }
+                ],
+        }
+        return JsonResponse(data)
+
+
+def service_worker(request):
+        js = """
+const CACHE_NAME = 'afya-ai-v1';
+const URLS = ['/', '/sw/', '/en/', '/static/base.css'];
+
+self.addEventListener('install', (event) => {
+    event.waitUntil(caches.open(CACHE_NAME).then((cache) => cache.addAll(URLS)).then(() => self.skipWaiting()));
+});
+
+self.addEventListener('activate', (event) => {
+    event.waitUntil(
+        caches.keys().then((keys) => Promise.all(keys.map((k) => (k !== CACHE_NAME ? caches.delete(k) : null)))).then(() => self.clients.claim())
+    );
+});
+
+self.addEventListener('fetch', (event) => {
+    if (event.request.method !== 'GET') return;
+    event.respondWith(
+        caches.match(event.request).then((cached) => {
+            if (cached) return cached;
+            return fetch(event.request)
+                .then((response) => {
+                    const copy = response.clone();
+                    caches.open(CACHE_NAME).then((cache) => cache.put(event.request, copy));
+                    return response;
+                })
+                .catch(() => caches.match('/sw/'));
+        })
+    );
+});
+""".strip()
+        return HttpResponse(js, content_type='application/javascript')

@@ -28,8 +28,8 @@ body {
 /* 3. Navigation (Optimized for Touch) */
 .navbar {
     background: var(--glass) !important;
-    backdrop-filter: blur(15px);
     -webkit-backdrop-filter: blur(15px);
+    backdrop-filter: blur(15px);
     border-bottom: 1px solid rgba(255, 133, 161, 0.2);
     padding: 0.75rem 0.5rem;
     z-index: 1030;
@@ -48,8 +48,8 @@ body {
     right: 0;
     height: 70px;
     background: var(--glass);
-    backdrop-filter: blur(20px);
     -webkit-backdrop-filter: blur(20px);
+    backdrop-filter: blur(20px);
     border-top: 1px solid rgba(255, 133, 161, 0.2);
     z-index: 1030;
     box-shadow: 0 -5px 20px rgba(0,0,0,0.05);
@@ -346,6 +346,7 @@ main.container {
 .text-gradient {
     background: linear-gradient(45deg, var(--deep-berry), var(--soft-pink));
     -webkit-background-clip: text;
+    background-clip: text;
     -webkit-text-fill-color: transparent;
 }
 
