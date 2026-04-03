@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}AfyaSmart Card{% endblock %}
+{% block title %}Kadi ya AfyaSmart{% endblock %}
 
 {% block extra_head %}
 <style>
@@ -73,11 +73,11 @@
 {% block content %}
 <div class="card-shell">
   <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-    <h4 class="mb-0 fw-bold"><i class="bi bi-credit-card-2-front me-2"></i>AfyaSmart Online Card</h4>
+    <h4 class="mb-0 fw-bold"><i class="bi bi-credit-card-2-front me-2"></i>Kadi ya Mtandaoni ya AfyaSmart</h4>
     <div class="d-flex gap-2">
-      <a href="{% url 'card:details' %}" class="btn btn-outline-danger rounded-pill"><i class="bi bi-sliders me-1"></i>Update Card Details</a>
+      <a href="{% url 'card:details' %}" class="btn btn-outline-danger rounded-pill"><i class="bi bi-sliders me-1"></i>Sasisha Maelezo ya Kadi</a>
       <a href="{% url 'card:notifications' %}" class="btn btn-danger rounded-pill">
-        <i class="bi bi-bell me-1"></i>Notifications
+        <i class="bi bi-bell me-1"></i>Arifa
         {% if unread_notifications %}<span class="badge text-bg-light ms-1">{{ unread_notifications|length }}</span>{% endif %}
       </a>
     </div>
@@ -90,12 +90,12 @@
           <article class="health-face health-front theme-{{ card_obj.style_theme }}">
             {% if card_obj.show_watermark %}<span class="health-watermark">{{ card_obj.watermark_text|default:'AfyaSmart' }}</span>{% endif %}
             <div class="d-flex justify-content-between align-items-start mb-3">
-              <div class="small text-muted">AfyaSmart Health Identity</div>
-              <span class="badge text-bg-danger">Front</span>
+              <div class="small text-muted">Utambulisho wa Afya wa AfyaSmart</div>
+              <span class="badge text-bg-danger">Mbele</span>
             </div>
             <div class="d-flex align-items-center gap-3 mb-3">
               {% if card_obj.display_photo_url %}
-              <img src="{{ card_obj.display_photo_url }}" alt="Profile" class="profile-pic">
+              <img src="{{ card_obj.display_photo_url }}" alt="Wasifu" class="profile-pic">
               {% else %}
               <div class="profile-pic d-inline-flex align-items-center justify-content-center fw-bold">{{ request.user.username|first|upper }}</div>
               {% endif %}
@@ -105,37 +105,37 @@
               </div>
             </div>
             <div class="row g-2 small">
-              <div class="col-6"><span class="text-muted">Gender:</span> <strong>{{ card_obj.display_gender }}</strong></div>
-              <div class="col-6"><span class="text-muted">Birth date:</span> <strong>{% if card_obj.display_birth_date %}{{ card_obj.display_birth_date }}{% else %}Not set{% endif %}</strong></div>
+              <div class="col-6"><span class="text-muted">Jinsia:</span> <strong>{{ card_obj.display_gender }}</strong></div>
+              <div class="col-6"><span class="text-muted">Tarehe ya kuzaliwa:</span> <strong>{% if card_obj.display_birth_date %}{{ card_obj.display_birth_date }}{% else %}Haijawekwa{% endif %}</strong></div>
             </div>
           </article>
 
           <article class="health-face health-back theme-{{ card_obj.style_theme }}">
             {% if card_obj.show_watermark %}<span class="health-watermark">{{ card_obj.watermark_text|default:'AfyaSmart' }}</span>{% endif %}
-            <span class="badge text-bg-primary">Back</span>
+            <span class="badge text-bg-primary">Nyuma</span>
             <div class="qr-box">
-              <img src="{{ qr_image }}" alt="Card QR code">
+              <img src="{{ qr_image }}" alt="Msimbo wa QR wa kadi">
             </div>
-            <div class="small text-muted text-center">Scan QR kupata taarifa ulizoruhusu kuonekana.</div>
+            <div class="small text-muted text-center">Skena QR kupata taarifa ulizoruhusu zionekane.</div>
           </article>
         </div>
       </div>
       <div class="d-grid mt-3">
-        <button class="btn btn-dark rounded-pill" id="flipBtn"><i class="bi bi-arrow-repeat me-1"></i>Flip Card</button>
+        <button class="btn btn-dark rounded-pill" id="flipBtn"><i class="bi bi-arrow-repeat me-1"></i>Geuza Kadi</button>
       </div>
     </div>
 
     <div class="card-custom p-3 p-lg-4">
-      <h6 class="fw-bold mb-2"><i class="bi bi-qr-code me-1"></i>Scan Link</h6>
+      <h6 class="fw-bold mb-2"><i class="bi bi-qr-code me-1"></i>Kiungo cha Uskenaji</h6>
       <div class="small text-muted mb-2">Hii ndio link itafunguliwa baada ya QR kuscan:</div>
       <div class="form-control small" style="word-break:break-all;">{{ public_url }}</div>
 
       <hr>
-      <h6 class="fw-bold mb-2"><i class="bi bi-clock-history me-1"></i>Persona Reminder Logic</h6>
+      <h6 class="fw-bold mb-2"><i class="bi bi-clock-history me-1"></i>Mantiki ya Vikumbusho vya Persona</h6>
       <ul class="small mb-0">
-        <li>Reminder interval: <strong>kila siku {{ persona_config.interval_days }}</strong></li>
-        <li>Cooldown ya reminder: <strong>siku {{ persona_config.reminder_cooldown_days }}</strong></li>
-        <li>Persona ikipitiliza interval, notification hutumwa automatically.</li>
+        <li>Muda wa kikumbusho: <strong>kila siku {{ persona_config.interval_days }}</strong></li>
+        <li>Mpumziko wa kikumbusho: <strong>siku {{ persona_config.reminder_cooldown_days }}</strong></li>
+        <li>Persona ikivuka muda, arifa hutumwa kiotomatiki.</li>
       </ul>
     </div>
   </div>

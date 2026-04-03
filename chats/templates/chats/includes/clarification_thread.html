@@ -1,6 +1,6 @@
 <div class="clarification-answer {% if clarification.is_focused %}border border-2{% endif %}">
     <div class="clarification-answer-head">
-        <span class="clarification-answer-title"><i class="bi bi-patch-check-fill"></i> Clarification</span>
+        <span class="clarification-answer-title"><i class="bi bi-patch-check-fill"></i> Ufafanuzi</span>
         <span class="clarification-answer-meta">
             {% if clarification.responded_by %}{{ clarification.responded_by.username }}{% else %}{{ clarification.get_target_role_display }}{% endif %}
             {% if clarification.updated_at %}• {{ clarification.updated_at|timesince }} ago{% endif %}
@@ -45,7 +45,7 @@
             {% csrf_token %}
             <input type="hidden" name="next" value="{{ request.get_full_path }}">
             <div class="add-comment-row" style="border-radius:12px;">
-                <input type="text" name="content" class="add-comment-input" placeholder="Reply to clarification...">
+                <input type="text" name="content" class="add-comment-input" placeholder="Jibu ufafanuzi...">
                 <button class="add-comment-btn" type="submit" style="font-size:.78rem;"><i class="bi bi-reply"></i></button>
             </div>
         </form>
@@ -59,7 +59,7 @@
             <input type="hidden" name="next" value="{{ request.get_full_path }}">
             <textarea name="response" class="form-control mb-2" rows="3" placeholder="Andika ufafanuzi hapa...">{{ clarification.response }}</textarea>
             <button class="comment-action-btn" style="border-color:var(--primary);color:var(--primary);" type="submit">
-                <i class="bi bi-send-check"></i> {% if clarification.response %}Update response{% else %}Respond here{% endif %}
+                <i class="bi bi-send-check"></i> {% if clarification.response %}Sasisha jibu{% else %}Jibu hapa{% endif %}
             </button>
         </form>
     </div>

@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load i18n %}
 
 {% block content %}
 <style>
@@ -67,19 +68,19 @@
     <div class="admin-pro-hero mb-4">
         <div class="d-flex justify-content-between align-items-start flex-wrap gap-3">
             <div>
-                <h4 class="admin-pro-title">Admin Analytics Pro</h4>
-                <p class="admin-pro-sub">Dashboard ya admin yenye graphs, trend analysis, na AI summarisation.</p>
+                <h4 class="admin-pro-title">{% trans "Uchanganuzi wa Admin" %}</h4>
+                <p class="admin-pro-sub">{% trans "Dashboard ya admin yenye grafu, uchambuzi wa mwenendo, na muhtasari wa AI." %}</p>
             </div>
             <div class="d-flex gap-2 flex-wrap">
-                <a href="{% url 'admin:index' %}" class="btn btn-danger rounded-pill">Open Django Admin</a>
-                <a href="{% url 'doctor:approval_dashboard' %}" class="btn btn-outline-danger rounded-pill">Doctor approvals</a>
-                <a href="{% url 'chats:moderator_dashboard' %}" class="btn btn-outline-secondary rounded-pill">Moderation</a>
-                <a href="{% url 'doctor:register' %}" class="btn btn-outline-secondary rounded-pill">Doctor Registration</a>
+                <a href="{% url 'admin:index' %}" class="btn btn-danger rounded-pill">Fungua Django Admin</a>
+                <a href="{% url 'doctor:approval_dashboard' %}" class="btn btn-outline-danger rounded-pill">Uthibitisho wa madaktari</a>
+                <a href="{% url 'chats:moderator_dashboard' %}" class="btn btn-outline-secondary rounded-pill">{% trans "Umodereta" %}</a>
+                <a href="{% url 'doctor:register' %}" class="btn btn-outline-secondary rounded-pill">Usajili wa daktari</a>
             </div>
         </div>
 
         <div class="admin-ai-summary mt-3">
-            <strong><i class="bi bi-stars me-1"></i>AI Dashboard Summary</strong><br>
+            <strong><i class="bi bi-stars me-1"></i>{% trans "Muhtasari wa Dashboard ya AI" %}</strong><br>
             {{ ai_dashboard_summary }}
         </div>
     </div>
@@ -87,46 +88,46 @@
     <div class="row g-3 mb-4">
         <div class="col-md-6 col-xl-3">
             <div class="admin-pro-kpi">
-                <div class="label">Total Users</div>
+                <div class="label">{% trans "Jumla ya Watumiaji" %}</div>
                 <div class="value">{{ stats.users }}</div>
-                <div class="mini">New 30d: {{ stats.new_users_30d }}</div>
+                <div class="mini">{% trans "Wapya siku 30" %}: {{ stats.new_users_30d }}</div>
             </div>
         </div>
         <div class="col-md-6 col-xl-3">
             <div class="admin-pro-kpi">
-                <div class="label">Registration Growth (30d vs prev)</div>
+                <div class="label">{% trans "Ukuaji wa Usajili (siku 30 dhidi ya kabla)" %}</div>
                 <div class="value">{{ stats.registration_growth_pct }}%</div>
                 <div class="mini {% if stats.registration_growth_pct >= 0 %}up{% else %}down{% endif %}">
-                    {% if stats.registration_growth_pct >= 0 %}↑ Growth{% else %}↓ Drop{% endif %}
+                    {% if stats.registration_growth_pct >= 0 %}↑ {% trans "Ukuaji" %}{% else %}↓ {% trans "Kupungua" %}{% endif %}
                 </div>
             </div>
         </div>
         <div class="col-md-6 col-xl-3">
             <div class="admin-pro-kpi">
-                <div class="label">Community Posts (30d)</div>
+                <div class="label">{% trans "Machapisho ya Jamii (siku 30)" %}</div>
                 <div class="value">{{ stats.posts_30d }}</div>
-                <div class="mini">All-time: {{ stats.community_posts }}</div>
+                <div class="mini">{% trans "Jumla ya muda wote" %}: {{ stats.community_posts }}</div>
             </div>
         </div>
         <div class="col-md-6 col-xl-3">
             <div class="admin-pro-kpi">
-                <div class="label">AI Helpful Rate</div>
+                <div class="label">{% trans "Kiwango cha Msaada wa AI" %}</div>
                 <div class="value">{{ stats.helpful_rate }}%</div>
-                <div class="mini">AI chats 30d: {{ stats.ai_chats_30d }}</div>
+                <div class="mini">{% trans "Mazungumzo ya AI siku 30" %}: {{ stats.ai_chats_30d }}</div>
             </div>
         </div>
         <div class="col-md-6 col-xl-3">
             <div class="admin-pro-kpi">
-                <div class="label">Doctors</div>
+                <div class="label">{% trans "Madaktari" %}</div>
                 <div class="value">{{ stats.doctors_total }}</div>
-                <div class="mini">Verified: {{ stats.doctors_verified }}</div>
+                <div class="mini">{% trans "Waliothibitishwa" %}: {{ stats.doctors_verified }}</div>
             </div>
         </div>
         <div class="col-md-6 col-xl-3">
             <div class="admin-pro-kpi">
-                <div class="label">Daily Logs</div>
+                <div class="label">{% trans "Log za Kila Siku" %}</div>
                 <div class="value">{{ stats.daily_logs }}</div>
-                <div class="mini">Reminders pending: {{ stats.pending_reminders }}</div>
+                <div class="mini">{% trans "Vikumbusho vinavyosubiri" %}: {{ stats.pending_reminders }}</div>
             </div>
         </div>
     </div>
@@ -134,28 +135,28 @@
     <div class="row g-4 mb-4">
         <div class="col-lg-6">
             <div class="admin-pro-panel">
-                <h6><i class="bi bi-graph-up-arrow me-1"></i>Registration Rate (last 14 days)</h6>
+                <h6><i class="bi bi-graph-up-arrow me-1"></i>{% trans "Kiwango cha Usajili (siku 14 zilizopita)" %}</h6>
                 <canvas id="registrationChart" height="130"></canvas>
                 <div class="admin-summary">{{ summary_reg }}</div>
             </div>
         </div>
         <div class="col-lg-6">
             <div class="admin-pro-panel">
-                <h6><i class="bi bi-chat-left-dots me-1"></i>Posting Rate (last 14 days)</h6>
+                <h6><i class="bi bi-chat-left-dots me-1"></i>{% trans "Kiwango cha Machapisho (siku 14 zilizopita)" %}</h6>
                 <canvas id="postingChart" height="130"></canvas>
                 <div class="admin-summary">{{ summary_posts }}</div>
             </div>
         </div>
         <div class="col-lg-6">
             <div class="admin-pro-panel">
-                <h6><i class="bi bi-pie-chart me-1"></i>Content Types (last 30 days)</h6>
+                <h6><i class="bi bi-pie-chart me-1"></i>{% trans "Aina za Maudhui (siku 30 zilizopita)" %}</h6>
                 <canvas id="contentTypeChart" height="130"></canvas>
                 <div class="admin-summary">{{ summary_content }}</div>
             </div>
         </div>
         <div class="col-lg-6">
             <div class="admin-pro-panel">
-                <h6><i class="bi bi-robot me-1"></i>AI Usage + Feedback</h6>
+                <h6><i class="bi bi-robot me-1"></i>{% trans "Matumizi ya AI + Maoni" %}</h6>
                 <canvas id="aiUsageChart" height="110"></canvas>
                 <div class="mt-3"><canvas id="aiFeedbackChart" height="110"></canvas></div>
                 <div class="admin-summary">{{ summary_ai }} {{ summary_feedback }}</div>
@@ -166,12 +167,12 @@
     <div class="row g-4">
         <div class="col-lg-6">
             <div class="admin-pro-panel h-100">
-                <h6 class="fw-bold mb-3">Latest Community Posts</h6>
+                <h6 class="fw-bold mb-3">{% trans "Machapisho ya Jamii ya Hivi Karibuni" %}</h6>
                 {% for post in latest_posts %}
                 <div class="admin-list-item">
                     <div class="d-flex justify-content-between">
-                        <strong>{% if post.is_anonymous %}Anonymous sister{% else %}{{ post.user.username }}{% endif %}</strong>
-                        <small class="text-muted">{{ post.created_at|timesince }} ago</small>
+                        <strong>{% if post.is_anonymous %}{% trans "Mwanajamii asiyejulikana" %}{% else %}{{ post.user.username }}{% endif %}</strong>
+                        <small class="text-muted">{{ post.created_at|timesince }} {% trans "iliyopita" %}</small>
                     </div>
                     <div class="small mt-1">{{ post.content|truncatechars:100 }}</div>
                 </div>
@@ -182,21 +183,21 @@
         </div>
         <div class="col-lg-6">
             <div class="admin-pro-panel h-100">
-                <h6 class="fw-bold mb-3">Latest Doctor Applications</h6>
+                <h6 class="fw-bold mb-3">{% trans "Maombi ya Madaktari ya Hivi Karibuni" %}</h6>
                 {% for doctor in latest_doctors %}
                 <div class="admin-list-item d-flex justify-content-between align-items-center">
                     <div>
                         <div class="fw-semibold">{{ doctor.user.get_full_name|default:doctor.user.username }}</div>
-                        <div class="small text-muted">{{ doctor.specialization }} • {{ doctor.hospital_name|default:'N/A' }}</div>
+                        <div class="small text-muted">{{ doctor.specialization }} • {{ doctor.hospital_name|default:'Haijawekwa' }}</div>
                     </div>
                     {% if doctor.verified %}
-                    <span class="badge text-bg-success">Verified</span>
+                    <span class="badge text-bg-success">Imethibitishwa</span>
                     {% else %}
-                    <span class="badge text-bg-warning">Pending</span>
+                    <span class="badge text-bg-warning">{% trans "Inasubiri" %}</span>
                     {% endif %}
                 </div>
                 {% empty %}
-                <div class="text-muted">Hakuna doctor applications bado.</div>
+                <div class="text-muted">Hakuna maombi ya daktari bado.</div>
                 {% endfor %}
             </div>
         </div>

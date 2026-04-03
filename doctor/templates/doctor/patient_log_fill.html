@@ -91,11 +91,11 @@
                     <div class="d-flex align-items-center gap-2 mt-1">
                         <input type="checkbox" name="field_{{ field.id }}" id="field_{{ field.id }}"
                             class="form-check-input" style="width:1.2rem;height:1.2rem;">
-                        <label class="form-check-label small" for="field_{{ field.id }}">Ndiyo / Yes</label>
+                        <label class="form-check-label small" for="field_{{ field.id }}">{% trans "Ndiyo" %}</label>
                     </div>
 
                     {% elif field.field_type == 'scale' %}
-                    <div class="scale-btns mt-1" id="scaleBtns_{{ field.id }}" role="group" aria-label="Scale 1 to 10">
+                    <div class="scale-btns mt-1" id="scaleBtns_{{ field.id }}" role="group" aria-label="{% trans 'Kipimo 1 hadi 10' %}">
                         {% for n in "1234567890" %}
                         {% with num=forloop.counter %}
                         <button type="button" class="scale-btn"

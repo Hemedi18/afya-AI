@@ -63,10 +63,10 @@
                     {% endif %}
                     <div class="d-flex gap-2 flex-wrap mt-auto">
                         <a href="{% url 'doctor:create_patient_log' patient.id %}" class="btn btn-sm btn-success rounded-pill flex-fill no-card-nav">
-                            <i class="bi bi-journal-plus me-1"></i>Log Forms
+                            <i class="bi bi-journal-plus me-1"></i>{% trans "Fomu za Log" %}
                         </a>
                         <a href="{% url 'chats:conversation_detail' patient.conversation_id %}" class="btn btn-sm btn-outline-primary rounded-pill flex-fill no-card-nav">
-                            <i class="bi bi-chat-dots me-1"></i>Chat
+                            <i class="bi bi-chat-dots me-1"></i>{% trans "Soga" %}
                         </a>
                     </div>
                 </div>
@@ -97,8 +97,8 @@
                         </div>
                     </div>
                     <div class="d-flex gap-1">
-                        <a href="{% url 'doctor:create_patient_log' patient.id %}" class="btn btn-sm btn-success rounded-pill no-card-nav" title="Log Forms"><i class="bi bi-journal-plus"></i></a>
-                        <a href="{% url 'chats:conversation_detail' patient.conversation_id %}" class="btn btn-sm btn-outline-primary rounded-pill no-card-nav" title="Chat"><i class="bi bi-chat-dots"></i></a>
+                        <a href="{% url 'doctor:create_patient_log' patient.id %}" class="btn btn-sm btn-success rounded-pill no-card-nav" title="{% trans 'Fomu za Log' %}"><i class="bi bi-journal-plus"></i></a>
+                        <a href="{% url 'chats:conversation_detail' patient.conversation_id %}" class="btn btn-sm btn-outline-primary rounded-pill no-card-nav" title="{% trans 'Soga' %}"><i class="bi bi-chat-dots"></i></a>
                     </div>
                 </div>
             </div>

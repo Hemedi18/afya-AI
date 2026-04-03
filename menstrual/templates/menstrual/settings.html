@@ -1,14 +1,15 @@
 {% extends 'base.html' %}
+{% load i18n %}
 
 {% block content %}
 <div class="py-4" style="max-width:760px; margin:0 auto;">
     <div class="card-custom p-4 p-lg-5">
         <div class="d-flex justify-content-between align-items-start flex-wrap gap-2 mb-4">
             <div>
-                <h4 class="fw-bold mb-1">Privacy & Reminder Settings</h4>
+                <h4 class="fw-bold mb-1">Mipangilio ya Faragha na Vikumbusho</h4>
                 <p class="text-muted mb-0">Dhibiti faragha yako na alerts za mzunguko.</p>
             </div>
-            <a href="{% url 'menstrual:dashboard' %}" class="btn btn-outline-secondary rounded-pill">Back dashboard</a>
+            <a href="{% url 'menstrual:dashboard' %}" class="btn btn-outline-secondary rounded-pill">Rudi dashibodi</a>
         </div>
 
         <form method="post">
@@ -19,33 +20,33 @@
 
             <div class="form-check form-switch mb-3">
                 {{ form.privacy_mode }}
-                <label class="form-check-label" for="{{ form.privacy_mode.id_for_label }}">Privacy mode (hide sensitive values)</label>
+                <label class="form-check-label" for="{{ form.privacy_mode.id_for_label }}">Njia ya faragha (ficha taarifa nyeti)</label>
             </div>
 
             <div class="form-check form-switch mb-3">
                 {{ form.anonymous_mode }}
-                <label class="form-check-label" for="{{ form.anonymous_mode.id_for_label }}">Anonymous community posting by default</label>
+                <label class="form-check-label" for="{{ form.anonymous_mode.id_for_label }}">Chapisho la jamii liwe la siri kwa chaguo-msingi</label>
             </div>
 
             <div class="form-check form-switch mb-3">
                 {{ form.emergency_alerts_enabled }}
-                <label class="form-check-label" for="{{ form.emergency_alerts_enabled.id_for_label }}">Emergency health alerts</label>
+                <label class="form-check-label" for="{{ form.emergency_alerts_enabled.id_for_label }}">Arifa za dharura za afya</label>
             </div>
 
             <hr>
-            <div class="small text-muted mb-2">Reminder preferences</div>
+            <div class="small text-muted mb-2">Mapendeleo ya vikumbusho</div>
 
             <div class="form-check form-switch mb-2">
                 {{ form.reminder_period }}
-                <label class="form-check-label" for="{{ form.reminder_period.id_for_label }}">Period reminder</label>
+                <label class="form-check-label" for="{{ form.reminder_period.id_for_label }}">Kikumbusho cha hedhi</label>
             </div>
             <div class="form-check form-switch mb-2">
                 {{ form.reminder_ovulation }}
-                <label class="form-check-label" for="{{ form.reminder_ovulation.id_for_label }}">Ovulation reminder</label>
+                <label class="form-check-label" for="{{ form.reminder_ovulation.id_for_label }}">Kikumbusho cha ovulation</label>
             </div>
             <div class="form-check form-switch mb-4">
                 {{ form.reminder_fertile_window }}
-                <label class="form-check-label" for="{{ form.reminder_fertile_window.id_for_label }}">Fertile window reminder</label>
+                <label class="form-check-label" for="{{ form.reminder_fertile_window.id_for_label }}">Kikumbusho cha siku za uzazi</label>
             </div>
 
             <hr>
@@ -60,21 +61,21 @@
             </div>
             <div class="row g-2 mb-2">
                 <div class="col-md-6">
-                    <label class="form-label small" for="{{ form.custom_primary.id_for_label }}">Primary color</label>
+                    <label class="form-label small" for="{{ form.custom_primary.id_for_label }}">Rangi kuu</label>
                     {{ form.custom_primary }}
                 </div>
                 <div class="col-md-6">
-                    <label class="form-label small" for="{{ form.custom_secondary.id_for_label }}">Secondary color</label>
+                    <label class="form-label small" for="{{ form.custom_secondary.id_for_label }}">Rangi ya pili</label>
                     {{ form.custom_secondary }}
                 </div>
             </div>
             <div class="row g-2 mb-2">
                 <div class="col-md-7">
-                    <label class="form-label small" for="{{ form.background_style.id_for_label }}">Background style</label>
+                    <label class="form-label small" for="{{ form.background_style.id_for_label }}">Mtindo wa mandharinyuma</label>
                     {{ form.background_style }}
                 </div>
                 <div class="col-md-5">
-                    <label class="form-label small" for="{{ form.background_intensity.id_for_label }}">Intensity (0-100)</label>
+                    <label class="form-label small" for="{{ form.background_intensity.id_for_label }}">Ukali (0-100)</label>
                     {{ form.background_intensity }}
                 </div>
             </div>
@@ -83,7 +84,7 @@
                 lakini rangi kuu zitabadilika kwenye web nzima.
             </div>
 
-            <button type="submit" class="btn btn-danger rounded-pill px-4">Save settings</button>
+            <button type="submit" class="btn btn-danger rounded-pill px-4">Hifadhi mipangilio</button>
         </form>
     </div>
 </div>

@@ -1,11 +1,12 @@
 {% extends 'base.html' %}
+{% load i18n %}
 
 {% block content %}
 <div class="py-4" style="max-width: 900px; margin: 0 auto;">
     <div class="card-custom p-4 p-lg-5">
         <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
             <div>
-                <h4 class="fw-bold mb-1">Review Doctor Request</h4>
+                <h4 class="fw-bold mb-1">{% trans "Kagua Ombi la Daktari" %}</h4>
                 <p class="text-muted mb-0">{{ verification_request.doctor_profile.user.get_full_name|default:verification_request.doctor_profile.user.username }}</p>
             </div>
             <span class="badge {% if verification_request.status == 'approved' %}text-bg-success{% elif verification_request.status == 'rejected' %}text-bg-danger{% else %}text-bg-warning{% endif %}">
@@ -14,18 +15,18 @@
         </div>
 
         <div class="mb-4">
-            <div class="small text-muted">Specialization</div>
+            <div class="small text-muted">{% trans "Utaalamu" %}</div>
             <div class="fw-semibold">{{ verification_request.doctor_profile.specialization }}</div>
-            <div class="small text-muted mt-2">Hospital</div>
-            <div class="fw-semibold">{{ verification_request.doctor_profile.hospital_name|default:'N/A' }}</div>
-            <div class="small text-muted mt-2">Bio</div>
+            <div class="small text-muted mt-2">{% trans "Hospitali" %}</div>
+            <div class="fw-semibold">{{ verification_request.doctor_profile.hospital_name|default:'Haijajazwa' }}</div>
+            <div class="small text-muted mt-2">{% trans "Wasifu" %}</div>
             <div>{{ verification_request.doctor_profile.bio }}</div>
-            <div class="small text-muted mt-2">License</div>
+            <div class="small text-muted mt-2">{% trans "Leseni" %}</div>
             <div class="fw-semibold">{{ verification_request.license_number }}{% if verification_request.issuing_body %} • {{ verification_request.issuing_body }}{% endif %}</div>
         </div>
 
         <div class="mb-4">
-            <h6 class="fw-bold">Uploaded Documents</h6>
+            <h6 class="fw-bold">{% trans "Hati Zilizopakiwa" %}</h6>
             {% for doc in verification_request.documents.all %}
             <div class="mb-2"><a href="{{ doc.document.url }}" target="_blank">{{ doc.title }}</a></div>
             {% empty %}
@@ -35,12 +36,12 @@
 
         <form method="post">
             {% csrf_token %}
-            <label class="form-label">Review notes</label>
-            <textarea name="review_notes" class="form-control mb-3" rows="4" placeholder="Andika maelezo ya approval au rejection..."></textarea>
+            <label class="form-label">{% trans "Maoni ya ukaguzi" %}</label>
+            <textarea name="review_notes" class="form-control mb-3" rows="4" placeholder="{% trans 'Andika maelezo ya kukubali au kukataa...' %}"></textarea>
             <div class="d-flex gap-2 flex-wrap">
-                <button type="submit" name="action" value="approve" class="btn btn-success rounded-pill px-4">Approve</button>
-                <button type="submit" name="action" value="reject" class="btn btn-danger rounded-pill px-4">Reject</button>
-                <a href="{% url 'doctor:approval_dashboard' %}" class="btn btn-outline-secondary rounded-pill px-4">Back</a>
+                <button type="submit" name="action" value="approve" class="btn btn-success rounded-pill px-4">{% trans "Kubali" %}</button>
+                <button type="submit" name="action" value="reject" class="btn btn-danger rounded-pill px-4">{% trans "Kataa" %}</button>
+                <a href="{% url 'doctor:approval_dashboard' %}" class="btn btn-outline-secondary rounded-pill px-4">{% trans "Rudi" %}</a>
             </div>
         </form>
     </div>

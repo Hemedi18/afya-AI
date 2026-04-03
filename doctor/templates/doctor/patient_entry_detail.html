@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load i18n %}
 
-{% block title %}Log Entry Detail{% endblock %}
+{% block title %}{% trans "Maelezo ya Jibu la Log" %}{% endblock %}
 
 {% block content %}
 <div class="py-4">
@@ -10,22 +10,22 @@
             <div>
                 <h4 class="fw-bold mb-1">{{ entry.log.title }}</h4>
                 <div class="small text-muted">
-                    Patient: {{ entry.log.patient.get_full_name|default:entry.log.patient.username }}
+                    {% trans "Mgonjwa" %}: {{ entry.log.patient.get_full_name|default:entry.log.patient.username }}
                     · Tarehe: {{ entry.submitted_at|date:"d M Y H:i" }}
                 </div>
             </div>
             <div class="d-flex gap-2 flex-wrap">
                 {% if conversation %}
-                <a href="{% url 'chats:conversation_detail' conversation.id %}" class="btn btn-sm btn-outline-primary rounded-pill"><i class="bi bi-chat-dots me-1"></i>Chat</a>
+                <a href="{% url 'chats:conversation_detail' conversation.id %}" class="btn btn-sm btn-outline-primary rounded-pill"><i class="bi bi-chat-dots me-1"></i>{% trans "Soga" %}</a>
                 {% endif %}
-                <a href="{% url 'doctor:patient_analysis' entry.log.patient.id %}" class="btn btn-sm btn-outline-warning rounded-pill"><i class="bi bi-graph-up-arrow me-1"></i>Analysis</a>
-                <a href="{% url 'doctor:patient_detail' entry.log.patient.id %}" class="btn btn-sm btn-outline-secondary rounded-pill"><i class="bi bi-arrow-left me-1"></i>Rudi kwa Patient</a>
+                <a href="{% url 'doctor:patient_analysis' entry.log.patient.id %}" class="btn btn-sm btn-outline-warning rounded-pill"><i class="bi bi-graph-up-arrow me-1"></i>{% trans "Uchambuzi" %}</a>
+                <a href="{% url 'doctor:patient_detail' entry.log.patient.id %}" class="btn btn-sm btn-outline-secondary rounded-pill"><i class="bi bi-arrow-left me-1"></i>{% trans "Rudi kwa mgonjwa" %}</a>
             </div>
         </div>
     </div>
 
     <div class="card-custom p-4">
-        <h5 class="fw-bold mb-3">Full Data</h5>
+        <h5 class="fw-bold mb-3">{% trans "Data Kamili" %}</h5>
         <div class="d-flex flex-column gap-2">
             {% for field, value in formatted_values %}
             <div class="p-3 rounded-3" style="background:var(--bg-soft);">
@@ -37,7 +37,7 @@
 
         {% if formatted_metadata %}
         <hr class="my-4">
-        <h6 class="fw-bold mb-3"><i class="bi bi-funnel me-1 text-warning"></i>Metadata</h6>
+        <h6 class="fw-bold mb-3"><i class="bi bi-funnel me-1 text-warning"></i>{% trans "Metadata" %}</h6>
         <div class="d-flex flex-column gap-2">
             {% for label, value in formatted_metadata %}
             <div class="p-3 rounded-3" style="background:var(--bg-soft);">

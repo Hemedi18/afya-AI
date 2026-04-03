@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Card Details{% endblock %}
+{% block title %}Maelezo ya Kadi{% endblock %}
 
 {% block extra_head %}
 <style>
@@ -94,15 +94,15 @@
 {% block content %}
 <div class="container py-3 card-details-shell">
   <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-    <h4 class="mb-0 fw-bold"><i class="bi bi-sliders me-2"></i>Update Card Details</h4>
-    <a href="{% url 'card:home' %}" class="btn btn-outline-secondary rounded-pill"><i class="bi bi-arrow-left me-1"></i>Back to Card</a>
+    <h4 class="mb-0 fw-bold"><i class="bi bi-sliders me-2"></i>Sasisha Maelezo ya Kadi</h4>
+    <a href="{% url 'card:home' %}" class="btn btn-outline-secondary rounded-pill"><i class="bi bi-arrow-left me-1"></i>Rudi Kwenye Kadi</a>
   </div>
 
   <form method="post" enctype="multipart/form-data" class="card-custom p-3 p-lg-4 card-details-form">
     {% csrf_token %}
 
     <div class="details-section">
-      <div class="details-title">Front Side</div>
+      <div class="details-title">Upande wa Mbele</div>
       <div class="row g-3 mb-1">
         <div class="col-md-6">{{ form.full_name_override.label_tag }} {{ form.full_name_override }}</div>
         <div class="col-md-6">{{ form.gender_override.label_tag }} {{ form.gender_override }}</div>
@@ -119,7 +119,7 @@
     </div>
 
     <div class="details-section">
-      <div class="details-title">Data to show after QR scan</div>
+      <div class="details-title">Data itakayoonekana baada ya kuskena QR</div>
       <div class="row g-2 mb-1 small checks-grid">
         <div class="col-md-4"><div class="pick-item">{{ form.show_name }} {{ form.show_name.label_tag }}</div></div>
         <div class="col-md-4"><div class="pick-item">{{ form.show_gender }} {{ form.show_gender.label_tag }}</div></div>
@@ -134,11 +134,11 @@
         <div class="col-md-4"><div class="pick-item">{{ form.show_menstrual_chart }} {{ form.show_menstrual_chart.label_tag }}</div></div>
         <div class="col-md-4"><div class="pick-item">{{ form.show_ai_summary }} {{ form.show_ai_summary.label_tag }}</div></div>
       </div>
-      <div class="hint">Chagua data unazotaka zionekane baada ya QR scan. Mfumo utaonyesha kwa mpangilio mzuri kulingana na selections zako.</div>
+      <div class="hint">Chagua data unazotaka zionekane baada ya uskenaji wa QR. Mfumo utaonyesha kwa mpangilio mzuri kulingana na chaguo zako.</div>
     </div>
 
     <div class="details-section">
-      <div class="details-title">Persona Reminder Schedule</div>
+      <div class="details-title">Ratiba ya Vikumbusho vya Persona</div>
       <div class="row g-3 mb-1">
         <div class="col-md-6">{{ config_form.interval_days.label_tag }} {{ config_form.interval_days }}</div>
         <div class="col-md-6">{{ config_form.reminder_cooldown_days.label_tag }} {{ config_form.reminder_cooldown_days }}</div>
@@ -146,20 +146,20 @@
     </div>
 
     <div class="details-section">
-      <div class="details-title">Scan Page Security</div>
+      <div class="details-title">Usalama wa Ukurasa wa Uskenaji</div>
       <div class="row g-3 mb-1">
         <div class="col-md-6">{{ form.public_password.label_tag }} {{ form.public_password }}</div>
         <div class="col-md-6">{{ form.public_password_confirm.label_tag }} {{ form.public_password_confirm }}</div>
         <div class="col-12">
           <div class="pick-item">{{ form.clear_public_password }} {{ form.clear_public_password.label_tag }}</div>
-          <div class="hint">Weka password kulinda data ya scan page. Uki-ondoa tiki ya password removal, ulinzi utaondoka.</div>
+          <div class="hint">Weka nenosiri kulinda data ya ukurasa wa uskenaji. Ukiondoa tiki ya kuondoa nenosiri, ulinzi utaondoka.</div>
           {% if form.public_password.errors %}<div class="text-danger small mt-1">{{ form.public_password.errors.0 }}</div>{% endif %}
           {% if form.public_password_confirm.errors %}<div class="text-danger small mt-1">{{ form.public_password_confirm.errors.0 }}</div>{% endif %}
         </div>
       </div>
     </div>
 
-    <button class="btn btn-danger rounded-pill" type="submit"><i class="bi bi-save me-1"></i>Save Details</button>
+    <button class="btn btn-danger rounded-pill" type="submit"><i class="bi bi-save me-1"></i>Hifadhi Maelezo</button>
   </form>
 </div>
 {% endblock %}

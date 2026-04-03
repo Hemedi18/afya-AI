@@ -125,7 +125,14 @@ class UserSettingsView(LoginRequiredMixin, View):
                 selected_language = form.cleaned_data['language_preference']
                 response = redirect(self._localized_redirect_path(request.path, selected_language))
                 translation.activate(selected_language)
-                request.session[translation.LANGUAGE_SESSION_KEY] = selected_language
+                session_language_key = getattr(
+                    translation,
+                    'LANGUAGE_SESSION_KEY',
+                    settings.LANGUAGE_COOKIE_NAME,
+                )
+                request.session[session_language_key] = selected_language
+                if session_language_key != settings.LANGUAGE_COOKIE_NAME:
+                    request.session[settings.LANGUAGE_COOKIE_NAME] = selected_language
                 response.set_cookie(
                     settings.LANGUAGE_COOKIE_NAME,
                     selected_language,

@@ -412,7 +412,7 @@
                     <form method="post" action="{% url 'chats:post_delete' post.id %}">
                         {% csrf_token %}
                         <input type="hidden" name="next" value="{% url 'chats:feed' %}">
-                        <button class="comment-action-btn" style="color:#ef4444;border-color:#ef444455;" type="submit"><i class="bi bi-trash3"></i> Delete</button>
+                        <button class="comment-action-btn" style="color:#ef4444;border-color:#ef444455;" type="submit"><i class="bi bi-trash3"></i> Futa</button>
                     </form>
                     {% endif %}
                 </div>
@@ -437,15 +437,15 @@
                         <button class="action-btn action-btn-like" type="submit"><i class="bi bi-heart-fill"></i> {{ post.likes.count }}</button>
                     </form>
                     <button class="action-btn" type="button" data-bs-toggle="collapse" data-bs-target="#clarify-post-detail">
-                        <i class="bi bi-patch-question"></i> Clarify
+                        <i class="bi bi-patch-question"></i> Fafanua
                     </button>
                     <button class="action-btn" type="button" data-bs-toggle="collapse" data-bs-target="#report-post-detail">
-                        <i class="bi bi-flag"></i> Report
+                        <i class="bi bi-flag"></i> Ripoti
                     </button>
                     <button class="action-btn" type="button" data-ai-prompt="Explain this health community post in simple Swahili. Summarize it, mention possible health concerns, and say when the user should see a doctor: {{ post.content|striptags|truncatechars:700|escapejs }}">
-                        <i class="bi bi-stars"></i> Explain with AI
+                        <i class="bi bi-stars"></i> Fafanua kwa AI
                     </button>
-                    <a href="{% url 'chats:feed' %}" class="action-btn action-btn-back ms-auto"><i class="bi bi-arrow-left"></i> Back</a>
+                    <a href="{% url 'chats:feed' %}" class="action-btn action-btn-back ms-auto"><i class="bi bi-arrow-left"></i> Rudi</a>
                 </div>
 
                 <div class="collapse mt-2" id="clarify-post-detail">
@@ -456,13 +456,13 @@
                             <div class="row g-2">
                                 <div class="col-md-3">
                                     <select name="target_role" class="form-select form-select-sm" style="border-radius:10px;" required>
-                                        <option value="doctor">Doctor</option>
+                                        <option value="doctor">Daktari</option>
                                         <option value="admin">Admin</option>
-                                        <option value="group_admin">Group Admin Preview</option>
+                                        <option value="group_admin">Uhakiki wa Admin wa Group</option>
                                     </select>
                                 </div>
                                 <div class="col-md-7"><textarea name="question" rows="2" class="form-control form-control-sm" placeholder="Ni sehemu gani unahitaji ufafanuzi?" required autocomplete="off" style="border-radius:10px;"></textarea></div>
-                                <div class="col-md-2 d-grid"><button class="add-comment-btn" style="border-radius:10px;" type="submit">Send</button></div>
+                                <div class="col-md-2 d-grid"><button class="add-comment-btn" style="border-radius:10px;" type="submit">Tuma</button></div>
                             </div>
                             <details class="doctor-picker">
                                 <summary><i class="bi bi-person-badge"></i> Chagua doctor wa kujibu</summary>
@@ -492,7 +492,7 @@
                             <input type="hidden" name="next" value="{{ request.path }}">
                             <input type="text" name="reason" class="form-control form-control-sm mb-2" placeholder="Sababu ya report" required autocomplete="off" style="border-radius:10px;">
                             <textarea name="details" rows="2" class="form-control form-control-sm mb-2" placeholder="Maelezo ya ziada..." autocomplete="off" style="border-radius:10px;"></textarea>
-                            <button class="comment-action-btn" style="color:#ef4444;" type="submit"><i class="bi bi-flag-fill"></i> Send report</button>
+                            <button class="comment-action-btn" style="color:#ef4444;" type="submit"><i class="bi bi-flag-fill"></i> Tuma ripoti</button>
                         </form>
                     </div>
                 </div>
@@ -501,22 +501,22 @@
             <!-- Comments -->
             <div class="detail-card" id="comments-panel">
                 <div class="d-flex align-items-center justify-content-between mb-3">
-                    <div class="fw-bold" style="font-size:1rem;"><i class="bi bi-chat-fill" style="color:var(--primary);"></i> Comments <span class="text-muted fw-normal">({{ post.replies.count }})</span></div>
+                    <div class="fw-bold" style="font-size:1rem;"><i class="bi bi-chat-fill" style="color:var(--primary);"></i> Maoni <span class="text-muted fw-normal">({{ post.replies.count }})</span></div>
                     <div class="comments-sort-desktop">
-                        <a href="?comments=recent{% if focused_clarification_id %}&clarification={{ focused_clarification_id }}{% endif %}" class="comment-action-btn {% if comment_sort == 'recent' %}active{% endif %}">Newest</a>
-                        <a href="?comments=oldest{% if focused_clarification_id %}&clarification={{ focused_clarification_id }}{% endif %}" class="comment-action-btn {% if comment_sort == 'oldest' %}active{% endif %}">Oldest</a>
-                        <a href="?comments=likes{% if focused_clarification_id %}&clarification={{ focused_clarification_id }}{% endif %}" class="comment-action-btn {% if comment_sort == 'likes' %}active{% endif %}">Most liked</a>
-                        <a href="?comments=replies{% if focused_clarification_id %}&clarification={{ focused_clarification_id }}{% endif %}" class="comment-action-btn {% if comment_sort == 'replies' or comment_sort == 'reviews' %}active{% endif %}">Most replies</a>
+                        <a href="?comments=recent{% if focused_clarification_id %}&clarification={{ focused_clarification_id }}{% endif %}" class="comment-action-btn {% if comment_sort == 'recent' %}active{% endif %}">Mpya</a>
+                        <a href="?comments=oldest{% if focused_clarification_id %}&clarification={{ focused_clarification_id }}{% endif %}" class="comment-action-btn {% if comment_sort == 'oldest' %}active{% endif %}">Za zamani</a>
+                        <a href="?comments=likes{% if focused_clarification_id %}&clarification={{ focused_clarification_id }}{% endif %}" class="comment-action-btn {% if comment_sort == 'likes' %}active{% endif %}">Zilizopendwa zaidi</a>
+                        <a href="?comments=replies{% if focused_clarification_id %}&clarification={{ focused_clarification_id }}{% endif %}" class="comment-action-btn {% if comment_sort == 'replies' or comment_sort == 'reviews' %}active{% endif %}">Zenye majibu mengi</a>
                     </div>
                     <div class="dropdown comments-sort-mobile">
-                        <button class="comment-action-btn comment-sort-filter-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Filter comments">
+                        <button class="comment-action-btn comment-sort-filter-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Chuja maoni">
                             <i class="bi bi-funnel"></i>
                         </button>
                         <ul class="dropdown-menu dropdown-menu-end comment-sort-menu">
-                            <li><a class="dropdown-item {% if comment_sort == 'recent' %}active{% endif %}" href="?comments=recent{% if focused_clarification_id %}&clarification={{ focused_clarification_id }}{% endif %}">Newest</a></li>
-                            <li><a class="dropdown-item {% if comment_sort == 'oldest' %}active{% endif %}" href="?comments=oldest{% if focused_clarification_id %}&clarification={{ focused_clarification_id }}{% endif %}">Oldest</a></li>
-                            <li><a class="dropdown-item {% if comment_sort == 'likes' %}active{% endif %}" href="?comments=likes{% if focused_clarification_id %}&clarification={{ focused_clarification_id }}{% endif %}">Most liked</a></li>
-                            <li><a class="dropdown-item {% if comment_sort == 'replies' or comment_sort == 'reviews' %}active{% endif %}" href="?comments=replies{% if focused_clarification_id %}&clarification={{ focused_clarification_id }}{% endif %}">Most replies</a></li>
+                            <li><a class="dropdown-item {% if comment_sort == 'recent' %}active{% endif %}" href="?comments=recent{% if focused_clarification_id %}&clarification={{ focused_clarification_id }}{% endif %}">Mpya</a></li>
+                            <li><a class="dropdown-item {% if comment_sort == 'oldest' %}active{% endif %}" href="?comments=oldest{% if focused_clarification_id %}&clarification={{ focused_clarification_id }}{% endif %}">Za zamani</a></li>
+                            <li><a class="dropdown-item {% if comment_sort == 'likes' %}active{% endif %}" href="?comments=likes{% if focused_clarification_id %}&clarification={{ focused_clarification_id }}{% endif %}">Zilizopendwa zaidi</a></li>
+                            <li><a class="dropdown-item {% if comment_sort == 'replies' or comment_sort == 'reviews' %}active{% endif %}" href="?comments=replies{% if focused_clarification_id %}&clarification={{ focused_clarification_id }}{% endif %}">Zenye majibu mengi</a></li>
                         </ul>
                     </div>
                 </div>
@@ -569,7 +569,7 @@
                             <input type="hidden" name="next" value="{{ request.path }}">
                             <input type="hidden" name="parent_id" value="{{ reply.id }}">
                             <div class="add-comment-row" style="border-radius:12px;">
-                                <input type="text" name="content" class="add-comment-input" placeholder="Reply..." required autocomplete="off">
+                                <input type="text" name="content" class="add-comment-input" placeholder="Jibu..." required autocomplete="off">
                                 <button class="add-comment-btn" type="submit" style="font-size:.78rem;"><i class="bi bi-reply"></i></button>
                             </div>
                         </form>
@@ -579,9 +579,9 @@
                             <form method="post" action="{% url 'chats:comment_clarify' reply.id %}" data-ajax-refresh-target="#comments-panel">
                                 {% csrf_token %}<input type="hidden" name="next" value="{{ request.path }}">
                                 <div class="row g-2">
-                                    <div class="col-md-3"><select name="target_role" class="form-select form-select-sm" style="border-radius:10px;" required><option value="doctor">Doctor</option><option value="admin">Admin</option><option value="group_admin">Group Admin Preview</option></select></div>
+                                    <div class="col-md-3"><select name="target_role" class="form-select form-select-sm" style="border-radius:10px;" required><option value="doctor">Daktari</option><option value="admin">Admin</option><option value="group_admin">Uhakiki wa Admin wa Group</option></select></div>
                                     <div class="col-md-7"><input type="text" name="question" class="form-control form-control-sm" placeholder="Ufafanuzi..." required autocomplete="off" style="border-radius:10px;"></div>
-                                    <div class="col-md-2 d-grid"><button class="add-comment-btn" style="border-radius:10px;" type="submit">Send</button></div>
+                                    <div class="col-md-2 d-grid"><button class="add-comment-btn" style="border-radius:10px;" type="submit">Tuma</button></div>
                                 </div>
                                 <details class="doctor-picker">
                                     <summary><i class="bi bi-person-badge"></i> Chagua doctor wa kujibu</summary>
@@ -608,7 +608,7 @@
                             <form method="post" action="{% url 'chats:comment_report' reply.id %}" data-ajax-refresh-target="#comments-panel">
                                 {% csrf_token %}<input type="hidden" name="next" value="{{ request.path }}">
                                 <input type="text" name="reason" class="form-control form-control-sm mb-2" placeholder="Sababu ya report" required autocomplete="off" style="border-radius:10px;">
-                                <button class="comment-action-btn" style="color:#ef4444;" type="submit"><i class="bi bi-flag-fill"></i> Report</button>
+                                <button class="comment-action-btn" style="color:#ef4444;" type="submit"><i class="bi bi-flag-fill"></i> Ripoti</button>
                             </form>
                         </div>
                     </div>
@@ -629,7 +629,7 @@
                                 <input type="hidden" name="next" value="{{ request.path }}">
                                 <input type="hidden" name="parent_id" value="{{ child.id }}">
                                 <div class="add-comment-row" style="border-radius:12px;">
-                                    <input type="text" name="content" class="add-comment-input" placeholder="Reply..." required autocomplete="off">
+                                    <input type="text" name="content" class="add-comment-input" placeholder="Jibu..." required autocomplete="off">
                                     <button class="add-comment-btn" type="submit" style="font-size:.78rem;"><i class="bi bi-reply"></i></button>
                                 </div>
                             </form>

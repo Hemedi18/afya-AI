@@ -1460,7 +1460,7 @@
                                 <button class="comment-action-btn" type="submit"><i class="bi bi-plus-circle"></i> Join</button>
                             </form>
                             {% else %}
-                            <a href="{% url 'chats:group_detail' group.id %}" class="comment-action-btn">Open</a>
+                            <a href="{% url 'chats:group_detail' group.id %}" class="comment-action-btn">Fungua</a>
                             {% endif %}
                         </div>
                     </div>
@@ -1476,15 +1476,15 @@
                 <div class="col-12 col-md-5">{{ group_form.name }}</div>
                 <div class="col-12 col-md-5">{{ group_form.description }}</div>
                 <div class="col-12 col-md-2 d-grid">
-                    <button class="add-comment-btn" style="border-radius:12px;padding:.55rem .9rem;" type="submit">Create</button>
+                    <button class="add-comment-btn" style="border-radius:12px;padding:.55rem .9rem;" type="submit">Tengeneza</button>
                 </div>
                 <div class="col-12 col-md-6">
                     {{ group_form.image }}
                     <div class="small text-muted mt-1">Picha ya group inapendekezwa (si lazima).</div>
                 </div>
                 <div class="col-12 col-md-6 d-flex align-items-center gap-3 flex-wrap">
-                    <label class="d-inline-flex align-items-center gap-2 small">{{ group_form.require_join_approval }} <span>Require approval for new members</span></label>
-                    <label class="d-inline-flex align-items-center gap-2 small">{{ group_form.send_admin_preview }} <span>Send for admin preview</span></label>
+                    <label class="d-inline-flex align-items-center gap-2 small">{{ group_form.require_join_approval }} <span>Ruhusu kwa idhini kwa wanachama wapya</span></label>
+                    <label class="d-inline-flex align-items-center gap-2 small">{{ group_form.send_admin_preview }} <span>Tuma kwa uhakiki wa admin</span></label>
                 </div>
                 <div class="col-12">{{ group_form.preview_note }}</div>
             </form>
@@ -1499,7 +1499,7 @@
             <div class="small text-muted">Stories za wanajamii leo</div>
         </div>
         <a href="{% url 'chats:status_new' %}{% if selected_group %}?group={{ selected_group.id }}{% endif %}" class="action-btn ms-auto">
-            <i class="bi bi-plus-circle-fill"></i> Add Status
+            <i class="bi bi-plus-circle-fill"></i> Ongeza Status
         </a>
     </div>
 
@@ -1532,14 +1532,14 @@
                         <div class="comment-avatar">{{ st.user.username|first|upper }}</div>
                         <div>
                             <div class="comment-username">{{ st.user.username }}</div>
-                            <div class="comment-time">{{ st.created_at|timesince }} ago</div>
+                            <div class="comment-time">{{ st.created_at|timesince }} iliyopita</div>
                         </div>
                     </div>
                     <div class="comment-text">{{ st.content }}</div>
                     {% if st.image %}
                     <img src="{{ st.image.url }}" class="img-fluid rounded-3 mt-2" alt="status image" style="max-height:200px;object-fit:cover;">
                     <div class="mt-1">
-                        <a href="{{ st.image.url }}" download class="btn btn-sm btn-outline-dark rounded-pill d-inline-flex align-items-center gap-2"><i class="bi bi-download"></i><span>Save image</span></a>
+                        <a href="{{ st.image.url }}" download class="btn btn-sm btn-outline-dark rounded-pill d-inline-flex align-items-center gap-2"><i class="bi bi-download"></i><span>Hifadhi picha</span></a>
                     </div>
                     {% endif %}
                 </div>
@@ -1557,7 +1557,7 @@
     <div class="section-hero d-flex align-items-center gap-2">
         <i class="bi bi-lock-fill fs-4" style="color:var(--primary);"></i>
         <div>
-            <div class="fw-bold">All Posts &amp; Comments</div>
+            <div class="fw-bold">Machapisho &amp; Maoni Yote</div>
             <div class="small text-muted">Muonekano wa posts na comments zote</div>
         </div>
     </div>
@@ -1570,10 +1570,10 @@
                         {% if post.is_anonymous %}?{% else %}{{ post.user.username|first|upper }}{% endif %}
                     </div>
                     <div>
-                        <div class="fw-bold small">{% if post.is_anonymous %}Anonymous member{% else %}{{ post.user.username }}{% endif %}</div>
+                        <div class="fw-bold small">{% if post.is_anonymous %}Mwanajamii asiyejulikana{% else %}{{ post.user.username }}{% endif %}</div>
                         <div class="post-meta">
-                            {{ post.created_at|timesince }} ago
-                            <span class="post-source-pill"><i class="bi bi-broadcast-pin"></i>Source: {% if post.is_anonymous %}Anonymous{% else %}{{ post.user.username }}{% endif %}</span>
+                            {{ post.created_at|timesince }} iliyopita
+                            <span class="post-source-pill"><i class="bi bi-broadcast-pin"></i>Chanzo: {% if post.is_anonymous %}Haijulikani{% else %}{{ post.user.username }}{% endif %}</span>
                             {% if post.groups.all %}
                                 {% for group in post.groups.all %}
                                     <a href="{% url 'chats:group_detail' group.id %}" class="post-group-tag post-group-link"><i class="bi bi-people-fill"></i>{{ group.name }}</a>
@@ -1584,7 +1584,7 @@
                         </div>
                     </div>
                 </div>
-                <a href="{% url 'chats:post_detail' post.id %}" class="action-btn" style="font-size:.76rem;"><i class="bi bi-box-arrow-up-right"></i> Open</a>
+                <a href="{% url 'chats:post_detail' post.id %}" class="action-btn" style="font-size:.76rem;"><i class="bi bi-box-arrow-up-right"></i> Fungua</a>
             </div>
             <div class="post-body mb-2">{{ post.content|safe }}</div>
             {% url 'chats:post_detail' post.id as post_detail_url %}
@@ -1608,7 +1608,7 @@
                                 <input type="hidden" name="next" value="{{ request.get_full_path }}">
                                 <input type="hidden" name="parent_id" value="{{ reply.id }}">
                                 <div class="add-comment-row" style="border-radius:12px;">
-                                    <input type="text" name="content" class="add-comment-input" placeholder="Reply..." required autocomplete="off">
+                                    <input type="text" name="content" class="add-comment-input" placeholder="Jibu..." required autocomplete="off">
                                     <button class="add-comment-btn" type="submit" style="font-size:.78rem;"><i class="bi bi-reply"></i></button>
                                 </div>
                             </form>
@@ -1866,15 +1866,15 @@
             <section class="jamii-top-social">
                 <div class="jamii-composer-row">
                     <div class="post-avatar" style="width:40px;height:40px;">{{ request.user.username|first|upper }}</div>
-                    <a href="{% url 'chats:post_create' %}{% if selected_group %}?group={{ selected_group.id }}{% endif %}" class="jamii-composer-pill">What's on your mind?</a>
+                    <a href="{% url 'chats:post_create' %}{% if selected_group %}?group={{ selected_group.id }}{% endif %}" class="jamii-composer-pill">Unafikiria nini?</a>
                 </div>
 
                 <div class="jamii-status-cycles mb-2">
-                    <a href="{% url 'chats:status_new' %}{% if selected_group %}?group={{ selected_group.id }}{% endif %}" class="status-cycle-item" aria-label="Add status">
+                    <a href="{% url 'chats:status_new' %}{% if selected_group %}?group={{ selected_group.id }}{% endif %}" class="status-cycle-item" aria-label="Ongeza status">
                         <span class="status-cycle-ring">
                             <span class="status-cycle-inner"><i class="bi bi-plus-lg"></i></span>
                         </span>
-                        <span class="status-cycle-name">Your story</span>
+                        <span class="status-cycle-name">Stori yako</span>
                     </a>
                     {% for st in status_featured %}
                     <a href="{% url 'chats:status_detail' st.id %}" class="status-cycle-item js-status-open"
@@ -1887,7 +1887,7 @@
                        data-status-link="{% url 'chats:status_detail' st.id %}">
                         <span class="status-cycle-ring">
                             <span class="status-cycle-inner">
-                                {% if st.image %}<img src="{{ st.image.url }}" alt="{{ st.user.username }} status">{% else %}{{ st.user.username|first|upper }}{% endif %}
+                                {% if st.image %}<img src="{{ st.image.url }}" alt="status ya {{ st.user.username }}">{% else %}{{ st.user.username|first|upper }}{% endif %}
                             </span>
                         </span>
                         <span class="status-cycle-name">{{ st.user.username }}</span>
@@ -1899,7 +1899,7 @@
                     <a href="{% url 'chats:status_new' %}{% if selected_group %}?group={{ selected_group.id }}{% endif %}" class="status-story-card create-card">
                         <span class="status-story-create-body">
                             <span class="status-story-create-plus"><i class="bi bi-plus-lg"></i></span>
-                            <span class="status-story-create-text">Create story</span>
+                            <span class="status-story-create-text">Tengeneza stori</span>
                         </span>
                     </a>
                     {% for st in status_featured %}
@@ -1911,7 +1911,7 @@
                        data-status-comments="{{ st.comments_total }}"
                        data-status-shares="{{ st.shares_total }}"
                        data-status-link="{% url 'chats:status_detail' st.id %}">
-                        {% if st.image %}<img src="{{ st.image.url }}" alt="{{ st.user.username }} story" class="status-story-bg">{% endif %}
+                        {% if st.image %}<img src="{{ st.image.url }}" alt="stori ya {{ st.user.username }}" class="status-story-bg">{% endif %}
                         <span class="status-story-overlay"></span>
                         <span class="status-story-top">
                             <span class="status-rank-badge">{{ forloop.counter }}</span>
@@ -1927,18 +1927,18 @@
 
             <div class="posts-topbar">
                 <div>
-                    <div class="posts-topbar-title">Community posts</div>
-                    <div class="posts-topbar-sub">Posts zinaanza hapa. Tumia Add Post kuenda page maalum ya kupost.</div>
+                    <div class="posts-topbar-title">Machapisho ya jamii</div>
+                    <div class="posts-topbar-sub">Machapisho yanaanza hapa. Tumia Ongeza Chapisho kwenda ukurasa maalum wa kuchapisha.</div>
                 </div>
                 <a href="{% url 'chats:post_create' %}{% if selected_group %}?group={{ selected_group.id }}{% endif %}" class="action-btn">
-                    <i class="bi bi-plus-circle-fill"></i> Add Post
+                    <i class="bi bi-plus-circle-fill"></i> Ongeza Chapisho
                 </a>
             </div>
 
             <div id="posts-feed-list">
             {% for post in posts %}
             {% with post_index=forloop.counter0 %}
-            <article class="post-card post-clickable" id="post-{{ post.id }}" data-post-url="{% url 'chats:post_detail' post.id %}" role="link" tabindex="0" aria-label="Open post {{ post.id }}">
+            <article class="post-card post-clickable" id="post-{{ post.id }}" data-post-url="{% url 'chats:post_detail' post.id %}" role="link" tabindex="0" aria-label="Fungua chapisho {{ post.id }}">
                 <div class="post-head">
                     <div class="post-author">
                         <div class="post-avatar" style="position:relative;">
@@ -1947,13 +1947,13 @@
                         </div>
                         <div>
                             {% if post.is_anonymous %}
-                            <a href="{% url 'chats:post_detail' post.id %}" class="post-name-link">Anonymous member</a>
+                            <a href="{% url 'chats:post_detail' post.id %}" class="post-name-link">Mwanajamii asiyejulikana</a>
                             {% else %}
                             <a href="{% url 'chats:user_profile' post.user.id %}" class="post-name-link">{{ post.user.username }}</a>
                             {% endif %}
                             <div class="post-meta">
-                                {{ post.created_at|timesince }} ago
-                                <span class="post-source-pill"><i class="bi bi-broadcast-pin"></i>Source: {% if post.is_anonymous %}Anonymous{% else %}{{ post.user.username }}{% endif %}</span>
+                                {{ post.created_at|timesince }} zilizopita
+                                <span class="post-source-pill"><i class="bi bi-broadcast-pin"></i>Chanzo: {% if post.is_anonymous %}Asiyejulikana{% else %}{{ post.user.username }}{% endif %}</span>
                                 {% if post.groups.all %}
                                     {% for group in post.groups.all %}
                                         <a href="{% url 'chats:group_detail' group.id %}" class="post-group-tag post-group-link"><i class="bi bi-people-fill"></i>{{ group.name }}</a>
@@ -1979,7 +1979,7 @@
             <div class="post-body-preview" id="post-preview-{{ post.id }}">{{ post.preview_text|default:post.content|striptags|linebreaksbr }}</div>
             {% if post.has_more_content %}
             <div class="post-body-full" id="post-full-{{ post.id }}" hidden>{{ post.content|safe }}</div>
-            <button class="post-readmore" type="button" data-expand-post="{{ post.id }}">Read more</button>
+            <button class="post-readmore" type="button" data-expand-post="{{ post.id }}">Soma zaidi</button>
             {% endif %}
         </div>
         {% url 'chats:post_detail' post.id as post_detail_url %}
@@ -1988,21 +1988,21 @@
         <div class="action-row">
             <form method="post" action="{% url 'chats:post_like' post.id %}" class="js-like-form" data-post-id="{{ post.id }}">
                 {% csrf_token %}
-                <button class="action-btn action-btn-like" type="submit" aria-label="Like post" title="Like">
+                <button class="action-btn action-btn-like" type="submit" aria-label="Penda chapisho" title="Penda">
                     <i class="bi bi-heart-fill"></i><span class="btn-count" id="like-count-{{ post.id }}">{{ post.likes.count }}</span>
                 </button>
             </form>
-            <button class="action-btn" type="button" data-bs-toggle="collapse" data-bs-target="#clarify-post-{{ post.id }}" aria-label="Clarify" title="Clarify">
+            <button class="action-btn" type="button" data-bs-toggle="collapse" data-bs-target="#clarify-post-{{ post.id }}" aria-label="Omba ufafanuzi" title="Omba ufafanuzi">
                 <i class="bi bi-patch-question"></i>
             </button>
-            <button class="action-btn" type="button" data-bs-toggle="collapse" data-bs-target="#report-post-{{ post.id }}" aria-label="Report" title="Report">
+            <button class="action-btn" type="button" data-bs-toggle="collapse" data-bs-target="#report-post-{{ post.id }}" aria-label="Ripoti" title="Ripoti">
                 <i class="bi bi-flag"></i>
             </button>
-            <button class="action-btn" type="button" data-ai-prompt="Explain this health community post in simple Swahili. Summarize it, mention possible health concerns, and say when the user should see a doctor: {{ post.content|striptags|truncatechars:700|escapejs }}" aria-label="Explain with AI" title="AI Explain">
+            <button class="action-btn" type="button" data-ai-prompt="Eleza chapisho hili la jamii ya afya kwa Kiswahili rahisi. Fupisha, taja hatari zinazowezekana za afya, na sema ni lini mtumiaji anapaswa kumuona daktari: {{ post.content|striptags|truncatechars:700|escapejs }}" aria-label="Eleza kwa AI" title="AI Eleza">
                 <i class="bi bi-stars"></i>
             </button>
-            <a href="{% url 'chats:post_detail' post.id %}" class="action-btn" aria-label="Open post" title="Open post"><i class="bi bi-arrows-angle-expand"></i></a>
-            <button class="comment-count-badge" type="button" data-bs-toggle="collapse" data-bs-target="#comments-post-{{ post.id }}" aria-label="Toggle comments" title="Comments">
+            <a href="{% url 'chats:post_detail' post.id %}" class="action-btn" aria-label="Fungua chapisho" title="Fungua chapisho"><i class="bi bi-arrows-angle-expand"></i></a>
+            <button class="comment-count-badge" type="button" data-bs-toggle="collapse" data-bs-target="#comments-post-{{ post.id }}" aria-label="Onyesha/Ficha maoni" title="Maoni">
                 <i class="bi bi-chat"></i> <span id="comment-count-{{ post.id }}">{{ post.replies.count }}</span>
             </button>
         </div>
@@ -2019,7 +2019,7 @@
                         </select>
                     </div>
                     <div class="col-md-7"><textarea name="question" rows="2" class="form-control form-control-sm" placeholder="Ni sehemu gani unahitaji ufafanuzi?" required autocomplete="off" style="border-radius:10px;"></textarea></div>
-                    <div class="col-md-2 d-grid"><button class="add-comment-btn" style="border-radius:10px;" type="submit">Send</button></div>
+                    <div class="col-md-2 d-grid"><button class="add-comment-btn" style="border-radius:10px;" type="submit">Tuma</button></div>
                 </div>
                 <details class="doctor-picker">
                     <summary><i class="bi bi-person-badge"></i> Chagua doctor wa kujibu</summary>
@@ -2042,7 +2042,7 @@
 
             {% if post.clarifications.all %}
             <div class="inline-form-box mt-2">
-                <div class="small fw-bold mb-2"><i class="bi bi-collection"></i> Clarification History</div>
+                <div class="small fw-bold mb-2"><i class="bi bi-collection"></i> Historia ya Ufafanuzi</div>
                 {% for clarification in post.clarifications.all %}
                 <div class="clarification-answer mb-2">
                     <div class="small text-muted mb-1">Swali: {{ clarification.question }}</div>
@@ -2071,7 +2071,7 @@
                 {% csrf_token %}
                 <input type="text" name="reason" class="form-control form-control-sm mb-2" placeholder="Sababu ya report" required autocomplete="off" style="border-radius:10px;">
                 <textarea name="details" rows="2" class="form-control form-control-sm mb-2" placeholder="Maelezo ya ziada..." autocomplete="off" style="border-radius:10px;"></textarea>
-                <button class="comment-action-btn" style="color:#ef4444;border-color:#ef444466;" type="submit"><i class="bi bi-flag-fill"></i> Send report</button>
+                <button class="comment-action-btn" style="color:#ef4444;border-color:#ef444466;" type="submit"><i class="bi bi-flag-fill"></i> Tuma ripoti</button>
             </form>
         </div>
 
@@ -2081,7 +2081,7 @@
             <div class="comment-list" data-post-id="{{ post.id }}">
             {% if post.featured_comment %}
             <div class="featured-comment-box">
-                <div class="featured-comment-label">Top comment preview</div>
+                <div class="featured-comment-label">Muhtasari wa maoni ya juu</div>
                 <div class="comment-item" id="comment-{{ post.featured_comment.id }}">
                     <div class="comment-meta-row">
                         <div class="comment-avatar">{{ post.featured_comment.user.username|first|upper }}</div>
@@ -2097,7 +2097,7 @@
                             {% csrf_token %}<button class="comment-action-btn" type="submit"><i class="bi bi-hand-thumbs-down"></i> {{ post.featured_comment.dislikes.count }}</button>
                         </form>
                         <button class="comment-action-btn" type="button" data-bs-toggle="collapse" data-bs-target="#reply-comment-{{ post.featured_comment.id }}"><i class="bi bi-reply"></i></button>
-                        <span class="comment-action-btn" aria-disabled="true"><i class="bi bi-arrows-angle-expand"></i> View all comments</span>
+                        <span class="comment-action-btn" aria-disabled="true"><i class="bi bi-arrows-angle-expand"></i> Angalia maoni yote</span>
                     </div>
                     <div class="collapse mt-2" id="reply-comment-{{ post.featured_comment.id }}">
                         <form method="post" action="{% url 'chats:post_comment' post.id %}" class="js-partial-submit" data-ajax-refresh-target="#post-engagement-{{ post.id }}">
@@ -2105,7 +2105,7 @@
                             <input type="hidden" name="next" value="{{ request.get_full_path }}">
                             <input type="hidden" name="parent_id" value="{{ post.featured_comment.id }}">
                             <div class="add-comment-row" style="border-radius:12px;">
-                                <input type="text" name="content" class="add-comment-input" placeholder="Reply..." required autocomplete="off">
+                                <input type="text" name="content" class="add-comment-input" placeholder="Jibu..." required autocomplete="off">
                                 <button class="add-comment-btn" type="submit" style="font-size:.78rem;"><i class="bi bi-reply"></i></button>
                             </div>
                         </form>
@@ -2166,8 +2166,8 @@
                         </form>
                         {% else %}
                         <div class="d-flex gap-1">
-                            <a href="{% url 'chats:group_detail' group.id %}" class="comment-action-btn">Open</a>
-                            <a href="{% url 'chats:post_create' %}?group={{ group.id }}" class="comment-action-btn"><i class="bi bi-plus"></i> Post</a>
+                            <a href="{% url 'chats:group_detail' group.id %}" class="comment-action-btn">Fungua</a>
+                            <a href="{% url 'chats:post_create' %}?group={{ group.id }}" class="comment-action-btn"><i class="bi bi-plus"></i> Chapisha</a>
                         </div>
                         {% endif %}
                     </div>
@@ -2202,12 +2202,12 @@
                         <div class="comment-avatar" id="statusViewerInitial" style="width:30px;height:30px;font-size:.78rem;">S</div>
                         <div class="status-viewer-user" id="statusViewerUser">Status</div>
                     </div>
-                    <a href="#" id="statusViewerOpenLink" class="btn btn-sm btn-light rounded-pill px-2 py-1" style="font-size:.72rem;">Open</a>
+                    <a href="#" id="statusViewerOpenLink" class="btn btn-sm btn-light rounded-pill px-2 py-1" style="font-size:.72rem;">Fungua</a>
                 </div>
                 <div class="status-viewer-media-wrap" id="statusViewerMediaWrap">
                     <img id="statusViewerImage" src="" alt="status" hidden>
                 </div>
-                <div class="status-viewer-text" id="statusViewerText">No status content.</div>
+                <div class="status-viewer-text" id="statusViewerText">Hakuna maudhui ya status.</div>
                 <div class="status-viewer-stats">
                     <span class="status-viewer-pill"><i class="bi bi-heart-fill"></i> <span id="statusViewerLikes">0</span></span>
                     <span class="status-viewer-pill"><i class="bi bi-chat-left-text-fill"></i> <span id="statusViewerComments">0</span></span>

@@ -1567,78 +1567,78 @@
     <div class="loading-text" id="loadingText">Inapakia...</div>
 </div>
 
-<button type="button" class="pwa-install-fab" id="pwaInstallFab" aria-label="Download app">
+<button type="button" class="pwa-install-fab" id="pwaInstallFab" aria-label="{% trans 'Pakua app' %}">
     <i class="bi bi-download"></i>
-    <span>Download app</span>
+    <span>{% trans "Pakua app" %}</span>
 </button>
 
-<div class="pwa-install-banner" id="pwaInstallBanner" role="dialog" aria-label="Install app">
+<div class="pwa-install-banner" id="pwaInstallBanner" role="dialog" aria-label="{% trans 'Sakinisha app' %}">
     <div class="msg">
-        <strong>Install AfyaSmart app</strong>
-        <span>Use app like native on this device.</span>
+        <strong>{% trans "Sakinisha app ya AfyaSmart" %}</strong>
+        <span>{% trans "Tumia app kama native kwenye kifaa hiki." %}</span>
     </div>
     <div class="pwa-install-actions">
-        <button type="button" class="btn btn-sm btn-outline-secondary" id="pwaDismissBtn">Not now</button>
-        <button type="button" class="btn btn-sm btn-primary" id="pwaInstallBtn"><i class="bi bi-download me-1"></i>Install</button>
+        <button type="button" class="btn btn-sm btn-outline-secondary" id="pwaDismissBtn">{% trans "Si sasa" %}</button>
+        <button type="button" class="btn btn-sm btn-primary" id="pwaInstallBtn"><i class="bi bi-download me-1"></i>{% trans "Sakinisha" %}</button>
     </div>
 </div>
 
 <nav class="navbar sticky-top afya-main-nav py-1">
     <div class="container d-flex justify-content-between align-items-center">
         <a class="afya-brand text-danger" href="{% url 'main:home' %}">
-            <img src="{% static 'favicon.png' %}" alt="AfyaSmart logo" class="afya-brand-logo">
+            <img src="{% static 'favicon.png' %}" alt="Nembo ya AfyaSmart" class="afya-brand-logo">
             <span>AfyaSmart</span>
         </a>
         <div class="afya-main-links">
             {% if user.is_authenticated %}
-            <a href="{% url 'main:services' %}" class="afya-main-link afya-primary-link" data-nav-match="/services/" aria-label="Services"><i class="bi bi-person-badge-fill"></i><span>Services</span></a>
-            <a href="{% url 'menstrual:settings' %}" class="afya-main-link afya-primary-link" data-nav-match="/menstrual/settings/" aria-label="Settings"><i class="bi bi-gear"></i><span>Settings</span></a>
-            <a href="{% url 'chats:notifications' %}" class="afya-main-link afya-primary-link" data-nav-match="/social/notifications/" aria-label="Notifications"><i class="bi bi-bell"></i><span>Notifications</span></a>
-            <a href="{% url 'users:profile' %}" class="afya-main-link afya-primary-link d-lg-none" data-nav-match="/users/profile/" aria-label="Account">
+            <a href="{% url 'main:services' %}" class="afya-main-link afya-primary-link" data-nav-match="/services/" aria-label="{% trans 'Huduma' %}"><i class="bi bi-person-badge-fill"></i><span>{% trans "Huduma" %}</span></a>
+            <a href="{% url 'menstrual:settings' %}" class="afya-main-link afya-primary-link" data-nav-match="/menstrual/settings/" aria-label="{% trans 'Mipangilio' %}"><i class="bi bi-gear"></i><span>{% trans "Mipangilio" %}</span></a>
+            <a href="{% url 'chats:notifications' %}" class="afya-main-link afya-primary-link" data-nav-match="/social/notifications/" aria-label="{% trans 'Arifa' %}"><i class="bi bi-bell"></i><span>{% trans "Arifa" %}</span></a>
+            <a href="{% url 'users:profile' %}" class="afya-main-link afya-primary-link d-lg-none" data-nav-match="/users/profile/" aria-label="{% trans 'Akaunti' %}">
                 {% if current_user_avatar_url %}
-                <img src="{{ current_user_avatar_url }}{% if current_user_avatar_version %}?v={{ current_user_avatar_version }}{% endif %}" alt="{{ user.username }} profile photo" class="afya-account-avatar">
+                <img src="{{ current_user_avatar_url }}{% if current_user_avatar_version %}?v={{ current_user_avatar_version }}{% endif %}" alt="{% trans 'Picha ya wasifu ya' %} {{ user.username }}" class="afya-account-avatar">
                 {% else %}
                 <span class="afya-account-initial">{{ current_user_initial }}</span>
                 {% endif %}
-                <span>Account</span>
+                <span>{% trans "Akaunti" %}</span>
             </a>
             {% else %}
-            <a href="{% url 'users:login' %}" class="afya-main-link afya-primary-link" data-nav-match="/users/login/" aria-label="Login"><i class="bi bi-box-arrow-in-right"></i><span>Login</span></a>
-            <a href="{% url 'users:register' %}" class="afya-main-link afya-primary-link" data-nav-match="/users/register/" aria-label="Register"><i class="bi bi-person-plus"></i><span>Register</span></a>
+            <a href="{% url 'users:login' %}" class="afya-main-link afya-primary-link" data-nav-match="/users/login/" aria-label="{% trans 'Ingia' %}"><i class="bi bi-box-arrow-in-right"></i><span>{% trans "Ingia" %}</span></a>
+            <a href="{% url 'users:register' %}" class="afya-main-link afya-primary-link" data-nav-match="/users/register/" aria-label="{% trans 'Jisajili' %}"><i class="bi bi-person-plus"></i><span>{% trans "Jisajili" %}</span></a>
             {% endif %}
 
             <a href="{% url 'AI_brain:chat' %}" class="afya-main-link d-none d-lg-inline-flex" data-nav-match="/ai/chat/"><i class="bi bi-robot"></i><span>AI</span></a>
             <a href="{% url 'chats:feed' %}" class="afya-main-link d-none d-lg-inline-flex" data-nav-match="/social/"><i class="bi bi-people"></i><span>Jamii</span></a>
-            <a href="{% url 'chats:inbox' %}" class="afya-main-link d-none d-lg-inline-flex" data-nav-match="/social/inbox/"><i class="bi bi-chat-dots"></i><span>Chat</span></a>
+            <a href="{% url 'chats:inbox' %}" class="afya-main-link d-none d-lg-inline-flex" data-nav-match="/social/inbox/"><i class="bi bi-chat-dots"></i><span>{% trans "Soga" %}</span></a>
             <a href="{% url 'card:home' %}" class="afya-main-link d-none d-lg-inline-flex" data-nav-match="/card/"><i class="bi bi-credit-card-2-front"></i><span>Card</span></a>
-            <a href="{% url 'doctor:hub' %}" class="afya-main-link d-none d-lg-inline-flex" data-nav-match="/doctor/"><i class="bi bi-hospital"></i><span>Doctors</span></a>
+            <a href="{% url 'doctor:hub' %}" class="afya-main-link d-none d-lg-inline-flex" data-nav-match="/doctor/"><i class="bi bi-hospital"></i><span>{% trans "Madaktari" %}</span></a>
             {% if is_verified_doctor %}
-            <a href="{% url 'doctor:patients' %}" class="afya-main-link d-none d-lg-inline-flex" data-nav-match="/doctor/patients/"><i class="bi bi-people-fill"></i><span>Patients</span></a>
+            <a href="{% url 'doctor:patients' %}" class="afya-main-link d-none d-lg-inline-flex" data-nav-match="/doctor/patients/"><i class="bi bi-people-fill"></i><span>{% trans "Wagonjwa" %}</span></a>
             {% endif %}
             {% if has_patient_logs %}
-            <a href="{% url 'doctor:my_patient_logs' %}" class="afya-main-link d-none d-lg-inline-flex" data-nav-match="/doctor/my-logs/"><i class="bi bi-journal-medical"></i><span>My Logs</span></a>
+            <a href="{% url 'doctor:my_patient_logs' %}" class="afya-main-link d-none d-lg-inline-flex" data-nav-match="/doctor/my-logs/"><i class="bi bi-journal-medical"></i><span>{% trans "Log Zangu" %}</span></a>
             {% endif %}
-            <button class="afya-main-link afya-theme-btn d-none d-lg-inline-flex" type="button" data-theme-toggle aria-label="Toggle theme">
+            <button class="afya-main-link afya-theme-btn d-none d-lg-inline-flex" type="button" data-theme-toggle aria-label="{% trans 'Badili mandhari' %}">
                 <i class="bi bi-moon-stars"></i>
-                <span>Theme</span>
+                <span>{% trans "Mandhari" %}</span>
             </button>
             {% if user.is_authenticated %}
             <span class="afya-user-actions d-none d-lg-inline-flex">
                 <div class="dropdown">
                     <button class="nav-avatar-link mobile" type="button" id="userMenuDropdown" data-bs-toggle="dropdown" aria-expanded="false" style="border: none; background: none; cursor: pointer;">
                         {% if current_user_avatar_url %}
-                        <img src="{{ current_user_avatar_url }}{% if current_user_avatar_version %}?v={{ current_user_avatar_version }}{% endif %}" alt="{{ user.username }} profile photo">
+                        <img src="{{ current_user_avatar_url }}{% if current_user_avatar_version %}?v={{ current_user_avatar_version }}{% endif %}" alt="{% trans 'Picha ya wasifu ya' %} {{ user.username }}">
                         {% else %}
                         <span class="avatar-initials" style="width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; background: linear-gradient(135deg, var(--primary), var(--secondary)); color: white; border-radius: 50%; font-weight: bold;">{{ current_user_initial }}</span>
                         {% endif %}
                     </button>
                     <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userMenuDropdown" style="border-radius: 12px; border: 1px solid var(--line-soft); box-shadow: 0 10px 25px rgba(0,0,0,.1);">
-                        <li><a class="dropdown-item" href="{% url 'users:profile' %}" style="padding: .6rem 1rem;"><i class="bi bi-person-circle"></i> Profile</a></li>
+                        <li><a class="dropdown-item" href="{% url 'users:profile' %}" style="padding: .6rem 1rem;"><i class="bi bi-person-circle"></i> {% trans "Wasifu" %}</a></li>
                         <li><hr class="dropdown-divider" style="margin: .3rem 0;"></li>
                         <li>
-                            <form method="post" action="{% url 'users:logout' %}" data-confirm-title="Logout" data-confirm-message="Una uhakika unataka kutoka kwenye akaunti yako?" data-confirm-variant="danger" style="margin:0;">
+                            <form method="post" action="{% url 'users:logout' %}" data-confirm-title="{% trans 'Ondoka' %}" data-confirm-message="Una uhakika unataka kutoka kwenye akaunti yako?" data-confirm-variant="danger" style="margin:0;">
                                 {% csrf_token %}
-                                <button class="dropdown-item text-danger" type="submit" style="padding: .6rem 1rem;"><i class="bi bi-box-arrow-right"></i> Logout</button>
+                                <button class="dropdown-item text-danger" type="submit" style="padding: .6rem 1rem;"><i class="bi bi-box-arrow-right"></i> {% trans "Ondoka" %}</button>
                             </form>
                         </li>
                     </ul>
@@ -1655,7 +1655,7 @@
         <div class="afya-mobile-sub-shell">
             <div class="afya-mobile-brand-head">
                 <a class="afya-mobile-brand-link" href="{% url 'main:home' %}">
-                    <img src="{% static 'favicon.png' %}" alt="AfyaSmart logo" class="afya-brand-logo">
+                    <img src="{% static 'favicon.png' %}" alt="Nembo ya AfyaSmart" class="afya-brand-logo">
                     <span>AfyaSmart</span>
                 </a>
                 <span class="afya-mobile-brand-motto">usiri, usahihi na uaminifu</span>
@@ -1663,38 +1663,38 @@
             <div class="afya-sub-links-mobile">
                 <a href="{% url 'AI_brain:chat' %}" class="afya-sub-mobile-link" data-nav-match="/ai/chat/"><i class="bi bi-robot"></i><span>AI</span></a>
                 <a href="{% url 'chats:feed' %}" class="afya-sub-mobile-link" data-nav-match="/social/"><i class="bi bi-people"></i><span>Jamii</span></a>
-                <a href="{% url 'chats:inbox' %}" class="afya-sub-mobile-link" data-nav-match="/social/inbox/"><i class="bi bi-chat-dots"></i><span>Chat</span></a>
-                <a href="{% url 'card:home' %}" class="afya-sub-mobile-link" data-nav-match="/card/"><i class="bi bi-credit-card-2-front"></i><span>Card</span></a>
-                <a href="{% url 'doctor:hub' %}" class="afya-sub-mobile-link" data-nav-match="/doctor/"><i class="bi bi-hospital"></i><span>Doctors</span></a>
+                <a href="{% url 'chats:inbox' %}" class="afya-sub-mobile-link" data-nav-match="/social/inbox/"><i class="bi bi-chat-dots"></i><span>{% trans "Soga" %}</span></a>
+                <a href="{% url 'card:home' %}" class="afya-sub-mobile-link" data-nav-match="/card/"><i class="bi bi-credit-card-2-front"></i><span>{% trans "Kadi" %}</span></a>
+                <a href="{% url 'doctor:hub' %}" class="afya-sub-mobile-link" data-nav-match="/doctor/"><i class="bi bi-hospital"></i><span>{% trans "Madaktari" %}</span></a>
                 {% if is_verified_doctor %}
-                <a href="{% url 'doctor:patients' %}" class="afya-sub-mobile-link" data-nav-match="/doctor/patients/"><i class="bi bi-people-fill"></i><span>Patients</span></a>
+                <a href="{% url 'doctor:patients' %}" class="afya-sub-mobile-link" data-nav-match="/doctor/patients/"><i class="bi bi-people-fill"></i><span>{% trans "Wagonjwa" %}</span></a>
                 {% endif %}
                 {% if has_patient_logs %}
-                <a href="{% url 'doctor:my_patient_logs' %}" class="afya-sub-mobile-link" data-nav-match="/doctor/my-logs/"><i class="bi bi-journal-medical"></i><span>My Logs</span></a>
+                <a href="{% url 'doctor:my_patient_logs' %}" class="afya-sub-mobile-link" data-nav-match="/doctor/my-logs/"><i class="bi bi-journal-medical"></i><span>{% trans "Log Zangu" %}</span></a>
                 {% endif %}
-                <button class="afya-sub-mobile-link afya-theme-btn" type="button" data-theme-toggle aria-label="Toggle theme"><i class="bi bi-moon-stars"></i><span>Theme</span></button>
+                <button class="afya-sub-mobile-link afya-theme-btn" type="button" data-theme-toggle aria-label="{% trans 'Badili mandhari' %}"><i class="bi bi-moon-stars"></i><span>{% trans "Mandhari" %}</span></button>
             </div>
         </div>
     </div>
 </nav>
 {% endif %}
 
-<nav class="afya-mobile-primary-nav d-lg-none" aria-label="Primary mobile navigation">
+<nav class="afya-mobile-primary-nav d-lg-none" aria-label="Urambazaji mkuu wa simu">
     <div class="afya-mobile-primary-links">
         {% if user.is_authenticated %}
-        <a href="{% url 'main:services' %}" class="afya-mobile-primary-link" data-nav-match="/services/" aria-label="Services"><i class="bi bi-person-badge-fill"></i><span>Services</span></a>
-        <a href="{% url 'menstrual:settings' %}" class="afya-mobile-primary-link" data-nav-match="/menstrual/settings/" aria-label="Settings"><i class="bi bi-gear"></i><span>Settings</span></a>
-        <a href="{% url 'chats:notifications' %}" class="afya-mobile-primary-link" data-nav-match="/social/notifications/" aria-label="Notifications"><i class="bi bi-bell"></i><span>Alerts</span></a>
-        <a href="{% url 'users:profile' %}" class="afya-mobile-primary-link" data-nav-match="/users/profile/" aria-label="Account"><i class="bi bi-person-circle"></i><span>Account</span></a>
-        <form method="post" action="{% url 'users:logout' %}" class="afya-mobile-primary-form" data-confirm-title="Logout" data-confirm-message="Una uhakika unataka kutoka kwenye akaunti yako?" data-confirm-variant="danger">
+        <a href="{% url 'main:services' %}" class="afya-mobile-primary-link" data-nav-match="/services/" aria-label="{% trans 'Huduma' %}"><i class="bi bi-person-badge-fill"></i><span>{% trans "Huduma" %}</span></a>
+        <a href="{% url 'menstrual:settings' %}" class="afya-mobile-primary-link" data-nav-match="/menstrual/settings/" aria-label="{% trans 'Mipangilio' %}"><i class="bi bi-gear"></i><span>{% trans "Mipangilio" %}</span></a>
+        <a href="{% url 'chats:notifications' %}" class="afya-mobile-primary-link" data-nav-match="/social/notifications/" aria-label="{% trans 'Arifa' %}"><i class="bi bi-bell"></i><span>{% trans "Arifa" %}</span></a>
+        <a href="{% url 'users:profile' %}" class="afya-mobile-primary-link" data-nav-match="/users/profile/" aria-label="{% trans 'Akaunti' %}"><i class="bi bi-person-circle"></i><span>{% trans "Akaunti" %}</span></a>
+        <form method="post" action="{% url 'users:logout' %}" class="afya-mobile-primary-form" data-confirm-title="{% trans 'Ondoka' %}" data-confirm-message="Una uhakika unataka kutoka kwenye akaunti yako?" data-confirm-variant="danger">
             {% csrf_token %}
-            <button type="submit" class="afya-mobile-primary-link afya-mobile-primary-btn" aria-label="Logout"><i class="bi bi-box-arrow-right"></i><span>Logout</span></button>
+            <button type="submit" class="afya-mobile-primary-link afya-mobile-primary-btn" aria-label="{% trans 'Ondoka' %}"><i class="bi bi-box-arrow-right"></i><span>{% trans "Ondoka" %}</span></button>
         </form>
         {% else %}
-        <a href="{% url 'main:home' %}" class="afya-mobile-primary-link" data-nav-match="/" aria-label="Home"><i class="bi bi-house-door"></i><span>Home</span></a>
-        <a href="{% url 'users:login' %}" class="afya-mobile-primary-link" data-nav-match="/users/login/" aria-label="Login"><i class="bi bi-box-arrow-in-right"></i><span>Login</span></a>
-        <a href="{% url 'users:register' %}" class="afya-mobile-primary-link" data-nav-match="/users/register/" aria-label="Register"><i class="bi bi-person-plus"></i><span>Register</span></a>
-        <a href="{% url 'main:about' %}" class="afya-mobile-primary-link" data-nav-match="/about/" aria-label="About"><i class="bi bi-info-circle"></i><span>About</span></a>
+        <a href="{% url 'main:home' %}" class="afya-mobile-primary-link" data-nav-match="/" aria-label="{% trans 'Nyumbani' %}"><i class="bi bi-house-door"></i><span>{% trans "Nyumbani" %}</span></a>
+        <a href="{% url 'users:login' %}" class="afya-mobile-primary-link" data-nav-match="/users/login/" aria-label="{% trans 'Ingia' %}"><i class="bi bi-box-arrow-in-right"></i><span>{% trans "Ingia" %}</span></a>
+        <a href="{% url 'users:register' %}" class="afya-mobile-primary-link" data-nav-match="/users/register/" aria-label="{% trans 'Jisajili' %}"><i class="bi bi-person-plus"></i><span>{% trans "Jisajili" %}</span></a>
+        <a href="{% url 'main:about' %}" class="afya-mobile-primary-link" data-nav-match="/about/" aria-label="{% trans 'Kuhusu' %}"><i class="bi bi-info-circle"></i><span>{% trans "Kuhusu" %}</span></a>
         {% endif %}
     </div>
 </nav>
@@ -1710,7 +1710,7 @@
         {% for message in messages %}
         <div class="alert alert-{{ message.tags|default:'info' }} alert-dismissible fade show rounded-4 border-0 shadow-sm" role="alert">
             {{ message }}
-            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="{% trans 'Funga' %}"></button>
         </div>
         {% endfor %}
     </div>
@@ -1721,28 +1721,28 @@
 <footer class="desktop-footer">
     <div class="container d-flex justify-content-between align-items-center">
         <span>© {% now "Y" %} AfyaSmart</span>
-        <span>Built for smart, private reproductive care</span>
+        <span>{% trans "Imejengwa kwa huduma salama na ya faragha ya afya ya uzazi" %}</span>
     </div>
 </footer>
 
 {% if user.is_authenticated %}
-<button class="ai-fab" type="button" id="aiFab" aria-label="Open AI assistant">
+<button class="ai-fab" type="button" id="aiFab" aria-label="{% trans 'Fungua msaidizi wa AI' %}">
     <i class="bi bi-robot"></i>
     <span>AI</span>
 </button>
 
 <section class="ai-chat-widget" id="aiChatWidget" aria-live="polite">
     <div class="ai-chat-head">
-        <div class="fw-semibold small"><i class="bi bi-stars text-warning me-1"></i> AfyaSmart Assistant</div>
-        <button type="button" class="btn btn-sm btn-light rounded-pill" id="aiChatClose" aria-label="Close AI chat"><i class="bi bi-x-lg"></i></button>
+        <div class="fw-semibold small"><i class="bi bi-stars text-warning me-1"></i> Msaidizi wa AfyaSmart</div>
+        <button type="button" class="btn btn-sm btn-light rounded-pill" id="aiChatClose" aria-label="{% trans 'Funga mazungumzo ya AI' %}"><i class="bi bi-x-lg"></i></button>
     </div>
     <div class="ai-chat-body" id="aiChatBody">
-        <div class="ai-msg ai-msg-bot"><i class="bi bi-hand-wave me-1"></i>Habari. Uliza swali lolote la afya. Nitakujibu kwa njia fupi, salama, na personalized.</div>
+        <div class="ai-msg ai-msg-bot"><i class="bi bi-hand-wave me-1"></i>Habari. Uliza swali lolote la afya. Nitakujibu kwa njia fupi, salama, na ya kibinafsi.</div>
     </div>
     <form class="ai-chat-form" id="aiQuickForm">
         <div class="ai-quick-prompts">
             <button type="button" class="ai-quick-btn" data-ai-prompt="Nisaidie mpango wa usingizi bora wa afya.">Usingizi</button>
-            <button type="button" class="ai-quick-btn" data-ai-prompt="Nipe tips za kupunguza stress kwa siku 7.">Stress</button>
+            <button type="button" class="ai-quick-btn" data-ai-prompt="Nipe vidokezo vya kupunguza msongo wa mawazo kwa siku 7.">Msongo</button>
             <button type="button" class="ai-quick-btn" data-ai-prompt="Nipe ushauri wa lishe ya afya ya mwili.">Lishe</button>
         </div>
         <div class="input-group">
@@ -1758,12 +1758,12 @@
         <div class="modal-content">
             <div class="modal-body p-4 text-center">
                 <div class="site-confirm-icon"><i class="bi bi-question-lg"></i></div>
-                <h5 class="fw-bold mb-2" id="siteConfirmTitle">Please confirm</h5>
-                <p class="text-muted mb-0" id="siteConfirmMessage">Are you sure you want to continue?</p>
+                <h5 class="fw-bold mb-2" id="siteConfirmTitle">{% trans "Tafadhali thibitisha" %}</h5>
+                <p class="text-muted mb-0" id="siteConfirmMessage">{% trans "Una uhakika unataka kuendelea?" %}</p>
             </div>
             <div class="modal-footer border-0 pt-0 px-4 pb-4 d-flex justify-content-center gap-2">
-                <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal" id="siteConfirmCancel">Cancel</button>
-                <button type="button" class="btn btn-danger rounded-pill px-4" id="siteConfirmApprove">Continue</button>
+                <button type="button" class="btn btn-outline-secondary rounded-pill px-4" data-bs-dismiss="modal" id="siteConfirmCancel">{% trans "Ghairi" %}</button>
+                <button type="button" class="btn btn-danger rounded-pill px-4" id="siteConfirmApprove">{% trans "Endelea" %}</button>
             </div>
         </div>
     </div>

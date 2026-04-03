@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load i18n %}
 
-{% block title %}{% if edit_log %}Edit Log Form{% else %}Log Forms{% endif %} — {{ patient.username }} — AfyaSmart{% endblock %}
+{% block title %}{% if edit_log %}{% trans "Hariri Fomu ya Log" %}{% else %}{% trans "Fomu za Log" %}{% endif %} — {{ patient.username }} — AfyaSmart{% endblock %}
 
 {% block extra_head %}
 <style>
@@ -65,13 +65,13 @@
                         <span class="log-chip {% if log.is_sent %}sent{% else %}unsent{% endif %}">
                             {% if log.is_sent %}<i class="bi bi-send-check"></i>Imetumwa{% else %}<i class="bi bi-send"></i>Bado Kutumwa{% endif %}
                         </span>
-                        <span class="log-chip"><i class="bi bi-list-check"></i>{{ log.fields.count }} field{{ log.fields.count|pluralize }}</span>
-                        <span class="log-chip"><i class="bi bi-inbox"></i>{{ log.entries.count }} entry</span>
+                        <span class="log-chip"><i class="bi bi-list-check"></i>{{ log.fields.count }} {% trans "maswali" %}</span>
+                        <span class="log-chip"><i class="bi bi-inbox"></i>{{ log.entries.count }} {% trans "majibu" %}</span>
                     </div>
                 </div>
                 <div class="d-flex gap-2">
                     <a href="{% url 'doctor:edit_patient_log' log.id %}" class="btn btn-sm btn-outline-warning rounded-pill flex-shrink-0">
-                        <i class="bi bi-pencil-square me-1"></i>Edit
+                        <i class="bi bi-pencil-square me-1"></i>{% trans "Hariri" %}
                     </a>
                     <a href="{% url 'doctor:patient_log_detail' log.id %}" class="btn btn-sm btn-outline-primary rounded-pill flex-shrink-0">
                         <i class="bi bi-eye me-1"></i>Angalia
@@ -82,7 +82,7 @@
                             data-confirm-title="Futa Form?"
                             data-confirm-message="Ukifuta form hii, patient atapata ujumbe wa taarifa kwenye chat. Endelea?"
                             data-confirm-variant="danger">
-                            <i class="bi bi-trash me-1"></i>Delete
+                            <i class="bi bi-trash me-1"></i>{% trans "Futa" %}
                         </button>
                     </form>
                 </div>
@@ -114,7 +114,7 @@
                 </div>
 
                 <div class="col-12">
-                    <label class="form-label fw-semibold mb-2">Metadata za kuruhusu kwa analysis</label>
+                    <label class="form-label fw-semibold mb-2">{% trans "Metadata za kuruhusu kwa uchambuzi" %}</label>
                     <div class="d-flex flex-wrap gap-2">
                         {% for key, label in metadata_choices %}
                         <label class="d-inline-flex align-items-center gap-2 px-3 py-2 rounded-pill" style="border:1px solid var(--line-soft); background:var(--bg-soft);">
@@ -163,11 +163,11 @@
     let fieldCount = 0;
 
     const FIELD_TYPES = [
-        { value: 'text',     label: 'Short text' },
-        { value: 'textarea', label: 'Long text' },
-        { value: 'number',   label: 'Number' },
-        { value: 'select',   label: 'Select (dropdown)' },
-        { value: 'checkbox', label: 'Checkbox (yes/no)' },
+        { value: 'text',     label: 'Maandishi mafupi' },
+        { value: 'textarea', label: 'Maandishi marefu' },
+        { value: 'number',   label: 'Namba' },
+        { value: 'select',   label: 'Chaguo (dropdown)' },
+        { value: 'checkbox', label: 'Kisanduku (ndiyo/hapana)' },
         { value: 'scale',    label: 'Scale 1–10' },
     ];
 

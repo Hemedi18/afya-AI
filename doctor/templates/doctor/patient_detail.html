@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load i18n %}
 
-{% block title %}Patient Detail — {{ patient.username }}{% endblock %}
+{% block title %}{% trans "Maelezo ya Mgonjwa" %} — {{ patient.username }}{% endblock %}
 
 {% block content %}
 <div class="py-4">
@@ -22,8 +22,8 @@
             </div>
             <div class="d-flex gap-2 flex-wrap">
                 <a href="{% url 'doctor:create_patient_log' patient.id %}" class="btn btn-success btn-sm rounded-pill"><i class="bi bi-journal-plus me-1"></i>Unda Form</a>
-                <a href="{% url 'doctor:patient_analysis' patient.id %}" class="btn btn-warning btn-sm rounded-pill"><i class="bi bi-graph-up-arrow me-1"></i>AI Analysis</a>
-                <a href="{% url 'chats:conversation_detail' conversation.id %}" class="btn btn-outline-primary btn-sm rounded-pill"><i class="bi bi-chat-dots me-1"></i>Chat</a>
+                <a href="{% url 'doctor:patient_analysis' patient.id %}" class="btn btn-warning btn-sm rounded-pill"><i class="bi bi-graph-up-arrow me-1"></i>{% trans "Uchambuzi wa AI" %}</a>
+                <a href="{% url 'chats:conversation_detail' conversation.id %}" class="btn btn-outline-primary btn-sm rounded-pill"><i class="bi bi-chat-dots me-1"></i>{% trans "Soga" %}</a>
                 <a href="{% url 'doctor:patients' %}" class="btn btn-outline-secondary btn-sm rounded-pill"><i class="bi bi-arrow-left me-1"></i>Wagonjwa</a>
             </div>
         </div>
@@ -41,20 +41,20 @@
                     <div>
                         <div class="fw-semibold">{{ log.title }}</div>
                         <div class="small text-muted">
-                            {{ log.fields.count }} field{{ log.fields.count|pluralize }} · {{ log.entries.count }} entry · {{ log.created_at|date:"d M Y" }}
+                            {{ log.fields.count }} {% trans "maswali" %} · {{ log.entries.count }} {% trans "majibu" %} · {{ log.created_at|date:"d M Y" }}
                             {% if log.frequency %} · {{ log.frequency }}{% endif %}
                         </div>
                     </div>
                     <div class="d-flex gap-2">
-                        <a href="{% url 'doctor:edit_patient_log' log.id %}" class="btn btn-sm btn-outline-warning rounded-pill">Edit Form</a>
-                        <a href="{% url 'doctor:patient_log_detail' log.id %}" class="btn btn-sm btn-outline-primary rounded-pill">View</a>
+                        <a href="{% url 'doctor:edit_patient_log' log.id %}" class="btn btn-sm btn-outline-warning rounded-pill">{% trans "Hariri fomu" %}</a>
+                        <a href="{% url 'doctor:patient_log_detail' log.id %}" class="btn btn-sm btn-outline-primary rounded-pill">{% trans "Angalia" %}</a>
                         <form method="post" action="{% url 'doctor:delete_patient_log' log.id %}" style="display:inline;">
                             {% csrf_token %}
                             <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill"
                                 data-confirm-title="Futa Form?"
                                 data-confirm-message="Ukifuta form hii, patient atapata ujumbe wa taarifa kwenye chat. Endelea?"
                                 data-confirm-variant="danger">
-                                Delete
+                                {% trans "Futa" %}
                             </button>
                         </form>
                     </div>
@@ -83,7 +83,7 @@
                                     <div class="fw-semibold text-dark">{{ entry.log.title }}</div>
                                     <div class="small text-muted">{{ entry.submitted_at|date:"H:i" }}</div>
                                 </div>
-                                <span class="badge bg-light text-dark">View details</span>
+                                <span class="badge bg-light text-dark">{% trans "Angalia maelezo" %}</span>
                             </div>
                         </a>
                         {% endfor %}

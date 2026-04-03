@@ -1,6 +1,6 @@
 {% extends 'base.html' %}
 
-{% block title %}Puberty & Reproductive Hub{% endblock %}
+{% block title %}Kitovu cha Balehe na Afya ya Uzazi{% endblock %}
 
 {% block content %}
 <style>
@@ -66,12 +66,12 @@
   <div class="hub-hero mb-3">
     <div class="d-flex flex-wrap justify-content-between align-items-center gap-2">
       <div>
-        <h4 class="mb-1"> AI Reproductive & Sexual Health Assistant</h4>
-        <p class="mb-0 small text-muted">Mobile-first • Competition-ready • Community + Doctor integrated</p>
+        <h4 class="mb-1">Msaidizi wa AI wa Afya ya Uzazi na Mahusiano</h4>
+        <p class="mb-0 small text-muted">Imeboreshwa kwa simu • Tayari kwa ushindani • Jamii + Daktari zimeunganishwa</p>
       </div>
       <div class="d-flex gap-2">
         <a href="{% url 'chats:feed' %}" class="btn btn-sm btn-outline-primary"><i class="bi bi-people"></i> Jamii</a>
-        <a href="{% url 'doctor:hub' %}" class="btn btn-sm btn-outline-danger"><i class="bi bi-heart-pulse"></i> Doctors</a>
+        <a href="{% url 'doctor:hub' %}" class="btn btn-sm btn-outline-danger"><i class="bi bi-heart-pulse"></i> Madaktari</a>
       </div>
     </div>
   </div>
@@ -79,20 +79,20 @@
   <div class="row g-3 mb-3">
     <div class="col-lg-7">
       <div class="card card-custom p-3 h-100">
-        <h5 class="mb-3">AI Smart Scores</h5>
+        <h5 class="mb-3">Alama Mahiri za AI</h5>
         <div class="row g-2">
-          <div class="col-6 col-md-4"><div class="score-card"><div class="small">Overall</div><div class="score-value">{{ ai_scores.overall_score }}</div></div></div>
-          <div class="col-6 col-md-4"><div class="score-card"><div class="small">Fertility</div><div class="score-value">{{ ai_scores.fertility_score }}</div></div></div>
-          <div class="col-6 col-md-4"><div class="score-card"><div class="small">Performance</div><div class="score-value">{{ ai_scores.sexual_performance_score }}</div></div></div>
-          <div class="col-6 col-md-6"><div class="score-card"><div class="small">Hormone Balance</div><div class="score-value">{{ ai_scores.hormone_balance_score }}</div></div></div>
-          <div class="col-6 col-md-6"><div class="score-card"><div class="small">Stress vs Libido</div><div class="score-value">{{ ai_scores.stress_libido_score }}</div></div></div>
+          <div class="col-6 col-md-4"><div class="score-card"><div class="small">Jumla</div><div class="score-value">{{ ai_scores.overall_score }}</div></div></div>
+          <div class="col-6 col-md-4"><div class="score-card"><div class="small">Uzazi</div><div class="score-value">{{ ai_scores.fertility_score }}</div></div></div>
+          <div class="col-6 col-md-4"><div class="score-card"><div class="small">Utendaji</div><div class="score-value">{{ ai_scores.sexual_performance_score }}</div></div></div>
+          <div class="col-6 col-md-6"><div class="score-card"><div class="small">Uwiano wa Homoni</div><div class="score-value">{{ ai_scores.hormone_balance_score }}</div></div></div>
+          <div class="col-6 col-md-6"><div class="score-card"><div class="small">Msongo dhidi ya Hamu</div><div class="score-value">{{ ai_scores.stress_libido_score }}</div></div></div>
         </div>
       </div>
     </div>
 
     <div class="col-lg-5">
       <div class="card card-custom p-3 h-100">
-        <h5 class="mb-3">Top Problems + Solutions</h5>
+        <h5 class="mb-3">Changamoto Kuu + Suluhisho</h5>
         <div class="accordion" id="issuesAcc">
           {% for issue in issues %}
           <div class="accordion-item bg-transparent text-reset border rounded-3 mb-2 overflow-hidden">
@@ -103,9 +103,9 @@
             </h2>
             <div id="issue{{ forloop.counter }}" class="accordion-collapse collapse" data-bs-parent="#issuesAcc">
               <div class="accordion-body">
-                <p><strong>Problem:</strong> {{ issue.problem }}</p>
-                <p><strong>Solution:</strong> {{ issue.solution }}</p>
-                <p class="mb-0 text-danger"><strong>Emergency:</strong> {{ issue.urgent }}</p>
+                <p><strong>Tatizo:</strong> {{ issue.problem }}</p>
+                <p><strong>Suluhisho:</strong> {{ issue.solution }}</p>
+                <p class="mb-0 text-danger"><strong>Dharura:</strong> {{ issue.urgent }}</p>
               </div>
             </div>
           </div>
@@ -116,11 +116,11 @@
 
     <div class="col-lg-4">
       <div class="card card-custom p-3 h-100">
-        <h5 class="mb-3">Quick Stats</h5>
+        <h5 class="mb-3">Takwimu za Haraka</h5>
         <ul class="list-group list-group-flush">
-          <li class="list-group-item bg-transparent d-flex justify-content-between"><span>Self Checks</span><strong>{{ checks|length }}</strong></li>
-          <li class="list-group-item bg-transparent d-flex justify-content-between"><span>Healthy Goals</span><strong>{{ goals|length }}</strong></li>
-          <li class="list-group-item bg-transparent d-flex justify-content-between"><span>Findings</span><strong>{{ findings|length }}</strong></li>
+          <li class="list-group-item bg-transparent d-flex justify-content-between"><span>Ukaguzi Binafsi</span><strong>{{ checks|length }}</strong></li>
+          <li class="list-group-item bg-transparent d-flex justify-content-between"><span>Malengo ya Afya</span><strong>{{ goals|length }}</strong></li>
+          <li class="list-group-item bg-transparent d-flex justify-content-between"><span>Matokeo</span><strong>{{ findings|length }}</strong></li>
         </ul>
       </div>
     </div>
@@ -144,67 +144,67 @@
   <div class="row g-3 mb-3">
     <div class="col-12 col-lg-4">
       <div class="card card-custom p-3 h-100">
-        <h5 class="mb-3">1) Self Check</h5>
+        <h5 class="mb-3">1) Ukaguzi Binafsi</h5>
         <form method="post" action="{% url 'reproduction:create_check' %}">
           {% csrf_token %}
           {{ check_form.as_p }}
-          <button class="btn btn-primary w-100" type="submit">Run Check</button>
+          <button class="btn btn-primary w-100" type="submit">Endesha Ukaguzi</button>
         </form>
       </div>
     </div>
 
     <div class="col-12 col-lg-4">
       <div class="card card-custom p-3 h-100">
-        <h5 class="mb-3">2) Habit Goals</h5>
+        <h5 class="mb-3">2) Malengo ya Tabia</h5>
         <form method="post" action="{% url 'reproduction:create_goal' %}">
           {% csrf_token %}
           {{ goal_form.as_p }}
-          <button class="btn btn-primary w-100" type="submit">Add Goal</button>
+          <button class="btn btn-primary w-100" type="submit">Ongeza Lengo</button>
         </form>
         <hr>
         {% for goal in goals %}
           <div class="d-flex justify-content-between align-items-start mb-2">
             <div>
               <strong>{{ goal.title }}</strong><br>
-              <small class="text-muted">Streak: {{ goal.streak_days }}/{{ goal.target_days }}</small>
+              <small class="text-muted">Mfululizo: {{ goal.streak_days }}/{{ goal.target_days }}</small>
             </div>
             <form method="post" action="{% url 'reproduction:toggle_goal_today' goal.id %}">
               {% csrf_token %}
               <button class="btn btn-sm {% if goal.completed_today %}btn-success{% else %}btn-outline-secondary{% endif %}" type="submit">
-                {% if goal.completed_today %}Done{% else %}Mark{% endif %}
+                {% if goal.completed_today %}Imekamilika{% else %}Weka alama{% endif %}
               </button>
             </form>
           </div>
         {% empty %}
-          <p class="text-muted mb-0">No goals yet.</p>
+          <p class="text-muted mb-0">Hakuna malengo bado.</p>
         {% endfor %}
       </div>
     </div>
 
     <div class="col-12 col-lg-4">
       <div class="card card-custom p-3 h-100">
-        <h5 class="mb-3">3) Findings + Jamii Share</h5>
+        <h5 class="mb-3">3) Matokeo + Kushiriki Jamii</h5>
         <form method="post" action="{% url 'reproduction:create_finding' %}">
           {% csrf_token %}
           {{ finding_form.as_p }}
-          <button class="btn btn-primary w-100" type="submit">Save Finding</button>
+          <button class="btn btn-primary w-100" type="submit">Hifadhi Tokeo</button>
         </form>
         <hr>
-        <h6 class="mb-2">4) Metric Logger (AI Learning)</h6>
+        <h6 class="mb-2">4) Kumbukumbu ya Vipimo (AI Inajifunza)</h6>
         <form method="post" action="{% url 'reproduction:create_metric' %}">
           {% csrf_token %}
           {{ metric_form.as_p }}
-          <button class="btn btn-outline-primary w-100" type="submit">Save Metric</button>
+          <button class="btn btn-outline-primary w-100" type="submit">Hifadhi Kipimo</button>
         </form>
         <hr>
-        <h6 class="mb-2">Couples Mode</h6>
+        <h6 class="mb-2">Njia ya Wapenzi</h6>
         <form method="post" action="{% url 'reproduction:connect_couple' %}">
           {% csrf_token %}
           {{ couple_form.as_p }}
-          <button class="btn btn-outline-danger w-100" type="submit">Send Couple Request</button>
+          <button class="btn btn-outline-danger w-100" type="submit">Tuma Ombi la Mpenzi</button>
         </form>
         {% if couple_connection %}
-        <p class="small text-success mt-2 mb-0">Connected/Requested: {{ couple_connection.requester }} ↔ {{ couple_connection.partner }} ({{ couple_connection.status }})</p>
+        <p class="small text-success mt-2 mb-0">Imeunganishwa/Ombi: {{ couple_connection.requester }} ↔ {{ couple_connection.partner }} ({{ couple_connection.status }})</p>
         {% endif %}
       </div>
     </div>
@@ -213,7 +213,7 @@
   <div class="row g-3">
     <div class="col-12 col-lg-6">
       <div class="card card-custom p-3 h-100">
-        <h5 class="mb-3">Recent Self-Check Results</h5>
+        <h5 class="mb-3">Matokeo ya Ukaguzi wa Hivi Karibuni</h5>
         {% for item in checks %}
           <div class="border rounded-3 p-2 mb-2">
             <div class="d-flex justify-content-between">
@@ -231,14 +231,14 @@
             <p class="mb-0 mt-1">{{ item.ai_guidance }}</p>
           </div>
         {% empty %}
-          <p class="text-muted mb-0">No checks yet.</p>
+          <p class="text-muted mb-0">Hakuna ukaguzi bado.</p>
         {% endfor %}
       </div>
     </div>
 
     <div class="col-12 col-lg-6">
       <div class="card card-custom p-3 h-100">
-        <h5 class="mb-3">Recent Findings</h5>
+        <h5 class="mb-3">Matokeo ya Hivi Karibuni</h5>
         {% for finding in findings %}
           <div class="border rounded-3 p-2 mb-2">
             <div class="d-flex justify-content-between">
@@ -247,13 +247,13 @@
             </div>
             <p class="mb-1">{{ finding.finding|truncatechars:180 }}</p>
             {% if finding.community_post_id %}
-              <small class="text-success">Shared to Jamii Community ✅</small>
+              <small class="text-success">Imeshirikiwa kwenye Jamii ✅</small>
             {% else %}
-              <small class="text-muted">Private note</small>
+              <small class="text-muted">Dokezo la faragha</small>
             {% endif %}
           </div>
         {% empty %}
-          <p class="text-muted mb-0">No findings yet.</p>
+          <p class="text-muted mb-0">Hakuna matokeo bado.</p>
         {% endfor %}
       </div>
     </div>
@@ -262,28 +262,28 @@
   <div class="row g-3 mt-1">
     <div class="col-12 col-lg-6">
       <div class="card card-custom p-3 h-100">
-        <h5 class="mb-3">AI Personalized Prevention Plan (7 Days)</h5>
+        <h5 class="mb-3">Mpango wa Kinga wa AI (Siku 7)</h5>
         {% for day in latest_plan %}
           <div class="border rounded-3 p-2 mb-2 d-flex justify-content-between align-items-start">
             <div>
-              <strong>Day {{ day.day_number }}: {{ day.title }}</strong>
+              <strong>Siku {{ day.day_number }}: {{ day.title }}</strong>
               <p class="mb-0 small">{{ day.action }}</p>
             </div>
             {% if day.is_done %}
-              <span class="badge bg-success">Done</span>
+              <span class="badge bg-success">Imekamilika</span>
             {% else %}
-              <span class="badge bg-secondary">Pending</span>
+              <span class="badge bg-secondary">Inasubiri</span>
             {% endif %}
           </div>
         {% empty %}
-          <p class="text-muted mb-0">Run a self-check to generate your personalized 7-day prevention plan.</p>
+          <p class="text-muted mb-0">Fanya ukaguzi binafsi kutengeneza mpango wako wa kinga wa siku 7.</p>
         {% endfor %}
       </div>
     </div>
 
     <div class="col-12 col-lg-6">
       <div class="card card-custom p-3 h-100">
-        <h5 class="mb-3">Symptoms Analytics (Last 30 Days)</h5>
+        <h5 class="mb-3">Uchanganuzi wa Dalili (Siku 30 Zilizopita)</h5>
         <div class="mb-3">
           <canvas id="riskChart" height="160"></canvas>
         </div>
@@ -297,11 +297,11 @@
   <div class="row g-3 mt-1">
     <div class="col-12">
       <div class="card card-custom p-3">
-        <h5 class="mb-3">Doctor + Community Integration</h5>
+        <h5 class="mb-3">Muunganiko wa Daktari + Jamii</h5>
         <div class="d-flex flex-wrap gap-2">
-          <a href="{% url 'doctor:hub' %}" class="btn btn-outline-danger btn-sm"><i class="bi bi-hospital"></i> Find Verified Doctor</a>
-          <a href="{% url 'chats:feed' %}" class="btn btn-outline-primary btn-sm"><i class="bi bi-chat-dots"></i> Share on Jamii</a>
-          <a href="{% url 'offline_chat:home' %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-hdd-network"></i> Offline AI Mode</a>
+          <a href="{% url 'doctor:hub' %}" class="btn btn-outline-danger btn-sm"><i class="bi bi-hospital"></i> Tafuta Daktari Aliyethibitishwa</a>
+          <a href="{% url 'chats:feed' %}" class="btn btn-outline-primary btn-sm"><i class="bi bi-chat-dots"></i> Shiriki kwenye Jamii</a>
+          <a href="{% url 'offline_chat:home' %}" class="btn btn-outline-secondary btn-sm"><i class="bi bi-hdd-network"></i> Njia ya AI Bila Mtandao</a>
         </div>
       </div>
     </div>
@@ -340,7 +340,7 @@
       data: {
         labels: symptomLabels,
         datasets: [{
-          label: 'Frequency',
+          label: 'Marudio',
           data: symptomData,
           backgroundColor: '#5c7cfa',
           borderRadius: 6,

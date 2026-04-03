@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load i18n %}
 
 {% block content %}
 <div class="py-3" style="max-width:1050px;margin:0 auto;">
@@ -12,23 +13,23 @@
         {% endif %}
         <div>
           <h4 class="fw-bold mb-1">Dr. {{ doctor.user.get_full_name|default:doctor.user.username }}</h4>
-          <div class="small text-muted mb-1">{{ doctor.specialization }} • {{ doctor.hospital_name|default:'Hospital not provided' }}</div>
+          <div class="small text-muted mb-1">{{ doctor.specialization }} • {{ doctor.hospital_name|default:'Hospital haijawekwa' }}</div>
           <div class="d-flex flex-wrap gap-2">
-            <span class="badge rounded-pill {% if doctor.verified %}text-bg-success{% else %}text-bg-secondary{% endif %}"><i class="bi {% if doctor.verified %}bi-patch-check-fill{% else %}bi-patch-exclamation{% endif %}"></i> {% if doctor.verified %}Verified{% else %}Not verified{% endif %}</span>
+            <span class="badge rounded-pill {% if doctor.verified %}text-bg-success{% else %}text-bg-secondary{% endif %}"><i class="bi {% if doctor.verified %}bi-patch-check-fill{% else %}bi-patch-exclamation{% endif %}"></i> {% if doctor.verified %}{% trans "Amethibitishwa" %}{% else %}{% trans "Hajathibitishwa" %}{% endif %}</span>
             <span class="badge rounded-pill text-bg-light"><i class="bi bi-star-fill text-warning"></i> {{ doctor.rank_avg|default:0|floatformat:1 }} ({{ doctor.rank_count }})</span>
-            <span class="badge rounded-pill text-bg-light"><i class="bi bi-people-fill"></i> {{ doctor.followers_count }} followers</span>
-            <span class="badge rounded-pill text-bg-light"><i class="bi bi-flag-fill text-danger"></i> {{ doctor.report_count }} reports</span>
+            <span class="badge rounded-pill text-bg-light"><i class="bi bi-people-fill"></i> {{ doctor.followers_count }} {% trans "wafuasi" %}</span>
+            <span class="badge rounded-pill text-bg-light"><i class="bi bi-flag-fill text-danger"></i> {{ doctor.report_count }} {% trans "ripoti" %}</span>
           </div>
         </div>
       </div>
 
       <div class="d-flex gap-2 flex-wrap">
-        <a href="{% url 'chats:start_private_chat' doctor.user.id %}" class="btn btn-outline-danger rounded-pill"><i class="bi bi-chat-dots"></i> Chat</a>
+        <a href="{% url 'chats:start_private_chat' doctor.user.id %}" class="btn btn-outline-danger rounded-pill"><i class="bi bi-chat-dots"></i> {% trans "Soga" %}</a>
         <form method="post" action="{% url 'doctor:follow_toggle' doctor.id %}">
           {% csrf_token %}
-          <button class="btn {% if is_following %}btn-dark{% else %}btn-outline-dark{% endif %} rounded-pill" type="submit"><i class="bi bi-person-plus"></i> {% if is_following %}Following{% else %}Follow{% endif %}</button>
+          <button class="btn {% if is_following %}btn-dark{% else %}btn-outline-dark{% endif %} rounded-pill" type="submit"><i class="bi bi-person-plus"></i> {% if is_following %}{% trans "Umefuata" %}{% else %}{% trans "Fuata" %}{% endif %}</button>
         </form>
-        <button type="button" id="toggleReportBtn" class="btn btn-outline-danger rounded-pill" title="Report" aria-label="Report doctor">
+        <button type="button" id="toggleReportBtn" class="btn btn-outline-danger rounded-pill" title="{% trans 'Ripoti' %}" aria-label="{% trans 'Ripoti daktari' %}">
           <i class="bi bi-flag"></i>
         </button>
       </div>
@@ -40,12 +41,12 @@
 
   {% if can_rate_today or my_rating_today %}
   <div class="card-custom p-3 p-md-4 mb-3">
-    <h6 class="fw-bold mb-2"><i class="bi bi-star-fill text-warning"></i> Daily doctor ranking</h6>
+    <h6 class="fw-bold mb-2"><i class="bi bi-star-fill text-warning"></i> {% trans "Ukadiriaji wa daktari wa leo" %}</h6>
     {% if can_rate_today %}
     <form method="post" action="{% url 'doctor:rate' doctor.id %}" class="row g-2 align-items-end">
       {% csrf_token %}
       <div class="col-md-2">
-        <label class="small text-muted mb-1">Score</label>
+        <label class="small text-muted mb-1">{% trans "Alama" %}</label>
         <select class="form-select" name="score" required>
           <option value="5">5 ⭐</option>
           <option value="4">4 ⭐</option>
@@ -55,11 +56,11 @@
         </select>
       </div>
       <div class="col-md-8">
-        <label class="small text-muted mb-1">Optional note</label>
+        <label class="small text-muted mb-1">{% trans "Maoni (si lazima)" %}</label>
         <input type="text" name="note" maxlength="280" class="form-control" placeholder="Maoni yako kwa doctor (optional)">
       </div>
       <div class="col-md-2 d-grid">
-        <button class="btn btn-warning rounded-pill" type="submit">Rank</button>
+        <button class="btn btn-warning rounded-pill" type="submit">{% trans "Kadiria" %}</button>
       </div>
     </form>
     {% elif my_rating_today %}
@@ -69,27 +70,27 @@
   {% endif %}
 
   <div id="doctorReportCard" class="card-custom p-3 p-md-4 mb-3 d-none">
-    <h6 class="fw-bold mb-2"><i class="bi bi-flag"></i> Report doctor</h6>
+    <h6 class="fw-bold mb-2"><i class="bi bi-flag"></i> {% trans "Ripoti daktari" %}</h6>
     <form method="post" action="{% url 'doctor:report' doctor.id %}" class="row g-2 align-items-end">
       {% csrf_token %}
       <div class="col-md-4">
-        <label class="small text-muted mb-1">Reason</label>
+        <label class="small text-muted mb-1">{% trans "Sababu" %}</label>
         <input type="text" class="form-control" name="reason" required placeholder="Sababu ya report">
       </div>
       <div class="col-md-6">
-        <label class="small text-muted mb-1">Details (optional)</label>
+        <label class="small text-muted mb-1">{% trans "Maelezo (si lazima)" %}</label>
         <input type="text" class="form-control" name="details" placeholder="Maelezo ya ziada...">
       </div>
       <div class="col-md-2 d-grid">
-        <button class="btn btn-outline-danger rounded-pill" type="submit">Send</button>
+        <button class="btn btn-outline-danger rounded-pill" type="submit">{% trans "Tuma" %}</button>
       </div>
     </form>
   </div>
 
   <div class="card-custom p-3 p-md-4">
     <div class="d-flex align-items-center justify-content-between mb-2">
-      <h6 class="fw-bold mb-0"><i class="bi bi-card-text"></i> Doctor posts</h6>
-      <a href="{% url 'doctor:hub' %}" class="btn btn-sm btn-outline-secondary rounded-pill">Back to doctors</a>
+      <h6 class="fw-bold mb-0"><i class="bi bi-card-text"></i> {% trans "Machapisho ya daktari" %}</h6>
+      <a href="{% url 'doctor:hub' %}" class="btn btn-sm btn-outline-secondary rounded-pill">{% trans "Rudi kwa madaktari" %}</a>
     </div>
 
     <div class="row g-3">
@@ -97,8 +98,8 @@
       <div class="col-12">
         <article class="border rounded-4 p-3">
           <div class="d-flex align-items-center justify-content-between gap-2 mb-2">
-            <div class="small text-muted">{{ post.created_at|timesince }} ago{% if post.group %} • {{ post.group.name }}{% endif %}</div>
-            <a href="{% url 'chats:post_detail' post.id %}" class="btn btn-sm btn-outline-secondary rounded-pill">Open post</a>
+            <div class="small text-muted">{% blocktrans with t=post.created_at|timesince %}{{ t }} iliyopita{% endblocktrans %}{% if post.group %} • {{ post.group.name }}{% endif %}</div>
+            <a href="{% url 'chats:post_detail' post.id %}" class="btn btn-sm btn-outline-secondary rounded-pill">{% trans "Fungua chapisho" %}</a>
           </div>
           <div class="mb-2">{{ post.content|safe }}</div>
           {% include 'chats/includes/post_media.html' with post=post %}

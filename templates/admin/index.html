@@ -46,16 +46,16 @@
 <div id="content-main">
   {% if admin_dash %}
   <div class="kpis">
-    <div class="kpi"><div class="l">Users</div><div class="v">{{ admin_dash.kpis.users }}</div></div>
-    <div class="kpi"><div class="l">Posts (30d)</div><div class="v">{{ admin_dash.kpis.posts_30d }}</div></div>
-    <div class="kpi"><div class="l">Daily Logs (30d)</div><div class="v">{{ admin_dash.kpis.daily_logs_30d }}</div></div>
-    <div class="kpi"><div class="l">AI Chats (30d)</div><div class="v">{{ admin_dash.kpis.ai_chats_30d }}</div></div>
-    <div class="kpi"><div class="l">AI Helpful Rate</div><div class="v">{{ admin_dash.kpis.helpful_rate }}%</div></div>
+    <div class="kpi"><div class="l">Watumiaji</div><div class="v">{{ admin_dash.kpis.users }}</div></div>
+    <div class="kpi"><div class="l">Machapisho (siku 30)</div><div class="v">{{ admin_dash.kpis.posts_30d }}</div></div>
+    <div class="kpi"><div class="l">Log za Kila Siku (siku 30)</div><div class="v">{{ admin_dash.kpis.daily_logs_30d }}</div></div>
+    <div class="kpi"><div class="l">Mazungumzo ya AI (siku 30)</div><div class="v">{{ admin_dash.kpis.ai_chats_30d }}</div></div>
+    <div class="kpi"><div class="l">Kiwango cha Msaada wa AI</div><div class="v">{{ admin_dash.kpis.helpful_rate }}%</div></div>
   </div>
 
   <div class="pro-grid">
     <div class="pro-panel">
-      <div class="pro-title">Analytics Graphs</div>
+      <div class="pro-title">Grafu za Uchanganuzi</div>
       <div class="charts">
         <div>
           <canvas id="regChart" height="120"></canvas>
@@ -83,17 +83,17 @@
     </div>
 
     <div class="pro-panel">
-      <div class="pro-title">AI Suggestions & Analysis</div>
+      <div class="pro-title">Mapendekezo na Uchanganuzi wa AI</div>
       <div class="ai-box">{{ admin_dash.ai_summary }}</div>
 
-      <div class="pro-title" style="margin-top: .9rem;">Notifications</div>
+      <div class="pro-title" style="margin-top: .9rem;">Arifa</div>
       <ul class="notif">
-        <li><span>Pending reminders</span><span class="badge-pill">{{ admin_dash.notifications.pending_reminders }}</span></li>
-        <li><span>Unverified doctors</span><span class="badge-pill">{{ admin_dash.notifications.unverified_doctors }}</span></li>
-        <li><span>Negative feedback (30d)</span><span class="badge-pill">{{ admin_dash.notifications.negative_feedback_30d }}</span></li>
+        <li><span>Vikumbusho vinavyosubiri</span><span class="badge-pill">{{ admin_dash.notifications.pending_reminders }}</span></li>
+        <li><span>Madaktari wasio thibitishwa</span><span class="badge-pill">{{ admin_dash.notifications.unverified_doctors }}</span></li>
+        <li><span>Maoni hasi (siku 30)</span><span class="badge-pill">{{ admin_dash.notifications.negative_feedback_30d }}</span></li>
       </ul>
 
-      <div class="pro-title" style="margin-top: .9rem;">Action Suggestions</div>
+      <div class="pro-title" style="margin-top: .9rem;">Mapendekezo ya Hatua</div>
       <ul class="suggestions">
         {% for suggestion in admin_dash.suggestions %}
         <li>{{ suggestion }}</li>
@@ -104,7 +104,7 @@
   {% endif %}
 
   <div class="pro-panel">
-    <div class="pro-title">Management Tables</div>
+    <div class="pro-title">Majedwali ya Usimamizi</div>
     {% include "admin/app_list.html" with app_list=app_list show_changelinks=True %}
   </div>
 </div>

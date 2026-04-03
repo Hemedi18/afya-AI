@@ -838,19 +838,19 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
 <div class="wa-shell">
 <aside class="wa-side">
   <div class="wa-side-card">
-    <div class="wa-side-label">Conversation</div>
+    <div class="wa-side-label">Mazungumzo</div>
     <div class="wa-side-value">{{ conversation.subject }}</div>
   </div>
   <div class="wa-side-card">
-    <div class="wa-side-label">Participants</div>
+    <div class="wa-side-label">Washiriki</div>
     <div class="d-flex flex-column gap-2">
       <span class="wa-chip"><i class="bi bi-person-heart"></i>{{ conversation.patient.get_full_name|default:conversation.patient.username }}</span>
       <span class="wa-chip"><i class="bi bi-person-badge"></i>{{ conversation.doctor.get_full_name|default:conversation.doctor.username }}</span>
     </div>
   </div>
   <div class="wa-side-card">
-    <div class="wa-side-label">Smart tips</div>
-    <div class="small text-muted">Hover message then click <strong>↩</strong> to reply. Shift + Enter adds new line. Blue ticks mean read.</div>
+    <div class="wa-side-label">Vidokezo mahiri</div>
+    <div class="small text-muted">Gusa ujumbe kisha bonyeza <strong>↩</strong> kujibu. Shift + Enter huongeza mstari mpya. Vikiwiliwili vya bluu humaanisha umesomwa.</div>
   </div>
 </aside>
 
@@ -868,7 +868,7 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
       <div class="wa-avatar">{{ other.username|first|upper }}</div>
       <div class="wa-header-info">
         <div class="wa-header-name">{{ other.get_full_name|default:other.username }}</div>
-        <div class="wa-header-status" id="waPresence">online</div>
+        <div class="wa-header-status" id="waPresence">mtandaoni</div>
       </div>
       {% endwith %}
     {% else %}
@@ -876,21 +876,21 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
       <div class="wa-avatar">{{ other.username|first|upper }}</div>
       <div class="wa-header-info">
         <div class="wa-header-name">{{ other.get_full_name|default:other.username }}</div>
-        <div class="wa-header-status" id="waPresence">online</div>
+        <div class="wa-header-status" id="waPresence">mtandaoni</div>
       </div>
       {% endwith %}
     {% endif %}
 
     {% if is_patient_side and doctor_profile_id %}
-    <a href="{% url 'doctor:detail' doctor_profile_id %}" class="wa-theme-toggle" title="Rank/View doctor"><i class="bi bi-star-half"></i></a>
+    <a href="{% url 'doctor:detail' doctor_profile_id %}" class="wa-theme-toggle" title="Panga/Tazama daktari"><i class="bi bi-star-half"></i></a>
     {% endif %}
     {% if user == conversation.doctor %}
-    <a href="{% url 'doctor:create_patient_log' conversation.patient.id %}" class="wa-theme-toggle" title="Unda/Angalia Log Forms za mgonjwa huyu"><i class="bi bi-journal-plus"></i></a>
+    <a href="{% url 'doctor:create_patient_log' conversation.patient.id %}" class="wa-theme-toggle" title="Unda/Angalia fomu za log za mgonjwa huyu"><i class="bi bi-journal-plus"></i></a>
     {% endif %}
-    <button class="wa-theme-toggle" id="waThemeBtn" title="Theme"><i class="bi bi-brightness-high"></i></button>
+    <button class="wa-theme-toggle" id="waThemeBtn" title="Mandhari"><i class="bi bi-brightness-high"></i></button>
     <button class="wa-header-menu" id="waMenuBtn"><i class="bi bi-three-dots-vertical"></i></button>
     <div id="waMenu" style="display:none;position:absolute;right:12px;top:58px;background:var(--wa-recv-bg);border-radius:10px;box-shadow:0 6px 20px rgba(0,0,0,.18);z-index:30;min-width:170px;">
-      <a href="{% url 'chats:inbox' %}" style="display:block;padding:.65rem 1rem;font-size:.88rem;color:var(--wa-recv-text);text-decoration:none;"><i class="bi bi-inbox me-2"></i>Rudi Inbox</a>
+      <a href="{% url 'chats:inbox' %}" style="display:block;padding:.65rem 1rem;font-size:.88rem;color:var(--wa-recv-text);text-decoration:none;"><i class="bi bi-inbox me-2"></i>Rudi Kikasha</a>
       <div style="border-top:1px solid rgba(0,0,0,.08);padding:.65rem 1rem;font-size:.78rem;color:var(--wa-time-color);">Mada: {{ conversation.subject }}</div>
     </div>
   </header>
@@ -899,7 +899,7 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
   <div class="wa-body" id="waBody">
 
     {% if not conversation.messages.all %}
-      <div class="wa-empty"><i class="bi bi-chat-heart me-1"></i>Hakuna messages bado. Anza mazungumzo!</div>
+      <div class="wa-empty"><i class="bi bi-chat-heart me-1"></i>Hakuna ujumbe bado. Anza mazungumzo!</div>
     {% endif %}
 
     {% for message in conversation.messages.all %}
@@ -954,7 +954,7 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
 
   {# ── INPUT BAR ── #}
   <div class="wa-footer">
-    <button class="wa-attach-btn" id="waAttachBtn" type="button" title="Attachment"><i class="bi bi-paperclip"></i></button>
+    <button class="wa-attach-btn" id="waAttachBtn" type="button" title="Kiambatisho"><i class="bi bi-paperclip"></i></button>
     <div class="wa-input-wrap">
       <button class="wa-emoji-btn" id="waEmojiBtn" type="button"><i class="bi bi-emoji-smile"></i></button>
       <textarea id="wa-text-input" rows="1" placeholder="Andika ujumbe..." autocomplete="off"></textarea>
@@ -982,12 +982,12 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
 
   <div class="wa-context-menu" id="waContextMenu">
     <button class="wa-context-btn" type="button" data-action="reply"><i class="bi bi-reply"></i></button>
-    <button class="wa-context-btn" type="button" data-action="copy"><i class="bi bi-clipboard"></i>Copy</button>
-    <button class="wa-context-btn danger" type="button" data-action="delete"><i class="bi bi-trash"></i>Delete</button>
+    <button class="wa-context-btn" type="button" data-action="copy"><i class="bi bi-clipboard"></i>Nakili</button>
+    <button class="wa-context-btn danger" type="button" data-action="delete"><i class="bi bi-trash"></i>Futa</button>
   </div>
 
   <div class="wa-media-modal" id="waMediaModal" aria-hidden="true">
-    <div class="wa-media-modal-dialog" role="dialog" aria-modal="true" aria-label="Media preview">
+    <div class="wa-media-modal-dialog" role="dialog" aria-modal="true" aria-label="Hakiki ya media">
       <div class="wa-media-modal-head">
         <div class="wa-media-modal-title" id="waMediaModalTitle">Media</div>
         <div class="wa-media-modal-actions">

@@ -557,14 +557,14 @@
                 <span class="ai-chip">Dalili</span>
                 <span class="ai-chip">Usingizi</span>
                 <span class="ai-chip">Lishe</span>
-                <span class="ai-chip">Stress</span>
+                <span class="ai-chip">Msongo</span>
                 <span class="ai-chip">Mimba</span>
             </div>
 
             {% if not onboarding_complete %}
             <div class="ai-side-card">
-                <h6 class="ai-side-title">Persona</h6>
-                <a href="{% url 'users:onboarding' step=1 %}" class="btn btn-sm btn-outline-light rounded-pill w-100">Kamilisha setup</a>
+                <h6 class="ai-side-title">Wasifu</h6>
+                <a href="{% url 'users:onboarding' step=1 %}" class="btn btn-sm btn-outline-light rounded-pill w-100">Kamilisha usanidi</a>
             </div>
             {% endif %}
         </aside>
@@ -572,10 +572,10 @@
         <section class="ai-main">
             <div class="ai-topbar">
                 <div class="ai-topbar-left">
-                    <button type="button" class="ai-back-btn" id="aiBackBtn" title="Back"><i class="bi bi-chevron-left"></i>Back</button>
+                    <button type="button" class="ai-back-btn" id="aiBackBtn" title="Rudi"><i class="bi bi-chevron-left"></i>Rudi</button>
                 </div>
                 <div class="ai-top-actions">
-                    <button type="button" class="ai-new-chat" id="aiNewChatBtn" title="New chat"><i class="bi bi-plus-circle"></i></button>
+                    <button type="button" class="ai-new-chat" id="aiNewChatBtn" title="Mazungumzo mapya"><i class="bi bi-plus-circle"></i></button>
                     <button type="button" class="ai-side-toggle" id="aiSideToggle"><i class="bi bi-layout-sidebar-inset"></i> Paneli</button>
                 </div>
             </div>
@@ -634,7 +634,7 @@
             <form method="post" class="ai-input-wrap" id="aiForm" data-chat-url="{% url 'AI_brain:chat_quick' %}" data-feedback-url="{% url 'AI_brain:chat_feedback' %}">
                 {% csrf_token %}
                 <div class="ai-compose-row">
-                    <button type="button" class="ai-attach-main" id="aiAttachToggle" aria-label="Attach">
+                    <button type="button" class="ai-attach-main" id="aiAttachToggle" aria-label="Ambatisha">
                         <i class="bi bi-paperclip"></i>
                     </button>
                     <textarea name="question" class="form-control ai-input" id="aiInput" rows="1" placeholder="Andika ujumbe" required autocomplete="off"></textarea>
@@ -644,8 +644,8 @@
                 <div class="ai-camera-panel" id="aiCameraPanel">
                     <video id="aiCameraVideo" class="ai-camera-video" autoplay playsinline></video>
                     <div class="d-flex gap-2 mt-2">
-                        <button type="button" class="ai-attach-option" id="aiCaptureBtn"><i class="bi bi-camera"></i> Capture</button>
-                        <button type="button" class="ai-attach-option" id="aiCloseCameraBtn"><i class="bi bi-x-circle"></i> Close</button>
+                        <button type="button" class="ai-attach-option" id="aiCaptureBtn"><i class="bi bi-camera"></i> Nasa</button>
+                        <button type="button" class="ai-attach-option" id="aiCloseCameraBtn"><i class="bi bi-x-circle"></i> Funga</button>
                     </div>
                 </div>
                 <input type="file" id="aiImageInput" accept="image/*" hidden>
@@ -664,12 +664,12 @@
 
 <div class="ai-attach-sheet" id="aiAttachSheet">
     <div class="ai-attach-grid">
-        <button type="button" class="ai-attach-option" data-attach-type="image"><i class="bi bi-image"></i> Image</button>
-        <button type="button" class="ai-attach-option" data-attach-type="document"><i class="bi bi-file-earmark-text"></i> Document</button>
-        <button type="button" class="ai-attach-option" data-attach-type="audio"><i class="bi bi-file-music"></i> Audio</button>
+        <button type="button" class="ai-attach-option" data-attach-type="image"><i class="bi bi-image"></i> Picha</button>
+        <button type="button" class="ai-attach-option" data-attach-type="document"><i class="bi bi-file-earmark-text"></i> Hati</button>
+        <button type="button" class="ai-attach-option" data-attach-type="audio"><i class="bi bi-file-music"></i> Sauti</button>
         <button type="button" class="ai-attach-option" data-attach-type="video"><i class="bi bi-file-play"></i> Video</button>
-        <button type="button" class="ai-attach-option" data-attach-type="camera"><i class="bi bi-camera-video"></i> Camera</button>
-        <button type="button" class="ai-attach-option" data-attach-type="voice"><i class="bi bi-mic"></i> Voice</button>
+        <button type="button" class="ai-attach-option" data-attach-type="camera"><i class="bi bi-camera-video"></i> Kamera</button>
+        <button type="button" class="ai-attach-option" data-attach-type="voice"><i class="bi bi-mic"></i> Sauti</button>
     </div>
 </div>
 
@@ -891,7 +891,7 @@
         function typingBubble() {
             const wrap = document.createElement('div');
             wrap.className = 'ai-typing-wrap';
-            wrap.innerHTML = '<svg viewBox="0 0 130 26" class="ai-heartline" role="status" aria-label="AI typing"><polyline points="0,14 16,14 22,6 30,22 38,2 47,14 60,14 70,14 76,10 84,18 92,7 100,14 130,14"></polyline></svg>';
+            wrap.innerHTML = '<svg viewBox="0 0 130 26" class="ai-heartline" role="status" aria-label="AI inaandika"><polyline points="0,14 16,14 22,6 30,22 38,2 47,14 60,14 70,14 76,10 84,18 92,7 100,14 130,14"></polyline></svg>';
             thread.appendChild(wrap);
             scrollThread();
             return wrap;

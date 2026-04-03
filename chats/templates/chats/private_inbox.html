@@ -230,20 +230,20 @@
 {% block content %}
 <div class="py-4">
     <div class="card-custom p-4 mb-4 d-lg-none">
-        <div class="inbox-top-nav" aria-label="Private chat quick navigation">
-            <a href="javascript:history.back()" class="inbox-nav-btn" title="Back" aria-label="Back">
+        <div class="inbox-top-nav" aria-label="Urambazaji wa haraka wa soga binafsi">
+            <a href="javascript:history.back()" class="inbox-nav-btn" title="Rudi" aria-label="Rudi">
                 <i class="bi bi-arrow-left"></i>
             </a>
-            <a href="{% url 'AI_brain:chat' %}" class="inbox-nav-btn" title="Chat with AI" aria-label="Chat with AI">
+            <a href="{% url 'AI_brain:chat' %}" class="inbox-nav-btn" title="Soga na AI" aria-label="Soga na AI">
                 <i class="bi bi-robot"></i>
             </a>
-            <a href="{% url 'chats:feed_groups' %}" class="inbox-nav-btn" title="Group Chat" aria-label="Group Chat">
+            <a href="{% url 'chats:feed_groups' %}" class="inbox-nav-btn" title="Soga ya Kikundi" aria-label="Soga ya Kikundi">
                 <i class="bi bi-people-fill"></i>
             </a>
-            <a href="{% url 'chats:inbox' %}" class="inbox-nav-btn is-active" title="Private Chat" aria-label="Private Chat">
+            <a href="{% url 'chats:inbox' %}" class="inbox-nav-btn is-active" title="Soga Binafsi" aria-label="Soga Binafsi">
                 <i class="bi bi-chat-dots-fill"></i>
             </a>
-            <button class="inbox-theme-toggle" id="inboxThemeToggle" type="button" title="Theme" aria-label="Theme toggle">
+            <button class="inbox-theme-toggle" id="inboxThemeToggle" type="button" title="Mandhari" aria-label="Badili mandhari">
                 <i class="bi bi-moon-stars"></i>
             </button>
         </div>
@@ -256,8 +256,8 @@
                 <div>
                     <div class="fw-bold mb-1">{{ conversation.subject }}</div>
                     <div class="small text-muted">
-                        {% trans "Patient" %}: {{ conversation.patient.get_full_name|default:conversation.patient.username }}
-                        • {% trans "Doctor" %}: {{ conversation.doctor.get_full_name|default:conversation.doctor.username }}
+                        {% trans "Mgonjwa" %}: {{ conversation.patient.get_full_name|default:conversation.patient.username }}
+                        • {% trans "Daktari" %}: {{ conversation.doctor.get_full_name|default:conversation.doctor.username }}
                     </div>
                 </div>
                 <div class="text-end">

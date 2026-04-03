@@ -6,10 +6,10 @@
     <div class="card-custom p-4 p-lg-5">
         <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
             <div>
-                <h4 class="fw-bold mb-1">{% trans "Doctor Registration" %}</h4>
-                <p class="text-muted mb-0">{% trans "Madaktari wanaweza kujisajili hapa. Account itakuwa pending mpaka admin a-verify." %}</p>
+                <h4 class="fw-bold mb-1">{% trans "Usajili wa Daktari" %}</h4>
+                <p class="text-muted mb-0">{% trans "Madaktari wanaweza kujisajili hapa. Akaunti itasubiri hadi msimamizi athibitishe." %}</p>
             </div>
-            <span class="badge text-bg-warning">{% trans "Verification required" %}</span>
+            <span class="badge text-bg-warning">{% trans "Uthibitisho unahitajika" %}</span>
         </div>
 
         <form method="post" enctype="multipart/form-data" class="row g-3">
@@ -21,76 +21,76 @@
             {% endif %}
 
             <div class="col-md-6">
-                <label class="form-label">{% trans "Username" %}</label>
+                <label class="form-label">{% trans "Jina la mtumiaji" %}</label>
                 {{ form.username }}
                 <div class="small text-danger">{{ form.username.errors }}</div>
             </div>
             <div class="col-md-6">
-                <label class="form-label">{% trans "Email" %}</label>
+                <label class="form-label">{% trans "Barua pepe" %}</label>
                 {{ form.email }}
                 <div class="small text-danger">{{ form.email.errors }}</div>
             </div>
             <div class="col-md-6">
-                <label class="form-label">{% trans "First name" %}</label>
+                <label class="form-label">{% trans "Jina la kwanza" %}</label>
                 {{ form.first_name }}
             </div>
             <div class="col-md-6">
-                <label class="form-label">{% trans "Last name" %}</label>
+                <label class="form-label">{% trans "Jina la mwisho" %}</label>
                 {{ form.last_name }}
             </div>
             <div class="col-md-6">
-                <label class="form-label">{% trans "Specialization" %}</label>
+                <label class="form-label">{% trans "Utaalamu" %}</label>
                 {{ form.specialization }}
                 <div class="small text-danger">{{ form.specialization.errors }}</div>
             </div>
             <div class="col-md-6">
-                <label class="form-label">{% trans "Gender" %}</label>
+                <label class="form-label">{% trans "Jinsia" %}</label>
                 {{ form.gender }}
                 <div class="small text-danger">{{ form.gender.errors }}</div>
             </div>
             <div class="col-md-6">
-                <label class="form-label">{% trans "Hospital" %}</label>
+                <label class="form-label">{% trans "Hospitali" %}</label>
                 {{ form.hospital_name }}
             </div>
             <div class="col-md-6">
-                <label class="form-label">{% trans "Location" %}</label>
+                <label class="form-label">{% trans "Eneo" %}</label>
                 {{ form.location }}
                 <div class="small text-danger">{{ form.location.errors }}</div>
             </div>
             <div class="col-12">
-                <label class="form-label">{% trans "Bio" %}</label>
+                <label class="form-label">{% trans "Wasifu mfupi" %}</label>
                 {{ form.bio }}
                 <div class="small text-danger">{{ form.bio.errors }}</div>
             </div>
             <div class="col-md-6">
-                <label class="form-label">{% trans "License number" %}</label>
+                <label class="form-label">{% trans "Namba ya leseni" %}</label>
                 {{ form.license_number }}
                 <div class="small text-danger">{{ form.license_number.errors }}</div>
             </div>
             <div class="col-md-6">
-                <label class="form-label">{% trans "Issuing body" %}</label>
+                <label class="form-label">{% trans "Taasisi iliyotoa" %}</label>
                 {{ form.issuing_body }}
                 <div class="small text-danger">{{ form.issuing_body.errors }}</div>
             </div>
             <div class="col-12">
-                <label class="form-label">{% trans "Verification document" %}</label>
+                <label class="form-label">{% trans "Nyaraka ya uthibitisho" %}</label>
                 {{ form.verification_document }}
                 <div class="small text-danger">{{ form.verification_document.errors }}</div>
                 <div class="small text-muted mt-1">{% trans "Pakia medical license, work permit, au document ya kuthibitisha taaluma yako." %}</div>
             </div>
             <div class="col-md-6">
-                <label class="form-label">{% trans "Password" %}</label>
+                <label class="form-label">{% trans "Nenosiri" %}</label>
                 {{ form.password1 }}
                 <div class="small text-danger">{{ form.password1.errors }}</div>
             </div>
             <div class="col-md-6">
-                <label class="form-label">{% trans "Confirm password" %}</label>
+                <label class="form-label">{% trans "Thibitisha nenosiri" %}</label>
                 {{ form.password2 }}
                 <div class="small text-danger">{{ form.password2.errors }}</div>
             </div>
             <div class="col-12 d-grid d-md-flex gap-2 pt-2">
-                <button type="submit" class="btn btn-danger rounded-pill px-4">{% trans "Submit Registration" %}</button>
-                <a href="{% url 'users:login' %}" class="btn btn-outline-secondary rounded-pill px-4">{% trans "Back to login" %}</a>
+                <button type="submit" class="btn btn-danger rounded-pill px-4">{% trans "Wasilisha Usajili" %}</button>
+                <a href="{% url 'users:login' %}" class="btn btn-outline-secondary rounded-pill px-4">{% trans "Rudi kuingia" %}</a>
             </div>
         </form>
     </div>

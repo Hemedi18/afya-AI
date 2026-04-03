@@ -321,10 +321,10 @@
             <div class="create-post-card">
                 <div class="create-post-head">
                     <div>
-                        <div class="create-post-title">Create post</div>
-                        <div class="create-post-sub">Andika post mpya kwa jamii ya {{ community_gender_label }}.</div>
+                        <div class="create-post-title">Tengeneza chapisho</div>
+                        <div class="create-post-sub">Andika chapisho jipya kwa jamii ya {{ community_gender_label }}.</div>
                     </div>
-                    <a href="{% url 'chats:feed_posts' %}" class="btn btn-sm btn-outline-secondary rounded-pill">Back to posts</a>
+                    <a href="{% url 'chats:feed_posts' %}" class="btn btn-sm btn-outline-secondary rounded-pill">Rudi kwenye machapisho</a>
                 </div>
 
                 <form method="post" action="{% url 'chats:post_create' %}" enctype="multipart/form-data">
@@ -338,11 +338,11 @@
                         <div class="d-flex justify-content-between align-items-start gap-2">
                             <div>
                                 <strong><i class="bi bi-exclamation-triangle-fill me-1"></i>Profile haijakamilika</strong><br>
-                                Kamilisha usajili wa profile yako (sasa {{ profile_completeness }}%) kabla ya kupost bila anonymous.
+                                Kamilisha usajili wa wasifu wako (sasa {{ profile_completeness }}%) kabla ya kuchapisha bila kujitambulisha.
                                 Ukibonyeza Publish ukiwa hujakamilisha, utaelekezwa kwenye onboarding.
                                 <a href="{% url 'users:onboarding' step=1 %}?next={{ onboarding_next_url|urlencode }}" class="alert-link" id="completeProfileLink">Kamilisha sasa →</a>
                             </div>
-                            <button type="button" class="btn-close" aria-label="Close" id="dismissProfileWarning"></button>
+                            <button type="button" class="btn-close" aria-label="Funga" id="dismissProfileWarning"></button>
                         </div>
                     </div>
                     {% endif %}
@@ -357,7 +357,7 @@
                             <button class="tool-btn" type="button" data-editor-block="blockquote"><i class="bi bi-chat-quote"></i></button>
                             <button class="tool-btn" type="button" data-editor-link><i class="bi bi-link-45deg"></i></button>
                             <select class="tool-select" data-editor-font-size>
-                                <option value="3">Font</option>
+                                <option value="3">Fonti</option>
                                 <option value="1">10px</option>
                                 <option value="2">13px</option>
                                 <option value="3">16px</option>
@@ -365,24 +365,24 @@
                                 <option value="5">24px</option>
                                 <option value="6">32px</option>
                             </select>
-                            <input class="tool-color" type="color" value="#2f6b3f" data-editor-color title="Text color">
-                            <input class="tool-color" type="color" value="#fff6c0" data-editor-bg title="Background color">
-                            <button class="tool-btn" type="button" data-editor-clear>Clear</button>
+                            <input class="tool-color" type="color" value="#2f6b3f" data-editor-color title="Rangi ya maandishi">
+                            <input class="tool-color" type="color" value="#fff6c0" data-editor-bg title="Rangi ya mandharinyuma">
+                            <button class="tool-btn" type="button" data-editor-clear>Futa</button>
                         </div>
                         <div id="postEditor" class="editor-surface" contenteditable="true" data-placeholder="Andika post yako hapa... unaweza kubold, kubadilisha rangi, kuweka link, headings na list."></div>
                     </div>
                     <textarea name="content" id="postContentInput" class="d-none"></textarea>
                     <div class="word-meter">
-                        <span>Minimum 5 words • Recommended maximum 120 words on homepage before Read more.</span>
-                        <strong id="wordCountLabel">0 words</strong>
+                        <span>Maneno angalau 5 • Inashauriwa yasizidi 120 kwenye ukurasa wa mwanzo kabla ya "Soma zaidi".</span>
+                        <strong id="wordCountLabel">maneno 0</strong>
                     </div>
 
                     <div class="post-options-grid">
                         <div class="option-card">
-                            <div class="fw-semibold small mb-2">Post scope</div>
+                            <div class="fw-semibold small mb-2">Wigo wa chapisho</div>
                             <div class="form-check mb-2">
                                 <input class="form-check-input" type="checkbox" name="post_for_all" id="id_post_for_all">
-                                <label class="form-check-label small" for="id_post_for_all">Post for all community, not specific groups</label>
+                                <label class="form-check-label small" for="id_post_for_all">Chapisha kwa jamii yote, si kwa vikundi maalum</label>
                             </div>
                             <details class="multi-picker">
                                 <summary><i class="bi bi-collection"></i> Chagua groups nyingi</summary>
@@ -393,7 +393,7 @@
                                         <span class="multi-option-avatar"><i class="bi bi-people-fill"></i></span>
                                         <span>
                                             <span class="multi-option-name">{{ group.name }}</span>
-                                            <span class="multi-option-meta d-block">{{ group.description|default:'Community group'|truncatewords:8 }}</span>
+                                            <span class="multi-option-meta d-block">{{ group.description|default:'Kikundi cha jamii'|truncatewords:8 }}</span>
                                         </span>
                                     </label>
                                     {% empty %}
@@ -405,14 +405,14 @@
 
                         <div class="option-card d-flex flex-column justify-content-between">
                             <div>
-                                <div class="fw-semibold small mb-2">Post options</div>
+                                <div class="fw-semibold small mb-2">Chaguo za chapisho</div>
                                 <div class="form-check mb-2">
                                     <input class="form-check-input" type="checkbox" name="publish_as_status" id="id_publish_as_status">
-                                    <label class="form-check-label small" for="id_publish_as_status">Publish this also as status</label>
+                                    <label class="form-check-label small" for="id_publish_as_status">Chapisha pia kama status</label>
                                 </div>
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" name="is_anonymous" id="id_is_anonymous_create" {% if default_anonymous_mode %}checked{% endif %}>
-                                    <label class="form-check-label small" for="id_is_anonymous_create">Post anonymously</label>
+                                    <label class="form-check-label small" for="id_is_anonymous_create">Chapisha bila kujitambulisha</label>
                                 </div>
                             </div>
                             <div class="form-note mt-3">Unaweza kuchagua groups nyingi, au ukaweka kwa jamii yote.</div>
@@ -421,14 +421,14 @@
 
                     <div class="media-grid">
                         <div class="media-card">
-                            <label class="form-label fw-semibold small">Upload image</label>
+                            <label class="form-label fw-semibold small">Pakia picha</label>
                             <input type="file" name="image" id="postImageInput" class="form-control mb-2" accept="image/*">
-                            <label class="form-label fw-semibold small">Upload video</label>
+                            <label class="form-label fw-semibold small">Pakia video</label>
                             <input type="file" name="video" id="postVideoInput" class="form-control" accept="video/*">
                             <div class="d-flex align-items-center justify-content-between gap-2 mt-2">
-                                <div class="form-note mb-0">Unaweza kuweka image/video moja, au tumia Add more kuongeza media nyingi.</div>
-                                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill" id="addMoreMediaBtn" title="Add more media">
-                                    <i class="bi bi-plus-square-dotted me-1"></i> Add more
+                                <div class="form-note mb-0">Unaweza kuweka picha/video moja, au tumia Ongeza zaidi kuongeza media nyingi.</div>
+                                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill" id="addMoreMediaBtn" title="Ongeza media zaidi">
+                                    <i class="bi bi-plus-square-dotted me-1"></i> Ongeza zaidi
                                 </button>
                             </div>
                             <input type="file" name="media_files" id="postMediaMultiInput" class="d-none" accept="image/*,video/*" multiple>
@@ -437,37 +437,37 @@
                         </div>
 
                         <div class="media-card">
-                            <div class="fw-semibold small mb-2">Frame & crop preview</div>
+                            <div class="fw-semibold small mb-2">Muonekano wa fremu na ukataji</div>
                             <div id="mediaPreviewShell" class="media-preview-shell ratio-auto shape-rounded">
                                 <div id="mediaEmptyState" class="media-empty">Chagua image au video. Hapa utaona crop/frame exactly jinsi itakavyoonekana kwenye post.</div>
-                                <img id="imageCropTarget" alt="Crop preview" style="display:none;max-width:100%;">
+                                <img id="imageCropTarget" alt="Hakiki ya ukataji" style="display:none;max-width:100%;">
                                 <video id="videoPreviewTarget" style="display:none;" controls muted playsinline></video>
                             </div>
                             <div class="media-controls-grid">
                                 <div>
-                                    <label class="form-label fw-semibold small">Aspect ratio</label>
+                                    <label class="form-label fw-semibold small">Uwiano wa vipimo</label>
                                     <select name="media_ratio" id="mediaRatioSelect" class="form-select">
-                                        <option value="auto">Auto</option>
-                                        <option value="square">Square</option>
+                                        <option value="auto">Otomatiki</option>
+                                        <option value="square">Mraba</option>
                                         <option value="portrait">Portrait 4:5</option>
                                         <option value="story">Story 9:16</option>
                                         <option value="landscape">Landscape 16:9</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="form-label fw-semibold small">Shape</label>
+                                    <label class="form-label fw-semibold small">Umbo</label>
                                     <select name="media_shape" id="mediaShapeSelect" class="form-select">
-                                        <option value="rounded">Rounded</option>
-                                        <option value="square">Square</option>
-                                        <option value="circle">Circle</option>
+                                        <option value="rounded">Lina mviringo</option>
+                                        <option value="square">Mraba</option>
+                                        <option value="circle">Duara</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <div class="media-range-label"><span>Focus left/right</span><span id="focusXValue">50%</span></div>
+                                    <div class="media-range-label"><span>Lenga kushoto/kulia</span><span id="focusXValue">50%</span></div>
                                     <input type="range" min="0" max="100" value="50" name="media_focus_x" id="mediaFocusX" class="form-range">
                                 </div>
                                 <div>
-                                    <div class="media-range-label"><span>Focus top/bottom</span><span id="focusYValue">50%</span></div>
+                                    <div class="media-range-label"><span>Lenga juu/chini</span><span id="focusYValue">50%</span></div>
                                     <input type="range" min="0" max="100" value="50" name="media_focus_y" id="mediaFocusY" class="form-range">
                                 </div>
                             </div>
@@ -477,13 +477,13 @@
                     <div class="clarify-box mb-3">
                         <div class="form-check mb-2">
                             <input class="form-check-input" type="checkbox" name="request_clarification" id="id_request_clarification_create">
-                            <label class="form-check-label fw-semibold small" for="id_request_clarification_create">Tuma kwa admin/doctor kwa ufafanuzi</label>
+                            <label class="form-check-label fw-semibold small" for="id_request_clarification_create">Tuma kwa msimamizi/daktari kwa ufafanuzi</label>
                         </div>
                         <div class="row g-2">
                             <div class="col-md-3">
                                 <select name="clarify_target_role" class="form-select form-select-sm">
-                                    <option value="doctor">Doctor</option>
-                                    <option value="admin">Admin</option>
+                                    <option value="doctor">Daktari</option>
+                                    <option value="admin">Msimamizi</option>
                                 </select>
                             </div>
                             <div class="col-md-9">
@@ -503,7 +503,7 @@
                                     </span>
                                 </label>
                                 {% empty %}
-                                <div class="form-note">Hakuna doctor verified kwa sasa.</div>
+                                <div class="form-note">Hakuna daktari aliyethibitishwa kwa sasa.</div>
                                 {% endfor %}
                             </div>
                         </details>
@@ -513,14 +513,14 @@
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" name="terms_accepted" id="id_terms_accepted">
                             <label class="form-check-label fw-semibold small" for="id_terms_accepted">
-                                Nakubali <a href="#" class="text-decoration-none">community guidelines</a> na <a href="#" class="text-decoration-none">terms of service</a>
+                                Nakubali <a href="#" class="text-decoration-none">miongozo ya jamii</a> na <a href="#" class="text-decoration-none">masharti ya huduma</a>
                             </label>
                         </div>
                     </div>
 
                     <div class="d-flex gap-2 justify-content-end flex-wrap">
-                        <a href="{% url 'chats:feed_posts' %}" class="btn btn-outline-secondary rounded-pill px-4">Cancel</a>
-                        <button class="btn btn-danger rounded-pill px-4" type="submit" id="publishBtn">Publish post</button>
+                        <a href="{% url 'chats:feed_posts' %}" class="btn btn-outline-secondary rounded-pill px-4">Ghairi</a>
+                        <button class="btn btn-danger rounded-pill px-4" type="submit" id="publishBtn">Chapisha</button>
                     </div>
                 </form>
             </div>

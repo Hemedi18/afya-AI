@@ -3,17 +3,17 @@
 
 {% block content %}
 <div class="container">
-    <h1 class="text-3xl font-bold mb-6">{% trans "Menstrual Health Dashboard" %}</h1>
+    <h1 class="text-3xl font-bold mb-6">{% trans "Dashibodi ya Afya ya Hedhi" %}</h1>
     <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
         <div class="bg-white p-6 rounded-lg shadow-md">
-            <h2 class="text-2xl font-semibold mb-4">{% trans "Track Your Cycle" %}</h2>
-            <p class="text-gray-700 mb-4">{% trans "Log your daily symptoms, flow intensity, and mood to get personalized insights." %}</p>
-            <a href="{% url 'log_daily' %}" class="bg-pink-500 text-white px-4 py-2 rounded hover:bg-pink-600 transition">{% trans "Log Daily" %}</a>
+            <h2 class="text-2xl font-semibold mb-4">{% trans "Fuatilia Mzunguko Wako" %}</h2>
+            <p class="text-gray-700 mb-4">{% trans "Weka dalili za kila siku, kiwango cha mtiririko, na hali yako ili upate maarifa yaliyobinafsishwa." %}</p>
+            <a href="{% url 'log_daily' %}" class="bg-pink-500 text-white px-4 py-2 rounded hover:bg-pink-600 transition">{% trans "Weka Rekodi ya Leo" %}</a>
         </div>
         <div class="bg-white p-6 rounded-lg shadow-md">
-            <h2 class="text-2xl font-semibold mb-4">{% trans "Cycle Predictions" %}</h2>
-            <p class="text-gray-700 mb-4">{% trans "View predictions for your next period, ovulation, and fertile window based on your logged data." %}</p>
-            <a  href="{% url 'cycle_predictions' %}" class="bg-pink-500 text-white px-4 py-2 rounded hover:bg-pink-600 transition">{% trans "View Predictions" %}</a>
+            <h2 class="text-2xl font-semibold mb-4">{% trans "Utabiri wa Mzunguko" %}</h2>
+            <p class="text-gray-700 mb-4">{% trans "Angalia utabiri wa hedhi ijayo, ovulation, na siku za uzazi kulingana na data uliyoingiza." %}</p>
+            <a  href="{% url 'cycle_predictions' %}" class="bg-pink-500 text-white px-4 py-2 rounded hover:bg-pink-600 transition">{% trans "Angalia Utabiri" %}</a>
         </div>
     </div>
 </div>

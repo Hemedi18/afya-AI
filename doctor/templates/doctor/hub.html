@@ -49,7 +49,7 @@
 
         <form method="get" class="row g-2 align-items-center d-none d-md-flex">
             <div class="col-md-5">
-                <input type="text" name="q" class="form-control" value="{{ search_query }}" placeholder="Search doctor/specialization...">
+                <input type="text" name="q" class="form-control" value="{{ search_query }}" placeholder="{% trans 'Tafuta daktari/utaalamu...' %}">
             </div>
             <div class="col-md-5 d-flex gap-2 flex-wrap">
                 <a href="?gender=female{% if search_query %}&q={{ search_query|urlencode }}{% endif %}" class="btn btn-sm {% if selected_doctor_gender == 'female' %}btn-danger{% else %}btn-outline-danger{% endif %} rounded-pill">{% trans "Female doctors" %}</a>
@@ -57,7 +57,7 @@
                 <a href="{% url 'doctor:hub' %}{% if search_query %}?q={{ search_query|urlencode }}{% endif %}" class="btn btn-sm btn-outline-secondary rounded-pill">{% trans "All" %}</a>
             </div>
             <div class="col-md-2 d-grid">
-                <button class="btn btn-sm btn-dark rounded-pill" type="submit">Filter</button>
+                <button class="btn btn-sm btn-dark rounded-pill" type="submit">{% trans "Chuja" %}</button>
             </div>
         </form>
 
@@ -67,8 +67,8 @@
                 <input type="hidden" name="gender" value="{{ selected_doctor_gender }}">
                 {% endif %}
                 <div class="input-group">
-                    <input type="text" name="q" class="form-control" value="{{ search_query }}" placeholder="Search doctor/specialization...">
-                    <button class="btn btn-dark" type="submit" aria-label="Search">
+                    <input type="text" name="q" class="form-control" value="{{ search_query }}" placeholder="{% trans 'Tafuta daktari/utaalamu...' %}">
+                    <button class="btn btn-dark" type="submit" aria-label="{% trans 'Tafuta' %}">
                         <i class="bi bi-search"></i>
                     </button>
                 </div>
@@ -119,8 +119,8 @@
                     </div>
 
                     <div class="d-flex justify-content-between align-items-center gap-2 mt-auto">
-                        <a href="{% url 'doctor:detail' doctor.id %}" class="btn btn-sm btn-outline-secondary rounded-pill">Profile</a>
-                        <a href="{% url 'chats:start_private_chat' doctor.user.id %}" class="btn btn-sm btn-outline-danger rounded-pill" data-stop-card="1"><i class="bi bi-chat-dots"></i> Chat</a>
+                        <a href="{% url 'doctor:detail' doctor.id %}" class="btn btn-sm btn-outline-secondary rounded-pill">{% trans "Wasifu" %}</a>
+                        <a href="{% url 'chats:start_private_chat' doctor.user.id %}" class="btn btn-sm btn-outline-danger rounded-pill" data-stop-card="1"><i class="bi bi-chat-dots"></i> {% trans "Soga" %}</a>
                     </div>
                 </article>
             </div>
@@ -150,11 +150,11 @@
                     </div>
                 </div>
                 <div class="mobile-action-stack" data-stop-card="1">
-                    <a href="{% url 'chats:start_private_chat' doctor.user.id %}" class="btn btn-outline-danger mobile-action-btn" title="Chat" aria-label="Chat" data-stop-card="1"><i class="bi bi-chat-dots-fill"></i></a>
+                    <a href="{% url 'chats:start_private_chat' doctor.user.id %}" class="btn btn-outline-danger mobile-action-btn" title="{% trans 'Soga' %}" aria-label="{% trans 'Soga' %}" data-stop-card="1"><i class="bi bi-chat-dots-fill"></i></a>
                     {% if doctor.user != user %}
                     <form method="post" action="{% url 'doctor:follow_toggle' doctor.id %}" data-stop-card="1" style="margin:0;">
                         {% csrf_token %}
-                        <button type="submit" class="btn mobile-action-btn {% if doctor.id in my_followed_ids %}btn-danger{% else %}btn-outline-danger{% endif %}" title="Follow" aria-label="Follow" data-stop-card="1">
+                        <button type="submit" class="btn mobile-action-btn {% if doctor.id in my_followed_ids %}btn-danger{% else %}btn-outline-danger{% endif %}" title="{% trans 'Fuata' %}" aria-label="{% trans 'Fuata' %}" data-stop-card="1">
                             <i class="bi {% if doctor.id in my_followed_ids %}bi-person-check-fill{% else %}bi-person-plus-fill{% endif %}"></i>
                         </button>
                     </form>

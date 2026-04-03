@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load static i18n %}
 
-{% block title %}{% trans "Services" %} - AfyaSmart{% endblock %}
+{% block title %}{% trans "Huduma" %} - AfyaSmart{% endblock %}
 
 {% block content %}
 <style>
@@ -202,13 +202,13 @@
 
 <div class="services-shell">
     <section class="services-hero">
-        <h3 class="services-title"><i class="bi bi-grid-1x2-fill me-2"></i>{% trans "Services" %}</h3>
+        <h3 class="services-title"><i class="bi bi-grid-1x2-fill me-2"></i>{% trans "Huduma" %}</h3>
         <p class="services-sub">{% blocktrans trimmed %}Chagua huduma unayotaka. Huduma zinazopatikana zinafunguka moja kwa moja; ambazo bado zinaandaliwa zitaonyesha taarifa.{% endblocktrans %}</p>
         <div class="services-meta">
             <i class="bi bi-collection"></i>
-            <span>{% blocktrans trimmed with count=service_count %}Idadi ya services: <strong>{{ count }}</strong>{% endblocktrans %}</span>
+            <span>{% blocktrans trimmed with count=service_count %}Idadi ya huduma: <strong>{{ count }}</strong>{% endblocktrans %}</span>
             {% if user_gender %}
-                <span>• Gender: <strong>{{ user_gender|title }}</strong></span>
+                <span>• Jinsia: <strong>{{ user_gender|title }}</strong></span>
             {% endif %}
         </div>
     </section>
@@ -230,11 +230,11 @@
 
                     {% if service.is_live and service.url %}
                         <a class="service-action" href="{% url service.url %}">
-                            <i class="bi bi-box-arrow-up-right"></i> {% trans "Fungua Service" %}
+                            <i class="bi bi-box-arrow-up-right"></i> {% trans "Fungua Huduma" %}
                         </a>
                     {% else %}
                         <button type="button" class="service-action coming js-coming-soon" data-service="{{ service.title }}">
-                            <i class="bi bi-tools"></i> {% trans "Coming Soon" %}
+                            <i class="bi bi-tools"></i> {% trans "Inakuja Hivi Karibuni" %}
                         </button>
                     {% endif %}
                 </div>
@@ -250,7 +250,7 @@
     const notice = document.getElementById('serviceNotice');
     const buttons = document.querySelectorAll('.js-coming-soon');
     const fallbackName = "{% trans 'Service hii' %}";
-    const underConstruction = "{% trans 'bado iko under construction. Tafadhali jaribu tena hivi karibuni.' %}";
+    const underConstruction = "{% trans 'bado inaandaliwa. Tafadhali jaribu tena hivi karibuni.' %}";
 
     buttons.forEach((btn) => {
         btn.addEventListener('click', function () {

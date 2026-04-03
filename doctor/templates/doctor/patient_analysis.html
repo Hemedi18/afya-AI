@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load i18n %}
 
-{% block title %}Patient AI Analysis — {{ patient.username }}{% endblock %}
+{% block title %}{% trans "Uchambuzi wa AI wa Mgonjwa" %} — {{ patient.username }}{% endblock %}
 
 {% block extra_head %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -188,12 +188,12 @@
     <div class="card-custom p-4 mb-4">
         <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
             <div>
-                <h4 class="fw-bold mb-1"><i class="bi bi-graph-up-arrow me-1 text-success"></i>AI Analysis — {{ patient.get_full_name|default:patient.username }}</h4>
-                <div class="small text-muted">Entries: {{ entries|length }} · Forms: {{ logs|length }}</div>
+                <h4 class="fw-bold mb-1"><i class="bi bi-graph-up-arrow me-1 text-success"></i>{% trans "Uchambuzi wa AI" %} — {{ patient.get_full_name|default:patient.username }}</h4>
+                <div class="small text-muted">{% trans "Majibu" %}: {{ entries|length }} · {% trans "Fomu" %}: {{ logs|length }}</div>
             </div>
             <div class="d-flex gap-2 flex-wrap">
                 {% if conversation %}
-                <a href="{% url 'chats:conversation_detail' conversation.id %}" class="btn btn-sm btn-outline-primary rounded-pill"><i class="bi bi-chat-dots me-1"></i>Chat</a>
+                <a href="{% url 'chats:conversation_detail' conversation.id %}" class="btn btn-sm btn-outline-primary rounded-pill"><i class="bi bi-chat-dots me-1"></i>{% trans "Soga" %}</a>
                 {% endif %}
                 <a href="{% url 'doctor:patient_detail' patient.id %}" class="btn btn-sm btn-outline-secondary rounded-pill"><i class="bi bi-arrow-left me-1"></i>Rudi</a>
             </div>
@@ -201,30 +201,30 @@
     </div>
 
     <div class="card-custom p-4 mb-4 analysis-span-2">
-        <h6 class="fw-bold mb-3"><i class="bi bi-speedometer2 me-1 text-primary"></i>Clinical KPI Snapshot</h6>
+        <h6 class="fw-bold mb-3"><i class="bi bi-speedometer2 me-1 text-primary"></i>{% trans "Muhtasari wa KPI za Kliniki" %}</h6>
         <div class="kpi-grid">
-            <div class="kpi-card"><div class="kpi-label">Entries</div><div class="kpi-value">{{ kpi.entry_count }}</div></div>
-            <div class="kpi-card"><div class="kpi-label">Active Days</div><div class="kpi-value">{{ kpi.active_days }}</div></div>
-            <div class="kpi-card"><div class="kpi-label">Span Days</div><div class="kpi-value">{{ kpi.span_days }}</div></div>
-            <div class="kpi-card"><div class="kpi-label">Adherence</div><div class="kpi-value">{{ kpi.adherence_pct }}%</div></div>
-            <div class="kpi-card"><div class="kpi-label">Avg Entries/Day</div><div class="kpi-value">{{ kpi.avg_entries_per_day }}</div></div>
-            <div class="kpi-card"><div class="kpi-label">Required Completion</div><div class="kpi-value">{{ kpi.completion_pct }}%</div></div>
+            <div class="kpi-card"><div class="kpi-label">{% trans "Majibu" %}</div><div class="kpi-value">{{ kpi.entry_count }}</div></div>
+            <div class="kpi-card"><div class="kpi-label">{% trans "Siku Hai" %}</div><div class="kpi-value">{{ kpi.active_days }}</div></div>
+            <div class="kpi-card"><div class="kpi-label">{% trans "Jumla ya Siku" %}</div><div class="kpi-value">{{ kpi.span_days }}</div></div>
+            <div class="kpi-card"><div class="kpi-label">{% trans "Uzingatiaji" %}</div><div class="kpi-value">{{ kpi.adherence_pct }}%</div></div>
+            <div class="kpi-card"><div class="kpi-label">{% trans "Wastani wa Majibu/Siku" %}</div><div class="kpi-value">{{ kpi.avg_entries_per_day }}</div></div>
+            <div class="kpi-card"><div class="kpi-label">{% trans "Ukamilifu wa Lazima" %}</div><div class="kpi-value">{{ kpi.completion_pct }}%</div></div>
         </div>
     </div>
 
     <div class="card-custom p-4 mb-4 analysis-span-2">
-        <h6 class="fw-bold mb-3"><i class="bi bi-bar-chart-line me-1 text-success"></i>Operational Analytics</h6>
+        <h6 class="fw-bold mb-3"><i class="bi bi-bar-chart-line me-1 text-success"></i>{% trans "Uchanganuzi wa Uendeshaji" %}</h6>
         <div class="mini-charts-grid">
             <div class="mini-chart-card">
-                <div class="small fw-semibold mb-2">Daily Submission Volume</div>
+                <div class="small fw-semibold mb-2">{% trans "Kiasi cha Majibu kwa Siku" %}</div>
                 <canvas id="dailyVolumeChart" height="120"></canvas>
             </div>
             <div class="mini-chart-card">
-                <div class="small fw-semibold mb-2">Weekday Activity Pattern</div>
+                <div class="small fw-semibold mb-2">{% trans "Mwenendo wa Siku za Wiki" %}</div>
                 <canvas id="weekdayChart" height="120"></canvas>
             </div>
             <div class="mini-chart-card">
-                <div class="small fw-semibold mb-2">Required Fields Completion Trend</div>
+                <div class="small fw-semibold mb-2">{% trans "Mwenendo wa Ukamilifu wa Maswali ya Lazima" %}</div>
                 <canvas id="completionTrendChart" height="120"></canvas>
             </div>
         </div>
@@ -238,7 +238,7 @@
     </div>
 
     <div class="card-custom p-4 mb-4">
-        <h5 class="fw-bold mb-3"><i class="bi bi-stars me-1 text-warning"></i>AI Insights</h5>
+        <h5 class="fw-bold mb-3"><i class="bi bi-stars me-1 text-warning"></i>{% trans "Maarifa ya AI" %}</h5>
         <ul class="mb-0">
             {% for note in analysis_notes %}
             <li class="mb-1">{{ note }}</li>
@@ -247,7 +247,7 @@
     </div>
 
     <div class="card-custom p-4 mb-4">
-        <h5 class="fw-bold mb-3"><i class="bi bi-exclamation-triangle me-1 text-danger"></i>Clinical Watchlist</h5>
+        <h5 class="fw-bold mb-3"><i class="bi bi-exclamation-triangle me-1 text-danger"></i>{% trans "Orodha ya Tahadhari za Kliniki" %}</h5>
         <ul class="risk-list">
             {% for flag in risk_flags %}
             <li>{{ flag }}</li>
@@ -256,7 +256,7 @@
     </div>
 
     <div class="card-custom p-4 mb-4">
-        <h6 class="fw-bold mb-3">Trend Summary per Field</h6>
+        <h6 class="fw-bold mb-3">{% trans "Muhtasari wa Mwenendo kwa Kila Swali" %}</h6>
         <div class="d-flex flex-column gap-2">
             {% for insight in insights %}
             <div class="p-2 rounded-3" style="background:var(--bg-soft);">{{ insight }}</div>
@@ -265,18 +265,18 @@
     </div>
 
     <div class="card-custom p-4 mb-4 analysis-span-2">
-        <h6 class="fw-bold mb-3"><i class="bi bi-clipboard2-data me-1 text-primary"></i>Field Performance Table</h6>
+        <h6 class="fw-bold mb-3"><i class="bi bi-clipboard2-data me-1 text-primary"></i>{% trans "Jedwali la Utendaji wa Maswali" %}</h6>
         <div class="table-responsive">
             <table class="table table-sm align-middle analysis-table">
                 <thead>
                     <tr>
-                        <th>Field</th>
-                        <th>Type</th>
-                        <th>Latest</th>
-                        <th>Average</th>
-                        <th>Δ Change</th>
-                        <th>Volatility</th>
-                        <th>Trend</th>
+                        <th>{% trans "Swali" %}</th>
+                        <th>{% trans "Aina" %}</th>
+                        <th>{% trans "Ya Mwisho" %}</th>
+                        <th>{% trans "Wastani" %}</th>
+                        <th>{% trans "Mabadiliko Δ" %}</th>
+                        <th>{% trans "Mtetemo" %}</th>
+                        <th>{% trans "Mwelekeo" %}</th>
                     </tr>
                 </thead>
                 <tbody>
@@ -293,11 +293,11 @@
                         <td>{{ s.volatility }}</td>
                         <td>
                             {% if s.trend == 'up' %}
-                                <span class="badge bg-success">UP</span>
+                                <span class="badge bg-success">{% trans "JUU" %}</span>
                             {% elif s.trend == 'down' %}
-                                <span class="badge bg-danger">DOWN</span>
+                                <span class="badge bg-danger">{% trans "CHINI" %}</span>
                             {% else %}
-                                <span class="badge bg-secondary">STABLE</span>
+                                <span class="badge bg-secondary">{% trans "THABITI" %}</span>
                             {% endif %}
                         </td>
                     </tr>
@@ -313,7 +313,7 @@
 </div>
 
 <section class="analysis-table-fullbleed">
-    <h5 class="fw-bold mb-3"><i class="bi bi-table me-1 text-primary"></i>All Inputs Per Day (Detailed Table)</h5>
+    <h5 class="fw-bold mb-3"><i class="bi bi-table me-1 text-primary"></i>{% trans "Data Zote kwa Siku (Jedwali la Kina)" %}</h5>
     <p class="text-muted small mb-3">
         Hapa utaona data yote ya patient kwa siku, ikijumuisha text/textarea/select/number/checkbox/scale.
         Hii inarahisisha kufuatilia trends kwa kila field kila siku.
@@ -327,8 +327,8 @@
                 <table class="table table-sm align-middle analysis-table">
                     <thead>
                         <tr>
-                            <th style="min-width:90px;">Time</th>
-                            <th style="min-width:180px;">Form</th>
+                            <th style="min-width:90px;">{% trans "Muda" %}</th>
+                            <th style="min-width:180px;">{% trans "Fomu" %}</th>
                             {% for field in all_fields %}
                             <th style="min-width:170px;">
                                 {{ field.field_label }}
@@ -338,10 +338,10 @@
                             {% for meta_col in selected_metadata_columns %}
                             <th style="min-width:160px;">
                                 {{ meta_col.label }}
-                                <div class="analysis-subtitle">Metadata</div>
+                                <div class="analysis-subtitle">{% trans "Metadata" %}</div>
                             </th>
                             {% endfor %}
-                            <th style="min-width:100px;">Detail</th>
+                            <th style="min-width:100px;">{% trans "Maelezo" %}</th>
                         </tr>
                     </thead>
                     <tbody>
@@ -356,7 +356,7 @@
                             <td class="small">{{ value }}</td>
                             {% endfor %}
                             <td>
-                                <a href="{% url 'doctor:patient_entry_detail' row.entry_id %}" class="btn btn-sm btn-outline-primary rounded-pill">View</a>
+                                <a href="{% url 'doctor:patient_entry_detail' row.entry_id %}" class="btn btn-sm btn-outline-primary rounded-pill">{% trans "Angalia" %}</a>
                             </td>
                         </tr>
                         {% endfor %}

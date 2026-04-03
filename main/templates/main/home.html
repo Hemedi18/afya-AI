@@ -321,14 +321,14 @@
                         <h2 class="hero-title mb-2">
                             <span class="tone-a">{% trans "Karibu" %}</span>
                             <span class="tone-b">AfyaSmart</span>
-                            <span class="tone-c">Health Assistant</span>
+                            <span class="tone-c">Msaidizi wa Afya</span>
                         </h2>
                     </div>
                     <p class="hero-sub mb-4">
                         {% blocktrans trimmed %}
                         AfyaSmart ni platform ya afya ya uzazi na ustawi wa kila siku. Hapa utapata mfumo wa ku-track mzunguko,
-                        AI chat kwa majibu ya haraka, support ya jamii, na mwongozo wa wataalamu. Mtumiaji mpya anayejisajili
-                        ataelekezwa hapa kwanza ili apate maelezo kamili ya huduma, documentation, na njia za mawasiliano.
+                        AI chat kwa majibu ya haraka, msaada wa jamii, na mwongozo wa wataalamu. Mtumiaji mpya anayejisajili
+                        ataelekezwa hapa kwanza ili apate maelezo kamili ya huduma, nyaraka za matumizi, na njia za mawasiliano.
                         {% endblocktrans %}
                     </p>
                     <div class="d-flex flex-wrap gap-2 mb-3">
@@ -336,68 +336,68 @@
                             <i class="bi bi-arrow-right-circle me-1"></i>{{ primary_label }}
                         </a>
                         <a href="{% url 'AI_brain:chat' %}" class="btn btn-outline-secondary rounded-pill px-4">{% trans "Jaribu AI Chat" %}</a>
-                        <a href="{% url 'main:documentation' %}" class="btn btn-outline-primary rounded-pill px-4">{% trans "Soma Guide" %}</a>
+                        <a href="{% url 'main:documentation' %}" class="btn btn-outline-primary rounded-pill px-4">{% trans "Soma Mwongozo" %}</a>
                     </div>
 
                     <div class="hero-stats">
                         <div class="hero-stat">
-                            <div class="num"><i class="bi bi-calendar-heart me-1"></i>Daily Logs</div>
+                            <div class="num"><i class="bi bi-calendar-heart me-1"></i>{% trans "Rekodi za Kila Siku" %}</div>
                             <div class="lbl">{% trans "Weka rekodi kwa urahisi kila siku" %}</div>
                         </div>
                         <div class="hero-stat">
-                            <div class="num"><i class="bi bi-robot me-1"></i>AI Insights</div>
+                            <div class="num"><i class="bi bi-robot me-1"></i>{% trans "Maarifa ya AI" %}</div>
                             <div class="lbl">{% trans "Mapendekezo yanayobinafsishwa" %}</div>
                         </div>
                         <div class="hero-stat">
-                            <div class="num"><i class="bi bi-shield-check me-1"></i>Privacy First</div>
-                            <div class="lbl">{% trans "Data inalindwa kwa mipangilio ya privacy" %}</div>
+                            <div class="num"><i class="bi bi-shield-check me-1"></i>{% trans "Faragha Kwanza" %}</div>
+                            <div class="lbl">{% trans "Data inalindwa kwa mipangilio ya faragha" %}</div>
                         </div>
                     </div>
                 </div>
 
                 <div class="col-lg-5 hero-visual">
                     <div class="hero-image-wrap">
-                        <img class="hero-image" src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=1200&q=80" alt="Healthcare professionals and digital health tools">
+                        <img class="hero-image" src="https://images.unsplash.com/photo-1576091160550-2173dba999ef?auto=format&fit=crop&w=1200&q=80" alt="{% trans 'Wataalamu wa afya na zana za afya kidijitali' %}">
                         <span class="float-chip one"><i class="bi bi-activity me-1"></i>{% trans "AI inaendelea kujifunza" %}</span>
-                        <span class="float-chip two"><i class="bi bi-person-hearts me-1"></i>{% trans "Community support 24/7" %}</span>
-                        <span class="float-chip three"><i class="bi bi-heart-pulse me-1"></i>{% trans "Track • Predict • Improve" %}</span>
+                        <span class="float-chip two"><i class="bi bi-person-hearts me-1"></i>{% trans "Msaada wa jamii 24/7" %}</span>
+                        <span class="float-chip three"><i class="bi bi-heart-pulse me-1"></i>{% trans "Fuatilia • Tabiri • Boresha" %}</span>
                     </div>
                 </div>
             </div>
         </section>
 
         <section class="mb-4">
-            <h2 class="section-head mb-2">{% trans "Services" %}</h2>
+            <h2 class="section-head mb-2">{% trans "Huduma" %}</h2>
             <div class="row g-3">
                 <div class="col-md-6 col-lg-3">
                     <div class="landing-card">
-                        <img class="service-thumb" src="https://images.unsplash.com/photo-1511174511562-5f7f18b874f8?auto=format&fit=crop&w=800&q=80" alt="Cycle tracking notes">
+                        <img class="service-thumb" src="https://images.unsplash.com/photo-1511174511562-5f7f18b874f8?auto=format&fit=crop&w=800&q=80" alt="{% trans 'Maandishi ya ufuatiliaji wa mzunguko' %}">
                         <span class="service-icon"><i class="bi bi-calendar-heart"></i></span>
-                        <h6>{% trans "Cycle Tracking" %}</h6>
+                        <h6>{% trans "Ufuatiliaji wa Mzunguko" %}</h6>
                         <p>{% trans "Log za kila siku, flow intensity, dalili, na trend analysis. Mfumo unakusaidia kuona pattern ya mzunguko mapema." %}</p>
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-3">
                     <div class="landing-card">
-                        <img class="service-thumb" src="https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=800&q=80" alt="AI assistant concept">
+                        <img class="service-thumb" src="https://images.unsplash.com/photo-1677442136019-21780ecad995?auto=format&fit=crop&w=800&q=80" alt="{% trans 'Dhana ya msaidizi wa AI' %}">
                         <span class="service-icon"><i class="bi bi-robot"></i></span>
-                        <h6>{% trans "AI Assistant" %}</h6>
-                        <p>{% trans "Majibu ya haraka kwa maswali ya afya, ushauri wa lifestyle, na mapendekezo personalized kulingana na data yako." %}</p>
+                        <h6>{% trans "Msaidizi wa AI" %}</h6>
+                        <p>{% trans "Majibu ya haraka kwa maswali ya afya, ushauri wa mtindo wa maisha, na mapendekezo binafsi kulingana na data yako." %}</p>
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-3">
                     <div class="landing-card">
-                        <img class="service-thumb" src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=800&q=80" alt="People in community support">
+                        <img class="service-thumb" src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?auto=format&fit=crop&w=800&q=80" alt="{% trans 'Watu wakisaidiana kwenye jamii' %}">
                         <span class="service-icon"><i class="bi bi-people-fill"></i></span>
-                        <h6>{% trans "Community" %}</h6>
-                        <p>{% trans "Jamii salama ya kuuliza, kujifunza, na kupata support. Unaweza kushiriki updates na kujifunza kutoka uzoefu wa wengine." %}</p>
+                        <h6>{% trans "Jamii" %}</h6>
+                        <p>{% trans "Jamii salama ya kuuliza, kujifunza, na kupata msaada. Unaweza kushiriki masasisho na kujifunza kutoka uzoefu wa wengine." %}</p>
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-3">
                     <div class="landing-card">
-                        <img class="service-thumb" src="https://images.unsplash.com/photo-1666214280391-8ff5bd3c0bf0?auto=format&fit=crop&w=800&q=80" alt="Doctor consultation">
+                        <img class="service-thumb" src="https://images.unsplash.com/photo-1666214280391-8ff5bd3c0bf0?auto=format&fit=crop&w=800&q=80" alt="{% trans 'Ushauri wa daktari' %}">
                         <span class="service-icon"><i class="bi bi-heart-pulse"></i></span>
-                        <h6>{% trans "Doctor Access" %}</h6>
+                        <h6>{% trans "Upatikanaji wa Daktari" %}</h6>
                         <p>{% trans "Unganishwa na madaktari wa mfumo kwa mwongozo wa ziada, hasa unapohitaji ufafanuzi wa kitaalamu kwa haraka." %}</p>
                     </div>
                 </div>
@@ -405,50 +405,50 @@
         </section>
 
         <section class="mb-4">
-            <h2 class="section-head mb-2">{% trans "How It Works" %}</h2>
+            <h2 class="section-head mb-2">{% trans "Inavyofanya Kazi" %}</h2>
             <div class="row g-3">
                 <div class="col-md-6 col-lg-3">
                     <div class="step-item">
                         <span class="step-badge">1</span>
                         <div class="fw-bold mb-1">{% trans "Jisajili" %}</div>
-                        <div class="small text-muted">{% trans "Unda account na ukamilishe AI persona ili mfumo uanze kukuelewa." %}</div>
+                        <div class="small text-muted">{% trans "Unda akaunti na ukamilishe AI persona ili mfumo uanze kukuelewa." %}</div>
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-3">
                     <div class="step-item">
                         <span class="step-badge">2</span>
-                        <div class="fw-bold mb-1">{% trans "Weka Daily Log" %}</div>
+                        <div class="fw-bold mb-1">{% trans "Weka Rekodi ya Kila Siku" %}</div>
                         <div class="small text-muted">{% trans "Andika flow, dalili, hisia, na notes kila siku kwa matokeo bora." %}</div>
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-3">
                     <div class="step-item">
                         <span class="step-badge">3</span>
-                        <div class="fw-bold mb-1">{% trans "Pata Insights" %}</div>
-                        <div class="small text-muted">{% trans "Tazama trends, reminders, na mapendekezo ya AI kwenye dashboard." %}</div>
+                        <div class="fw-bold mb-1">{% trans "Pata Maarifa" %}</div>
+                        <div class="small text-muted">{% trans "Tazama mwenendo, vikumbusho, na mapendekezo ya AI kwenye dashibodi." %}</div>
                     </div>
                 </div>
                 <div class="col-md-6 col-lg-3">
                     <div class="step-item">
                         <span class="step-badge">4</span>
                         <div class="fw-bold mb-1">{% trans "Shirikiana" %}</div>
-                        <div class="small text-muted">{% trans "Uliza jamii au doctor pale unapotaka ushauri wa ziada." %}</div>
+                        <div class="small text-muted">{% trans "Uliza jamii au daktari pale unapotaka ushauri wa ziada." %}</div>
                     </div>
                 </div>
             </div>
         </section>
 
         <section class="mb-4">
-            <h2 class="section-head mb-2">{% trans "Documentation" %}</h2>
+            <h2 class="section-head mb-2">{% trans "Nyaraka za Matumizi" %}</h2>
             <div class="landing-card">
                 <div class="row g-3 align-items-center">
                     <div class="col-lg-8">
-                        <p class="mb-2">{% trans "Documentation yetu inaelezea kila kitu: kuanza kutumia mfumo, jinsi ya kuweka data sahihi, namna ya kutumia AI Chat, moderation ya jamii, na usalama wa taarifa zako." %}</p>
-                        <p class="small text-muted mb-0">{% trans "Ukifuata guide hii, experience yako itakuwa laini na taarifa zitakuwa na ubora wa juu kwa personalized insights." %}</p>
+                        <p class="mb-2">{% trans "Nyaraka zetu za matumizi zinaelezea kila kitu: kuanza kutumia mfumo, jinsi ya kuweka data sahihi, namna ya kutumia AI Chat, usimamizi wa jamii, na usalama wa taarifa zako." %}</p>
+                        <p class="small text-muted mb-0">{% trans "Ukifuata mwongozo huu, uzoefu wako utakuwa laini na taarifa zitakuwa na ubora wa juu kwa maarifa binafsi." %}</p>
                     </div>
                     <div class="col-lg-4 text-lg-end">
                         <a href="{% url 'main:documentation' %}" class="btn btn-outline-primary rounded-pill px-4">
-                            <i class="bi bi-journal-text me-1"></i>{% trans "Fungua Documentation" %}
+                            <i class="bi bi-journal-text me-1"></i>{% trans "Fungua Nyaraka" %}
                         </a>
                     </div>
                 </div>
@@ -456,25 +456,25 @@
         </section>
 
         <section class="mb-4">
-            <h2 class="section-head mb-2">{% trans "Contact & Support" %}</h2>
+            <h2 class="section-head mb-2">{% trans "Mawasiliano na Msaada" %}</h2>
             <div class="row g-3">
                 <div class="col-md-7">
                     <div class="landing-card">
                         <h6><i class="bi bi-headset me-1"></i>{% trans "Unahitaji msaada?" %}</h6>
-                        <p class="mb-3">{% trans "Kwa changamoto za account, technical issue, au ushauri wa matumizi, tumia ukurasa wa mawasiliano. Timu yetu itakusaidia haraka kulingana na aina ya tatizo." %}</p>
+                        <p class="mb-3">{% trans "Kwa changamoto za akaunti, hitilafu za kiufundi, au ushauri wa matumizi, tumia ukurasa wa mawasiliano. Timu yetu itakusaidia haraka kulingana na aina ya tatizo." %}</p>
                         <ul class="small text-muted mb-3 ps-3">
-                            <li>{% trans "Support ya login, profile, na usalama wa account" %}</li>
-                            <li>{% trans "Msaada wa AI chat, notifications, na doctor channel" %}</li>
-                            <li>{% trans "Mwongozo wa jinsi ya kutumia features kwa ufanisi" %}</li>
+                            <li>{% trans "Msaada wa kuingia, wasifu, na usalama wa akaunti" %}</li>
+                            <li>{% trans "Msaada wa AI chat, arifa, na njia ya daktari" %}</li>
+                            <li>{% trans "Mwongozo wa jinsi ya kutumia vipengele kwa ufanisi" %}</li>
                         </ul>
-                        <a href="{% url 'main:contact' %}" class="btn btn-outline-dark rounded-pill px-4">{% trans "Nenda Contact" %}</a>
+                        <a href="{% url 'main:contact' %}" class="btn btn-outline-dark rounded-pill px-4">{% trans "Nenda Mawasiliano" %}</a>
                     </div>
                 </div>
                 <div class="col-md-5">
                     <div class="landing-card">
                         <h6><i class="bi bi-info-circle me-1"></i>{% trans "Kuhusu AfyaSmart" %}</h6>
                         <p class="mb-3">{% trans "Fahamu dhamira, usalama wa data, na mwelekeo wa huduma zetu za afya kidigitali kwa muda mrefu." %}</p>
-                        <a href="{% url 'main:about' %}" class="btn btn-outline-secondary rounded-pill px-4">{% trans "Soma About" %}</a>
+                        <a href="{% url 'main:about' %}" class="btn btn-outline-secondary rounded-pill px-4">{% trans "Soma Kuhusu" %}</a>
                     </div>
                 </div>
             </div>
@@ -485,15 +485,15 @@
             <div class="landing-glass p-3 p-md-4">
                 <div class="faq-item">
                     <div class="faq-q"><i class="bi bi-patch-question"></i>{% trans "Kwa nini niweke log kila siku?" %}</div>
-                    <div class="small text-muted">{% trans "Daily logs husaidia mfumo kugundua patterns zako mapema na kutoa mapendekezo sahihi zaidi." %}</div>
+                    <div class="small text-muted">{% trans "Rekodi za kila siku husaidia mfumo kugundua mwelekeo wako mapema na kutoa mapendekezo sahihi zaidi." %}</div>
                 </div>
                 <div class="faq-item">
                     <div class="faq-q"><i class="bi bi-shield-lock"></i>{% trans "Data yangu iko salama?" %}</div>
-                    <div class="small text-muted">{% trans "Ndiyo. Mfumo una mipangilio ya privacy na controls za account ili taarifa zako zibaki salama." %}</div>
+                    <div class="small text-muted">{% trans "Ndiyo. Mfumo una mipangilio ya faragha na udhibiti wa akaunti ili taarifa zako zibaki salama." %}</div>
                 </div>
                 <div class="faq-item">
-                    <div class="faq-q"><i class="bi bi-gender-ambiguous"></i>{% trans "Gender selective inafanyaje kazi?" %}</div>
-                    <div class="small text-muted">{% trans "Baada ya onboarding, mfumo unaonyesha njia/stori zinazolingana na gender uliyochagua kwenye AI persona." %}</div>
+                    <div class="faq-q"><i class="bi bi-gender-ambiguous"></i>{% trans "Uchujaji wa jinsia unafanyaje kazi?" %}</div>
+                    <div class="small text-muted">{% trans "Baada ya usanidi wa awali, mfumo unaonyesha njia na stori zinazolingana na jinsia uliyochagua kwenye AI persona." %}</div>
                 </div>
             </div>
         </section>
