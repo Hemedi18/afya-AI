@@ -1,21 +1,22 @@
 {% extends 'base.html' %}
+{% load i18n %}
 
 {% block content %}
 <div class="py-4">
     <div class="card-custom p-4 mb-4">
         <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
             <div>
-                <h4 class="fw-bold mb-1">Moderator Dashboard</h4>
-                <p class="text-muted mb-0">Simamia reports, posts, na comments kutoka sehemu moja.</p>
+                <h4 class="fw-bold mb-1">{% trans "Moderator Dashboard" %}</h4>
+                <p class="text-muted mb-0">{% trans "Simamia reports, posts, na comments kutoka sehemu moja." %}</p>
             </div>
-            <a href="{% url 'chats:feed' %}" class="btn btn-outline-secondary rounded-pill">Back to feed</a>
+            <a href="{% url 'chats:feed' %}" class="btn btn-outline-secondary rounded-pill">{% trans "Back to feed" %}</a>
         </div>
     </div>
 
     <div class="row g-4">
         <div class="col-lg-6">
             <div class="card-custom p-4 h-100">
-                <h6 class="fw-bold mb-3">Reports</h6>
+                <h6 class="fw-bold mb-3">{% trans "Reports" %}</h6>
                 {% for report in reports %}
                 <div class="border rounded-4 p-3 mb-2">
                     <div class="d-flex justify-content-between align-items-center gap-2 flex-wrap">
@@ -29,19 +30,19 @@
                     </div>
                     <form method="post" action="{% url 'chats:report_resolve' report.id %}" class="mt-2 d-flex gap-2 flex-wrap">
                         {% csrf_token %}
-                        <button class="btn btn-sm btn-outline-warning rounded-pill" type="submit" name="status" value="reviewing">Mark reviewing</button>
-                        <button class="btn btn-sm btn-outline-success rounded-pill" type="submit" name="status" value="resolved">Resolve</button>
+                        <button class="btn btn-sm btn-outline-warning rounded-pill" type="submit" name="status" value="reviewing">{% trans "Mark reviewing" %}</button>
+                        <button class="btn btn-sm btn-outline-success rounded-pill" type="submit" name="status" value="resolved">{% trans "Resolve" %}</button>
                     </form>
                 </div>
                 {% empty %}
-                <div class="text-muted">Hakuna reports bado.</div>
+                <div class="text-muted">{% trans "Hakuna reports bado." %}</div>
                 {% endfor %}
             </div>
         </div>
 
         <div class="col-lg-6">
             <div class="card-custom p-4 mb-4">
-                <h6 class="fw-bold mb-3">Recent Posts</h6>
+                <h6 class="fw-bold mb-3">{% trans "Recent Posts" %}</h6>
                 {% for post in posts %}
                 <div class="border rounded-4 p-3 mb-2 d-flex justify-content-between align-items-start gap-2">
                     <div>
@@ -50,16 +51,16 @@
                     </div>
                     <form method="post" action="{% url 'chats:post_delete' post.id %}">
                         {% csrf_token %}
-                        <button class="btn btn-sm btn-outline-danger rounded-pill" type="submit">Delete</button>
+                        <button class="btn btn-sm btn-outline-danger rounded-pill" type="submit">{% trans "Delete" %}</button>
                     </form>
                 </div>
                 {% empty %}
-                <div class="text-muted">Hakuna posts.</div>
+                <div class="text-muted">{% trans "Hakuna posts." %}</div>
                 {% endfor %}
             </div>
 
             <div class="card-custom p-4">
-                <h6 class="fw-bold mb-3">Recent Comments</h6>
+                <h6 class="fw-bold mb-3">{% trans "Recent Comments" %}</h6>
                 {% for comment in comments %}
                 <div class="border rounded-4 p-3 mb-2 d-flex justify-content-between align-items-start gap-2">
                     <div>
@@ -68,11 +69,11 @@
                     </div>
                     <form method="post" action="{% url 'chats:comment_delete' comment.id %}">
                         {% csrf_token %}
-                        <button class="btn btn-sm btn-outline-danger rounded-pill" type="submit">Delete</button>
+                        <button class="btn btn-sm btn-outline-danger rounded-pill" type="submit">{% trans "Delete" %}</button>
                     </form>
                 </div>
                 {% empty %}
-                <div class="text-muted">Hakuna comments.</div>
+                <div class="text-muted">{% trans "Hakuna comments." %}</div>
                 {% endfor %}
             </div>
         </div>

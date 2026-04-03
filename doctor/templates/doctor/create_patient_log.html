@@ -1,0 +1,280 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% if edit_log %}Edit Log Form{% else %}Log Forms{% endif %} — {{ patient.username }} — AfyaSmart{% endblock %}
+
+{% block extra_head %}
+<style>
+.field-row {
+    background: var(--card-bg);
+    border: 1px solid var(--line-soft);
+    border-radius: 12px;
+    padding: 1rem;
+    position: relative;
+    transition: box-shadow .15s;
+}
+.field-row:hover { box-shadow: 0 4px 14px rgba(0,0,0,.07); }
+.remove-field-btn {
+    position: absolute; top: .6rem; right: .6rem;
+    background: none; border: none; color: var(--text-muted);
+    font-size: .95rem; cursor: pointer; padding: .25rem .4rem; border-radius: 6px;
+    transition: background .12s, color .12s;
+}
+.remove-field-btn:hover { background: #fee2e2; color: #dc2626; }
+.field-type-select { max-width: 180px; }
+.log-chip {
+    display: inline-flex; align-items: center; gap: .35rem;
+    padding: .18rem .6rem; border-radius: 20px; font-size: .75rem;
+    background: color-mix(in srgb, var(--primary) 14%, transparent);
+    color: var(--primary); font-weight: 600;
+}
+.log-chip.sent { background: color-mix(in srgb, #16a34a 14%, transparent); color: #16a34a; }
+.log-chip.unsent { background: color-mix(in srgb, #f59e0b 14%, transparent); color: #b45309; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="py-4">
+
+    <!-- Page header -->
+    <div class="card-custom p-4 mb-4">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <div class="d-flex align-items-center gap-3">
+                <div style="width:44px;height:44px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.1rem;flex-shrink:0;">{{ patient.username|first|upper }}</div>
+                <div>
+                    <h5 class="fw-bold mb-0">{% if edit_log %}Hariri Log Form{% else %}Log Forms{% endif %} — {{ patient.get_full_name|default:patient.username }}</h5>
+                    <span class="text-muted small">@{{ patient.username }}</span>
+                </div>
+            </div>
+            <a href="{% url 'doctor:patient_detail' patient.id %}" class="btn btn-sm btn-outline-secondary rounded-pill">
+                <i class="bi bi-arrow-left me-1"></i>Wagonjwa
+            </a>
+        </div>
+    </div>
+
+    <!-- Existing logs -->
+    {% if existing_logs %}
+    <div class="card-custom p-4 mb-4">
+        <h6 class="fw-bold mb-3"><i class="bi bi-journal-text me-1 text-primary"></i>Log Forms Zilizopo</h6>
+        <div class="d-flex flex-column gap-2">
+            {% for log in existing_logs %}
+            <div class="d-flex align-items-center justify-content-between gap-3 p-2 rounded-3" style="background:var(--bg-soft);">
+                <div style="min-width:0;flex:1;">
+                    <div class="fw-semibold text-truncate">{{ log.title }}</div>
+                    <div class="d-flex gap-2 flex-wrap mt-1">
+                        <span class="log-chip {% if log.is_sent %}sent{% else %}unsent{% endif %}">
+                            {% if log.is_sent %}<i class="bi bi-send-check"></i>Imetumwa{% else %}<i class="bi bi-send"></i>Bado Kutumwa{% endif %}
+                        </span>
+                        <span class="log-chip"><i class="bi bi-list-check"></i>{{ log.fields.count }} field{{ log.fields.count|pluralize }}</span>
+                        <span class="log-chip"><i class="bi bi-inbox"></i>{{ log.entries.count }} entry</span>
+                    </div>
+                </div>
+                <div class="d-flex gap-2">
+                    <a href="{% url 'doctor:edit_patient_log' log.id %}" class="btn btn-sm btn-outline-warning rounded-pill flex-shrink-0">
+                        <i class="bi bi-pencil-square me-1"></i>Edit
+                    </a>
+                    <a href="{% url 'doctor:patient_log_detail' log.id %}" class="btn btn-sm btn-outline-primary rounded-pill flex-shrink-0">
+                        <i class="bi bi-eye me-1"></i>Angalia
+                    </a>
+                    <form method="post" action="{% url 'doctor:delete_patient_log' log.id %}" style="display:inline;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn btn-sm btn-outline-danger rounded-pill flex-shrink-0"
+                            data-confirm-title="Futa Form?"
+                            data-confirm-message="Ukifuta form hii, patient atapata ujumbe wa taarifa kwenye chat. Endelea?"
+                            data-confirm-variant="danger">
+                            <i class="bi bi-trash me-1"></i>Delete
+                        </button>
+                    </form>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+
+    <!-- Create new log form -->
+    <div class="card-custom p-4">
+        <h6 class="fw-bold mb-4"><i class="bi bi-plus-circle me-1 text-success"></i>{% if edit_log %}Hariri Log Form{% else %}Tengeneza Log Form Mpya{% endif %}</h6>
+        <form method="post" id="logForm">
+            {% csrf_token %}
+
+            <!-- Log metadata -->
+            <div class="row g-3 mb-4">
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Kichwa cha Log <span class="text-danger">*</span></label>
+                    <input type="text" name="title" class="form-control" placeholder="Mfano: Dalili za Kila Siku" value="{% if edit_log %}{{ edit_log.title }}{% endif %}" required>
+                </div>
+                <div class="col-md-6">
+                    <label class="form-label fw-semibold">Mara ngapi kujaza?</label>
+                    <input type="text" name="frequency" class="form-control" placeholder="Mfano: Kila asubuhi, Mara 2 kwa siku" value="{% if edit_log %}{{ edit_log.frequency }}{% endif %}">
+                </div>
+                <div class="col-12">
+                    <label class="form-label fw-semibold">Maelezo (si lazima)</label>
+                    <textarea name="description" class="form-control" rows="2" placeholder="Eleza log hii itakayotumiwa na mgonjwa...">{% if edit_log %}{{ edit_log.description }}{% endif %}</textarea>
+                </div>
+
+                <div class="col-12">
+                    <label class="form-label fw-semibold mb-2">Metadata za kuruhusu kwa analysis</label>
+                    <div class="d-flex flex-wrap gap-2">
+                        {% for key, label in metadata_choices %}
+                        <label class="d-inline-flex align-items-center gap-2 px-3 py-2 rounded-pill" style="border:1px solid var(--line-soft); background:var(--bg-soft);">
+                            <input type="checkbox" name="metadata_fields" value="{{ key }}" class="form-check-input"
+                                {% if edit_log and key in edit_log.metadata_fields %}checked{% endif %}>
+                            <span class="small">{{ label }}</span>
+                        </label>
+                        {% endfor %}
+                    </div>
+                    <div class="text-muted small mt-2">Mfano: location ya user, muda wa ku-submit data, siku ya wiki, gender.</div>
+                </div>
+            </div>
+
+            <hr class="my-3">
+            <div class="d-flex align-items-center justify-content-between mb-3">
+                <h6 class="fw-bold mb-0"><i class="bi bi-input-cursor me-1"></i>Fields za Log</h6>
+            </div>
+
+            <div id="fieldsContainer" class="d-flex flex-column gap-3 mb-4">
+                <!-- Fields will be added here by JS -->
+            </div>
+
+            <div id="noFieldsMsg" class="text-center text-muted py-3 small">
+                <i class="bi bi-arrow-down me-1"></i>Bonyeza "Ongeza Field" (chini) kuongeza maswali ya log form.
+            </div>
+
+            <div class="d-flex gap-2 flex-wrap justify-content-end mt-4">
+                <button type="button" class="btn btn-outline-success rounded-pill" id="addFieldBtn">
+                    <i class="bi bi-plus me-1"></i>Ongeza Field
+                </button>
+                <a href="{% url 'doctor:patient_detail' patient.id %}" class="btn btn-outline-secondary rounded-pill">Ghairi</a>
+                <button type="submit" class="btn btn-success rounded-pill px-4" id="submitLogBtn" disabled>
+                    <i class="bi bi-check-circle me-1"></i>{% if edit_log %}Hifadhi Mabadiliko{% else %}Hifadhi Log Form{% endif %}
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+(function () {
+    const container = document.getElementById('fieldsContainer');
+    const addBtn = document.getElementById('addFieldBtn');
+    const noMsg = document.getElementById('noFieldsMsg');
+    const submitBtn = document.getElementById('submitLogBtn');
+    let fieldCount = 0;
+
+    const FIELD_TYPES = [
+        { value: 'text',     label: 'Short text' },
+        { value: 'textarea', label: 'Long text' },
+        { value: 'number',   label: 'Number' },
+        { value: 'select',   label: 'Select (dropdown)' },
+        { value: 'checkbox', label: 'Checkbox (yes/no)' },
+        { value: 'scale',    label: 'Scale 1–10' },
+    ];
+
+    function typeOptions() {
+        return FIELD_TYPES.map(t =>
+            `<option value="${t.value}">${t.label}</option>`
+        ).join('');
+    }
+
+    function updateUI() {
+        noMsg.style.display = fieldCount === 0 ? 'block' : 'none';
+        submitBtn.disabled = fieldCount === 0;
+    }
+
+    function addField(prefill = null) {
+        const idx = fieldCount;
+        const selectedType = prefill && prefill.type ? prefill.type : 'text';
+        const checkedAttr = prefill && prefill.required ? 'checked' : '';
+        const labelVal = prefill && prefill.label ? prefill.label : '';
+        const placeholderVal = prefill && prefill.placeholder ? prefill.placeholder : '';
+        const optionsVal = prefill && prefill.options ? prefill.options.join(', ') : '';
+        const row = document.createElement('div');
+        row.className = 'field-row';
+        row.id = `fieldRow_${idx}`;
+        row.innerHTML = `
+            <button type="button" class="remove-field-btn" onclick="removeField(${idx})" title="Futa field hii"><i class="bi bi-x-lg"></i></button>
+            <div class="row g-2 align-items-end">
+                <div class="col-md-5">
+                    <label class="form-label small fw-semibold mb-1">Lebo (Label) *</label>
+                    <input type="text" name="field_label" class="form-control form-control-sm" placeholder="Mfano: Joto la Mwili" value="${labelVal}" required>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small fw-semibold mb-1">Aina ya Field</label>
+                    <select name="field_type" class="form-select form-select-sm field-type-select" onchange="onTypeChange(this, ${idx})">
+                        ${typeOptions()}
+                    </select>
+                </div>
+                <div class="col-md-3">
+                    <label class="form-label small fw-semibold mb-1">Placeholder</label>
+                    <input type="text" name="field_placeholder" class="form-control form-control-sm" placeholder="Maelezo mfupi..." value="${placeholderVal}">
+                </div>
+                <div class="col-md-1 d-flex align-items-center gap-1 pt-3">
+                    <input type="checkbox" name="field_required" class="form-check-input" id="req_${idx}" value="on" ${checkedAttr}>
+                    <label class="form-check-label small" for="req_${idx}">Lazima</label>
+                </div>
+                <div class="col-12 options-row" id="optionsRow_${idx}" style="display:none;">
+                    <label class="form-label small fw-semibold mb-1">Chaguo (tenganisha kwa koma)</label>
+                    <input type="text" name="field_options" class="form-control form-control-sm" placeholder="Ndiyo, Hapana, Labda" value="${optionsVal}">
+                </div>
+                <div class="col-12 options-row" id="scaleRow_${idx}" style="display:none;">
+                    <div class="text-muted small p-2 rounded-2" style="background:var(--bg-soft);">
+                        <i class="bi bi-info-circle me-1"></i>Mgonjwa atachagua nambari kutoka 1 hadi 10.
+                    </div>
+                    <input type="hidden" name="field_options" value="">
+                </div>
+                <div class="col-12 options-row" id="noOptionsRow_${idx}">
+                    <!-- hidden options placeholder for non-select types -->
+                    <input type="hidden" name="field_options" value="">
+                </div>
+            </div>
+        `;
+        container.appendChild(row);
+        const selectEl = row.querySelector('select[name="field_type"]');
+        selectEl.value = selectedType;
+        window.onTypeChange(selectEl, idx);
+        fieldCount++;
+        updateUI();
+    }
+
+    window.removeField = function (idx) {
+        const row = document.getElementById(`fieldRow_${idx}`);
+        if (row) { row.remove(); fieldCount--; updateUI(); }
+    };
+
+    window.onTypeChange = function (sel, idx) {
+        const val = sel.value;
+        const optRow = document.getElementById(`optionsRow_${idx}`);
+        const scaleRow = document.getElementById(`scaleRow_${idx}`);
+        const noRow = document.getElementById(`noOptionsRow_${idx}`);
+        if (optRow) optRow.style.display = val === 'select' ? 'block' : 'none';
+        if (scaleRow) scaleRow.style.display = val === 'scale' ? 'block' : 'none';
+        if (noRow) noRow.style.display = (val !== 'select' && val !== 'scale') ? 'block' : 'none';
+    };
+
+    addBtn.addEventListener('click', addField);
+
+    {% if edit_log %}
+    const existingFields = [
+        {% for f in edit_log.fields.all %}
+        {
+            label: '{{ f.field_label|escapejs }}',
+            type: '{{ f.field_type }}',
+            placeholder: '{{ f.placeholder|escapejs }}',
+            required: {% if f.required %}true{% else %}false{% endif %},
+            options: [{% for o in f.options %}'{{ o|escapejs }}'{% if not forloop.last %}, {% endif %}{% endfor %}],
+        }{% if not forloop.last %},{% endif %}
+        {% endfor %}
+    ];
+    if (existingFields.length) {
+        existingFields.forEach(item => addField(item));
+    } else {
+        addField();
+    }
+    {% else %}
+    // Add first field automatically
+    addField();
+    {% endif %}
+})();
+</script>
+{% endblock %}

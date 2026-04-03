@@ -1,6 +1,7 @@
 {% extends "base.html" %}
+{% load i18n %}
 
-{% block title %}Ingia - AfyaSmart{% endblock %}
+{% block title %}{% trans "Ingia" %} - AfyaSmart{% endblock %}
 
 {% block content %}
 <style>
@@ -36,7 +37,7 @@
 <div class="login-container">
     <div class="login-card">
         <div class="card card-custom p-4 p-md-5">
-            <h3 class="fw-bold text-center mb-4">Ingia kwenye AfyaSmart</h3>
+            <h3 class="fw-bold text-center mb-4">{% trans "Ingia kwenye AfyaSmart" %}</h3>
             <form method="post" action="{% url 'users:login' %}">
                 {% csrf_token %}
 
@@ -47,18 +48,18 @@
                 {% endif %}
 
                 <div class="mb-3">
-                    <label for="id_username" class="form-label">Jina la Mtumiaji</label>
+                    <label for="id_username" class="form-label">{% trans "Jina la Mtumiaji" %}</label>
                     <input type="text" name="username" class="form-control" id="id_username" value="{{ form.username.value|default_if_none:'' }}" required autofocus autocomplete="username">
                     {% if form.username.errors %}<div class="field-error">{{ form.username.errors|striptags }}</div>{% endif %}
                 </div>
                 <div class="mb-3">
-                    <label for="id_password" class="form-label">Nenosiri</label>
+                    <label for="id_password" class="form-label">{% trans "Nenosiri" %}</label>
                     <input type="password" name="password" class="form-control" id="id_password" required autocomplete="current-password">
                     {% if form.password.errors %}<div class="field-error">{{ form.password.errors|striptags }}</div>{% endif %}
                 </div>
-                <button type="submit" class="btn btn-danger w-100 rounded-pill">Ingia</button>
+                <button type="submit" class="btn btn-danger w-100 rounded-pill">{% trans "Ingia" %}</button>
             </form>
-            <p class="text-center mt-3 small">Huna akaunti? <a href="{% url 'users:register' %}">Jisajili hapa</a></p>
+            <p class="text-center mt-3 small">{% trans "Huna akaunti?" %} <a href="{% url 'users:register' %}">{% trans "Jisajili hapa" %}</a></p>
         </div>
     </div>
 </div>

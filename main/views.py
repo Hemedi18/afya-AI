@@ -5,6 +5,7 @@ from django.http import HttpResponse, JsonResponse
 from django.shortcuts import render, redirect
 from django.templatetags.static import static
 from django.utils import timezone
+from django.utils.translation import gettext as _
 from django.views.generic import TemplateView
 import json
 
@@ -19,17 +20,17 @@ from users.utils import get_user_gender
 def home(request):
     gender = get_user_gender(request.user) if request.user.is_authenticated else None
     if gender == 'female':
-        welcome_tag = 'Karibu dada! Safari yako ya afya ya mzunguko inaanza hapa.'
+        welcome_tag = _('Karibu dada! Safari yako ya afya ya mzunguko inaanza hapa.')
         primary_url = 'menstrual:dashboard'
-        primary_label = 'Fungua Dashboard ya Mzunguko'
+        primary_label = _('Fungua Dashboard ya Mzunguko')
     elif gender == 'male':
-        welcome_tag = 'Karibu kaka! Pata mwongozo wa afya na ustawi wako hapa.'
+        welcome_tag = _('Karibu kaka! Pata mwongozo wa afya na ustawi wako hapa.')
         primary_url = 'main:male_dashboard'
-        primary_label = 'Fungua Male Dashboard'
+        primary_label = _('Fungua Male Dashboard')
     else:
-        welcome_tag = 'Karibu AfyaSmart — Jisajili ili upate huduma zilizobinafsishwa.'
+        welcome_tag = _('Karibu AfyaSmart — Jisajili ili upate huduma zilizobinafsishwa.')
         primary_url = 'users:register'
-        primary_label = 'Anza Kujisajili'
+        primary_label = _('Anza Kujisajili')
 
     return render(
         request,

@@ -1,0 +1,132 @@
+{% extends 'base.html' %}
+
+{% block content %}
+<div class="py-3" style="max-width:1050px;margin:0 auto;">
+  <div class="card-custom p-3 p-md-4 mb-3">
+    <div class="d-flex align-items-start justify-content-between gap-3 flex-wrap">
+      <div class="d-flex align-items-center gap-3">
+        {% if doctor.user.ai_persona.avatar %}
+        <img src="{{ doctor.user.ai_persona.avatar.url }}" alt="Dr avatar" style="width:86px;height:86px;border-radius:50%;object-fit:cover;border:2px solid var(--line-soft);">
+        {% else %}
+        <div style="width:86px;height:86px;border-radius:50%;background:linear-gradient(135deg,var(--primary),var(--secondary));color:#fff;display:flex;align-items:center;justify-content:center;font-weight:800;font-size:1.8rem;">{{ doctor.user.username|first|upper }}</div>
+        {% endif %}
+        <div>
+          <h4 class="fw-bold mb-1">Dr. {{ doctor.user.get_full_name|default:doctor.user.username }}</h4>
+          <div class="small text-muted mb-1">{{ doctor.specialization }} • {{ doctor.hospital_name|default:'Hospital not provided' }}</div>
+          <div class="d-flex flex-wrap gap-2">
+            <span class="badge rounded-pill {% if doctor.verified %}text-bg-success{% else %}text-bg-secondary{% endif %}"><i class="bi {% if doctor.verified %}bi-patch-check-fill{% else %}bi-patch-exclamation{% endif %}"></i> {% if doctor.verified %}Verified{% else %}Not verified{% endif %}</span>
+            <span class="badge rounded-pill text-bg-light"><i class="bi bi-star-fill text-warning"></i> {{ doctor.rank_avg|default:0|floatformat:1 }} ({{ doctor.rank_count }})</span>
+            <span class="badge rounded-pill text-bg-light"><i class="bi bi-people-fill"></i> {{ doctor.followers_count }} followers</span>
+            <span class="badge rounded-pill text-bg-light"><i class="bi bi-flag-fill text-danger"></i> {{ doctor.report_count }} reports</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="d-flex gap-2 flex-wrap">
+        <a href="{% url 'chats:start_private_chat' doctor.user.id %}" class="btn btn-outline-danger rounded-pill"><i class="bi bi-chat-dots"></i> Chat</a>
+        <form method="post" action="{% url 'doctor:follow_toggle' doctor.id %}">
+          {% csrf_token %}
+          <button class="btn {% if is_following %}btn-dark{% else %}btn-outline-dark{% endif %} rounded-pill" type="submit"><i class="bi bi-person-plus"></i> {% if is_following %}Following{% else %}Follow{% endif %}</button>
+        </form>
+        <button type="button" id="toggleReportBtn" class="btn btn-outline-danger rounded-pill" title="Report" aria-label="Report doctor">
+          <i class="bi bi-flag"></i>
+        </button>
+      </div>
+    </div>
+
+    <hr>
+    <p class="mb-0">{{ doctor.bio|linebreaksbr }}</p>
+  </div>
+
+  {% if can_rate_today or my_rating_today %}
+  <div class="card-custom p-3 p-md-4 mb-3">
+    <h6 class="fw-bold mb-2"><i class="bi bi-star-fill text-warning"></i> Daily doctor ranking</h6>
+    {% if can_rate_today %}
+    <form method="post" action="{% url 'doctor:rate' doctor.id %}" class="row g-2 align-items-end">
+      {% csrf_token %}
+      <div class="col-md-2">
+        <label class="small text-muted mb-1">Score</label>
+        <select class="form-select" name="score" required>
+          <option value="5">5 ⭐</option>
+          <option value="4">4 ⭐</option>
+          <option value="3">3 ⭐</option>
+          <option value="2">2 ⭐</option>
+          <option value="1">1 ⭐</option>
+        </select>
+      </div>
+      <div class="col-md-8">
+        <label class="small text-muted mb-1">Optional note</label>
+        <input type="text" name="note" maxlength="280" class="form-control" placeholder="Maoni yako kwa doctor (optional)">
+      </div>
+      <div class="col-md-2 d-grid">
+        <button class="btn btn-warning rounded-pill" type="submit">Rank</button>
+      </div>
+    </form>
+    {% elif my_rating_today %}
+    <div class="small text-muted">Asante, tayari umerank doctor huyu leo: <strong>{{ my_rating_today.score }}/5</strong>{% if my_rating_today.note %} — {{ my_rating_today.note }}{% endif %}</div>
+    {% endif %}
+  </div>
+  {% endif %}
+
+  <div id="doctorReportCard" class="card-custom p-3 p-md-4 mb-3 d-none">
+    <h6 class="fw-bold mb-2"><i class="bi bi-flag"></i> Report doctor</h6>
+    <form method="post" action="{% url 'doctor:report' doctor.id %}" class="row g-2 align-items-end">
+      {% csrf_token %}
+      <div class="col-md-4">
+        <label class="small text-muted mb-1">Reason</label>
+        <input type="text" class="form-control" name="reason" required placeholder="Sababu ya report">
+      </div>
+      <div class="col-md-6">
+        <label class="small text-muted mb-1">Details (optional)</label>
+        <input type="text" class="form-control" name="details" placeholder="Maelezo ya ziada...">
+      </div>
+      <div class="col-md-2 d-grid">
+        <button class="btn btn-outline-danger rounded-pill" type="submit">Send</button>
+      </div>
+    </form>
+  </div>
+
+  <div class="card-custom p-3 p-md-4">
+    <div class="d-flex align-items-center justify-content-between mb-2">
+      <h6 class="fw-bold mb-0"><i class="bi bi-card-text"></i> Doctor posts</h6>
+      <a href="{% url 'doctor:hub' %}" class="btn btn-sm btn-outline-secondary rounded-pill">Back to doctors</a>
+    </div>
+
+    <div class="row g-3">
+      {% for post in doctor_posts %}
+      <div class="col-12">
+        <article class="border rounded-4 p-3">
+          <div class="d-flex align-items-center justify-content-between gap-2 mb-2">
+            <div class="small text-muted">{{ post.created_at|timesince }} ago{% if post.group %} • {{ post.group.name }}{% endif %}</div>
+            <a href="{% url 'chats:post_detail' post.id %}" class="btn btn-sm btn-outline-secondary rounded-pill">Open post</a>
+          </div>
+          <div class="mb-2">{{ post.content|safe }}</div>
+          {% include 'chats/includes/post_media.html' with post=post %}
+          <div class="small text-muted mt-2"><i class="bi bi-heart-fill text-danger"></i> {{ post.likes.count }}</div>
+        </article>
+      </div>
+      {% empty %}
+      <div class="col-12"><div class="text-muted small">Doctor hajapost bado.</div></div>
+      {% endfor %}
+    </div>
+  </div>
+</div>
+
+<script>
+(function () {
+  const toggleBtn = document.getElementById('toggleReportBtn');
+  const reportCard = document.getElementById('doctorReportCard');
+  if (!toggleBtn || !reportCard) return;
+
+  toggleBtn.addEventListener('click', function () {
+    reportCard.classList.toggle('d-none');
+    const isOpen = !reportCard.classList.contains('d-none');
+    toggleBtn.classList.toggle('btn-danger', isOpen);
+    toggleBtn.classList.toggle('btn-outline-danger', !isOpen);
+    if (isOpen) {
+      reportCard.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  });
+})();
+</script>
+{% endblock %}

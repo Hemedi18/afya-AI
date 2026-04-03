@@ -1,0 +1,480 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}Patient AI Analysis — {{ patient.username }}{% endblock %}
+
+{% block extra_head %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<style>
+.analysis-viewport {
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+    padding-left: clamp(.75rem, 2vw, 1.5rem);
+    padding-right: clamp(.75rem, 2vw, 1.5rem);
+}
+
+.analysis-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1rem;
+}
+
+@media (min-width: 1200px) {
+    .analysis-grid {
+        grid-template-columns: 1.2fr .8fr;
+        align-items: start;
+    }
+    .analysis-span-2 { grid-column: 1 / -1; }
+}
+
+.analysis-day-block {
+    border: 1px solid var(--line-soft);
+    border-radius: 14px;
+    background: color-mix(in srgb, var(--card-bg) 88%, var(--bg-soft));
+    padding: 1rem;
+}
+
+.analysis-table {
+    --bs-table-bg: transparent;
+    --bs-table-color: var(--text-main);
+    --bs-table-border-color: color-mix(in srgb, var(--line-soft) 72%, transparent);
+    margin-bottom: 0;
+}
+
+.analysis-table thead th {
+    background: color-mix(in srgb, var(--primary) 14%, var(--card-bg));
+    color: var(--text-main);
+    border-bottom: 1px solid color-mix(in srgb, var(--primary) 25%, transparent);
+    font-weight: 700;
+    position: sticky;
+    top: 0;
+    z-index: 1;
+}
+
+.analysis-table tbody tr:nth-child(odd) {
+    background: color-mix(in srgb, var(--bg-soft) 48%, transparent);
+}
+
+.analysis-table tbody tr:hover {
+    background: color-mix(in srgb, var(--secondary) 16%, transparent);
+}
+
+.analysis-subtitle {
+    color: var(--text-muted);
+    font-size: .72rem;
+}
+
+.field-charts-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: .9rem;
+}
+
+@media (min-width: 992px) {
+    .field-charts-grid {
+        grid-template-columns: 1fr 1fr;
+    }
+}
+
+.field-chart-card {
+    border: 1px solid var(--line-soft);
+    border-radius: 14px;
+    background: color-mix(in srgb, var(--card-bg) 90%, var(--bg-soft));
+    padding: .85rem;
+}
+
+.field-chart-title {
+    font-weight: 700;
+    margin-bottom: .2rem;
+}
+
+.field-chart-meta {
+    font-size: .78rem;
+    color: var(--text-muted);
+    margin-bottom: .55rem;
+}
+
+.analysis-table-fullbleed {
+    width: 100vw;
+    margin-left: calc(50% - 50vw);
+    margin-right: calc(50% - 50vw);
+    padding: 1.35rem clamp(1rem, 2.5vw, 2.25rem);
+}
+
+.field-chart-card canvas,
+.mini-chart-card canvas {
+    display: block;
+    width: 100% !important;
+    max-width: 100%;
+}
+
+@media (max-width: 768px) {
+    .analysis-viewport,
+    .analysis-table-fullbleed {
+        width: 100%;
+        margin-left: 0;
+        margin-right: 0;
+        padding-left: .75rem;
+        padding-right: .75rem;
+    }
+
+    .analysis-grid,
+    .analysis-day-block,
+    .card-custom {
+        overflow-x: hidden;
+    }
+
+    .field-chart-card canvas {
+        height: 170px !important;
+    }
+
+    .mini-chart-card canvas {
+        height: 160px !important;
+    }
+}
+
+.kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .65rem;
+}
+
+@media (min-width: 1100px) {
+    .kpi-grid {
+        grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+}
+
+.kpi-card {
+    border: 1px solid var(--line-soft);
+    border-radius: 12px;
+    background: color-mix(in srgb, var(--card-bg) 92%, var(--bg-soft));
+    padding: .65rem .75rem;
+}
+
+.kpi-label { font-size: .72rem; color: var(--text-muted); }
+.kpi-value { font-size: 1.05rem; font-weight: 800; color: var(--text-main); }
+
+.mini-charts-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: .8rem;
+}
+
+@media (min-width: 1200px) {
+    .mini-charts-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+.mini-chart-card {
+    border: 1px solid var(--line-soft);
+    border-radius: 12px;
+    padding: .75rem;
+    background: color-mix(in srgb, var(--card-bg) 94%, var(--bg-soft));
+}
+
+.risk-list {
+    margin: 0;
+    padding-left: 1rem;
+}
+
+.risk-list li { margin-bottom: .35rem; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="py-4 analysis-viewport">
+    <div class="analysis-grid">
+    <div class="card-custom p-4 mb-4">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-3">
+            <div>
+                <h4 class="fw-bold mb-1"><i class="bi bi-graph-up-arrow me-1 text-success"></i>AI Analysis — {{ patient.get_full_name|default:patient.username }}</h4>
+                <div class="small text-muted">Entries: {{ entries|length }} · Forms: {{ logs|length }}</div>
+            </div>
+            <div class="d-flex gap-2 flex-wrap">
+                {% if conversation %}
+                <a href="{% url 'chats:conversation_detail' conversation.id %}" class="btn btn-sm btn-outline-primary rounded-pill"><i class="bi bi-chat-dots me-1"></i>Chat</a>
+                {% endif %}
+                <a href="{% url 'doctor:patient_detail' patient.id %}" class="btn btn-sm btn-outline-secondary rounded-pill"><i class="bi bi-arrow-left me-1"></i>Rudi</a>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-custom p-4 mb-4 analysis-span-2">
+        <h6 class="fw-bold mb-3"><i class="bi bi-speedometer2 me-1 text-primary"></i>Clinical KPI Snapshot</h6>
+        <div class="kpi-grid">
+            <div class="kpi-card"><div class="kpi-label">Entries</div><div class="kpi-value">{{ kpi.entry_count }}</div></div>
+            <div class="kpi-card"><div class="kpi-label">Active Days</div><div class="kpi-value">{{ kpi.active_days }}</div></div>
+            <div class="kpi-card"><div class="kpi-label">Span Days</div><div class="kpi-value">{{ kpi.span_days }}</div></div>
+            <div class="kpi-card"><div class="kpi-label">Adherence</div><div class="kpi-value">{{ kpi.adherence_pct }}%</div></div>
+            <div class="kpi-card"><div class="kpi-label">Avg Entries/Day</div><div class="kpi-value">{{ kpi.avg_entries_per_day }}</div></div>
+            <div class="kpi-card"><div class="kpi-label">Required Completion</div><div class="kpi-value">{{ kpi.completion_pct }}%</div></div>
+        </div>
+    </div>
+
+    <div class="card-custom p-4 mb-4 analysis-span-2">
+        <h6 class="fw-bold mb-3"><i class="bi bi-bar-chart-line me-1 text-success"></i>Operational Analytics</h6>
+        <div class="mini-charts-grid">
+            <div class="mini-chart-card">
+                <div class="small fw-semibold mb-2">Daily Submission Volume</div>
+                <canvas id="dailyVolumeChart" height="120"></canvas>
+            </div>
+            <div class="mini-chart-card">
+                <div class="small fw-semibold mb-2">Weekday Activity Pattern</div>
+                <canvas id="weekdayChart" height="120"></canvas>
+            </div>
+            <div class="mini-chart-card">
+                <div class="small fw-semibold mb-2">Required Fields Completion Trend</div>
+                <canvas id="completionTrendChart" height="120"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <div class="card-custom p-4 mb-4 analysis-span-2">
+        <h5 class="fw-bold mb-3">Graph za Maendeleo kwa Kila Field</h5>
+        <div class="text-muted small mb-3">Kila graph hapa inawakilisha swali/field moja tu.</div>
+        <div id="fieldChartsGrid" class="field-charts-grid"></div>
+        <div id="fieldChartsEmpty" class="text-muted small" style="display:none;">Hakuna data ya kutosha kuonyesha graph kwa sasa.</div>
+    </div>
+
+    <div class="card-custom p-4 mb-4">
+        <h5 class="fw-bold mb-3"><i class="bi bi-stars me-1 text-warning"></i>AI Insights</h5>
+        <ul class="mb-0">
+            {% for note in analysis_notes %}
+            <li class="mb-1">{{ note }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="card-custom p-4 mb-4">
+        <h5 class="fw-bold mb-3"><i class="bi bi-exclamation-triangle me-1 text-danger"></i>Clinical Watchlist</h5>
+        <ul class="risk-list">
+            {% for flag in risk_flags %}
+            <li>{{ flag }}</li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <div class="card-custom p-4 mb-4">
+        <h6 class="fw-bold mb-3">Trend Summary per Field</h6>
+        <div class="d-flex flex-column gap-2">
+            {% for insight in insights %}
+            <div class="p-2 rounded-3" style="background:var(--bg-soft);">{{ insight }}</div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="card-custom p-4 mb-4 analysis-span-2">
+        <h6 class="fw-bold mb-3"><i class="bi bi-clipboard2-data me-1 text-primary"></i>Field Performance Table</h6>
+        <div class="table-responsive">
+            <table class="table table-sm align-middle analysis-table">
+                <thead>
+                    <tr>
+                        <th>Field</th>
+                        <th>Type</th>
+                        <th>Latest</th>
+                        <th>Average</th>
+                        <th>Δ Change</th>
+                        <th>Volatility</th>
+                        <th>Trend</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for s in field_summaries %}
+                    <tr>
+                        <td>
+                            <div class="fw-semibold">{{ s.label }}</div>
+                            <div class="analysis-subtitle">{{ s.log_title }}</div>
+                        </td>
+                        <td>{{ s.field_type }}</td>
+                        <td>{{ s.latest }}</td>
+                        <td>{{ s.average }}</td>
+                        <td>{{ s.delta }}</td>
+                        <td>{{ s.volatility }}</td>
+                        <td>
+                            {% if s.trend == 'up' %}
+                                <span class="badge bg-success">UP</span>
+                            {% elif s.trend == 'down' %}
+                                <span class="badge bg-danger">DOWN</span>
+                            {% else %}
+                                <span class="badge bg-secondary">STABLE</span>
+                            {% endif %}
+                        </td>
+                    </tr>
+                    {% empty %}
+                    <tr><td colspan="7" class="text-muted">Hakuna data ya kutosha kwa field performance table.</td></tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</div>
+</div>
+
+<section class="analysis-table-fullbleed">
+    <h5 class="fw-bold mb-3"><i class="bi bi-table me-1 text-primary"></i>All Inputs Per Day (Detailed Table)</h5>
+    <p class="text-muted small mb-3">
+        Hapa utaona data yote ya patient kwa siku, ikijumuisha text/textarea/select/number/checkbox/scale.
+        Hii inarahisisha kufuatilia trends kwa kila field kila siku.
+    </p>
+
+    {% if daily_input_tables and all_fields %}
+        {% for day_block in daily_input_tables %}
+        <div class="mb-4 analysis-day-block">
+            <h6 class="fw-semibold mb-2">{{ day_block.date|date:"l, d M Y" }}</h6>
+            <div class="table-responsive">
+                <table class="table table-sm align-middle analysis-table">
+                    <thead>
+                        <tr>
+                            <th style="min-width:90px;">Time</th>
+                            <th style="min-width:180px;">Form</th>
+                            {% for field in all_fields %}
+                            <th style="min-width:170px;">
+                                {{ field.field_label }}
+                                <div class="analysis-subtitle">{{ field.log.title }}</div>
+                            </th>
+                            {% endfor %}
+                            {% for meta_col in selected_metadata_columns %}
+                            <th style="min-width:160px;">
+                                {{ meta_col.label }}
+                                <div class="analysis-subtitle">Metadata</div>
+                            </th>
+                            {% endfor %}
+                            <th style="min-width:100px;">Detail</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for row in day_block.rows %}
+                        <tr>
+                            <td class="small">{{ row.submitted_at|date:"H:i" }}</td>
+                            <td class="small fw-semibold">{{ row.log_title }}</td>
+                            {% for value in row.values %}
+                            <td class="small">{{ value }}</td>
+                            {% endfor %}
+                            {% for value in row.meta_values %}
+                            <td class="small">{{ value }}</td>
+                            {% endfor %}
+                            <td>
+                                <a href="{% url 'doctor:patient_entry_detail' row.entry_id %}" class="btn btn-sm btn-outline-primary rounded-pill">View</a>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endfor %}
+    {% else %}
+        <p class="text-muted mb-0">Hakuna data ya kutosha kuonyesha detailed table kwa sasa.</p>
+    {% endif %}
+</section>
+
+<script>
+(function () {
+    const charts = {{ field_charts_json|safe }};
+    const dailyVolume = {{ daily_volume_json|safe }};
+    const weekday = {{ weekday_json|safe }};
+    const completionTrend = {{ completion_json|safe }};
+    const grid = document.getElementById('fieldChartsGrid');
+    const empty = document.getElementById('fieldChartsEmpty');
+    if (!grid) return;
+
+    if (!charts || !charts.length) {
+        if (empty) empty.style.display = 'block';
+        return;
+    }
+
+    charts.forEach((item, idx) => {
+        const card = document.createElement('div');
+        card.className = 'field-chart-card';
+        const canvasId = `fieldChart_${idx}`;
+        card.innerHTML = `
+            <div class="field-chart-title">${item.field_label}</div>
+            <div class="field-chart-meta">${item.field_type} · ${item.log_title}</div>
+            <canvas id="${canvasId}" height="120"></canvas>
+        `;
+        grid.appendChild(card);
+
+        const ctx = document.getElementById(canvasId);
+        if (!ctx) return;
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: item.labels,
+                datasets: [{
+                    label: item.field_label,
+                    data: item.data,
+                    borderColor: item.color,
+                    backgroundColor: item.color,
+                    spanGaps: true,
+                    tension: 0.25,
+                }],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                interaction: { mode: 'index', intersect: false },
+                scales: { y: { beginAtZero: true } },
+                plugins: { legend: { display: false } },
+            },
+        });
+    });
+
+    const dv = document.getElementById('dailyVolumeChart');
+    if (dv && dailyVolume && dailyVolume.labels && dailyVolume.labels.length) {
+        new Chart(dv, {
+            type: 'bar',
+            data: {
+                labels: dailyVolume.labels,
+                datasets: [{
+                    data: dailyVolume.values,
+                    backgroundColor: 'rgba(47,107,63,.65)',
+                    borderColor: '#2F6B3F',
+                    borderWidth: 1,
+                }],
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } },
+        });
+    }
+
+    const wd = document.getElementById('weekdayChart');
+    if (wd && weekday && weekday.labels && weekday.labels.length) {
+        new Chart(wd, {
+            type: 'doughnut',
+            data: {
+                labels: weekday.labels,
+                datasets: [{
+                    data: weekday.values,
+                    backgroundColor: ['#2F6B3F','#7FB77E','#F59E0B','#2563EB','#7C3AED','#DB2777','#0891B2'],
+                }],
+            },
+            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } },
+        });
+    }
+
+    const ct = document.getElementById('completionTrendChart');
+    if (ct && completionTrend && completionTrend.labels && completionTrend.labels.length) {
+        new Chart(ct, {
+            type: 'line',
+            data: {
+                labels: completionTrend.labels,
+                datasets: [{
+                    data: completionTrend.values,
+                    borderColor: '#2563EB',
+                    backgroundColor: '#2563EB',
+                    tension: .25,
+                    spanGaps: true,
+                }],
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                scales: { y: { beginAtZero: true, max: 100 } },
+                plugins: { legend: { display: false } },
+            },
+        });
+    }
+})();
+</script>
+{% endblock %}

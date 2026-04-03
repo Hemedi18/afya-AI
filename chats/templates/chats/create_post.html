@@ -425,7 +425,14 @@
                             <input type="file" name="image" id="postImageInput" class="form-control mb-2" accept="image/*">
                             <label class="form-label fw-semibold small">Upload video</label>
                             <input type="file" name="video" id="postVideoInput" class="form-control" accept="video/*">
-                            <div class="form-note mt-2">Tumia image au video moja. Image inaweza ku-cropiwa kabla ya kutuma.</div>
+                            <div class="d-flex align-items-center justify-content-between gap-2 mt-2">
+                                <div class="form-note mb-0">Unaweza kuweka image/video moja, au tumia Add more kuongeza media nyingi.</div>
+                                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill" id="addMoreMediaBtn" title="Add more media">
+                                    <i class="bi bi-plus-square-dotted me-1"></i> Add more
+                                </button>
+                            </div>
+                            <input type="file" name="media_files" id="postMediaMultiInput" class="d-none" accept="image/*,video/*" multiple>
+                            <div id="postMediaMultiList" class="small mt-2 text-muted"></div>
                             <input type="hidden" name="cropped_image_data" id="croppedImageData">
                         </div>
 
@@ -530,6 +537,9 @@
     const wordCountLabel = document.getElementById('wordCountLabel');
     const imageInput = document.getElementById('postImageInput');
     const videoInput = document.getElementById('postVideoInput');
+    const multiMediaInput = document.getElementById('postMediaMultiInput');
+    const addMoreMediaBtn = document.getElementById('addMoreMediaBtn');
+    const postMediaMultiList = document.getElementById('postMediaMultiList');
     const imageTarget = document.getElementById('imageCropTarget');
     const videoTarget = document.getElementById('videoPreviewTarget');
     const previewShell = document.getElementById('mediaPreviewShell');
@@ -603,6 +613,18 @@
         videoTarget.removeAttribute('src');
         emptyState.style.display = 'block';
         croppedImageData.value = '';
+    };
+
+    const refreshMultiMediaList = () => {
+        if (!postMediaMultiList || !multiMediaInput) return;
+        const files = Array.from(multiMediaInput.files || []);
+        if (!files.length) {
+            postMediaMultiList.innerHTML = '';
+            return;
+        }
+        postMediaMultiList.innerHTML = files.map((file, idx) => (
+            `<div><i class="bi bi-paperclip"></i> ${idx + 1}. ${file.name}</div>`
+        )).join('');
     };
 
     const initCropper = () => {
@@ -763,6 +785,10 @@
             return;
         }
         if (videoInput) videoInput.value = '';
+        if (multiMediaInput) {
+            multiMediaInput.value = '';
+            refreshMultiMediaList();
+        }
         const url = URL.createObjectURL(file);
         emptyState.style.display = 'none';
         videoTarget.style.display = 'none';
@@ -781,6 +807,10 @@
             return;
         }
         if (imageInput) imageInput.value = '';
+        if (multiMediaInput) {
+            multiMediaInput.value = '';
+            refreshMultiMediaList();
+        }
         if (cropper) {
             cropper.destroy();
             cropper = null;
@@ -791,6 +821,19 @@
         videoTarget.style.display = 'block';
         croppedImageData.value = '';
         applyFramePreview();
+    });
+
+    addMoreMediaBtn?.addEventListener('click', () => {
+        multiMediaInput?.click();
+    });
+
+    multiMediaInput?.addEventListener('change', () => {
+        refreshMultiMediaList();
+        if (multiMediaInput.files?.length) {
+            if (imageInput) imageInput.value = '';
+            if (videoInput) videoInput.value = '';
+            resetMediaPreview();
+        }
     });
 
     [ratioSelect, shapeSelect, focusX, focusY].forEach((el) => {

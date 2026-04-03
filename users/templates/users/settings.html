@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load i18n %}
 
 {% block content %}
 <style>
@@ -248,8 +249,8 @@
 
 <div class="settings-container">
     <div class="settings-header">
-        <h1><i class="bi bi-gear"></i> Settings</h1>
-        <p>Manage your account, profile, and privacy preferences</p>
+        <h1><i class="bi bi-gear"></i> {% trans "Settings" %}</h1>
+        <p>{% trans "Manage your account, profile, and privacy preferences" %}</p>
     </div>
 
     {% if messages %}
@@ -278,7 +279,7 @@
         <div class="settings-content">
             {% if active_section == 'general' %}
             <div class="settings-section-title">
-                <i class="bi bi-sliders"></i> General Settings
+                <i class="bi bi-sliders"></i> {% trans "General Settings" %}
             </div>
             <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
@@ -305,15 +306,15 @@
 
                 <div class="form-actions">
                     <button type="submit" class="btn-save">
-                        <i class="bi bi-check-circle me-1"></i> Save Changes
+                        <i class="bi bi-check-circle me-1"></i> {% trans "Save Changes" %}
                     </button>
-                    <a href="{% url 'users:settings' %}" class="btn-cancel">Cancel</a>
+                    <a href="{% url 'users:settings' %}" class="btn-cancel">{% trans "Cancel" %}</a>
                 </div>
             </form>
 
             {% elif active_section == 'display' %}
             <div class="settings-section-title">
-                <i class="bi bi-palette"></i> Display & Profile
+                <i class="bi bi-palette"></i> {% trans "Display & Profile" %}
             </div>
             <form method="post" enctype="multipart/form-data">
                 {% csrf_token %}
@@ -321,7 +322,7 @@
 
                 {% if persona.avatar %}
                 <div>
-                    <label>Current Avatar</label>
+                    <label>{% trans "Current Avatar" %}</label>
                     <img src="{{ persona.avatar.url }}" alt="Avatar" class="avatar-preview">
                 </div>
                 {% endif %}
@@ -346,7 +347,7 @@
                 {% endfor %}
 
                 <div class="form-group" style="margin-top: 1.25rem; padding-top: 1rem; border-top: 1px solid rgba(15, 23, 42, .08);">
-                    <label><i class="bi bi-palette2 me-1"></i> Theme Color Selection</label>
+                    <label><i class="bi bi-palette2 me-1"></i> {% trans "Theme Color Selection" %}</label>
                     <div class="form-group">
                         {{ forms.display_theme.color_theme.label_tag }}
                         {{ forms.display_theme.color_theme }}
@@ -362,7 +363,7 @@
                     <div class="form-group">
                         <div class="form-check">
                             {{ forms.display_theme.use_custom_palette }}
-                            <label class="form-check-label" for="{{ forms.display_theme.use_custom_palette.id_for_label }}">Use custom colors</label>
+                            <label class="form-check-label" for="{{ forms.display_theme.use_custom_palette.id_for_label }}">{% trans "Use custom colors" %}</label>
                         </div>
                     </div>
 
@@ -388,15 +389,15 @@
 
                 <div class="form-actions">
                     <button type="submit" class="btn-save">
-                        <i class="bi bi-check-circle me-1"></i> Save Changes
+                        <i class="bi bi-check-circle me-1"></i> {% trans "Save Changes" %}
                     </button>
-                    <a href="{% url 'users:settings' %}" class="btn-cancel">Cancel</a>
+                    <a href="{% url 'users:settings' %}" class="btn-cancel">{% trans "Cancel" %}</a>
                 </div>
             </form>
 
             {% elif active_section == 'security' %}
             <div class="settings-section-title">
-                <i class="bi bi-shield-lock"></i> Security & Privacy
+                <i class="bi bi-shield-lock"></i> {% trans "Security & Privacy" %}
             </div>
             <form method="post">
                 {% csrf_token %}
@@ -423,9 +424,70 @@
 
                 <div class="form-actions">
                     <button type="submit" class="btn-save">
-                        <i class="bi bi-check-circle me-1"></i> Change Password
+                        <i class="bi bi-check-circle me-1"></i> {% trans "Change Password" %}
                     </button>
-                    <a href="{% url 'users:settings' %}" class="btn-cancel">Cancel</a>
+                    <a href="{% url 'users:settings' %}" class="btn-cancel">{% trans "Cancel" %}</a>
+                </div>
+            </form>
+
+            <form method="post" style="margin-top: 1.8rem; padding-top: 1.2rem; border-top: 1px solid rgba(15, 23, 42, .08);">
+                {% csrf_token %}
+                <input type="hidden" name="_action" value="privacy">
+
+                <h3 style="font-size:1.02rem;font-weight:700;margin-bottom:1rem;">{% trans "Privacy & Reminder Settings" %}</h3>
+                {% for field in forms.privacy %}
+                <div class="form-group" style="margin-bottom: .9rem;">
+                    <div class="form-check">
+                        {{ field }}
+                        <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
+                    </div>
+                    {% if field.errors %}
+                    <ul class="errorlist" style="margin-top:.4rem;">
+                        {% for error in field.errors %}
+                        <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                    {% if field.help_text %}
+                    <span class="helptext">{{ field.help_text|safe }}</span>
+                    {% endif %}
+                </div>
+                {% endfor %}
+
+                <div class="form-actions" style="margin-top:1.2rem;">
+                    <button type="submit" class="btn-save">
+                        <i class="bi bi-shield-check me-1"></i> {% trans "Save Privacy Settings" %}
+                    </button>
+                    <a href="{% url 'users:settings' %}" class="btn-cancel">{% trans "Cancel" %}</a>
+                </div>
+            </form>
+
+            {% elif active_section == 'language' %}
+            <div class="settings-section-title">
+                <i class="bi bi-translate"></i> {% trans "Language" %}
+            </div>
+            <form method="post">
+                {% csrf_token %}
+                <input type="hidden" name="_action" value="language">
+
+                <div class="form-group">
+                    <label for="{{ forms.language.language_preference.id_for_label }}">{% trans "Select language" %}</label>
+                    {{ forms.language.language_preference }}
+                    {% if forms.language.language_preference.errors %}
+                    <ul class="errorlist">
+                        {% for error in forms.language.language_preference.errors %}
+                        <li>{{ error }}</li>
+                        {% endfor %}
+                    </ul>
+                    {% endif %}
+                    <span class="helptext">{% trans "After saving, the website will switch to the selected language." %}</span>
+                </div>
+
+                <div class="form-actions">
+                    <button type="submit" class="btn-save">
+                        <i class="bi bi-check-circle me-1"></i> {% trans "Save Language" %}
+                    </button>
+                    <a href="{% url 'users:settings' %}" class="btn-cancel">{% trans "Cancel" %}</a>
                 </div>
             </form>
 

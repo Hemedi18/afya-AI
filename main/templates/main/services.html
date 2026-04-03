@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load static i18n %}
 
-{% block title %}Services - AfyaSmart{% endblock %}
+{% block title %}{% trans "Services" %} - AfyaSmart{% endblock %}
 
 {% block content %}
 <style>
@@ -202,11 +202,11 @@
 
 <div class="services-shell">
     <section class="services-hero">
-        <h3 class="services-title"><i class="bi bi-grid-1x2-fill me-2"></i>Services</h3>
-        <p class="services-sub">Chagua huduma unayotaka. Huduma zinazopatikana zinafunguka moja kwa moja; ambazo bado zinaandaliwa zitaonyesha taarifa.</p>
+        <h3 class="services-title"><i class="bi bi-grid-1x2-fill me-2"></i>{% trans "Services" %}</h3>
+        <p class="services-sub">{% blocktrans trimmed %}Chagua huduma unayotaka. Huduma zinazopatikana zinafunguka moja kwa moja; ambazo bado zinaandaliwa zitaonyesha taarifa.{% endblocktrans %}</p>
         <div class="services-meta">
             <i class="bi bi-collection"></i>
-            <span>Idadi ya services: <strong>{{ service_count }}</strong></span>
+            <span>{% blocktrans trimmed with count=service_count %}Idadi ya services: <strong>{{ count }}</strong>{% endblocktrans %}</span>
             {% if user_gender %}
                 <span>• Gender: <strong>{{ user_gender|title }}</strong></span>
             {% endif %}
@@ -230,11 +230,11 @@
 
                     {% if service.is_live and service.url %}
                         <a class="service-action" href="{% url service.url %}">
-                            <i class="bi bi-box-arrow-up-right"></i> Fungua Service
+                            <i class="bi bi-box-arrow-up-right"></i> {% trans "Fungua Service" %}
                         </a>
                     {% else %}
                         <button type="button" class="service-action coming js-coming-soon" data-service="{{ service.title }}">
-                            <i class="bi bi-tools"></i> Coming Soon
+                            <i class="bi bi-tools"></i> {% trans "Coming Soon" %}
                         </button>
                     {% endif %}
                 </div>
@@ -249,12 +249,14 @@
 (function () {
     const notice = document.getElementById('serviceNotice');
     const buttons = document.querySelectorAll('.js-coming-soon');
+    const fallbackName = "{% trans 'Service hii' %}";
+    const underConstruction = "{% trans 'bado iko under construction. Tafadhali jaribu tena hivi karibuni.' %}";
 
     buttons.forEach((btn) => {
         btn.addEventListener('click', function () {
-            const serviceName = this.getAttribute('data-service') || 'Service hii';
+            const serviceName = this.getAttribute('data-service') || fallbackName;
             notice.classList.remove('d-none');
-            notice.innerHTML = `<strong>${serviceName}</strong> bado iko under construction. Tafadhali jaribu tena hivi karibuni.`;
+            notice.innerHTML = `<strong>${serviceName}</strong> ${underConstruction}`;
             notice.scrollIntoView({ behavior: 'smooth', block: 'center' });
         });
     });

@@ -47,6 +47,27 @@ class DisplayThemeForm(forms.ModelForm):
         }
 
 
+class PrivacySettingsForm(forms.ModelForm):
+    class Meta:
+        model = MenstrualUserSetting
+        fields = [
+            'privacy_mode',
+            'anonymous_mode',
+            'emergency_alerts_enabled',
+            'reminder_period',
+            'reminder_ovulation',
+            'reminder_fertile_window',
+        ]
+        widgets = {
+            'privacy_mode': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'anonymous_mode': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'emergency_alerts_enabled': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'reminder_period': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'reminder_ovulation': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+            'reminder_fertile_window': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
+        }
+
+
 class PersonaFullEditForm(forms.ModelForm):
     class Meta:
         model = UserAIPersona
@@ -79,7 +100,7 @@ class PersonaFullEditForm(forms.ModelForm):
             'location_region': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Mfano: Dar es Salaam'}),
             'language_preference': forms.Select(
                 attrs={'class': 'form-select'},
-                choices=[('sw', 'Swahili'), ('en', 'English')],
+                choices=[('sw', 'Swahili'), ('en', 'English'), ('ar', 'Arabic')],
             ),
             'ai_data_consent': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
             'identity_verified': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
@@ -93,6 +114,22 @@ class ZanzPasswordChangeForm(PasswordChangeForm):
         super().__init__(*args, **kwargs)
         for field in self.fields.values():
             field.widget.attrs['class'] = 'form-control'
+
+
+class LanguagePreferenceForm(forms.ModelForm):
+    class Meta:
+        model = UserAIPersona
+        fields = ['language_preference']
+        widgets = {
+            'language_preference': forms.Select(
+                attrs={'class': 'form-select'},
+                choices=[
+                    ('sw', 'Kiswahili'),
+                    ('en', 'English'),
+                    ('ar', 'العربية'),
+                ],
+            )
+        }
 
 
 class ZanzHubRegisterForm(UserCreationForm):

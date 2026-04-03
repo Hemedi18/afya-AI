@@ -1,0 +1,189 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{{ log.title }} — Jaza Log — AfyaSmart{% endblock %}
+
+{% block extra_head %}
+<style>
+.log-field-card {
+    background: var(--card-bg);
+    border: 1px solid var(--line-soft);
+    border-radius: 12px;
+    padding: 1.1rem 1.25rem;
+}
+.scale-btns { display: flex; gap: .35rem; flex-wrap: wrap; }
+.scale-btn {
+    width: 38px; height: 38px; border-radius: 50%; border: 2px solid var(--line-soft);
+    background: var(--card-bg); font-weight: 700; font-size: .88rem;
+    cursor: pointer; display: flex; align-items: center; justify-content: center;
+    transition: background .12s, border-color .12s, color .12s; color: var(--text-main);
+}
+.scale-btn.selected {
+    background: var(--primary); border-color: var(--primary); color: #fff;
+}
+.scale-btn:hover:not(.selected) { border-color: var(--primary); color: var(--primary); }
+.entry-hist-row { border-bottom: 1px solid var(--line-soft); padding: .5rem 0; }
+.entry-hist-row:last-child { border-bottom: none; }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="py-4">
+
+    <!-- Header -->
+    <div class="card-custom p-4 mb-4">
+        <div class="d-flex align-items-start justify-content-between flex-wrap gap-2">
+            <div>
+                <h5 class="fw-bold mb-1">{{ log.title }}</h5>
+                <div class="text-muted small">
+                    Daktari: <strong>Dr. {{ log.doctor.get_full_name|default:log.doctor.username }}</strong>
+                    {% if log.frequency %}· <i class="bi bi-arrow-repeat me-1"></i>{{ log.frequency }}{% endif %}
+                </div>
+                {% if log.description %}
+                <p class="text-muted small mt-2 mb-0">{{ log.description }}</p>
+                {% endif %}
+            </div>
+            <a href="{% url 'doctor:my_patient_logs' %}" class="btn btn-sm btn-outline-secondary rounded-pill">
+                <i class="bi bi-arrow-left me-1"></i>Log Zangu
+            </a>
+        </div>
+    </div>
+
+    <!-- Fill form -->
+    <div class="card-custom p-4 mb-4">
+        <h6 class="fw-bold mb-4"><i class="bi bi-pencil-square me-1 text-success"></i>Jaza Taarifa Mpya</h6>
+        <form method="post">
+            {% csrf_token %}
+            <div class="d-flex flex-column gap-3 mb-4">
+                {% for field in log.fields.all %}
+                <div class="log-field-card">
+                    <label class="form-label fw-semibold mb-2" for="field_{{ field.id }}">
+                        {{ field.field_label }}
+                        {% if field.required %}<span class="text-danger ms-1">*</span>{% endif %}
+                        <span class="badge bg-light text-muted ms-1" style="font-size:.7rem;font-weight:500;">{{ field.get_field_type_display }}</span>
+                    </label>
+
+                    {% if field.field_type == 'text' %}
+                    <input type="text" name="field_{{ field.id }}" id="field_{{ field.id }}"
+                        class="form-control" placeholder="{{ field.placeholder }}"
+                        {% if field.required %}required{% endif %}>
+
+                    {% elif field.field_type == 'textarea' %}
+                    <textarea name="field_{{ field.id }}" id="field_{{ field.id }}"
+                        class="form-control" rows="3" placeholder="{{ field.placeholder }}"
+                        {% if field.required %}required{% endif %}></textarea>
+
+                    {% elif field.field_type == 'number' %}
+                    <input type="number" name="field_{{ field.id }}" id="field_{{ field.id }}"
+                        class="form-control" placeholder="{{ field.placeholder }}"
+                        {% if field.required %}required{% endif %}>
+
+                    {% elif field.field_type == 'select' %}
+                    <select name="field_{{ field.id }}" id="field_{{ field.id }}"
+                        class="form-select" {% if field.required %}required{% endif %}>
+                        <option value="">— Chagua —</option>
+                        {% for opt in field.options %}
+                        <option value="{{ opt }}">{{ opt }}</option>
+                        {% endfor %}
+                    </select>
+
+                    {% elif field.field_type == 'checkbox' %}
+                    <div class="d-flex align-items-center gap-2 mt-1">
+                        <input type="checkbox" name="field_{{ field.id }}" id="field_{{ field.id }}"
+                            class="form-check-input" style="width:1.2rem;height:1.2rem;">
+                        <label class="form-check-label small" for="field_{{ field.id }}">Ndiyo / Yes</label>
+                    </div>
+
+                    {% elif field.field_type == 'scale' %}
+                    <div class="scale-btns mt-1" id="scaleBtns_{{ field.id }}" role="group" aria-label="Scale 1 to 10">
+                        {% for n in "1234567890" %}
+                        {% with num=forloop.counter %}
+                        <button type="button" class="scale-btn"
+                            data-scale-target="field_{{ field.id }}"
+                            data-value="{{ num }}"
+                            onclick="selectScale(this)">{{ num }}</button>
+                        {% endwith %}
+                        {% endfor %}
+                    </div>
+                    <input type="hidden" name="field_{{ field.id }}" id="field_{{ field.id }}"
+                        {% if field.required %}data-required="true"{% endif %}>
+                    <div class="text-muted" style="font-size:.75rem;margin-top:.35rem;">
+                        1 = Mbaya sana &nbsp;·&nbsp; 10 = Nzuri sana
+                    </div>
+                    {% endif %}
+                </div>
+                {% empty %}
+                <p class="text-muted small">Log form hii haina maswali bado.</p>
+                {% endfor %}
+            </div>
+
+            <div class="d-flex gap-2 justify-content-end">
+                <a href="{% url 'doctor:my_patient_logs' %}" class="btn btn-outline-secondary rounded-pill">Ghairi</a>
+                <button type="submit" class="btn btn-success rounded-pill px-4">
+                    <i class="bi bi-send-check me-1"></i>Tuma Taarifa
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <!-- Recent entries -->
+    {% if recent_entries %}
+    <div class="card-custom p-4">
+        <h6 class="fw-bold mb-3"><i class="bi bi-clock-history me-1 text-muted"></i>Taarifa Zangu za Hivi Karibuni</h6>
+        <script id="fieldsMeta2" type="application/json">
+[{% for field in log.fields.all %}{"id":"{{ field.id }}","label":"{{ field.field_label|escapejs }}","type":"{{ field.field_type }}"}{% if not forloop.last %},{% endif %}{% endfor %}]
+        </script>
+        <div class="d-flex flex-column">
+            {% for entry in recent_entries %}
+            <div class="entry-hist-row">
+                <div class="small text-muted mb-1"><i class="bi bi-calendar3 me-1"></i>{{ entry.submitted_at|date:"d M Y · H:i" }}</div>
+                <div class="row g-1 entry-hist-fields" data-entry='{{ entry.data|safe }}'></div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+// Scale button selector
+function selectScale(btn) {
+    const targetId = btn.getAttribute('data-scale-target');
+    const value = btn.getAttribute('data-value');
+    // Deselect siblings
+    btn.closest('.scale-btns').querySelectorAll('.scale-btn').forEach(b => b.classList.remove('selected'));
+    btn.classList.add('selected');
+    document.getElementById(targetId).value = value;
+}
+
+// Render recent entry history
+(function () {
+    let fields = [];
+    try { fields = JSON.parse(document.getElementById('fieldsMeta2').textContent); } catch(e) {}
+    document.querySelectorAll('.entry-hist-fields').forEach(row => {
+        let data = {};
+        try { data = JSON.parse(row.getAttribute('data-entry') || '{}'); } catch(e) {}
+        fields.forEach(f => {
+            const val = data[String(f.id)];
+            const cell = document.createElement('div');
+            cell.className = 'col-auto';
+            let disp = '<span class="text-muted">—</span>';
+            if (val !== undefined && val !== null && val !== '') {
+                if (f.type === 'checkbox') {
+                    disp = val ? '<i class="bi bi-check-circle-fill text-success"></i>' : '<i class="bi bi-x-circle text-muted"></i>';
+                } else if (f.type === 'scale') {
+                    const n = parseInt(val) || 0;
+                    const cls = n >= 7 ? 'bg-success' : n >= 4 ? 'bg-warning text-dark' : 'bg-danger';
+                    disp = '<span class="badge ' + cls + '">' + val + '/10</span>';
+                } else {
+                    disp = '<span>' + String(val).replace(/&/g,'&amp;').replace(/</g,'&lt;') + '</span>';
+                }
+            }
+            cell.innerHTML = '<span class="text-muted me-1" style="font-size:.75rem;">' + f.label + ':</span>'
+                           + '<span class="small fw-semibold me-3">' + disp + '</span>';
+            row.appendChild(cell);
+        });
+    });
+})();
+</script>
+{% endblock %}

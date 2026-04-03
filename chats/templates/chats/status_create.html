@@ -1,40 +1,69 @@
 {% extends 'base.html' %}
+{% load i18n %}
 
-{% block title %}Add Status | Jamii{% endblock %}
+{% block title %}{% trans "Add Status" %} | Jamii{% endblock %}
 
 {% block content %}
 <div class="container py-3" style="max-width:760px;">
     <div class="card border-0 shadow-sm rounded-4">
         <div class="card-body p-4">
             <div class="d-flex align-items-center justify-content-between mb-3">
-                <h5 class="fw-bold mb-0"><i class="bi bi-broadcast-pin me-2"></i>Add Status</h5>
-                <a href="{% url 'chats:feed_status' %}" class="btn btn-sm btn-outline-secondary rounded-pill"><i class="bi bi-arrow-left"></i> Back</a>
+                <h5 class="fw-bold mb-0"><i class="bi bi-broadcast-pin me-2"></i>{% trans "Add Status" %}</h5>
+                <a href="{% url 'chats:feed_status' %}" class="btn btn-sm btn-outline-secondary rounded-pill"><i class="bi bi-arrow-left"></i> {% trans "Back" %}</a>
             </div>
             <form method="post" action="{% url 'chats:status_create' %}" enctype="multipart/form-data" class="row g-3">
                 {% csrf_token %}
                 <input type="hidden" name="next" value="{% url 'chats:feed_status' %}">
                 <div class="col-12">
-                    <label class="form-label small fw-semibold">Group (optional)</label>
+                    <label class="form-label small fw-semibold">{% trans "Group (optional)" %}</label>
                     <select name="group_id" class="form-select">
-                        <option value="">Default community</option>
+                        <option value="">{% trans "Default community" %}</option>
                         {% for group in groups %}
                         <option value="{{ group.id }}" {% if selected_group and selected_group.id == group.id %}selected{% endif %}>{{ group.name }}</option>
                         {% endfor %}
                     </select>
                 </div>
                 <div class="col-12">
-                    <label class="form-label small fw-semibold">Status text</label>
+                    <label class="form-label small fw-semibold">{% trans "Status text" %}</label>
                     <input type="text" name="content" maxlength="250" required autocomplete="off" class="form-control" placeholder="Andika status yako...">
                 </div>
                 <div class="col-12">
-                    <label class="form-label small fw-semibold">Image (optional)</label>
+                    <label class="form-label small fw-semibold">{% trans "Image (optional)" %}</label>
                     <input type="file" name="image" class="form-control" accept="image/*">
                 </div>
+                <div class="col-12">
+                    <div class="d-flex align-items-center justify-content-between gap-2">
+                        <label class="form-label small fw-semibold mb-0">{% trans "Extra media (images/videos)" %}</label>
+                        <button type="button" class="btn btn-sm btn-outline-primary rounded-pill" id="statusAddMoreBtn">
+                            <i class="bi bi-plus-square-dotted me-1"></i>{% trans "Add more" %}
+                        </button>
+                    </div>
+                    <input type="file" name="media_files" id="statusMediaMultiInput" class="d-none" accept="image/*,video/*" multiple>
+                    <div id="statusMediaMultiList" class="small text-muted mt-2"></div>
+                </div>
                 <div class="col-12 d-grid">
-                    <button class="btn btn-danger rounded-pill" type="submit"><i class="bi bi-send-fill me-1"></i>Publish status</button>
+                    <button class="btn btn-danger rounded-pill" type="submit"><i class="bi bi-send-fill me-1"></i>{% trans "Publish status" %}</button>
                 </div>
             </form>
         </div>
     </div>
 </div>
+<script>
+(() => {
+    const addBtn = document.getElementById('statusAddMoreBtn');
+    const input = document.getElementById('statusMediaMultiInput');
+    const list = document.getElementById('statusMediaMultiList');
+    if (!addBtn || !input || !list) return;
+
+    addBtn.addEventListener('click', () => input.click());
+    input.addEventListener('change', () => {
+        const files = Array.from(input.files || []);
+        if (!files.length) {
+            list.innerHTML = '';
+            return;
+        }
+        list.innerHTML = files.map((file, idx) => `<div><i class="bi bi-paperclip"></i> ${idx + 1}. ${file.name}</div>`).join('');
+    });
+})();
+</script>
 {% endblock %}

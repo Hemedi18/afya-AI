@@ -23,9 +23,11 @@ from menstrual.models import (
 	CommunityGroup,
 	CommunityGroupJoinRequest,
 	CommunityPost,
+	CommunityPostMedia,
 	CommunityReply,
 	CommunityStatus,
 	CommunityStatusComment,
+	CommunityStatusMedia,
 	CommunityStatusShare,
 	MenstrualUserSetting,
 )
@@ -82,6 +84,63 @@ def _resolve_target_doctor(target_role, doctor_id):
 
 def _is_regular_user(user):
 	return not (is_admin(user) or is_doctor(user) or can_moderate(user))
+
+
+def _get_ai_suggested_groups(user, base_groups_qs):
+	"""Return AI-suggested groups annotated with member count, ranked by relevance to user data."""
+	# Gather user health context
+	try:
+		persona = user.ai_persona
+	except Exception:
+		persona = None
+
+	gender = get_user_gender(user)
+	health_text = ''
+	if persona:
+		health_text = ' '.join(filter(None, [
+			persona.health_notes or '',
+			persona.permanent_diseases or '',
+			persona.lifestyle_notes or '',
+			persona.goals or '',
+			persona.mental_health or '',
+		])).lower()
+
+	# Keyword relevance scoring
+	FEMALE_KEYWORDS = ['menstrual', 'hedhi', 'ujauzito', 'pregnancy', 'mama', 'ovulation',
+	                   'wanawake', 'kujifungua', 'breastfeed', 'uzazi', 'uzito wa mama',
+	                   'birth', 'kipindi', 'mzunguko', 'reproductive', 'gynec']
+	MALE_KEYWORDS    = ['wanaume', 'prostate', 'fertility men', 'afya ya wanaume', 'testosterone']
+	HEALTH_KEYWORDS  = ['diabetes', 'sukari', 'moyo', 'heart', 'shinikizo', 'blood pressure',
+	                    'malaria', 'cancer', 'saratani', 'mental', 'akili', 'anxiety',
+	                    'depression', 'nutrition', 'lishe', 'exercise', 'mazoezi', 'weight',
+	                    'uzito', 'obesity', 'asthma', 'pumu', 'kidney', 'figo', 'liver']
+
+	groups = list(base_groups_qs.annotate(member_total=Count('members', distinct=True)))
+
+	def score_group(group):
+		name_lower = group.name.lower()
+		desc_lower = (group.description or '').lower()
+		group_text = name_lower + ' ' + desc_lower
+		score = 0
+		# Gender-based boost
+		if gender == 'female':
+			for kw in FEMALE_KEYWORDS:
+				if kw in group_text:
+					score += 3
+		elif gender == 'male':
+			for kw in MALE_KEYWORDS:
+				if kw in group_text:
+					score += 3
+		# Health notes match
+		for kw in HEALTH_KEYWORDS:
+			if kw in health_text and kw in group_text:
+				score += 2
+		# Popularity boost (log scale)
+		score += min(group.member_total // 5, 5)
+		return score
+
+	groups.sort(key=score_group, reverse=True)
+	return groups[:8]
 
 
 RICH_TEXT_ALLOWED_TAGS = [
@@ -169,7 +228,7 @@ def _related_posts_for(post, limit=8):
 		base_tokens = set(list(base_tokens)[:14])
 
 	candidates = list(
-		CommunityPost.objects.select_related('user', 'group').prefetch_related('groups').filter(
+		CommunityPost.objects.select_related('user', 'group').prefetch_related('groups', 'media_items').filter(
 			audience_gender=post.audience_gender,
 		).exclude(pk=post.pk).order_by('-created_at')[:90]
 	)
@@ -338,6 +397,7 @@ class SocialFeedView(LoginRequiredMixin, View):
 
 		posts_qs = CommunityPost.objects.select_related('user', 'group').prefetch_related(
 			'groups',
+			'media_items',
 			'replies__user',
 			'replies__likes',
 			'replies__dislikes',
@@ -361,12 +421,12 @@ class SocialFeedView(LoginRequiredMixin, View):
 		posts = posts_qs.order_by('-created_at')
 		private_posts = posts_qs.order_by('-created_at') if active_section == 'private' else None
 		recent_posts = posts[:5]
-		paginator = Paginator(posts, 8)
+		paginator = Paginator(posts, 10)
 		page_number = request.GET.get('page')
 		posts_page = paginator.get_page(page_number)
 		_prepare_posts_for_feed(posts_page.object_list)
 
-		statuses = list(CommunityStatus.objects.select_related('user', 'group').filter(
+		statuses = list(CommunityStatus.objects.select_related('user', 'group').prefetch_related('media_items').filter(
 			audience_gender=audience_gender,
 			expires_at__gt=timezone.now(),
 		).annotate(
@@ -379,7 +439,7 @@ class SocialFeedView(LoginRequiredMixin, View):
 			),
 		).order_by('-rating_score', '-created_at')[:30])
 
-		groups_for_inline = groups.annotate(member_total=Count('members', distinct=True))[:10]
+		groups_for_inline = _get_ai_suggested_groups(request.user, groups)
 		notification_context = _notification_context_for_user(request.user, limit=5)
 
 		settings_obj, _ = MenstrualUserSetting.objects.get_or_create(user=request.user)
@@ -444,6 +504,7 @@ class PostDetailView(LoginRequiredMixin, View):
 		post = get_object_or_404(
 			CommunityPost.objects.select_related('user', 'group').prefetch_related(
 				'groups',
+				'media_items',
 				'replies__user',
 				'replies__likes',
 				'replies__dislikes',
@@ -467,6 +528,7 @@ class PostDetailView(LoginRequiredMixin, View):
 			messages.error(request, 'Huna ruhusa kuona post hii.')
 			return redirect('chats:feed')
 		related_posts = _related_posts_for(post, limit=8)
+		_prepare_posts_for_feed(related_posts)
 		available_doctors = [_prepare_user_avatar(doctor) for doctor in _verified_doctors_queryset().exclude(pk=request.user.pk)]
 		_prepare_clarification_threads(request.user, list(post.clarifications.all()), focused_clarification_id)
 
@@ -583,6 +645,7 @@ class CreatePostView(LoginRequiredMixin, View):
 		cropped_image = _content_file_from_data_url(request.POST.get('cropped_image_data'))
 		image = cropped_image or request.FILES.get('image')
 		video = request.FILES.get('video')
+		media_files = request.FILES.getlist('media_files')
 		group_ids = [group_id for group_id in request.POST.getlist('group_ids') if str(group_id).isdigit()]
 		post_for_all = request.POST.get('post_for_all') == 'on'
 		publish_as_status = request.POST.get('publish_as_status') == 'on'
@@ -603,11 +666,14 @@ class CreatePostView(LoginRequiredMixin, View):
 
 		primary_group = None if post_for_all else (selected_groups[0] if selected_groups else None)
 
-		if image and video:
+		if image and video and not media_files:
 			messages.warning(request, 'Chagua image au video moja kwa post moja.')
 			return redirect('chats:post_create')
-		if not plain_content and not image and not video:
+		if not plain_content and not image and not video and not media_files:
 			messages.warning(request, 'Andika ujumbe au ongeza image/video kabla ya kutuma post.')
+			return redirect('chats:post_create')
+		if len(media_files) > 8:
+			messages.warning(request, 'Unaweza kuongeza media hadi 8 kwa post moja.')
 			return redirect('chats:post_create')
 
 		new_post = CommunityPost.objects.create(
@@ -626,25 +692,78 @@ class CreatePostView(LoginRequiredMixin, View):
 		if selected_groups:
 			new_post.groups.set(selected_groups)
 
+		if media_files:
+			for idx, mf in enumerate(media_files):
+				content_type = (getattr(mf, 'content_type', '') or '').lower()
+				name_l = (getattr(mf, 'name', '') or '').lower()
+				is_image = content_type.startswith('image/') or name_l.endswith(('.jpg', '.jpeg', '.png', '.webp', '.gif'))
+				is_video = content_type.startswith('video/') or name_l.endswith(('.mp4', '.mov', '.webm', '.mkv', '.avi'))
+				if not (is_image or is_video):
+					continue
+				CommunityPostMedia.objects.create(
+					post=new_post,
+					media_type=CommunityPostMedia.MEDIA_IMAGE if is_image else CommunityPostMedia.MEDIA_VIDEO,
+					image=mf if is_image else None,
+					video=mf if is_video else None,
+					sort_order=idx,
+				)
+
 		if publish_as_status:
 			status_text = strip_tags(content).strip()[:250]
+			status_primary_image = image
+			if media_files and not status_primary_image:
+				for mf in media_files:
+					ctype = (getattr(mf, 'content_type', '') or '').lower()
+					if ctype.startswith('image/'):
+						status_primary_image = mf
+						break
 			if selected_groups and not post_for_all:
 				for group in selected_groups:
-					CommunityStatus.objects.create(
+					status_obj = CommunityStatus.objects.create(
 						user=request.user,
 						group=group,
 						audience_gender=audience_gender,
 						content=status_text or 'Status mpya',
-						image=image,
+						image=status_primary_image,
 					)
+					if media_files:
+						for idx, mf in enumerate(media_files):
+							content_type = (getattr(mf, 'content_type', '') or '').lower()
+							name_l = (getattr(mf, 'name', '') or '').lower()
+							is_image = content_type.startswith('image/') or name_l.endswith(('.jpg', '.jpeg', '.png', '.webp', '.gif'))
+							is_video = content_type.startswith('video/') or name_l.endswith(('.mp4', '.mov', '.webm', '.mkv', '.avi'))
+							if not (is_image or is_video):
+								continue
+							CommunityStatusMedia.objects.create(
+								status=status_obj,
+								media_type=CommunityStatusMedia.MEDIA_IMAGE if is_image else CommunityStatusMedia.MEDIA_VIDEO,
+								image=mf if is_image else None,
+								video=mf if is_video else None,
+								sort_order=idx,
+							)
 			else:
-				CommunityStatus.objects.create(
+				status_obj = CommunityStatus.objects.create(
 					user=request.user,
 					group=None,
 					audience_gender=audience_gender,
 					content=status_text or 'Status mpya',
-					image=image,
+					image=status_primary_image,
 				)
+				if media_files:
+					for idx, mf in enumerate(media_files):
+						content_type = (getattr(mf, 'content_type', '') or '').lower()
+						name_l = (getattr(mf, 'name', '') or '').lower()
+						is_image = content_type.startswith('image/') or name_l.endswith(('.jpg', '.jpeg', '.png', '.webp', '.gif'))
+						is_video = content_type.startswith('video/') or name_l.endswith(('.mp4', '.mov', '.webm', '.mkv', '.avi'))
+						if not (is_image or is_video):
+							continue
+						CommunityStatusMedia.objects.create(
+							status=status_obj,
+							media_type=CommunityStatusMedia.MEDIA_IMAGE if is_image else CommunityStatusMedia.MEDIA_VIDEO,
+							image=mf if is_image else None,
+							video=mf if is_video else None,
+							sort_order=idx,
+						)
 
 		request_clarification = request.POST.get('request_clarification') == 'on'
 		clarify_target_role = request.POST.get('clarify_target_role')
@@ -894,13 +1013,34 @@ class CreateStatusView(LoginRequiredMixin, View):
 		if group_id:
 			group = CommunityGroup.objects.filter(pk=group_id, audience_gender=audience_gender).first()
 
-		CommunityStatus.objects.create(
+		media_files = request.FILES.getlist('media_files')
+		if len(media_files) > 8:
+			messages.warning(request, 'Unaweza kuongeza media hadi 8 kwa status moja.')
+			if isinstance(next_url, str) and next_url.startswith('/'):
+				return redirect(next_url)
+			return redirect(next_url)
+
+		status_obj = CommunityStatus.objects.create(
 			user=request.user,
 			group=group,
 			audience_gender=audience_gender,
 			content=form.cleaned_data['content'],
 			image=form.cleaned_data.get('image'),
 		)
+		for idx, mf in enumerate(media_files):
+			content_type = (getattr(mf, 'content_type', '') or '').lower()
+			name_l = (getattr(mf, 'name', '') or '').lower()
+			is_image = content_type.startswith('image/') or name_l.endswith(('.jpg', '.jpeg', '.png', '.webp', '.gif'))
+			is_video = content_type.startswith('video/') or name_l.endswith(('.mp4', '.mov', '.webm', '.mkv', '.avi'))
+			if not (is_image or is_video):
+				continue
+			CommunityStatusMedia.objects.create(
+				status=status_obj,
+				media_type=CommunityStatusMedia.MEDIA_IMAGE if is_image else CommunityStatusMedia.MEDIA_VIDEO,
+				image=mf if is_image else None,
+				video=mf if is_video else None,
+				sort_order=idx,
+			)
 		messages.success(request, 'Status imewekwa (itaonekana kwa saa 24).')
 		if isinstance(next_url, str) and next_url.startswith('/'):
 			return redirect(next_url)
@@ -921,7 +1061,7 @@ class StatusDetailView(LoginRequiredMixin, View):
 
 	def get(self, request, status_id, *args, **kwargs):
 		status = get_object_or_404(
-			CommunityStatus.objects.select_related('user', 'group').prefetch_related('likes', 'comments__user', 'shares__user'),
+			CommunityStatus.objects.select_related('user', 'group').prefetch_related('likes', 'comments__user', 'shares__user', 'media_items'),
 			pk=status_id,
 			audience_gender=_audience_for_user(request.user),
 		)
@@ -1260,7 +1400,18 @@ class ConversationDetailView(LoginRequiredMixin, View):
 			return redirect('chats:inbox')
 
 		conversation.messages.exclude(sender=request.user).update(is_read=True)
-		return render(request, self.template_name, {'conversation': conversation, 'form': PrivateMessageForm()})
+		doctor_profile_id = getattr(getattr(conversation.doctor, 'doctor_profile', None), 'id', None)
+		is_patient_side = request.user == conversation.patient
+		return render(
+			request,
+			self.template_name,
+			{
+				'conversation': conversation,
+				'form': PrivateMessageForm(),
+				'doctor_profile_id': doctor_profile_id,
+				'is_patient_side': is_patient_side,
+			},
+		)
 
 	def post(self, request, conversation_id, *args, **kwargs):
 		try:

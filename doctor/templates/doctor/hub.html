@@ -1,71 +1,180 @@
 {% extends 'base.html' %}
+{% load i18n %}
 
 {% block content %}
+<style>
+.doctor-grid-card { cursor:pointer; transition: transform .15s ease, box-shadow .2s ease; }
+.doctor-grid-card:hover { transform: translateY(-2px); box-shadow: 0 10px 24px rgba(0,0,0,.09); }
+.doctor-avatar {
+    width: 54px; height: 54px; border-radius: 50%; object-fit: cover;
+    background: linear-gradient(135deg,var(--primary),var(--secondary));
+    color: #fff; display: inline-flex; align-items: center; justify-content: center; font-weight: 800;
+}
+.doctor-verified { color: #16a34a; }
+.doctor-pending { color: #6b7280; }
+.mobile-doctor-item { cursor:pointer; }
+.mobile-doctor-item:hover { background: color-mix(in srgb, var(--card-bg) 92%, var(--app-bg)); }
+.mobile-action-stack {
+    display: flex;
+    flex-direction: column;
+    gap: .35rem;
+    align-items: stretch;
+}
+.mobile-action-btn {
+    min-width: 44px;
+    min-height: 40px;
+    padding: .45rem .55rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    border-radius: 12px;
+}
+.mobile-action-btn i { font-size: 1.05rem; }
+</style>
+
 <div class="py-4">
     <div class="card-custom p-4 mb-3">
-        <h4 class="fw-bold mb-1">Doctor Hub</h4>
-        <p class="text-muted small mb-2">Ongea na daktari aliyethibitishwa, au tumia AI Chat kwa ushauri wa haraka.</p>
-        <div class="d-flex gap-2 flex-wrap mb-2">
-            <a href="?gender=female" class="btn btn-sm {% if selected_doctor_gender == 'female' %}btn-danger{% else %}btn-outline-danger{% endif %} rounded-pill">Female doctors</a>
-            <a href="?gender=male" class="btn btn-sm {% if selected_doctor_gender == 'male' %}btn-danger{% else %}btn-outline-danger{% endif %} rounded-pill">Male doctors</a>
-            <a href="{% url 'doctor:hub' %}" class="btn btn-sm btn-outline-secondary rounded-pill">All</a>
-        </div>
-        <div class="d-flex gap-2 flex-wrap">
-            <span class="badge text-bg-success">Verified Doctors: {{ verified_count }}</span>
-            <a href="{% url 'AI_brain:chat' %}" class="btn btn-sm btn-outline-dark rounded-pill">Nenda AI Chat</a>
-            <a href="{% url 'chats:inbox' %}" class="btn btn-sm btn-outline-dark rounded-pill">Private Chats</a>
-            <a href="{% url 'doctor:register' %}" class="btn btn-sm btn-outline-primary rounded-pill">Doctor Registration</a>
-            {% if can_manage_doctors %}
-            <a href="{% url 'doctor:approval_dashboard' %}" class="btn btn-sm btn-danger rounded-pill">Approval Queue ({{ pending_requests }})</a>
-            {% endif %}
-            <button class="btn btn-sm btn-warning rounded-pill" disabled>Call Real Doctor (Premium Soon)</button>
-        </div>
-    </div>
-
-    {% if my_doctor_profile %}
-    <div class="card-custom p-3 mb-3">
-        <div class="d-flex justify-content-between align-items-center flex-wrap gap-2">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2 mb-2">
             <div>
-                <strong>Doctor account status</strong>
-                <div class="small text-muted">{{ my_doctor_profile.get_gender_display }} • {{ my_doctor_profile.specialization }}{% if my_doctor_profile.hospital_name %} • {{ my_doctor_profile.hospital_name }}{% endif %}</div>
+                <h4 class="fw-bold mb-1">{% trans "Doctors" %}</h4>
             </div>
-            {% if my_doctor_profile.verified %}
-            <span class="badge text-bg-success">Verified</span>
-            {% else %}
-            <span class="badge text-bg-warning">Pending admin approval</span>
-            {% endif %}
-        </div>
-    </div>
-    {% endif %}
-
-    <div class="row g-3">
-        {% for doctor in doctors %}
-        <div class="col-md-6">
-            <div class="card-custom p-3 h-100">
-                <div class="d-flex justify-content-between align-items-center mb-2">
-                    <h6 class="fw-bold mb-0">Dr. {{ doctor.user.get_full_name|default:doctor.user.username }}</h6>
-                    {% if doctor.verified %}
-                    <span class="badge text-bg-success">Verified</span>
-                    {% else %}
-                    <span class="badge text-bg-secondary">Pending</span>
-                    {% endif %}
-                </div>
-                <div class="small text-muted mb-1">{{ doctor.specialization }}</div>
-                <div class="small text-muted mb-1">Gender: {{ doctor.get_gender_display }}</div>
-                <p class="small mb-3">{{ doctor.bio|truncatechars:140 }}</p>
-                <div class="small text-muted">Hospital: {{ doctor.hospital_name|default:'N/A' }}</div>
-                {% if doctor.verified and user.is_authenticated and user != doctor.user %}
-                <div class="mt-3">
-                    <a href="{% url 'chats:start_private_chat' doctor.user.id %}" class="btn btn-sm btn-outline-danger rounded-pill">Chat privately</a>
-                </div>
+            <div class="d-flex gap-2 flex-wrap">
+                <span class="badge text-bg-success">{% blocktrans trimmed with count=verified_count %}Verified Doctors: {{ count }}{% endblocktrans %}</span>
+                <a href="{% url 'doctor:register' %}" class="btn btn-sm btn-outline-primary rounded-pill">{% trans "Doctor Registration" %}</a>
+                {% if can_manage_doctors %}
+                <a href="{% url 'doctor:approval_dashboard' %}" class="btn btn-sm btn-danger rounded-pill">{% blocktrans trimmed with count=pending_requests %}Approval Queue ({{ count }}){% endblocktrans %}</a>
                 {% endif %}
             </div>
         </div>
-        {% empty %}
-        <div class="col-12">
-            <div class="card-custom p-4 text-center text-muted">Hakuna profaili za daktari bado.</div>
+
+        <form method="get" class="row g-2 align-items-center d-none d-md-flex">
+            <div class="col-md-5">
+                <input type="text" name="q" class="form-control" value="{{ search_query }}" placeholder="Search doctor/specialization...">
+            </div>
+            <div class="col-md-5 d-flex gap-2 flex-wrap">
+                <a href="?gender=female{% if search_query %}&q={{ search_query|urlencode }}{% endif %}" class="btn btn-sm {% if selected_doctor_gender == 'female' %}btn-danger{% else %}btn-outline-danger{% endif %} rounded-pill">{% trans "Female doctors" %}</a>
+                <a href="?gender=male{% if search_query %}&q={{ search_query|urlencode }}{% endif %}" class="btn btn-sm {% if selected_doctor_gender == 'male' %}btn-danger{% else %}btn-outline-danger{% endif %} rounded-pill">{% trans "Male doctors" %}</a>
+                <a href="{% url 'doctor:hub' %}{% if search_query %}?q={{ search_query|urlencode }}{% endif %}" class="btn btn-sm btn-outline-secondary rounded-pill">{% trans "All" %}</a>
+            </div>
+            <div class="col-md-2 d-grid">
+                <button class="btn btn-sm btn-dark rounded-pill" type="submit">Filter</button>
+            </div>
+        </form>
+
+        <div class="d-md-none">
+            <form method="get" class="mb-2">
+                {% if selected_doctor_gender %}
+                <input type="hidden" name="gender" value="{{ selected_doctor_gender }}">
+                {% endif %}
+                <div class="input-group">
+                    <input type="text" name="q" class="form-control" value="{{ search_query }}" placeholder="Search doctor/specialization...">
+                    <button class="btn btn-dark" type="submit" aria-label="Search">
+                        <i class="bi bi-search"></i>
+                    </button>
+                </div>
+            </form>
+
+            <div class="d-flex gap-2 flex-wrap">
+                <a href="{% url 'doctor:register' %}" class="btn btn-sm btn-outline-primary rounded-pill">{% trans "Doctor Registration" %}</a>
+                {% if can_manage_doctors %}
+                <a href="{% url 'doctor:approval_dashboard' %}" class="btn btn-sm btn-danger rounded-pill">{% blocktrans trimmed with count=pending_requests %}Approval Queue ({{ count }}){% endblocktrans %}</a>
+                {% endif %}
+                <a href="?gender=female{% if search_query %}&q={{ search_query|urlencode }}{% endif %}" class="btn btn-sm {% if selected_doctor_gender == 'female' %}btn-danger{% else %}btn-outline-danger{% endif %} rounded-pill">{% trans "Female doctors" %}</a>
+                <a href="?gender=male{% if search_query %}&q={{ search_query|urlencode }}{% endif %}" class="btn btn-sm {% if selected_doctor_gender == 'male' %}btn-danger{% else %}btn-outline-danger{% endif %} rounded-pill">{% trans "Male doctors" %}</a>
+                <a href="{% url 'doctor:hub' %}{% if search_query %}?q={{ search_query|urlencode }}{% endif %}" class="btn btn-sm btn-outline-secondary rounded-pill">{% trans "All" %}</a>
+            </div>
         </div>
+    </div>
+
+    <div class="d-none d-md-block">
+        <div class="row g-3">
+            {% for doctor in doctors %}
+            <div class="col-lg-4 col-md-6">
+                <article class="card-custom p-3 h-100 doctor-grid-card" data-doctor-url="{% url 'doctor:detail' doctor.id %}">
+                    <div class="d-flex justify-content-between align-items-start gap-2 mb-2">
+                        <div class="d-flex align-items-center gap-2" style="min-width:0;">
+                            {% if doctor.user.ai_persona.avatar %}
+                            <img src="{{ doctor.user.ai_persona.avatar.url }}" class="doctor-avatar" alt="Dr. {{ doctor.user.username }}">
+                            {% else %}
+                            <div class="doctor-avatar">{{ doctor.user.username|first|upper }}</div>
+                            {% endif %}
+                            <div style="min-width:0;">
+                                <div class="fw-bold text-truncate">Dr. {{ doctor.user.get_full_name|default:doctor.user.username }}</div>
+                                <div class="small text-muted text-truncate">{{ doctor.specialization }}</div>
+                            </div>
+                        </div>
+                        <div class="small fw-semibold {% if doctor.verified %}doctor-verified{% else %}doctor-pending{% endif %}">
+                            <i class="bi {% if doctor.verified %}bi-patch-check-fill{% else %}bi-patch-exclamation{% endif %}"></i>
+                        </div>
+                    </div>
+
+                    <div class="small text-muted mb-1">Hospital: {{ doctor.hospital_name|default:'N/A' }}</div>
+                    <div class="small text-muted mb-2">Gender: {{ doctor.get_gender_display }}</div>
+                    <div class="small mb-2">{{ doctor.bio|truncatechars:120 }}</div>
+
+                    <div class="d-flex flex-wrap gap-2 mb-2">
+                        <span class="badge rounded-pill text-bg-light"><i class="bi bi-star-fill text-warning"></i> {{ doctor.rank_avg|default:0|floatformat:1 }} ({{ doctor.rank_count }})</span>
+                        <span class="badge rounded-pill text-bg-light"><i class="bi bi-people-fill"></i> {{ doctor.followers_count }}</span>
+                        <span class="badge rounded-pill text-bg-light"><i class="bi bi-flag-fill text-danger"></i> {{ doctor.report_count }}</span>
+                    </div>
+
+                    <div class="d-flex justify-content-between align-items-center gap-2 mt-auto">
+                        <a href="{% url 'doctor:detail' doctor.id %}" class="btn btn-sm btn-outline-secondary rounded-pill">Profile</a>
+                        <a href="{% url 'chats:start_private_chat' doctor.user.id %}" class="btn btn-sm btn-outline-danger rounded-pill" data-stop-card="1"><i class="bi bi-chat-dots"></i> Chat</a>
+                    </div>
+                </article>
+            </div>
+            {% empty %}
+            <div class="col-12"><div class="card-custom p-4 text-center text-muted">Hakuna madaktari waliopatikana.</div></div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <div class="d-md-none card-custom p-2">
+        {% for doctor in doctors %}
+        <div class="mobile-doctor-item rounded-3 p-2 mb-2" data-doctor-url="{% url 'doctor:detail' doctor.id %}">
+            <div class="d-flex align-items-center justify-content-between gap-2">
+                <div class="d-flex align-items-center gap-2" style="min-width:0;">
+                    {% if doctor.user.ai_persona.avatar %}
+                    <img src="{{ doctor.user.ai_persona.avatar.url }}" class="doctor-avatar" alt="Dr. {{ doctor.user.username }}">
+                    {% else %}
+                    <div class="doctor-avatar">{{ doctor.user.username|first|upper }}</div>
+                    {% endif %}
+                    <div style="min-width:0;">
+                        <div class="fw-bold text-truncate">Dr. {{ doctor.user.get_full_name|default:doctor.user.username }}</div>
+                        <div class="small text-muted text-truncate">{{ doctor.specialization }}</div>
+                        <div class="small text-muted d-flex align-items-center gap-2 flex-wrap">
+                            <span><i class="bi bi-star-fill text-warning"></i> {{ doctor.rank_avg|default:0|floatformat:1 }}</span>
+                            <span><i class="bi bi-people-fill"></i> {{ doctor.followers_count }}</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="mobile-action-stack" data-stop-card="1">
+                    <a href="{% url 'chats:start_private_chat' doctor.user.id %}" class="btn btn-outline-danger mobile-action-btn" title="Chat" aria-label="Chat" data-stop-card="1"><i class="bi bi-chat-dots-fill"></i></a>
+                    {% if doctor.user != user %}
+                    <form method="post" action="{% url 'doctor:follow_toggle' doctor.id %}" data-stop-card="1" style="margin:0;">
+                        {% csrf_token %}
+                        <button type="submit" class="btn mobile-action-btn {% if doctor.id in my_followed_ids %}btn-danger{% else %}btn-outline-danger{% endif %}" title="Follow" aria-label="Follow" data-stop-card="1">
+                            <i class="bi {% if doctor.id in my_followed_ids %}bi-person-check-fill{% else %}bi-person-plus-fill{% endif %}"></i>
+                        </button>
+                    </form>
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+        {% empty %}
+        <div class="text-muted small text-center py-3">Hakuna madaktari waliopatikana.</div>
         {% endfor %}
     </div>
 </div>
+
+<script>
+document.addEventListener('click', (event) => {
+    const card = event.target.closest('[data-doctor-url]');
+    if (!card) return;
+    if (event.target.closest('[data-stop-card="1"],a,button,input,select,textarea,form')) return;
+    const url = card.getAttribute('data-doctor-url');
+    if (url) window.location.href = url;
+});
+</script>
 {% endblock %}

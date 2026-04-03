@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load static i18n %}
 
-{% block title %}Akaunti Yangu{% endblock %}
+{% block title %}{% trans "Akaunti Yangu" %}{% endblock %}
 
 {% block content %}
 <style>
@@ -233,7 +233,7 @@
                     {{ user.first_name|first|upper|default:user.username|first|upper }}
                 </div>
             {% endif %}
-            <label class="avatar-upload-btn" for="id_avatar" title="Badilisha picha">
+            <label class="avatar-upload-btn" for="id_avatar" title="{% trans 'Badilisha picha' %}">
                 <i class="bi bi-camera-fill"></i>
             </label>
         </div>
@@ -241,30 +241,30 @@
             <h5>{{ user.get_full_name|default:user.username }}</h5>
             <div class="text-muted small mb-1">@{{ user.username }}</div>
             <div class="role-badges">
-                {% if user.is_staff %}<span class="badge text-bg-danger">Admin</span>{% endif %}
-                {% if is_doctor_user %}<span class="badge text-bg-info">Doctor</span>{% endif %}
-                {% if is_moderator_user %}<span class="badge text-bg-warning">Moderator</span>{% endif %}
+                {% if user.is_staff %}<span class="badge text-bg-danger">{% trans "Admin" %}</span>{% endif %}
+                {% if is_doctor_user %}<span class="badge text-bg-info">{% trans "Doctor" %}</span>{% endif %}
+                {% if is_moderator_user %}<span class="badge text-bg-warning">{% trans "Moderator" %}</span>{% endif %}
                 {% if persona.onboarding_complete %}
-                    <span class="badge text-bg-success">AI Persona ✓</span>
+                    <span class="badge text-bg-success">{% trans "AI Persona" %} ✓</span>
                 {% else %}
-                    <span class="badge text-bg-secondary">AI Persona incomplete</span>
+                    <span class="badge text-bg-secondary">{% trans "AI Persona incomplete" %}</span>
                 {% endif %}
-                <span class="badge text-bg-primary">Quality {{ persona.profile_completeness_score }}%</span>
+                <span class="badge text-bg-primary">{% trans "Quality" %} {{ persona.profile_completeness_score }}%</span>
             </div>
             {% if avatar_form.avatar.errors %}
                 <div class="text-danger small mt-2">{{ avatar_form.avatar.errors.0 }}</div>
             {% endif %}
-            <div class="small text-muted mt-2">Bonyeza kamera kuchagua picha. Ukichagua, ita-save moja kwa moja.</div>
+            <div class="small text-muted mt-2">{% trans "Bonyeza kamera kuchagua picha. Ukichagua, ita-save moja kwa moja." %}</div>
         </div>
     </div>
 
     <!-- Tabs -->
     <div class="profile-tabs">
         <a href="?tab=account" class="ptab {% if active_tab == 'account' %}active{% endif %}">
-            <i class="bi bi-person-fill"></i> Akaunti
+            <i class="bi bi-person-fill"></i> {% trans "Akaunti" %}
         </a>
         <a href="?tab=persona" class="ptab {% if active_tab == 'persona' %}active{% endif %}">
-            <i class="bi bi-stars"></i> AI Persona
+            <i class="bi bi-stars"></i> {% trans "AI Persona" %}
         </a>
     </div>
 

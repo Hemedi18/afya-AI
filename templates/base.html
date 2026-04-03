@@ -1,6 +1,7 @@
-{% load static %}
+{% load static i18n %}
 <!DOCTYPE html>
-<html lang="sw">
+{% get_current_language as CURRENT_LANGUAGE %}
+<html lang="{{ CURRENT_LANGUAGE }}" dir="{% if CURRENT_LANGUAGE == 'ar' %}rtl{% else %}ltr{% endif %}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
@@ -580,6 +581,11 @@
             justify-content: space-between;
             width: 100%;
             gap: .2rem;
+        }
+
+        .afya-sub-links-mobile::-webkit-scrollbar,
+        .afya-mobile-primary-links::-webkit-scrollbar {
+            display: none;
         }
 
         .afya-sub-mobile-link {
@@ -1178,6 +1184,109 @@
                 transition: box-shadow .15s ease, background .15s ease;
             }
 
+            /* Tablet first: scale and fill available width equally */
+            .afya-sub-links-mobile {
+                justify-content: space-between;
+                flex-wrap: nowrap;
+                overflow-x: visible;
+                overflow-y: hidden;
+                gap: .28rem;
+                padding-bottom: .1rem;
+            }
+
+            .afya-sub-mobile-link {
+                flex: 1 1 0;
+                min-width: 0;
+            }
+
+            .afya-mobile-primary-links {
+                flex-wrap: nowrap;
+                overflow-x: visible;
+                overflow-y: hidden;
+                gap: .35rem;
+            }
+
+            .afya-mobile-primary-link,
+            .afya-mobile-primary-form {
+                flex: 1 1 0;
+                min-width: 0;
+            }
+
+            .afya-mobile-primary-btn {
+                min-width: 0;
+            }
+
+            /* Tablet: make mobile nav truly full-width (not limited by .container max-width) */
+            @media (min-width: 768px) and (max-width: 991.98px) {
+                .afya-mobile-sub-nav > .container {
+                    width: 100vw;
+                    max-width: none;
+                    margin-left: calc(50% - 50vw);
+                    margin-right: calc(50% - 50vw);
+                    padding-left: .7rem;
+                    padding-right: .7rem;
+                }
+
+                .afya-mobile-primary-nav {
+                    left: 0;
+                    right: 0;
+                    width: 100vw;
+                }
+
+                .afya-mobile-primary-links {
+                    width: 100%;
+                }
+            }
+
+            /* Phones: if overflow appears, allow horizontal scroll */
+            @media (max-width: 767.98px) {
+                .afya-sub-links-mobile {
+                    justify-content: flex-start;
+                    overflow-x: auto;
+                    -webkit-overflow-scrolling: touch;
+                    scrollbar-width: none;
+                    overscroll-behavior-x: contain;
+                    touch-action: pan-x;
+                    scroll-snap-type: x proximity;
+                }
+
+                .afya-sub-mobile-link {
+                    flex: 0 0 auto;
+                    min-width: clamp(50px, 46px + .9vw, 66px);
+                    scroll-snap-align: start;
+                }
+
+                .afya-mobile-primary-links {
+                    overflow-x: auto;
+                    -webkit-overflow-scrolling: touch;
+                    scrollbar-width: none;
+                    overscroll-behavior-x: contain;
+                    touch-action: pan-x;
+                    scroll-snap-type: x proximity;
+                }
+
+                .afya-mobile-primary-link,
+                .afya-mobile-primary-form {
+                    flex: 0 0 auto;
+                    min-width: 78px;
+                    scroll-snap-align: start;
+                }
+
+                .afya-mobile-primary-btn {
+                    min-width: 78px;
+                }
+            }
+
+            /* safety: if any nav row grows wider than viewport, keep scroll inside nav (not whole page) */
+            .afya-mobile-sub-nav,
+            .afya-mobile-primary-nav {
+                overflow-x: hidden;
+            }
+
+            body {
+                overflow-x: hidden;
+            }
+
             .afya-mobile-primary-link:active {
                 box-shadow: inset 4px 4px 8px var(--neo-in-a), inset -4px -4px 8px var(--neo-in-b) !important;
             }
@@ -1502,6 +1611,13 @@
             <a href="{% url 'chats:feed' %}" class="afya-main-link d-none d-lg-inline-flex" data-nav-match="/social/"><i class="bi bi-people"></i><span>Jamii</span></a>
             <a href="{% url 'chats:inbox' %}" class="afya-main-link d-none d-lg-inline-flex" data-nav-match="/social/inbox/"><i class="bi bi-chat-dots"></i><span>Chat</span></a>
             <a href="{% url 'card:home' %}" class="afya-main-link d-none d-lg-inline-flex" data-nav-match="/card/"><i class="bi bi-credit-card-2-front"></i><span>Card</span></a>
+            <a href="{% url 'doctor:hub' %}" class="afya-main-link d-none d-lg-inline-flex" data-nav-match="/doctor/"><i class="bi bi-hospital"></i><span>Doctors</span></a>
+            {% if is_verified_doctor %}
+            <a href="{% url 'doctor:patients' %}" class="afya-main-link d-none d-lg-inline-flex" data-nav-match="/doctor/patients/"><i class="bi bi-people-fill"></i><span>Patients</span></a>
+            {% endif %}
+            {% if has_patient_logs %}
+            <a href="{% url 'doctor:my_patient_logs' %}" class="afya-main-link d-none d-lg-inline-flex" data-nav-match="/doctor/my-logs/"><i class="bi bi-journal-medical"></i><span>My Logs</span></a>
+            {% endif %}
             <button class="afya-main-link afya-theme-btn d-none d-lg-inline-flex" type="button" data-theme-toggle aria-label="Toggle theme">
                 <i class="bi bi-moon-stars"></i>
                 <span>Theme</span>
@@ -1549,6 +1665,13 @@
                 <a href="{% url 'chats:feed' %}" class="afya-sub-mobile-link" data-nav-match="/social/"><i class="bi bi-people"></i><span>Jamii</span></a>
                 <a href="{% url 'chats:inbox' %}" class="afya-sub-mobile-link" data-nav-match="/social/inbox/"><i class="bi bi-chat-dots"></i><span>Chat</span></a>
                 <a href="{% url 'card:home' %}" class="afya-sub-mobile-link" data-nav-match="/card/"><i class="bi bi-credit-card-2-front"></i><span>Card</span></a>
+                <a href="{% url 'doctor:hub' %}" class="afya-sub-mobile-link" data-nav-match="/doctor/"><i class="bi bi-hospital"></i><span>Doctors</span></a>
+                {% if is_verified_doctor %}
+                <a href="{% url 'doctor:patients' %}" class="afya-sub-mobile-link" data-nav-match="/doctor/patients/"><i class="bi bi-people-fill"></i><span>Patients</span></a>
+                {% endif %}
+                {% if has_patient_logs %}
+                <a href="{% url 'doctor:my_patient_logs' %}" class="afya-sub-mobile-link" data-nav-match="/doctor/my-logs/"><i class="bi bi-journal-medical"></i><span>My Logs</span></a>
+                {% endif %}
                 <button class="afya-sub-mobile-link afya-theme-btn" type="button" data-theme-toggle aria-label="Toggle theme"><i class="bi bi-moon-stars"></i><span>Theme</span></button>
             </div>
         </div>
@@ -1648,6 +1771,335 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
+    (function () {
+        const lang = '{{ CURRENT_LANGUAGE }}';
+        const i18nPack = {
+            sw: {
+                loading: 'Inapakia...',
+                services: 'Huduma',
+                settings: 'Mipangilio',
+                notifications: 'Taarifa',
+                alerts: 'Arifa',
+                account: 'Akaunti',
+                login: 'Ingia',
+                register: 'Jisajili',
+                about: 'Kuhusu',
+                logout: 'Toka',
+                theme: 'Mandhari',
+                pleaseConfirm: 'Tafadhali thibitisha',
+                areYouSure: 'Una uhakika unataka kuendelea?',
+                cancel: 'Ghairi',
+                continue: 'Endelea',
+                installApp: 'Sakinisha app ya AfyaSmart',
+                installSub: 'Tumia app kama native kwenye kifaa hiki.',
+                notNow: 'Sasa hivi hapana',
+                install: 'Sakinisha',
+            },
+            en: {
+                loading: 'Loading...',
+                services: 'Services',
+                settings: 'Settings',
+                notifications: 'Notifications',
+                alerts: 'Alerts',
+                account: 'Account',
+                login: 'Login',
+                register: 'Register',
+                about: 'About',
+                logout: 'Logout',
+                theme: 'Theme',
+                pleaseConfirm: 'Please confirm',
+                areYouSure: 'Are you sure you want to continue?',
+                cancel: 'Cancel',
+                continue: 'Continue',
+                installApp: 'Install AfyaSmart app',
+                installSub: 'Use app like native on this device.',
+                notNow: 'Not now',
+                install: 'Install',
+            },
+            ar: {
+                loading: 'جارٍ التحميل...',
+                services: 'الخدمات',
+                settings: 'الإعدادات',
+                notifications: 'الإشعارات',
+                alerts: 'تنبيهات',
+                account: 'الحساب',
+                login: 'تسجيل الدخول',
+                register: 'إنشاء حساب',
+                about: 'حول',
+                logout: 'تسجيل الخروج',
+                theme: 'المظهر',
+                pleaseConfirm: 'يرجى التأكيد',
+                areYouSure: 'هل أنت متأكد أنك تريد المتابعة؟',
+                cancel: 'إلغاء',
+                continue: 'متابعة',
+                installApp: 'ثبّت تطبيق AfyaSmart',
+                installSub: 'استخدم التطبيق كأنه تطبيق أصلي على هذا الجهاز.',
+                notNow: 'ليس الآن',
+                install: 'تثبيت',
+            }
+        };
+        const t = i18nPack[lang] || i18nPack.en;
+
+        const loadingText = document.getElementById('loadingText');
+        if (loadingText) loadingText.textContent = t.loading;
+
+        const setTextByNavMatch = (match, value) => {
+            const links = document.querySelectorAll(`[data-nav-match="${match}"] span`);
+            links.forEach((el) => { el.textContent = value; });
+        };
+
+        setTextByNavMatch('/services/', t.services);
+        setTextByNavMatch('/menstrual/settings/', t.settings);
+        setTextByNavMatch('/social/notifications/', t.notifications);
+        setTextByNavMatch('/users/profile/', t.account);
+        setTextByNavMatch('/users/login/', t.login);
+        setTextByNavMatch('/users/register/', t.register);
+        setTextByNavMatch('/about/', t.about);
+
+        document.querySelectorAll('.afya-theme-btn span').forEach((el) => { el.textContent = t.theme; });
+        document.querySelectorAll('.afya-mobile-primary-btn span').forEach((el) => { el.textContent = t.logout; });
+
+        const confirmTitle = document.getElementById('siteConfirmTitle');
+        const confirmMessage = document.getElementById('siteConfirmMessage');
+        const confirmCancel = document.getElementById('siteConfirmCancel');
+        const confirmApprove = document.getElementById('siteConfirmApprove');
+        if (confirmTitle) confirmTitle.textContent = t.pleaseConfirm;
+        if (confirmMessage) confirmMessage.textContent = t.areYouSure;
+        if (confirmCancel) confirmCancel.textContent = t.cancel;
+        if (confirmApprove) confirmApprove.textContent = t.continue;
+
+        const installTitle = document.querySelector('#pwaInstallBanner .msg strong');
+        const installSub = document.querySelector('#pwaInstallBanner .msg span');
+        const dismissBtn = document.getElementById('pwaDismissBtn');
+        const installBtn = document.getElementById('pwaInstallBtn');
+        if (installTitle) installTitle.textContent = t.installApp;
+        if (installSub) installSub.textContent = t.installSub;
+        if (dismissBtn) dismissBtn.textContent = t.notNow;
+        if (installBtn) {
+            installBtn.innerHTML = `<i class="bi bi-download me-1"></i>${t.install}`;
+        }
+
+        const legacyTranslations = {
+            en: {
+                'Clarification Inbox': 'Clarification Inbox',
+                'Back to feed': 'Back to feed',
+                'Andika ufafanuzi hapa...': 'Write clarification here...',
+                'Hakuna clarification requests kwa sasa.': 'No clarification requests right now.',
+                'Jamii': 'Community',
+                'Private Chat': 'Private Chat',
+                'Likes got': 'Likes received',
+                'Community Posts': 'Community Posts',
+                'Explain with AI': 'Explain with AI',
+                'Hakuna posts za user huyu kwa community yako.': 'No posts from this user in your community.',
+                'Create post': 'Create post',
+                'Andika post mpya kwa jamii ya': 'Write a new post for',
+                'Back to posts': 'Back to posts',
+                'Profile haijakamilika': 'Profile is incomplete',
+                'Kamilisha sasa →': 'Complete now →',
+                'Weka link': 'Enter link',
+                'Post anonymously': 'Post anonymously',
+                'Post options': 'Post options',
+                'Publish post': 'Publish post',
+                'Cancel': 'Cancel',
+                'Offline chats': 'Offline chats',
+                'Hakuna chat bado.': 'No chats yet.',
+                'Offline AI Assistant': 'Offline AI Assistant',
+                'Inatumia local model (Ollama) bila internet': 'Uses local model (Ollama) without internet',
+                'Karibu! Andika swali lako hapa chini kuanza offline chat.': 'Welcome! Type your question below to start offline chat.',
+                'Andika swali lako...': 'Type your question...',
+                'Tuma': 'Send',
+                'Kuna tatizo. Jaribu tena.': 'There is a problem. Please try again.',
+                'Imeshindikana kuwasiliana na offline AI server.': 'Failed to communicate with offline AI server.',
+                'Doctor Approval Workflow': 'Doctor Approval Workflow',
+                'Kagua documents, approve au reject doctor applications.': 'Review documents, approve or reject doctor applications.',
+                'Back to Doctor Hub': 'Back to Doctor Hub',
+                'Open document:': 'Open document:',
+                'Hakuna document iliyopakiwa.': 'No document uploaded.',
+                'Review Request': 'Review Request',
+                'Hakuna doctor requests kwa sasa.': 'No doctor requests at the moment.',
+                'Review Doctor Request': 'Review Doctor Request',
+                'Specialization': 'Specialization',
+                'Hospital': 'Hospital',
+                'Bio': 'Bio',
+                'License': 'License',
+                'Uploaded Documents': 'Uploaded Documents',
+                'Hakuna document.': 'No document.',
+                'Review notes': 'Review notes',
+                'Andika maelezo ya approval au rejection...': 'Write approval or rejection notes...',
+                'Approve': 'Approve',
+                'Reject': 'Reject',
+                'Back': 'Back',
+                'AI Reports & Summary': 'AI Reports & Summary',
+                'Grafu rahisi kuelewa, summary ya maendeleo, na share progress yako.': 'Easy-to-read charts, progress summary, and share your progress.',
+                'Muhtasari wa AI': 'AI Summary',
+                'Grafu ya Maendeleo': 'Progress Chart',
+                'Share Progress': 'Share Progress',
+                'Share Summary': 'Share Summary',
+                'Discuss in Community': 'Discuss in Community',
+                'Summary imenakiliwa kwenye clipboard.': 'Summary copied to clipboard.',
+                'Privacy & Reminder Settings': 'Privacy & Reminder Settings',
+                'Dhibiti faragha yako na alerts za mzunguko.': 'Manage your privacy and cycle alerts.',
+                'Back dashboard': 'Back dashboard',
+                'Save settings': 'Save settings',
+                'Ongeza Daily Tip': 'Add Daily Tip',
+                'Rudi Dashboard': 'Back to Dashboard',
+                'Save tip': 'Save tip',
+                'AfyaSmart Online Card': 'AfyaSmart Online Card',
+                'Update Card Details': 'Update Card Details',
+                'Scan Link': 'Scan Link',
+                'Card Notifications': 'Card Notifications',
+                'Mark all as read': 'Mark all as read',
+                'No notifications yet.': 'No notifications yet.',
+                'Scanned Health Card': 'Scanned Health Card',
+                'Protected Health Card': 'Protected Health Card',
+                'Access password': 'Access password',
+                'Unlock Card Data': 'Unlock Card Data',
+                'Puberty & Reproductive Hub': 'Puberty & Reproductive Hub',
+                'Top Problems + Solutions': 'Top Problems + Solutions',
+                'Quick Stats': 'Quick Stats',
+                'Run Check': 'Run Check',
+                'Add Goal': 'Add Goal',
+                'Save Finding': 'Save Finding',
+                'Save Metric': 'Save Metric',
+                'Send Couple Request': 'Send Couple Request',
+                'No checks yet.': 'No checks yet.',
+                'No findings yet.': 'No findings yet.',
+                'Admin Analytics Pro': 'Admin Analytics Pro',
+                'Open Django Admin': 'Open Django Admin',
+                'Doctor approvals': 'Doctor approvals',
+                'Moderation': 'Moderation'
+            },
+            ar: {
+                'Clarification Inbox': 'صندوق الاستفسارات',
+                'Back to feed': 'العودة إلى المجتمع',
+                'Andika ufafanuzi hapa...': 'اكتب التوضيح هنا...',
+                'Hakuna clarification requests kwa sasa.': 'لا توجد طلبات توضيح حالياً.',
+                'Jamii': 'المجتمع',
+                'Private Chat': 'دردشة خاصة',
+                'Likes got': 'الإعجابات المستلمة',
+                'Community Posts': 'منشورات المجتمع',
+                'Explain with AI': 'اشرح بالذكاء الاصطناعي',
+                'Hakuna posts za user huyu kwa community yako.': 'لا توجد منشورات لهذا المستخدم في مجتمعك.',
+                'Create post': 'إنشاء منشور',
+                'Back to posts': 'العودة للمنشورات',
+                'Profile haijakamilika': 'الملف الشخصي غير مكتمل',
+                'Kamilisha sasa →': 'أكمل الآن ←',
+                'Weka link': 'أدخل الرابط',
+                'Post anonymously': 'النشر بشكل مجهول',
+                'Post options': 'خيارات المنشور',
+                'Publish post': 'نشر المنشور',
+                'Cancel': 'إلغاء',
+                'Offline chats': 'محادثات دون اتصال',
+                'Hakuna chat bado.': 'لا توجد محادثات بعد.',
+                'Offline AI Assistant': 'مساعد الذكاء الاصطناعي دون اتصال',
+                'Karibu! Andika swali lako hapa chini kuanza offline chat.': 'مرحباً! اكتب سؤالك أدناه لبدء الدردشة دون اتصال.',
+                'Andika swali lako...': 'اكتب سؤالك...',
+                'Tuma': 'إرسال',
+                'Kuna tatizo. Jaribu tena.': 'حدثت مشكلة. حاول مرة أخرى.',
+                'Imeshindikana kuwasiliana na offline AI server.': 'فشل الاتصال بخادم الذكاء الاصطناعي المحلي.',
+                'Doctor Approval Workflow': 'سير عمل اعتماد الأطباء',
+                'Back to Doctor Hub': 'العودة إلى بوابة الأطباء',
+                'Review Request': 'مراجعة الطلب',
+                'Review Doctor Request': 'مراجعة طلب الطبيب',
+                'Specialization': 'التخصص',
+                'Hospital': 'المستشفى',
+                'Bio': 'نبذة',
+                'License': 'الترخيص',
+                'Uploaded Documents': 'المستندات المرفوعة',
+                'Review notes': 'ملاحظات المراجعة',
+                'Approve': 'قبول',
+                'Reject': 'رفض',
+                'Back': 'رجوع',
+                'AI Reports & Summary': 'تقارير وملخص الذكاء الاصطناعي',
+                'Muhtasari wa AI': 'ملخص الذكاء الاصطناعي',
+                'Grafu ya Maendeleo': 'مخطط التقدم',
+                'Share Progress': 'مشاركة التقدم',
+                'Share Summary': 'مشاركة الملخص',
+                'Discuss in Community': 'ناقش في المجتمع',
+                'Privacy & Reminder Settings': 'إعدادات الخصوصية والتذكيرات',
+                'Back dashboard': 'العودة إلى اللوحة',
+                'Save settings': 'حفظ الإعدادات',
+                'Ongeza Daily Tip': 'إضافة نصيحة يومية',
+                'Rudi Dashboard': 'العودة إلى اللوحة',
+                'Save tip': 'حفظ النصيحة',
+                'AfyaSmart Online Card': 'بطاقة AfyaSmart الإلكترونية',
+                'Update Card Details': 'تحديث تفاصيل البطاقة',
+                'Scan Link': 'رابط المسح',
+                'Card Notifications': 'إشعارات البطاقة',
+                'Mark all as read': 'تحديد الكل كمقروء',
+                'No notifications yet.': 'لا توجد إشعارات بعد.',
+                'Scanned Health Card': 'البطاقة الصحية الممسوحة',
+                'Protected Health Card': 'بطاقة صحية محمية',
+                'Access password': 'كلمة مرور الوصول',
+                'Unlock Card Data': 'فتح بيانات البطاقة',
+                'Top Problems + Solutions': 'أهم المشاكل + الحلول',
+                'Quick Stats': 'إحصاءات سريعة',
+                'Run Check': 'تشغيل الفحص',
+                'Add Goal': 'إضافة هدف',
+                'Save Finding': 'حفظ الاستنتاج',
+                'Save Metric': 'حفظ المؤشر',
+                'Send Couple Request': 'إرسال طلب شريك',
+                'No checks yet.': 'لا توجد فحوصات بعد.',
+                'No findings yet.': 'لا توجد نتائج بعد.',
+                'Admin Analytics Pro': 'لوحة تحليلات المشرف',
+                'Open Django Admin': 'فتح لوحة Django',
+                'Doctor approvals': 'اعتمادات الأطباء',
+                'Moderation': 'الإشراف'
+            }
+        };
+
+        const applyLegacyTranslations = () => {
+            const map = legacyTranslations[lang];
+            if (!map) return;
+            const keys = Object.keys(map).sort((a, b) => b.length - a.length);
+            if (!keys.length) return;
+
+            const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+                acceptNode(node) {
+                    if (!node.nodeValue || !node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+                    const parent = node.parentElement;
+                    if (!parent) return NodeFilter.FILTER_REJECT;
+                    const tag = parent.tagName;
+                    if (tag === 'SCRIPT' || tag === 'STYLE' || tag === 'NOSCRIPT') return NodeFilter.FILTER_REJECT;
+                    return NodeFilter.FILTER_ACCEPT;
+                }
+            });
+
+            const textNodes = [];
+            while (walker.nextNode()) textNodes.push(walker.currentNode);
+
+            textNodes.forEach((node) => {
+                let text = node.nodeValue;
+                let changed = false;
+                keys.forEach((k) => {
+                    if (text.includes(k)) {
+                        text = text.split(k).join(map[k]);
+                        changed = true;
+                    }
+                });
+                if (changed) node.nodeValue = text;
+            });
+
+            document.querySelectorAll('[placeholder],[title],[aria-label]').forEach((el) => {
+                ['placeholder', 'title', 'aria-label'].forEach((attr) => {
+                    const value = el.getAttribute(attr);
+                    if (!value) return;
+                    let next = value;
+                    keys.forEach((k) => {
+                        if (next.includes(k)) {
+                            next = next.split(k).join(map[k]);
+                        }
+                    });
+                    if (next !== value) {
+                        el.setAttribute(attr, next);
+                    }
+                });
+            });
+        };
+
+        applyLegacyTranslations();
+    })();
+
     function applyThemeIcon(theme) {
         document.querySelectorAll('[data-theme-toggle] i').forEach((icon) => {
             if (theme === 'dark') {

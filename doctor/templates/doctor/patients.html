@@ -1,0 +1,130 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}Wagonjwa Wangu — AfyaSmart{% endblock %}
+
+{% block content %}
+<style>
+.patient-card { transition: transform .15s ease, box-shadow .2s ease; cursor: pointer; }
+.patient-card:hover { transform: translateY(-2px); box-shadow: var(--shadow-soft); }
+.patient-avatar {
+    width: 48px; height: 48px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: #fff; display: inline-flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 1.15rem; flex-shrink: 0;
+}
+.patient-avatar img { width: 100%; height: 100%; object-fit: cover; border-radius: 50%; }
+.log-badge { font-size: .72rem; padding: .18rem .55rem; border-radius: 20px; }
+</style>
+
+<div class="py-4">
+    <div class="card-custom p-4 mb-4">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <div>
+                <h4 class="fw-bold mb-1"><i class="bi bi-people-fill me-2 text-success"></i>Wagonjwa Wangu</h4>
+                <p class="text-muted small mb-0">
+                    Orodha ya wagonjwa wote uliozungumza nao kwenye private chat.
+                    Unaweza kutengeneza log forms na kuona data zao za afya.
+                </p>
+            </div>
+            <a href="{% url 'doctor:hub' %}" class="btn btn-sm btn-outline-secondary rounded-pill">
+                <i class="bi bi-arrow-left me-1"></i>Rudi Hub
+            </a>
+        </div>
+    </div>
+
+    {% if patients %}
+    <!-- Desktop -->
+    <div class="d-none d-md-block">
+        <div class="row g-3">
+            {% for patient in patients %}
+            <div class="col-lg-4 col-md-6">
+                <div class="card-custom p-3 h-100 patient-card" data-patient-url="{% url 'doctor:patient_detail' patient.id %}">
+                    <div class="d-flex align-items-center gap-3 mb-3">
+                        <div class="patient-avatar">
+                            {% if patient.ai_persona.avatar %}
+                            <img src="{{ patient.ai_persona.avatar.url }}" alt="{{ patient.username }}">
+                            {% else %}
+                            {{ patient.username|first|upper }}
+                            {% endif %}
+                        </div>
+                        <div style="min-width:0;">
+                            <div class="fw-semibold text-truncate">{{ patient.get_full_name|default:patient.username }}</div>
+                            <div class="text-muted small">@{{ patient.username }}</div>
+                        </div>
+                        {% if patient.active_logs > 0 %}
+                        <span class="log-badge bg-success text-white ms-auto">{{ patient.active_logs }} log{{ patient.active_logs|pluralize }}</span>
+                        {% endif %}
+                    </div>
+                    {% if patient.last_chat %}
+                    <div class="text-muted small mb-3">
+                        <i class="bi bi-clock me-1"></i>Chat ya mwisho: {{ patient.last_chat|date:"d M Y" }}
+                    </div>
+                    {% endif %}
+                    <div class="d-flex gap-2 flex-wrap mt-auto">
+                        <a href="{% url 'doctor:create_patient_log' patient.id %}" class="btn btn-sm btn-success rounded-pill flex-fill no-card-nav">
+                            <i class="bi bi-journal-plus me-1"></i>Log Forms
+                        </a>
+                        <a href="{% url 'chats:conversation_detail' patient.conversation_id %}" class="btn btn-sm btn-outline-primary rounded-pill flex-fill no-card-nav">
+                            <i class="bi bi-chat-dots me-1"></i>Chat
+                        </a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    <!-- Mobile -->
+    <div class="d-md-none">
+        <div class="d-flex flex-column gap-2">
+            {% for patient in patients %}
+            <div class="card-custom p-3 patient-card" data-patient-url="{% url 'doctor:patient_detail' patient.id %}">
+                <div class="d-flex align-items-center gap-3">
+                    <div class="patient-avatar">
+                        {% if patient.ai_persona.avatar %}
+                        <img src="{{ patient.ai_persona.avatar.url }}" alt="{{ patient.username }}">
+                        {% else %}
+                        {{ patient.username|first|upper }}
+                        {% endif %}
+                    </div>
+                    <div style="min-width:0; flex:1;">
+                        <div class="fw-semibold text-truncate">{{ patient.get_full_name|default:patient.username }}</div>
+                        <div class="text-muted small">@{{ patient.username }}
+                            {% if patient.active_logs > 0 %}
+                            · <span class="text-success fw-semibold">{{ patient.active_logs }} log</span>
+                            {% endif %}
+                        </div>
+                    </div>
+                    <div class="d-flex gap-1">
+                        <a href="{% url 'doctor:create_patient_log' patient.id %}" class="btn btn-sm btn-success rounded-pill no-card-nav" title="Log Forms"><i class="bi bi-journal-plus"></i></a>
+                        <a href="{% url 'chats:conversation_detail' patient.conversation_id %}" class="btn btn-sm btn-outline-primary rounded-pill no-card-nav" title="Chat"><i class="bi bi-chat-dots"></i></a>
+                    </div>
+                </div>
+            </div>
+            {% endfor %}
+        </div>
+    </div>
+
+    {% else %}
+    <div class="card-custom p-5 text-center">
+        <i class="bi bi-person-slash display-4 text-muted mb-3 d-block"></i>
+        <h5 class="fw-semibold">Bado hujazungumza na mgonjwa yeyote</h5>
+        <p class="text-muted">Wagonjwa wataonekana hapa baada ya kuanzisha private chat nao.</p>
+        <a href="{% url 'doctor:hub' %}" class="btn btn-outline-primary rounded-pill mt-2">Rudi Hub</a>
+    </div>
+    {% endif %}
+</div>
+
+<script>
+(function () {
+    document.querySelectorAll('.patient-card[data-patient-url]').forEach(card => {
+        card.addEventListener('click', function (e) {
+            if (e.target.closest('.no-card-nav')) return;
+            const url = this.getAttribute('data-patient-url');
+            if (url) window.location.href = url;
+        });
+    });
+})();
+</script>
+{% endblock %}

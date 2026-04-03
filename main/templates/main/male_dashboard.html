@@ -1,41 +1,42 @@
 {% extends "base.html" %}
+{% load i18n %}
 
-{% block title %}Male Health Dashboard - AfyaSmart{% endblock %}
+{% block title %}{% trans "Male Health Dashboard" %} - AfyaSmart{% endblock %}
 
 {% block content %}
 <div class="py-4" style="max-width: 1100px; margin: 0 auto;">
     <div class="card-custom p-4 p-lg-5 mb-4">
-        <h3 class="fw-bold mb-2">Male Health Dashboard</h3>
-        <p class="text-muted mb-0">Karibu. Hii dashboard imeboreshwa kwa afya ya wanaume: AI coaching, lifestyle tracking, doctor support, na jamii ya wanaume.</p>
+        <h3 class="fw-bold mb-2">{% trans "Male Health Dashboard" %}</h3>
+        <p class="text-muted mb-0">{% blocktrans trimmed %}Karibu. Hii dashboard imeboreshwa kwa afya ya wanaume: AI coaching, lifestyle tracking, doctor support, na jamii ya wanaume.{% endblocktrans %}</p>
     </div>
 
     <div class="row g-3">
         <div class="col-md-6 col-xl-3">
             <div class="card-custom p-4 h-100">
-                <div class="fw-semibold mb-2">AI Chat</div>
-                <p class="small text-muted mb-3">Uliza swali lolote la afya binafsi.</p>
-                <a href="{% url 'AI_brain:chat' %}" class="btn btn-sm btn-outline-danger rounded-pill">Nenda AI</a>
+                <div class="fw-semibold mb-2">{% trans "AI Chat" %}</div>
+                <p class="small text-muted mb-3">{% trans "Uliza swali lolote la afya binafsi." %}</p>
+                <a href="{% url 'AI_brain:chat' %}" class="btn btn-sm btn-outline-danger rounded-pill">{% trans "Nenda AI" %}</a>
             </div>
         </div>
         <div class="col-md-6 col-xl-3">
             <div class="card-custom p-4 h-100">
-                <div class="fw-semibold mb-2">Jamii ya Wanaume</div>
-                <p class="small text-muted mb-3">Jadili maendeleo na changamoto kwa usalama.</p>
-                <a href="{% url 'chats:feed' %}" class="btn btn-sm btn-outline-danger rounded-pill">Nenda Jamii</a>
+                <div class="fw-semibold mb-2">{% trans "Jamii ya Wanaume" %}</div>
+                <p class="small text-muted mb-3">{% trans "Jadili maendeleo na changamoto kwa usalama." %}</p>
+                <a href="{% url 'chats:feed' %}" class="btn btn-sm btn-outline-danger rounded-pill">{% trans "Nenda Jamii" %}</a>
             </div>
         </div>
         <div class="col-md-6 col-xl-3">
             <div class="card-custom p-4 h-100">
-                <div class="fw-semibold mb-2">Madaktari</div>
-                <p class="small text-muted mb-3">Chagua daktari kulingana na jinsia unayopendelea.</p>
-                <a href="{% url 'doctor:hub' %}" class="btn btn-sm btn-outline-danger rounded-pill">Nenda Hub</a>
+                <div class="fw-semibold mb-2">{% trans "Madaktari" %}</div>
+                <p class="small text-muted mb-3">{% trans "Chagua daktari kulingana na jinsia unayopendelea." %}</p>
+                <a href="{% url 'doctor:hub' %}" class="btn btn-sm btn-outline-danger rounded-pill">{% trans "Nenda Hub" %}</a>
             </div>
         </div>
         <div class="col-md-6 col-xl-3">
             <div class="card-custom p-4 h-100">
-                <div class="fw-semibold mb-2">Private Inbox</div>
-                <p class="small text-muted mb-3">Fuatilia chats zako binafsi na doctor.</p>
-                <a href="{% url 'chats:inbox' %}" class="btn btn-sm btn-outline-danger rounded-pill">Fungua Inbox</a>
+                <div class="fw-semibold mb-2">{% trans "Private Inbox" %}</div>
+                <p class="small text-muted mb-3">{% trans "Fuatilia chats zako binafsi na doctor." %}</p>
+                <a href="{% url 'chats:inbox' %}" class="btn btn-sm btn-outline-danger rounded-pill">{% trans "Fungua Inbox" %}</a>
             </div>
         </div>
     </div>

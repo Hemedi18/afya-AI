@@ -1,29 +1,30 @@
 {% extends 'base.html' %}
+{% load i18n %}
 
 {% block content %}
 <div class="py-4" style="max-width: 880px; margin: 0 auto;">
     <div class="card-custom p-4 p-lg-5">
         <div class="d-flex justify-content-between align-items-start flex-wrap gap-3 mb-4">
             <div>
-                <h4 class="fw-bold mb-1">Start Private Chat</h4>
-                <p class="text-muted mb-0">Unaanzisha mazungumzo binafsi na Dr. {{ doctor_user.get_full_name|default:doctor_user.username }}</p>
+                <h4 class="fw-bold mb-1">{% trans "Start Private Chat" %}</h4>
+                <p class="text-muted mb-0">{% blocktrans trimmed with name=doctor_user.get_full_name|default:doctor_user.username %}Unaanzisha mazungumzo binafsi na Dr. {{ name }}{% endblocktrans %}</p>
             </div>
-            <a href="{% url 'doctor:hub' %}" class="btn btn-outline-secondary rounded-pill">Back</a>
+                <a href="{% url 'doctor:hub' %}" class="btn btn-outline-secondary rounded-pill">{% trans "Back" %}</a>
         </div>
 
         <form method="post">
             {% csrf_token %}
             <div class="mb-3">
-                <label class="form-label">Subject</label>
+                <label class="form-label">{% trans "Subject" %}</label>
                 {{ form.subject }}
                 <div class="small text-danger">{{ form.subject.errors }}</div>
             </div>
             <div class="mb-3">
-                <label class="form-label">Opening message</label>
+                <label class="form-label">{% trans "Opening message" %}</label>
                 {{ form.opening_message }}
                 <div class="small text-danger">{{ form.opening_message.errors }}</div>
             </div>
-            <button type="submit" class="btn btn-danger rounded-pill px-4">Start conversation</button>
+                <button type="submit" class="btn btn-danger rounded-pill px-4">{% trans "Start conversation" %}</button>
         </form>
     </div>
 </div>

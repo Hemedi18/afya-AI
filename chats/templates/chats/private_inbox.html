@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load i18n %}
 
 {% block extra_head %}
 <style>
@@ -103,7 +104,7 @@
     }
 
     .card-custom.p-4.mb-4::after {
-        content: 'Search';
+        content: '{% trans "Search" %}';
         display: block;
         margin-top: 8px;
         width: 100%;
@@ -255,19 +256,19 @@
                 <div>
                     <div class="fw-bold mb-1">{{ conversation.subject }}</div>
                     <div class="small text-muted">
-                        Patient: {{ conversation.patient.get_full_name|default:conversation.patient.username }}
-                        • Doctor: {{ conversation.doctor.get_full_name|default:conversation.doctor.username }}
+                        {% trans "Patient" %}: {{ conversation.patient.get_full_name|default:conversation.patient.username }}
+                        • {% trans "Doctor" %}: {{ conversation.doctor.get_full_name|default:conversation.doctor.username }}
                     </div>
                 </div>
                 <div class="text-end">
-                    {% if conversation.is_closed %}<span class="badge text-bg-secondary">Closed</span>{% else %}<span class="badge text-bg-success">Open</span>{% endif %}
+                    {% if conversation.is_closed %}<span class="badge text-bg-secondary">{% trans "Closed" %}</span>{% else %}<span class="badge text-bg-success">{% trans "Open" %}</span>{% endif %}
                     <div class="small text-muted mt-1">{{ conversation.updated_at|timesince }} ago</div>
                 </div>
             </div>
         </div>
     </a>
     {% empty %}
-    <div class="card-custom p-4 text-center text-muted">Hakuna private conversations bado.</div>
+    <div class="card-custom p-4 text-center text-muted">{% trans "Hakuna private conversations bado." %}</div>
     {% endfor %}
 </div>
 

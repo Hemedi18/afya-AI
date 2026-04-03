@@ -881,6 +881,12 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
       {% endwith %}
     {% endif %}
 
+    {% if is_patient_side and doctor_profile_id %}
+    <a href="{% url 'doctor:detail' doctor_profile_id %}" class="wa-theme-toggle" title="Rank/View doctor"><i class="bi bi-star-half"></i></a>
+    {% endif %}
+    {% if user == conversation.doctor %}
+    <a href="{% url 'doctor:create_patient_log' conversation.patient.id %}" class="wa-theme-toggle" title="Unda/Angalia Log Forms za mgonjwa huyu"><i class="bi bi-journal-plus"></i></a>
+    {% endif %}
     <button class="wa-theme-toggle" id="waThemeBtn" title="Theme"><i class="bi bi-brightness-high"></i></button>
     <button class="wa-header-menu" id="waMenuBtn"><i class="bi bi-three-dots-vertical"></i></button>
     <div id="waMenu" style="display:none;position:absolute;right:12px;top:58px;background:var(--wa-recv-bg);border-radius:10px;box-shadow:0 6px 20px rgba(0,0,0,.18);z-index:30;min-width:170px;">

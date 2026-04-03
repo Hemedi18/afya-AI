@@ -60,6 +60,11 @@ class Command(BaseCommand):
         parser.add_argument("--groups", type=int, default=50, help="Number of groups to create (default: 50)")
         parser.add_argument("--posts-per-user", type=int, default=10, help="Posts per account (default: 10)")
         parser.add_argument("--statuses-per-user", type=int, default=2, help="Statuses per account (default: 2)")
+        parser.add_argument(
+            "--no-bots",
+            action="store_true",
+            help="Do not create male/female bot accounts; seed only regular users",
+        )
         parser.add_argument("--password", type=str, default="AfyaTest@123", help="Password for created users")
         parser.add_argument(
             "--image-source",
@@ -85,6 +90,7 @@ class Command(BaseCommand):
         group_count = max(1, options["groups"])
         posts_per_user = max(1, options["posts_per_user"])
         statuses_per_user = max(0, options["statuses_per_user"])
+        no_bots = bool(options.get("no_bots"))
         password = options["password"]
         do_reset = options["reset"]
         self.image_source = options["image_source"]
@@ -98,14 +104,17 @@ class Command(BaseCommand):
                 self._reset_seed_data(User)
 
             users = self._create_regular_users(User, user_count, password)
-            bots = self._create_bots(User, password)
+            bots = []
+            if not no_bots:
+                bots = self._create_bots(User, password)
+
             all_accounts = users + bots
 
             groups = self._create_groups(group_count, all_accounts)
             self._assign_group_memberships(groups, all_accounts)
 
-            posts_created = self._create_posts(all_accounts, groups, posts_per_user, image_cache)
-            statuses_created = self._create_statuses(all_accounts, groups, statuses_per_user, image_cache)
+            posts_created = self._create_posts(users, groups, posts_per_user, image_cache)
+            statuses_created = self._create_statuses(users, groups, statuses_per_user, image_cache)
 
         self.stdout.write(self.style.SUCCESS("✅ Seed complete."))
         self.stdout.write(f"Users created/updated: {len(users)} regular + {len(bots)} bots")

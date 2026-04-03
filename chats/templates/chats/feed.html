@@ -8,11 +8,10 @@
 
 .community-shell {
     padding: .75rem 0 0;
-    height: 100vh;
-    min-height: 100vh;
-    display: flex;
-    flex-direction: column;
-    overflow: hidden;
+    height: auto;
+    min-height: 0;
+    display: block;
+    overflow: visible;
 }
 
 .community-shell.community-shell-free {
@@ -26,22 +25,21 @@
 }
 
 .community-body {
-    flex: 1;
-    min-height: 0;
-    overflow: hidden;
+    flex: initial;
+    min-height: auto;
+    overflow: visible;
     padding-right: 0;
 }
 
 /* Desktop column scrolling */
 .community-body > .row {
-    height: 100%;
+    height: auto;
     margin: 0;
 }
 
 #social-posts {
-    height: 100%;
-    overflow-y: auto;
-    overflow-x: hidden;
+    height: auto;
+    overflow: visible;
     padding-right: .25rem;
     scrollbar-width: thin;
     scrollbar-color: color-mix(in srgb, var(--primary) 34%, transparent) transparent;
@@ -54,9 +52,8 @@
 }
 
 #social-groups {
-    height: 100%;
-    overflow-y: auto;
-    overflow-x: hidden;
+    height: auto;
+    overflow: visible;
     padding-right: .2rem;
     scrollbar-width: thin;
     scrollbar-color: color-mix(in srgb, var(--primary) 28%, transparent) transparent;
@@ -879,10 +876,28 @@
 .post-name-link:hover { color: var(--primary); }
 .post-meta { font-size: .76rem; color: var(--text-muted); margin-top: .05rem; }
 .post-group-tag {
-    display: inline-block; font-size: .7rem; font-weight: 700;
+    display: inline-flex; align-items: center; gap: .28rem; font-size: .7rem; font-weight: 700;
     padding: .15rem .55rem; border-radius: 999px;
     background: color-mix(in srgb, var(--primary) 12%, var(--card-bg));
     color: var(--primary); margin-left: .3rem;
+}
+.post-group-link { text-decoration: none; }
+.post-group-link:hover {
+    color: #fff;
+    background: var(--primary);
+}
+.post-source-pill {
+    display: inline-flex;
+    align-items: center;
+    gap: .25rem;
+    font-size: .68rem;
+    font-weight: 700;
+    border-radius: 999px;
+    padding: .12rem .48rem;
+    margin-left: .35rem;
+    border: 1px solid color-mix(in srgb, var(--primary) 22%, var(--line-soft));
+    background: color-mix(in srgb, var(--card-bg) 88%, var(--app-bg));
+    color: var(--text-muted);
 }
 .post-body { font-size: .93rem; line-height: 1.6; color: var(--text-main); margin-bottom: .35rem; }
 .post-body-preview { margin-bottom: .4rem; }
@@ -1052,6 +1067,11 @@
 .c-page-btn.current { background: var(--primary); border-color: var(--primary); color: #fff; }
 .c-page-btn.disabled { opacity: .45; pointer-events: none; }
 
+.feed-scroll-sentinel {
+    width: 100%;
+    height: 1px;
+}
+
 /* ── Private view ── */
 .private-post {
     background: var(--card-bg);
@@ -1083,6 +1103,33 @@
 
 /* ── Desktop social refresh (Instagram-inspired, not exact clone) ── */
 @media (min-width: 992px) {
+    .community-shell:not(.community-shell-free) {
+        height: calc(100dvh - 64px);
+        min-height: calc(100dvh - 64px);
+        display: flex;
+        flex-direction: column;
+        overflow: hidden;
+    }
+
+    .community-shell:not(.community-shell-free) .community-body {
+        flex: 1;
+        min-height: 0;
+        overflow: hidden;
+    }
+
+    .community-shell:not(.community-shell-free) .community-body > .row {
+        height: 100%;
+    }
+
+    .community-shell:not(.community-shell-free) #social-posts,
+    .community-shell:not(.community-shell-free) #social-groups {
+        height: 100%;
+        min-height: 0;
+        overflow-y: auto;
+        overflow-x: hidden;
+        overscroll-behavior: contain;
+    }
+
     .community-shell {
         background: #f5f6f7;
         padding-top: .35rem;
@@ -1244,12 +1291,12 @@
     .community-shell {
         padding-top: .4rem;
         padding-bottom: 5.2rem;
-        height: 100vh;
-        min-height: 100vh;
+        height: auto;
+        min-height: 0;
     }
     .community-body {
         overflow-x: hidden;
-        overflow-y: auto;
+        overflow-y: visible;
         -webkit-overflow-scrolling: touch;
     }
     .community-body > .row {
@@ -1526,12 +1573,13 @@
                         <div class="fw-bold small">{% if post.is_anonymous %}Anonymous member{% else %}{{ post.user.username }}{% endif %}</div>
                         <div class="post-meta">
                             {{ post.created_at|timesince }} ago
+                            <span class="post-source-pill"><i class="bi bi-broadcast-pin"></i>Source: {% if post.is_anonymous %}Anonymous{% else %}{{ post.user.username }}{% endif %}</span>
                             {% if post.groups.all %}
                                 {% for group in post.groups.all %}
-                                    <span class="post-group-tag">{{ group.name }}</span>
+                                    <a href="{% url 'chats:group_detail' group.id %}" class="post-group-tag post-group-link"><i class="bi bi-people-fill"></i>{{ group.name }}</a>
                                 {% endfor %}
                             {% elif post.group %}
-                                • <span class="post-group-tag">{{ post.group.name }}</span>
+                                <a href="{% url 'chats:group_detail' post.group.id %}" class="post-group-tag post-group-link"><i class="bi bi-people-fill"></i>{{ post.group.name }}</a>
                             {% endif %}
                         </div>
                     </div>
@@ -1539,7 +1587,8 @@
                 <a href="{% url 'chats:post_detail' post.id %}" class="action-btn" style="font-size:.76rem;"><i class="bi bi-box-arrow-up-right"></i> Open</a>
             </div>
             <div class="post-body mb-2">{{ post.content|safe }}</div>
-            {% if post.image %}<img src="{{ post.image.url }}" class="post-media mb-2" alt="post image">{% endif %}
+            {% url 'chats:post_detail' post.id as post_detail_url %}
+            {% include 'chats/includes/post_media.html' with post=post post_url=post_detail_url %}
             <div class="comment-thread" style="border-top:1px solid var(--line-soft);padding-top:.65rem;margin-top:.5rem;">
                 {% for reply in post.replies.all|dictsortreversed:"created_at" %}
                     {% if not reply.parent_id %}
@@ -1592,7 +1641,7 @@
     {% else %}
     <div class="row g-3" style="height:100%;margin:0;">
         <!-- ══ LEFT SIDEBAR ══ -->
-        <div class="col-lg-4 px-0 pe-lg-2" id="social-groups">
+        <div class="col-12 col-lg-4 px-0 pe-lg-2 d-none d-lg-block" id="social-groups">
 
             {% if is_regular_user %}
             <div class="sidebar-card sidebar-clickable" id="social-chat" data-sidebar-link="{% url 'chats:feed_status' %}" data-community-partial="true">
@@ -1812,7 +1861,7 @@
         <!-- ══ END SIDEBAR ══ -->
 
         <!-- ══ POSTS COLUMN ══ -->
-        <div class="col-lg-8 px-0 ps-lg-2" id="social-posts">
+        <div class="col-12 col-lg-8 px-0 ps-lg-2" id="social-posts">
 
             <section class="jamii-top-social">
                 <div class="jamii-composer-row">
@@ -1886,44 +1935,47 @@
                 </a>
             </div>
 
+            <div id="posts-feed-list">
             {% for post in posts %}
-    <article class="post-card post-clickable" id="post-{{ post.id }}" data-post-url="{% url 'chats:post_detail' post.id %}" role="link" tabindex="0" aria-label="Open post {{ post.id }}">
-        <div class="post-head">
-            <div class="post-author">
-                <div class="post-avatar" style="position:relative;">
-                    {% if post.is_anonymous %}?{% else %}{{ post.user.username|first|upper }}{% endif %}
-                    <span class="online-dot"></span>
-                </div>
-                <div>
-                    {% if post.is_anonymous %}
-                    <a href="{% url 'chats:post_detail' post.id %}" class="post-name-link">Anonymous member</a>
-                    {% else %}
-                    <a href="{% url 'chats:user_profile' post.user.id %}" class="post-name-link">{{ post.user.username }}</a>
-                    {% endif %}
-                    <div class="post-meta">
-                        {{ post.created_at|timesince }} ago
-                        {% if post.groups.all %}
-                            {% for group in post.groups.all %}
-                                <span class="post-group-tag">{{ group.name }}</span>
-                            {% endfor %}
-                        {% elif post.group %}
-                            <span class="post-group-tag">{{ post.group.name }}</span>
+            {% with post_index=forloop.counter0 %}
+            <article class="post-card post-clickable" id="post-{{ post.id }}" data-post-url="{% url 'chats:post_detail' post.id %}" role="link" tabindex="0" aria-label="Open post {{ post.id }}">
+                <div class="post-head">
+                    <div class="post-author">
+                        <div class="post-avatar" style="position:relative;">
+                            {% if post.is_anonymous %}?{% else %}{{ post.user.username|first|upper }}{% endif %}
+                            <span class="online-dot"></span>
+                        </div>
+                        <div>
+                            {% if post.is_anonymous %}
+                            <a href="{% url 'chats:post_detail' post.id %}" class="post-name-link">Anonymous member</a>
+                            {% else %}
+                            <a href="{% url 'chats:user_profile' post.user.id %}" class="post-name-link">{{ post.user.username }}</a>
+                            {% endif %}
+                            <div class="post-meta">
+                                {{ post.created_at|timesince }} ago
+                                <span class="post-source-pill"><i class="bi bi-broadcast-pin"></i>Source: {% if post.is_anonymous %}Anonymous{% else %}{{ post.user.username }}{% endif %}</span>
+                                {% if post.groups.all %}
+                                    {% for group in post.groups.all %}
+                                        <a href="{% url 'chats:group_detail' group.id %}" class="post-group-tag post-group-link"><i class="bi bi-people-fill"></i>{{ group.name }}</a>
+                                    {% endfor %}
+                                {% elif post.group %}
+                                    <a href="{% url 'chats:group_detail' post.group.id %}" class="post-group-tag post-group-link"><i class="bi bi-people-fill"></i>{{ post.group.name }}</a>
+                                {% endif %}
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-2">
+                        <a href="{% url 'chats:post_detail' post.id %}" class="open-link"><i class="bi bi-box-arrow-up-right"></i></a>
+                        {% if can_moderate %}
+                        <form method="post" action="{% url 'chats:post_delete' post.id %}" class="js-partial-submit" data-ajax-refresh-target="#post-{{ post.id }}">
+                            {% csrf_token %}
+                            <button class="comment-action-btn" style="color:#ef4444;border-color:#ef444466;" type="submit"><i class="bi bi-trash3"></i></button>
+                        </form>
                         {% endif %}
                     </div>
                 </div>
-            </div>
-            <div class="d-flex align-items-center gap-2">
-                <a href="{% url 'chats:post_detail' post.id %}" class="open-link"><i class="bi bi-box-arrow-up-right"></i></a>
-                {% if can_moderate %}
-                <form method="post" action="{% url 'chats:post_delete' post.id %}" class="js-partial-submit" data-ajax-refresh-target="#post-{{ post.id }}">
-                    {% csrf_token %}
-                    <button class="comment-action-btn" style="color:#ef4444;border-color:#ef444466;" type="submit"><i class="bi bi-trash3"></i></button>
-                </form>
-                {% endif %}
-            </div>
-        </div>
 
-        <div class="post-body">
+            <div class="post-body">
             <div class="post-body-preview" id="post-preview-{{ post.id }}">{{ post.preview_text|default:post.content|striptags|linebreaksbr }}</div>
             {% if post.has_more_content %}
             <div class="post-body-full" id="post-full-{{ post.id }}" hidden>{{ post.content|safe }}</div>
@@ -2079,11 +2131,19 @@
         </div>
         </div>
     </article>
-    {% if is_regular_user and forloop.counter|divisibleby:5 and groups_for_inline %}
-    <section class="group-inline-section">
+    {% endwith %}
+    {% empty %}
+    <div class="c-card c-card-body text-center text-muted py-4">
+        <i class="bi bi-chat-square-dots fs-2 d-block mb-2" style="color:var(--primary);opacity:.5;"></i>
+        Bado hakuna post. Kuwa wa kwanza kuweka post!
+    </div>
+    {% endfor %}
+
+    {% if is_regular_user and groups_for_inline %}
+    <section class="group-inline-section" id="ai-suggested-groups-{{ posts.number }}">
         <div class="group-inline-head">
-            <div class="fw-bold" style="font-size:.9rem;"><i class="bi bi-people-fill me-1" style="color:var(--primary);"></i> Discover Groups</div>
-            <a href="{% url 'chats:feed_groups' %}" data-community-partial="true" class="sidebar-see-all">See all</a>
+            <div class="fw-bold" style="font-size:.9rem;"><i class="bi bi-stars me-1" style="color:var(--primary);"></i> Mapendekezo ya AI</div>
+            <a href="{% url 'chats:feed_groups' %}" data-community-partial="true" class="sidebar-see-all">Angalia zote</a>
         </div>
         <div class="group-inline-grid">
             {% for group in groups_for_inline %}
@@ -2105,7 +2165,10 @@
                             <button class="comment-action-btn" type="submit"><i class="bi bi-plus-circle"></i> Join</button>
                         </form>
                         {% else %}
-                        <a href="{% url 'chats:group_detail' group.id %}" class="comment-action-btn">Open</a>
+                        <div class="d-flex gap-1">
+                            <a href="{% url 'chats:group_detail' group.id %}" class="comment-action-btn">Open</a>
+                            <a href="{% url 'chats:post_create' %}?group={{ group.id }}" class="comment-action-btn"><i class="bi bi-plus"></i> Post</a>
+                        </div>
                         {% endif %}
                     </div>
                 </div>
@@ -2114,26 +2177,14 @@
         </div>
     </section>
     {% endif %}
-    {% empty %}
-    <div class="c-card c-card-body text-center text-muted py-4">
-        <i class="bi bi-chat-square-dots fs-2 d-block mb-2" style="color:var(--primary);opacity:.5;"></i>
-        Bado hakuna post. Kuwa wa kwanza kuweka post!
-    </div>
-    {% endfor %}
 
-    {% if posts.has_other_pages %}
-    <div class="c-pagination">
-        {% if posts.has_previous %}
-        <a class="c-page-btn" data-community-partial="true" href="?{% if selected_group %}group={{ selected_group.id }}&{% endif %}page=1"><i class="bi bi-chevron-double-left"></i></a>
-        <a class="c-page-btn" data-community-partial="true" href="?{% if selected_group %}group={{ selected_group.id }}&{% endif %}page={{ posts.previous_page_number }}"><i class="bi bi-chevron-left"></i></a>
-        {% endif %}
-        <span class="c-page-btn current">{{ posts.number }} / {{ posts.paginator.num_pages }}</span>
-        {% if posts.has_next %}
-        <a class="c-page-btn" data-community-partial="true" href="?{% if selected_group %}group={{ selected_group.id }}&{% endif %}page={{ posts.next_page_number }}"><i class="bi bi-chevron-right"></i></a>
-        <a class="c-page-btn" data-community-partial="true" href="?{% if selected_group %}group={{ selected_group.id }}&{% endif %}page={{ posts.paginator.num_pages }}"><i class="bi bi-chevron-double-right"></i></a>
-        {% endif %}
-    </div>
-    {% endif %}
+            </div>
+
+              <div id="feed-next-page"
+                  data-next-url="{% if posts.has_next %}{{ request.path }}?{% if selected_group %}group={{ selected_group.id }}&{% endif %}page={{ posts.next_page_number }}{% endif %}"
+                  data-total-pages="{{ posts.paginator.num_pages }}"
+                  data-current-page="{{ posts.number }}"></div>
+            <div id="feed-scroll-sentinel" class="feed-scroll-sentinel" {% if not posts.has_next %}hidden{% endif %}></div>
         </div>
     </div>
 
@@ -2573,6 +2624,113 @@
             setTimeout(() => nameInput.focus(), 350);
         }
     }
+
+    // ── Infinite Scroll ──────────────────────────────────────────────────────
+    (() => {
+        const sentinel = document.getElementById('feed-scroll-sentinel');
+        const nextPageEl = document.getElementById('feed-next-page');
+        const feedList = document.getElementById('posts-feed-list');
+        const postsContainer = document.getElementById('social-posts');
+        if (!sentinel || !nextPageEl || !feedList) return;
+
+        let isLoading = false;
+
+        const shouldLoadMore = () => {
+            const nextUrl = nextPageEl.dataset.nextUrl;
+            const totalPages = parseInt(nextPageEl.dataset.totalPages || '1', 10);
+            if ((!nextUrl && totalPages <= 1) || isLoading) return false;
+
+            if (postsContainer && postsContainer.scrollHeight > postsContainer.clientHeight + 10) {
+                return (postsContainer.scrollTop + postsContainer.clientHeight) >= (postsContainer.scrollHeight - 260);
+            }
+            const rect = sentinel.getBoundingClientRect();
+            return rect.top <= (window.innerHeight + 280);
+        };
+
+        const loadNextPage = async () => {
+            const configuredNextUrl = nextPageEl.dataset.nextUrl;
+            const totalPages = parseInt(nextPageEl.dataset.totalPages || '1', 10);
+            let nextUrl = configuredNextUrl;
+
+            if (!nextUrl) {
+                if (totalPages <= 1 || isLoading) return;
+                const randomPage = Math.max(1, Math.floor(Math.random() * totalPages) + 1);
+                const recycleUrl = new URL(window.location.href);
+                recycleUrl.searchParams.set('page', String(randomPage));
+                nextUrl = recycleUrl.toString();
+            }
+
+            if (isLoading) return;
+            isLoading = true;
+            sentinel.setAttribute('hidden', '');
+
+            try {
+                const res = await fetch(nextUrl, {
+                    headers: {
+                        'X-Requested-With': 'XMLHttpRequest',
+                        'X-Community-Partial': '1',
+                    },
+                });
+                if (!res.ok) { isLoading = false; return; }
+                const html = await res.text();
+                const parser = new DOMParser();
+                const doc = parser.parseFromString(html, 'text/html');
+                const newFeedList = doc.getElementById('posts-feed-list');
+                if (newFeedList) {
+                    Array.from(newFeedList.children).forEach((child) => {
+                        feedList.appendChild(child.cloneNode(true));
+                    });
+                }
+                const newNextEl = doc.getElementById('feed-next-page');
+                const newNextUrl = newNextEl ? newNextEl.dataset.nextUrl : '';
+                const newCurrentPage = newNextEl ? newNextEl.dataset.currentPage : '';
+                nextPageEl.dataset.nextUrl = newNextUrl || '';
+                if (newCurrentPage) {
+                    nextPageEl.dataset.currentPage = newCurrentPage;
+                }
+                if (newNextUrl || totalPages > 1) {
+                    sentinel.removeAttribute('hidden');
+                }
+                bindCommunityInteractions();
+
+                // If sentinel is still near viewport (common after appending groups), keep loading.
+                requestAnimationFrame(() => {
+                    if (shouldLoadMore()) {
+                        loadNextPage();
+                    }
+                });
+            } catch (err) {
+                console.error('Infinite scroll error:', err);
+            }
+            isLoading = false;
+        };
+
+        if ('IntersectionObserver' in window) {
+            const observer = new IntersectionObserver((entries) => {
+                entries.forEach(entry => {
+                    if (entry.isIntersecting) {
+                        loadNextPage();
+                    }
+                });
+            }, { rootMargin: '200px' });
+            observer.observe(sentinel);
+        }
+
+        window.addEventListener('scroll', () => {
+            if (shouldLoadMore()) {
+                loadNextPage();
+            }
+        }, { passive: true });
+
+        if (postsContainer) {
+            postsContainer.addEventListener('scroll', () => {
+                if (shouldLoadMore()) {
+                    loadNextPage();
+                }
+            }, { passive: true });
+        }
+    })();
+    // ── End Infinite Scroll ──────────────────────────────────────────────────
 })();
 </script>
 {% endblock %}

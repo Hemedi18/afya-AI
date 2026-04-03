@@ -143,7 +143,34 @@ class CommunityPost(models.Model):
 
     @property
     def has_media(self):
-        return bool(self.image or self.video)
+        if self.image or self.video:
+            return True
+        try:
+            return self.media_items.exists()
+        except Exception:
+            return False
+
+
+class CommunityPostMedia(models.Model):
+    MEDIA_IMAGE = 'image'
+    MEDIA_VIDEO = 'video'
+    MEDIA_CHOICES = [
+        (MEDIA_IMAGE, _('Image')),
+        (MEDIA_VIDEO, _('Video')),
+    ]
+
+    post = models.ForeignKey(CommunityPost, on_delete=models.CASCADE, related_name='media_items')
+    media_type = models.CharField(max_length=10, choices=MEDIA_CHOICES)
+    image = models.ImageField(upload_to='community_posts/multi/', blank=True, null=True)
+    video = models.FileField(upload_to='community_posts/videos/multi/', blank=True, null=True)
+    sort_order = models.PositiveSmallIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['sort_order', 'created_at', 'id']
+
+    def __str__(self):
+        return f"{self.media_type} for post {self.post_id}"
 
 class CommunityReply(models.Model):
     post = models.ForeignKey(CommunityPost, on_delete=models.CASCADE, related_name='replies')
@@ -188,6 +215,28 @@ class CommunityStatus(models.Model):
 
     def __str__(self):
         return f"Status by {self.user}"
+
+
+class CommunityStatusMedia(models.Model):
+    MEDIA_IMAGE = 'image'
+    MEDIA_VIDEO = 'video'
+    MEDIA_CHOICES = [
+        (MEDIA_IMAGE, _('Image')),
+        (MEDIA_VIDEO, _('Video')),
+    ]
+
+    status = models.ForeignKey(CommunityStatus, on_delete=models.CASCADE, related_name='media_items')
+    media_type = models.CharField(max_length=10, choices=MEDIA_CHOICES)
+    image = models.ImageField(upload_to='community_status/multi/', blank=True, null=True)
+    video = models.FileField(upload_to='community_status/videos/multi/', blank=True, null=True)
+    sort_order = models.PositiveSmallIntegerField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        ordering = ['sort_order', 'created_at', 'id']
+
+    def __str__(self):
+        return f"{self.media_type} for status {self.status_id}"
 
 
 class CommunityStatusComment(models.Model):
@@ -254,6 +303,7 @@ class DoctorProfile(models.Model):
     specialization = models.CharField(max_length=100)
     bio = models.TextField()
     hospital_name = models.CharField(max_length=200, blank=True)
+    location = models.CharField(max_length=200, default='')
     verified = models.BooleanField(default=False)
 
     def __str__(self):

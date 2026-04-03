@@ -16,6 +16,7 @@ class DoctorRegistrationForm(forms.Form):
     gender = forms.ChoiceField(choices=DoctorProfile.GENDER_CHOICES, widget=forms.Select(attrs={'class': 'form-select'}))
     specialization = forms.CharField(max_length=100, widget=forms.TextInput(attrs={'class': 'form-control'}))
     hospital_name = forms.CharField(max_length=200, required=False, widget=forms.TextInput(attrs={'class': 'form-control'}))
+    location = forms.CharField(max_length=200, widget=forms.TextInput(attrs={'class': 'form-control'}))
     bio = forms.CharField(widget=forms.Textarea(attrs={'class': 'form-control', 'rows': 4}))
     license_number = forms.CharField(max_length=120, widget=forms.TextInput(attrs={'class': 'form-control'}))
     issuing_body = forms.CharField(max_length=150, required=False, widget=forms.TextInput(attrs={'class': 'form-control'}))
@@ -58,6 +59,7 @@ class DoctorRegistrationForm(forms.Form):
             gender=self.cleaned_data['gender'],
             specialization=self.cleaned_data['specialization'],
             hospital_name=self.cleaned_data.get('hospital_name', ''),
+            location=self.cleaned_data['location'],
             bio=self.cleaned_data['bio'],
             verified=False,
         )

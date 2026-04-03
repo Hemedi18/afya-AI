@@ -1,5 +1,5 @@
 {% extends 'base.html' %}
-{% load static %}
+{% load static i18n %}
 
 {% block extra_head %}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -190,16 +190,16 @@
             <i class="bi bi-arrow-left fs-5"></i>
         </a>
         <h4 class="fw-bold mb-0">
-            {% if object %}Hariri Log{% else %}Weka Log Mpya{% endif %}
+            {% if object %}{% trans "Hariri Log" %}{% else %}{% trans "Weka Log Mpya" %}{% endif %}
         </h4>
     </div>
 
     <div class="hero-panel p-4 p-lg-5 mb-4">
         <div class="row g-3 align-items-center">
             <div class="col-lg-8">
-                <div class="section-title">Daily menstrual entry</div>
-                <h5 class="fw-bold mb-2">Ingiza taarifa za leo kwa urahisi</h5>
-                <p class="field-note mb-0">Baada ya kuhifadhi utaelekezwa moja kwa moja kwenye dashboard uone data zako, AI insight, na maendeleo kwa grafu.</p>
+                <div class="section-title">{% trans "Daily menstrual entry" %}</div>
+                <h5 class="fw-bold mb-2">{% trans "Ingiza taarifa za leo kwa urahisi" %}</h5>
+                <p class="field-note mb-0">{% blocktrans trimmed %}Baada ya kuhifadhi utaelekezwa moja kwa moja kwenye dashboard uone data zako, AI insight, na maendeleo kwa grafu.{% endblocktrans %}</p>
             </div>
             <div class="col-lg-4 text-lg-end">
                 <span class="badge rounded-pill text-bg-light border px-3 py-2">Mobile first</span>
@@ -221,7 +221,7 @@
 
             {% if form.errors %}
             <div class="error-box mb-4">
-                <div class="fw-bold mb-2">Tafadhali rekebisha sehemu zifuatazo:</div>
+                <div class="fw-bold mb-2">{% trans "Tafadhali rekebisha sehemu zifuatazo:" %}</div>
                 <ul class="mb-0 ps-3 small">
                     {% for field in form %}
                         {% for error in field.errors %}
@@ -233,8 +233,8 @@
             {% endif %}
 
             <div class="mb-4">
-                <div class="section-title">Tarehe</div>
-                <p class="field-note">Chagua siku unayotaka kuweka rekodi.</p>
+                <div class="section-title">{% trans "Tarehe" %}</div>
+                <p class="field-note">{% trans "Chagua siku unayotaka kuweka rekodi." %}</p>
                 <div class="calendar-wrapper">
                     {{ form.date }}
                 </div>
@@ -244,8 +244,8 @@
             </div>
 
             <div class="mb-4">
-                <div class="section-title">Flow intensity</div>
-                <p class="field-note">Chagua kiwango cha damu kutoka 1 mpaka 5.</p>
+                <div class="section-title">{% trans "Flow intensity" %}</div>
+                <p class="field-note">{% trans "Chagua kiwango cha damu kutoka 1 mpaka 5." %}</p>
                 <div class="flow-grid">
                     {% for value, label in form.flow_intensity.field.choices %}
                     <div class="flow-choice">
@@ -259,7 +259,7 @@
                             <span class="chip-text">
                                 <strong>{{ value }}/5</strong>
                                 <small>
-                                    {% if value == '1' %}Very light{% elif value == '2' %}Light{% elif value == '3' %}Normal{% elif value == '4' %}Heavy{% else %}Very heavy{% endif %}
+                                    {% if value == '1' %}{% trans "Very light" %}{% elif value == '2' %}{% trans "Light" %}{% elif value == '3' %}{% trans "Normal" %}{% elif value == '4' %}{% trans "Heavy" %}{% else %}{% trans "Very heavy" %}{% endif %}
                                 </small>
                             </span>
                         </label>
@@ -272,8 +272,8 @@
             </div>
 
             <div class="mb-4">
-                <div class="section-title">Dalili za mwili</div>
-                <p class="field-note">Chagua dalili zote zinazokuhusu leo.</p>
+                <div class="section-title">{% trans "Dalili za mwili" %}</div>
+                <p class="field-note">{% trans "Chagua dalili zote zinazokuhusu leo." %}</p>
                 <div class="chip-grid">
                     {% for value, label in form.physical_symptoms.field.choices %}
                     <div class="choice-chip">
@@ -293,8 +293,8 @@
             </div>
 
             <div class="mb-4">
-                <div class="section-title">Hisia za leo</div>
-                <p class="field-note">Tambua hali ya hisia ili AI iweze kutoa ushauri sahihi zaidi.</p>
+                <div class="section-title">{% trans "Hisia za leo" %}</div>
+                <p class="field-note">{% trans "Tambua hali ya hisia ili AI iweze kutoa ushauri sahihi zaidi." %}</p>
                 <div class="chip-grid">
                     {% for value, label in form.emotional_changes.field.choices %}
                     <div class="choice-chip">
@@ -314,8 +314,8 @@
             </div>
 
             <div class="mb-4">
-                <div class="section-title">Usingizi na uchovu</div>
-                <p class="field-note">Hii itasaidia AI kutambua patterns za mwili wako.</p>
+                <div class="section-title">{% trans "Usingizi na uchovu" %}</div>
+                <p class="field-note">{% trans "Hii itasaidia AI kutambua patterns za mwili wako." %}</p>
                 <div class="chip-grid">
                     {% for value, label in form.sleep_patterns.field.choices %}
                     <div class="choice-chip">
@@ -335,17 +335,17 @@
             </div>
 
             <div class="mb-4">
-                <div class="section-title">Maelezo ya ziada</div>
-                <p class="field-note">Andika kitu chochote cha muhimu kuhusu leo.</p>
+                <div class="section-title">{% trans "Maelezo ya ziada" %}</div>
+                <p class="field-note">{% trans "Andika kitu chochote cha muhimu kuhusu leo." %}</p>
                 {{ form.flow_notes }}
             </div>
 
             <div class="mt-4 d-grid gap-2">
                 <button type="submit" class="submit-btn btn btn-primary w-100 text-white">
                     <i class="bi bi-check2-circle me-2"></i>
-                    {% if object %}Hifadhi Mabadiliko{% else %}Hifadhi Kumbukumbu{% endif %}
+                    {% if object %}{% trans "Hifadhi Mabadiliko" %}{% else %}{% trans "Hifadhi Kumbukumbu" %}{% endif %}
                 </button>
-                <a href="{% url 'menstrual:dashboard' %}" class="btn btn-outline-secondary rounded-pill w-100">Rudi Dashboard</a>
+                <a href="{% url 'menstrual:dashboard' %}" class="btn btn-outline-secondary rounded-pill w-100">{% trans "Rudi Dashboard" %}</a>
             </div>
         </form>
     </div>

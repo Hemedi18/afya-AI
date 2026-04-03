@@ -1,0 +1,88 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}Log Zangu za Afya — AfyaSmart{% endblock %}
+
+{% block content %}
+<style>
+.log-doctor-avatar {
+    width: 44px; height: 44px; border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: #fff; display: inline-flex; align-items: center; justify-content: center;
+    font-weight: 800; font-size: 1rem; flex-shrink: 0;
+}
+.log-card { transition: transform .12s ease; }
+.log-card:hover { transform: translateY(-1px); }
+.freq-badge {
+    display: inline-flex; align-items: center; gap: .25rem;
+    font-size: .75rem; padding: .15rem .55rem; border-radius: 20px;
+    background: color-mix(in srgb, var(--secondary) 18%, transparent);
+    color: var(--text-muted);
+}
+</style>
+
+<div class="py-4">
+    <div class="card-custom p-4 mb-4">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <div>
+                <h4 class="fw-bold mb-1"><i class="bi bi-journal-medical me-2 text-success"></i>Log Zangu za Afya</h4>
+                <p class="text-muted small mb-0">
+                    Daktari wako wamekuandalia fomu maalum za kujaza taarifa za afya yako.
+                    Jaza kila fomu kwa wakati uliopangwa.
+                </p>
+            </div>
+        </div>
+    </div>
+
+    {% if logs %}
+    <div class="row g-3">
+        {% for log in logs %}
+        <div class="col-md-6 col-lg-4">
+            <div class="card-custom p-4 h-100 log-card d-flex flex-column">
+                <!-- Doctor info -->
+                <div class="d-flex align-items-center gap-2 mb-3">
+                    <div class="log-doctor-avatar">{{ log.doctor.username|first|upper }}</div>
+                    <div style="min-width:0;">
+                        <div class="small fw-semibold text-truncate">Dr. {{ log.doctor.get_full_name|default:log.doctor.username }}</div>
+                        <div class="text-muted" style="font-size:.72rem;">@{{ log.doctor.username }}</div>
+                    </div>
+                </div>
+
+                <!-- Log title + description -->
+                <h6 class="fw-bold mb-1">{{ log.title }}</h6>
+                {% if log.description %}
+                <p class="text-muted small mb-2">{{ log.description }}</p>
+                {% endif %}
+
+                <!-- Frequency + fields count -->
+                <div class="d-flex flex-wrap gap-1 mb-3">
+                    {% if log.frequency %}
+                    <span class="freq-badge"><i class="bi bi-arrow-repeat"></i>{{ log.frequency }}</span>
+                    {% endif %}
+                    <span class="freq-badge"><i class="bi bi-list-check"></i>{{ log.fields.count }} maswali</span>
+                    <span class="freq-badge"><i class="bi bi-inbox"></i>{{ log.entries.count }} jalada</span>
+                </div>
+
+                <a href="{% url 'doctor:patient_log_fill' log.id %}" class="btn btn-success rounded-pill mt-auto">
+                    <i class="bi bi-pencil-square me-1"></i>Jaza Sasa
+                </a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+
+    {% else %}
+    <div class="card-custom p-5 text-center">
+        <i class="bi bi-journal-x display-4 text-muted mb-3 d-block"></i>
+        <h5 class="fw-semibold mb-2">Hakuna Log Forms Bado</h5>
+        <p class="text-muted small">
+            Daktari wako hawajakutumia fomu yoyote ya kujaza bado.
+            Wasiliana nao kupitia private chat ili wakuandalie.
+        </p>
+        <a href="{% url 'chats:inbox' %}" class="btn btn-outline-primary rounded-pill mt-2">
+            <i class="bi bi-chat-dots me-1"></i>Nenda Inbox
+        </a>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}

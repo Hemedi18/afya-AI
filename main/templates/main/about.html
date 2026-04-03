@@ -1,20 +1,21 @@
 
 {% extends "base.html" %}
+{% load i18n %}
 
-{% block title %}About AI Health Assistant{% endblock %}
+{% block title %}{% trans "About AI Health Assistant" %}{% endblock %}
 
 {% block content %}
 <div class="container mx-auto px-4 py-8">
-    <h1 class="text-4xl font-bold mb-6">About AI Health Assistant</h1>
-    <p class="text-lg text-gray-700 mb-4">AI Health Assistant is a cutting-edge platform designed to provide personalized health insights and support. Our mission is to empower individuals to take control of their health through the power of artificial intelligence.</p>
-    <h2 class="text-2xl font-semibold mb-4">Our Features</h2>
+    <h1 class="text-4xl font-bold mb-6">{% trans "About AI Health Assistant" %}</h1>
+    <p class="text-lg text-gray-700 mb-4">{% blocktrans trimmed %}AI Health Assistant is a cutting-edge platform designed to provide personalized health insights and support. Our mission is to empower individuals to take control of their health through the power of artificial intelligence.{% endblocktrans %}</p>
+    <h2 class="text-2xl font-semibold mb-4">{% trans "Our Features" %}</h2>
     <ul class="list-disc list-inside text-gray-700 mb-4">
-        <li><strong>Symptom Checker:</strong> Get instant insights into your symptoms and potential causes.</li>
-        <li><strong>Menstrual Health Tracking:</strong> Log your  menstrual cycle and receive personalized predictions and insights.</li>
-        <li><strong>Pregnancy Support:</strong> Track your pregnancy journey and get tailored advice and information.</li>
-        <li><strong>AI-Powered Chat:</strong> Ask our AI assistant any health-related questions and receive accurate, evidence-based answers.</li>
+        <li><strong>{% trans "Symptom Checker:" %}</strong> {% trans "Get instant insights into your symptoms and potential causes." %}</li>
+        <li><strong>{% trans "Menstrual Health Tracking:" %}</strong> {% trans "Log your menstrual cycle and receive personalized predictions and insights." %}</li>
+        <li><strong>{% trans "Pregnancy Support:" %}</strong> {% trans "Track your pregnancy journey and get tailored advice and information." %}</li>
+        <li><strong>{% trans "AI-Powered Chat:" %}</strong> {% trans "Ask our AI assistant any health-related questions and receive accurate, evidence-based answers." %}</li>
     </ul>
-    <h2 class="text-2xl font-semibold mb-4">Our Team</h2>
-    <p class="text-lg text-gray-700 mb-4">Our team is composed of healthcare professionals, data scientists, and software engineers who are passionate about improving health outcomes through technology.</p>
+    <h2 class="text-2xl font-semibold mb-4">{% trans "Our Team" %}</h2>
+    <p class="text-lg text-gray-700 mb-4">{% blocktrans trimmed %}Our team is composed of healthcare professionals, data scientists, and software engineers who are passionate about improving health outcomes through technology.{% endblocktrans %}</p>
 </div>
 {% endblock %}

@@ -1,16 +1,17 @@
 {% extends "base.html" %}
+{% load i18n %}
 
-{% block title %}AI Persona Setup - AfyaSmart{% endblock %}
+{% block title %}{% trans "AI Persona Setup" %} - AfyaSmart{% endblock %}
 
 {% block content %}
 <div class="py-4" style="max-width: 860px; margin: 0 auto;">
     <div class="card-custom p-4 p-lg-5">
         <div class="d-flex justify-content-between align-items-start gap-3 flex-wrap mb-3">
             <div>
-                <h4 class="fw-bold mb-1">AI Persona Setup</h4>
-                <p class="text-muted mb-0">Step {{ step }} / 3 • {{ step_title }}</p>
+                <h4 class="fw-bold mb-1">{% trans "AI Persona Setup" %}</h4>
+                <p class="text-muted mb-0">{% blocktrans trimmed with current=step title=step_title %}Step {{ current }} / 3 • {{ title }}{% endblocktrans %}</p>
             </div>
-            <a href="{% if next_url %}{{ next_url }}{% else %}{% url 'AI_brain:chat' %}{% endif %}" class="btn btn-sm btn-outline-secondary rounded-pill">Skip for now</a>
+            <a href="{% if next_url %}{{ next_url }}{% else %}{% url 'AI_brain:chat' %}{% endif %}" class="btn btn-sm btn-outline-secondary rounded-pill">{% trans "Skip for now" %}</a>
         </div>
 
         <p class="text-muted small mb-3">{{ step_subtitle }}</p>
@@ -41,13 +42,13 @@
 
             <div class="d-flex justify-content-between gap-2 mt-4 flex-wrap">
                 {% if step > 1 %}
-                <a href="{% url 'users:onboarding' step=step|add:'-1' %}{% if next_url %}?next={{ next_url|urlencode }}{% endif %}" class="btn btn-outline-secondary rounded-pill px-4">Back</a>
+                <a href="{% url 'users:onboarding' step=step|add:'-1' %}{% if next_url %}?next={{ next_url|urlencode }}{% endif %}" class="btn btn-outline-secondary rounded-pill px-4">{% trans "Back" %}</a>
                 {% else %}
                 <span></span>
                 {% endif %}
 
                 <button type="submit" class="btn btn-danger rounded-pill px-4">
-                    {% if step == 3 %}Finish{% else %}Continue{% endif %}
+                    {% if step == 3 %}{% trans "Finish" %}{% else %}{% trans "Continue" %}{% endif %}
                 </button>
             </div>
         </form>

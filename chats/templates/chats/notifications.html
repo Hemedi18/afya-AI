@@ -1,6 +1,7 @@
 {% extends 'base.html' %}
+{% load i18n %}
 
-{% block title %}Notifications | Jamii{% endblock %}
+{% block title %}{% trans "Notifications" %} | Jamii{% endblock %}
 
 {% block content %}
 <style>
@@ -79,77 +80,77 @@
 </style>
 <div class="notifications-shell py-2">
     <div class="notifications-topbar">
-        <h4 class="mb-0 fw-bold"><i class="bi bi-bell-fill me-2 text-warning"></i>Notifications</h4>
+        <h4 class="mb-0 fw-bold"><i class="bi bi-bell-fill me-2 text-warning"></i>{% trans "Notifications" %}</h4>
         <a href="{% url 'chats:feed' %}" class="notifications-chip">
             <i class="bi bi-arrow-left-circle-fill"></i>
-            <span>Feed</span>
+            <span>{% trans "Feed" %}</span>
         </a>
     </div>
 
     <div class="notifications-nav">
-        <a href="{% url 'chats:feed' %}" class="notifications-chip"><i class="bi bi-house-heart-fill"></i><span>Home</span></a>
-        <a href="{% url 'chats:inbox' %}" class="notifications-chip"><i class="bi bi-chat-dots-fill"></i><span>Inbox</span></a>
-        <a href="{% url 'chats:clarification_inbox' %}" class="notifications-chip"><i class="bi bi-patch-question-fill"></i><span>Clarifications</span></a>
+        <a href="{% url 'chats:feed' %}" class="notifications-chip"><i class="bi bi-house-heart-fill"></i><span>{% trans "Home" %}</span></a>
+        <a href="{% url 'chats:inbox' %}" class="notifications-chip"><i class="bi bi-chat-dots-fill"></i><span>{% trans "Inbox" %}</span></a>
+        <a href="{% url 'chats:clarification_inbox' %}" class="notifications-chip"><i class="bi bi-patch-question-fill"></i><span>{% trans "Clarifications" %}</span></a>
     </div>
 
     <div class="card notification-card mb-3">
         <div class="card-body">
-            <h6 class="fw-bold mb-3">Comments on your posts</h6>
+            <h6 class="fw-bold mb-3">{% trans "Comments on your posts" %}</h6>
             {% for c in recent_comment_notifications %}
             <div class="notification-item no-click" role="note" aria-label="Comment notification">
-                <div class="small" style="color:var(--text-main);"><strong>{{ c.user.username }}</strong> amekomenti post yako</div>
+                <div class="small" style="color:var(--text-main);">{% blocktrans trimmed with user=c.user.username %}<strong>{{ user }}</strong> amekomenti post yako{% endblocktrans %}</div>
                 <div class="small text-muted">{{ c.created_at|timesince }} ago</div>
             </div>
             {% empty %}
-            <div class="small text-muted">Hakuna comment notifications.</div>
+            <div class="small text-muted">{% trans "Hakuna comment notifications." %}</div>
             {% endfor %}
         </div>
     </div>
 
     <div class="card notification-card mb-3">
         <div class="card-body">
-            <h6 class="fw-bold mb-3">Clarification answers</h6>
+            <h6 class="fw-bold mb-3">{% trans "Clarification answers" %}</h6>
             {% for item in recent_clarification_answers %}
             <a href="{% if item.post %}{% url 'chats:post_detail' item.post.id %}?clarification={{ item.id }}{% elif item.comment and item.comment.post %}{% url 'chats:post_detail' item.comment.post.id %}?clarification={{ item.id }}#comment-{{ item.comment.id }}{% else %}{% url 'chats:clarification_inbox' %}{% endif %}" class="notification-item">
-                <div class="small" style="color:var(--text-main);">Umejibiwa na <strong>{{ item.responded_by.username|default:'staff' }}</strong></div>
+                <div class="small" style="color:var(--text-main);">{% blocktrans trimmed with user=item.responded_by.username|default:'staff' %}Umejibiwa na <strong>{{ user }}</strong>{% endblocktrans %}</div>
                 <div class="small text-muted">{{ item.updated_at|timesince }} ago</div>
             </a>
             {% empty %}
-            <div class="small text-muted">Hakuna majibu mapya ya clarification.</div>
+            <div class="small text-muted">{% trans "Hakuna majibu mapya ya clarification." %}</div>
             {% endfor %}
         </div>
     </div>
 
     <div class="card notification-card mb-3">
         <div class="card-body">
-            <h6 class="fw-bold mb-3">Report updates</h6>
+            <h6 class="fw-bold mb-3">{% trans "Report updates" %}</h6>
             {% for rpt in recent_report_updates %}
             <a href="{% if rpt.post %}{% url 'chats:post_detail' rpt.post.id %}{% else %}{% url 'chats:feed' %}{% endif %}" class="notification-item">
-                <div class="small" style="color:var(--text-main);">Report: <strong>{{ rpt.get_status_display }}</strong></div>
+                <div class="small" style="color:var(--text-main);">{% trans "Report" %}: <strong>{{ rpt.get_status_display }}</strong></div>
                 <div class="small text-muted">{{ rpt.created_at|timesince }} ago</div>
             </a>
             {% empty %}
-            <div class="small text-muted">Hakuna updates za report.</div>
+            <div class="small text-muted">{% trans "Hakuna updates za report." %}</div>
             {% endfor %}
         </div>
     </div>
 
     <div class="card notification-card mb-3">
         <div class="card-body">
-            <h6 class="fw-bold mb-3">Group join approvals</h6>
+            <h6 class="fw-bold mb-3">{% trans "Group join approvals" %}</h6>
             {% for req in recent_group_join_approvals %}
             <a href="{% url 'chats:group_detail' req.group.id %}" class="notification-item">
-                <div class="small" style="color:var(--text-main);">Ombi lako la kujiunga limekubaliwa: <strong>{{ req.group.name }}</strong></div>
+                <div class="small" style="color:var(--text-main);">{% blocktrans trimmed with group=req.group.name %}Ombi lako la kujiunga limekubaliwa: <strong>{{ group }}</strong>{% endblocktrans %}</div>
                 <div class="small text-muted">{{ req.updated_at|timesince }} ago</div>
             </a>
             {% empty %}
-            <div class="small text-muted">Hakuna group approvals mpya.</div>
+            <div class="small text-muted">{% trans "Hakuna group approvals mpya." %}</div>
             {% endfor %}
         </div>
     </div>
 
     {% if not recent_comment_notifications and not recent_clarification_answers and not recent_report_updates and not recent_group_join_approvals %}
-    <div class="alert alert-light border rounded-4 small text-muted">Hakuna notifications mpya kwa sasa.</div>
+    <div class="alert alert-light border rounded-4 small text-muted">{% trans "Hakuna notifications mpya kwa sasa." %}</div>
     {% endif %}
 </div>
 {% endblock %}

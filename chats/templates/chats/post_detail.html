@@ -202,6 +202,75 @@
 }
 .recent-link:hover { border-color: var(--primary); color: var(--primary); }
 .recent-link-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--primary); flex-shrink: 0; margin-top: .35rem; }
+.related-feed-card {
+    background: var(--card-bg);
+    border: 1px solid var(--line-soft);
+    border-radius: 16px;
+    padding: .8rem .85rem;
+    margin-bottom: .75rem;
+}
+.related-feed-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .55rem;
+    margin-bottom: .55rem;
+}
+.related-feed-author {
+    display: flex;
+    align-items: center;
+    gap: .55rem;
+    min-width: 0;
+}
+.related-feed-avatar {
+    width: 34px;
+    height: 34px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary), var(--secondary));
+    color: #fff;
+    font-weight: 800;
+    font-size: .8rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+.related-feed-name {
+    font-size: .8rem;
+    font-weight: 800;
+    color: var(--text-main);
+    text-decoration: none;
+}
+.related-feed-name:hover { color: var(--primary); }
+.related-feed-meta {
+    font-size: .7rem;
+    color: var(--text-muted);
+}
+.related-feed-content {
+    font-size: .83rem;
+    color: var(--text-main);
+    line-height: 1.5;
+    margin-bottom: .55rem;
+}
+.related-feed-media {
+    width: 100%;
+    border-radius: 12px;
+    border: 1px solid var(--line-soft);
+    margin-bottom: .55rem;
+    max-height: 250px;
+    object-fit: cover;
+}
+.related-feed-actions {
+    display: flex;
+    gap: .35rem;
+    flex-wrap: wrap;
+    padding-top: .45rem;
+    border-top: 1px solid var(--line-soft);
+}
+.related-feed-actions .action-btn {
+    font-size: .74rem;
+    padding: .3rem .6rem;
+}
 .doctor-row { display: flex; align-items: center; justify-content: space-between; gap: .7rem; padding: .6rem 0; border-bottom: 1px solid var(--line-soft); }
 .doctor-row:last-child { border-bottom: none; }
 .doctor-info { display: flex; align-items: center; gap: .65rem; min-width: 0; }
@@ -583,13 +652,30 @@
                 </div>
                 <div class="sidebar-card-body">
                     {% for item in related_posts %}
-                    <a href="{% url 'chats:post_detail' item.id %}" class="recent-link">
-                        <div class="recent-link-dot"></div>
-                        <div style="min-width:0;">
-                            <div class="fw-bold" style="font-size:.82rem;">{% if item.is_anonymous %}Anonymous{% else %}{{ item.user.username }}{% endif %}</div>
-                            <div class="small text-muted" style="font-size:.76rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;">{{ item.content|striptags|truncatewords:10 }}</div>
+                    <article class="related-feed-card">
+                        <div class="related-feed-head">
+                            <div class="related-feed-author">
+                                <div class="related-feed-avatar">{% if item.is_anonymous %}?{% else %}{{ item.user.username|first|upper }}{% endif %}</div>
+                                <div style="min-width:0;">
+                                    <a href="{% url 'chats:post_detail' item.id %}" class="related-feed-name">{% if item.is_anonymous %}Anonymous member{% else %}{{ item.user.username }}{% endif %}</a>
+                                    <div class="related-feed-meta">{{ item.created_at|timesince }} ago</div>
+                                </div>
+                            </div>
+                            <a href="{% url 'chats:post_detail' item.id %}" class="action-btn" style="font-size:.7rem;padding:.24rem .48rem;"><i class="bi bi-box-arrow-up-right"></i></a>
                         </div>
-                    </a>
+
+                        <div class="related-feed-content">{{ item.preview_text|default:item.content|striptags|truncatewords:28 }}</div>
+                        {% if item.image %}
+                        <img src="{{ item.image.url }}" alt="related post image" class="related-feed-media">
+                        {% endif %}
+
+                        <div class="related-feed-actions">
+                            <a href="{% url 'chats:post_detail' item.id %}" class="action-btn action-btn-like"><i class="bi bi-heart-fill"></i> {{ item.likes.count }}</a>
+                            <a href="{% url 'chats:post_detail' item.id %}#clarify-post-detail" class="action-btn"><i class="bi bi-patch-question"></i> Clarify</a>
+                            <a href="{% url 'chats:post_detail' item.id %}#report-post-detail" class="action-btn"><i class="bi bi-flag"></i> Report</a>
+                            <a href="{% url 'chats:post_detail' item.id %}#comments-panel" class="action-btn"><i class="bi bi-chat"></i> {{ item.replies.count }}</a>
+                        </div>
+                    </article>
                     {% empty %}
                     <div class="text-muted small text-center">Hakuna related posts kwa sasa.</div>
                     {% endfor %}
