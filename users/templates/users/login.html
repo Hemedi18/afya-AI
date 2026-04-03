@@ -22,6 +22,53 @@
         color: #dc3545;
         margin-top: .35rem;
     }
+    .social-divider {
+        display: flex;
+        align-items: center;
+        gap: .85rem;
+        margin: 1.15rem 0;
+        color: var(--text-muted);
+        font-size: .84rem;
+    }
+    .social-divider::before,
+    .social-divider::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: color-mix(in srgb, var(--line-soft) 70%, transparent);
+    }
+    .social-auth-list {
+        display: grid;
+        gap: .75rem;
+    }
+    .social-auth-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: .7rem;
+        border-radius: 999px;
+        padding: .78rem 1rem;
+        font-weight: 700;
+        text-decoration: none;
+        border: 1px solid color-mix(in srgb, var(--line-soft) 88%, transparent);
+        color: var(--text-main);
+        background: color-mix(in srgb, var(--card-bg) 84%, transparent);
+    }
+    .social-auth-btn:hover {
+        color: var(--text-main);
+        transform: translateY(-1px);
+    }
+    .social-auth-btn.is-disabled {
+        opacity: .55;
+    }
+    .social-auth-btn i {
+        font-size: 1rem;
+    }
+    .social-note {
+        margin-top: .9rem;
+        font-size: .78rem;
+        color: var(--text-muted);
+    }
     
     @media (max-width: 576px) {
         .login-container {
@@ -40,6 +87,7 @@
             <h3 class="fw-bold text-center mb-4">{% trans "Ingia kwenye AfyaSmart" %}</h3>
             <form method="post" action="{% url 'users:login' %}">
                 {% csrf_token %}
+                {% if next %}<input type="hidden" name="next" value="{{ next }}">{% endif %}
 
                 {% if form.non_field_errors %}
                 <div class="alert alert-danger rounded-4 py-2 px-3" role="alert">
@@ -59,6 +107,20 @@
                 </div>
                 <button type="submit" class="btn btn-danger w-100 rounded-pill">{% trans "Ingia" %}</button>
             </form>
+
+            {% if social_providers %}
+            <div class="social-divider"><span>{% trans "au endelea na" %}</span></div>
+            <div class="social-auth-list">
+                {% for provider in social_providers %}
+                <a href="{{ provider.url }}" class="social-auth-btn{% if not provider.enabled %} is-disabled{% endif %}">
+                    <i class="bi {{ provider.icon }}"></i>
+                    <span>{% blocktrans with provider_name=provider.name %}Continue with {{ provider_name }}{% endblocktrans %}</span>
+                </a>
+                {% endfor %}
+            </div>
+            <p class="social-note">{% trans "Ukibonyeza provider ambaye bado hajapewa keys, utaonyeshwa ujumbe wa setup kwanza." %}</p>
+            {% endif %}
+
             <p class="text-center mt-3 small">{% trans "Huna akaunti?" %} <a href="{% url 'users:register' %}">{% trans "Jisajili hapa" %}</a></p>
         </div>
     </div>

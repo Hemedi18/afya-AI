@@ -9,6 +9,7 @@ from main.views import pwa_manifest, service_worker
 urlpatterns = [
     # URLs ambazo hazihitaji lugha ziwe hapa (kama API)
     path('i18n/', include('django.conf.urls.i18n')),
+    path('accounts/', include('allauth.urls')),
     path('api/mobile/', include('mobile_api.urls')),
     path('manifest.webmanifest', pwa_manifest, name='pwa_manifest'),
     path('service-worker.js', service_worker, name='pwa_service_worker'),

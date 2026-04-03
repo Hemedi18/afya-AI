@@ -32,6 +32,51 @@
         background-color: var(--card-bg) !important;
     }
     .field-error { font-size: .82rem; color: #dc3545; margin-top: .25rem; }
+    .social-divider {
+        display: flex;
+        align-items: center;
+        gap: .85rem;
+        margin: 1.15rem 0;
+        color: var(--text-muted);
+        font-size: .84rem;
+    }
+    .social-divider::before,
+    .social-divider::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: color-mix(in srgb, var(--line-soft) 70%, transparent);
+    }
+    .social-auth-list {
+        display: grid;
+        gap: .75rem;
+        margin-bottom: 1rem;
+    }
+    .social-auth-btn {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: .7rem;
+        border-radius: 999px;
+        padding: .78rem 1rem;
+        font-weight: 700;
+        text-decoration: none;
+        border: 1px solid color-mix(in srgb, var(--line-soft) 88%, transparent);
+        color: var(--text-main);
+        background: color-mix(in srgb, var(--card-bg) 84%, transparent);
+    }
+    .social-auth-btn:hover {
+        color: var(--text-main);
+        transform: translateY(-1px);
+    }
+    .social-auth-btn.is-disabled {
+        opacity: .55;
+    }
+    .social-auth-note {
+        font-size: .78rem;
+        color: var(--text-muted);
+        margin-bottom: 1rem;
+    }
     
     @media (max-width: 992px) {
         .auth-shell {
@@ -66,6 +111,19 @@
             <div class="col-lg-7 p-4 p-xl-5 auth-form-panel">
                 <h3 class="fw-bold mb-1">{% trans "Jisajili kwa AfyaSmart" %}</h3>
                 <p class="text-muted small mb-4">{% trans "Ni dakika chache tu kuanza." %}</p>
+
+                {% if social_providers %}
+                <div class="social-auth-list">
+                    {% for provider in social_providers %}
+                    <a href="{{ provider.url }}" class="social-auth-btn{% if not provider.enabled %} is-disabled{% endif %}">
+                        <i class="bi {{ provider.icon }}"></i>
+                        <span>{% blocktrans with provider_name=provider.name %}Sign up with {{ provider_name }}{% endblocktrans %}</span>
+                    </a>
+                    {% endfor %}
+                </div>
+                <p class="social-auth-note">{% trans "Social signup itafanya account itengenezwe na kisha utaendelea kwenye onboarding yako." %}</p>
+                <div class="social-divider"><span>{% trans "au tumia username na nenosiri" %}</span></div>
+                {% endif %}
 
                 <form method="post" action="{% url 'users:register' %}" novalidate>
                     {% csrf_token %}

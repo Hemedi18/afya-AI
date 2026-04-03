@@ -4,10 +4,11 @@
 <html lang="{{ CURRENT_LANGUAGE }}" dir="{% if CURRENT_LANGUAGE == 'ar' %}rtl{% else %}ltr{% endif %}">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <meta name="theme-color" content="#2F6B3F">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <meta name="theme-color" content="#2F6B3F" id="app-theme-color">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <link rel="manifest" href="/manifest.webmanifest">
     <title>{% block title %}AfyaSmart{% endblock %}</title>
     <link rel="icon" type="image/png" href="{% static 'favicon.png' %}">
@@ -37,6 +38,10 @@
             --seed-accent: {{ ui_palette.accent|default:'#F7C85C' }};
             --seed-on-color: {{ ui_palette.on_color|default:'#102617' }};
             --seed-bg-intensity: {{ ui_bg_intensity|default:24 }};
+            --system-bar-light: {{ ui_palette.primary|default:'#2F6B3F' }};
+            --system-bar-dark: #0f141a;
+            --system-bar-color: {{ ui_palette.primary|default:'#2F6B3F' }};
+            --header-surface: {{ ui_palette.primary|default:'#2F6B3F' }};
 
             --primary: var(--seed-primary);
             --secondary: var(--seed-secondary);
@@ -92,6 +97,7 @@
 
             --body-overlay-light: transparent;
             --body-overlay-dark: transparent;
+            --header-surface: var(--system-bar-color);
         }
 
         {% if ui_bg_style == 'solid' %}
@@ -140,10 +146,12 @@
             --neo-in-b: color-mix(in srgb, #2d3440 74%, var(--seed-secondary) 26%);
 
             --body-overlay-dark: color-mix(in srgb, var(--app-bg) 82%, transparent);
+            --header-surface: var(--system-bar-dark);
         }
 
         html, body {
             min-height: 100dvh;
+            background-color: var(--app-bg);
         }
 
         body {
@@ -269,8 +277,8 @@
 
         /* Navbar Desktop */
         .navbar {
-            background: var(--glass) !important;
-            backdrop-filter: blur(14px);
+            background: var(--header-surface) !important;
+            backdrop-filter: saturate(140%) blur(10px);
             border-bottom: 1px solid var(--line-soft);
         }
 
@@ -461,12 +469,15 @@
         .afya-main-nav {
             min-height: 58px;
             border-bottom: 1px solid var(--line-soft);
+            padding-top: env(safe-area-inset-top, 0px);
+            background: var(--header-surface) !important;
         }
 
         .afya-mobile-sub-nav {
             min-height: 48px;
             border-bottom: 1px solid var(--line-soft);
-            background: var(--glass) !important;
+            padding-top: env(safe-area-inset-top, 0px);
+            background: var(--header-surface) !important;
             backdrop-filter: blur(14px);
         }
 
@@ -2112,6 +2123,28 @@
         });
     }
 
+    function syncMobileSystemBars(theme) {
+        const activeTheme = theme || document.documentElement.getAttribute('data-theme') || 'light';
+        const styles = getComputedStyle(document.documentElement);
+        const themeMeta = document.getElementById('app-theme-color');
+
+        let colorVar = '--system-bar-light';
+        if (activeTheme === 'dark') {
+            colorVar = '--system-bar-dark';
+        } else if (activeTheme === 'color') {
+            colorVar = '--system-bar-color';
+        }
+
+        const resolvedColor = (styles.getPropertyValue(colorVar) || '').trim() || '#2F6B3F';
+
+        if (themeMeta) {
+            themeMeta.setAttribute('content', resolvedColor);
+        }
+
+        document.documentElement.style.backgroundColor = resolvedColor;
+        document.body.style.backgroundColor = resolvedColor;
+    }
+
     function toggleTheme() {
         const current = document.documentElement.getAttribute('data-theme') || 'light';
         const hasCustomColor = document.documentElement.getAttribute('data-has-custom-color') === '1';
@@ -2128,6 +2161,7 @@
         document.documentElement.setAttribute('data-theme', next);
         localStorage.setItem('zh-theme', next);
         applyThemeIcon(next);
+        syncMobileSystemBars(next);
     }
 
     function getCookie(name) {
@@ -2325,6 +2359,7 @@
     document.addEventListener('DOMContentLoaded', function () {
         const current = document.documentElement.getAttribute('data-theme') || 'light';
         applyThemeIcon(current);
+        syncMobileSystemBars(current);
         document.querySelectorAll('[data-theme-toggle]').forEach((btn) => {
             btn.addEventListener('click', toggleTheme);
         });
@@ -2359,6 +2394,11 @@
         setupQuickAIWidget();
         setupGlobalConfirmModal();
         setupMobileSubNavScrollState();
+
+        const themeObserver = new MutationObserver(() => {
+            syncMobileSystemBars(document.documentElement.getAttribute('data-theme') || 'light');
+        });
+        themeObserver.observe(document.documentElement, { attributes: true, attributeFilter: ['data-theme'] });
     });
 </script>
 <script>

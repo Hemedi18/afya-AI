@@ -287,21 +287,30 @@ class AdminControlCenterView(AdminRequiredMixin, TemplateView):
 
 
 def pwa_manifest(request):
-        data = {
+    start_url = '/'
+    current_language = getattr(request, 'LANGUAGE_CODE', '') or 'sw'
+    supported_languages = {'sw', 'en', 'ar'}
+    if current_language in supported_languages:
+        start_url = f'/{current_language}/'
+
+    data = {
         'name': 'AfyaSmart Health Assistant',
         'short_name': 'AfyaSmart',
-                'description': 'Smart private reproductive and health care assistant.',
+        'description': 'Smart private reproductive and health care assistant.',
         'id': '/',
-        'start_url': '/',
-                'scope': '/',
-                'display': 'standalone',
-                'background_color': '#F6F1FB',
-                'theme_color': '#2F6B3F',
-                'orientation': 'portrait',
-                'icons': [
-                        {
+        'start_url': start_url,
+        'scope': '/',
+        'display': 'standalone',
+        'display_override': ['window-controls-overlay', 'standalone', 'minimal-ui'],
+        'background_color': '#F6F1FB',
+        'theme_color': '#2F6B3F',
+        'lang': current_language,
+        'orientation': 'portrait',
+        'prefer_related_applications': False,
+        'icons': [
+            {
                 'src': static('icons/Icon-192.png'),
-                                'sizes': '192x192',
+                'sizes': '192x192',
                 'type': 'image/png',
                 'purpose': 'any',
             },
@@ -322,15 +331,15 @@ def pwa_manifest(request):
                 'sizes': '512x512',
                 'type': 'image/png',
                 'purpose': 'maskable',
-                        }
-                ],
-        }
-        return JsonResponse(data)
+            },
+        ],
+    }
+    return JsonResponse(data)
 
 
 def service_worker(request):
-        js = """
-const CACHE_NAME = 'afyasmart-v3';
+    js = """
+const CACHE_NAME = 'afyasmart-v4';
 const URLS = ['/static/base.css'];
 
 function isStaticAsset(requestUrl) {
@@ -389,4 +398,7 @@ self.addEventListener('fetch', (event) => {
     );
 });
 """.strip()
-        return HttpResponse(js, content_type='application/javascript')
+    response = HttpResponse(js, content_type='application/javascript')
+    response['Service-Worker-Allowed'] = '/'
+    response['Cache-Control'] = 'no-cache, no-store, must-revalidate'
+    return response

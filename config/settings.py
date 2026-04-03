@@ -29,15 +29,38 @@ if not SECRET_KEY:
 
 DEBUG = (os.getenv('DEBUG', 'True') or 'True').strip().lower() in ('1', 'true', 'yes', 'on')
 
-ALLOWED_HOSTS = ['.pythonanywhere.com', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = [
+    'afyacom.pythonanywhere.com',
+    '.pythonanywhere.com',
+    'localhost',
+    '127.0.0.1',
+]
 
 CSRF_TRUSTED_ORIGINS = [
+    'https://afyacom.pythonanywhere.com',
+    'https://*.pythonanywhere.com',
     'https://*.ngrok-free.app',
     'https://*.ngrok.io',
     'https://*.ngrok-free.dev',
     'http://localhost:8000',
     'http://127.0.0.1:8000',
 ]
+
+# ── Production / PythonAnywhere security ───────────────────────────────────
+# PythonAnywhere terminates SSL at their proxy, so Django must NOT redirect
+# HTTP→HTTPS itself (that causes redirect loops). Cookie security is still on.
+if not DEBUG:
+    SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
+    SECURE_SSL_REDIRECT = False          # PythonAnywhere proxy already enforces HTTPS
+    SESSION_COOKIE_SECURE = True
+    CSRF_COOKIE_SECURE = True
+    SECURE_HSTS_SECONDS = 31536000       # 1 year — only after you're sure HTTPS works
+    SECURE_HSTS_INCLUDE_SUBDOMAINS = True
+    SECURE_HSTS_PRELOAD = True
+    SECURE_CONTENT_TYPE_NOSNIFF = True
+    SECURE_BROWSER_XSS_FILTER = True
+    X_FRAME_OPTIONS = 'DENY'
+# ───────────────────────────────────────────────────────────────────────────
 
 GROQ_API_KEY = os.getenv('GROQ_API_KEY')
 AI_PROVIDER = (os.getenv('AI_PROVIDER', 'groq') or 'groq').strip().lower()
@@ -65,6 +88,15 @@ ANDROID_SMS_GATEWAY_TOKEN = os.getenv('ANDROID_SMS_GATEWAY_TOKEN', '')
 INSTALLED_APPS = [
     'jazzmin',
     'channels',
+
+    # Authentication providers
+    'django.contrib.sites',
+    'allauth',
+    'allauth.account',
+    'allauth.socialaccount',
+    'allauth.socialaccount.providers.google',
+    'allauth.socialaccount.providers.facebook',
+    'allauth.socialaccount.providers.twitter_oauth2',
 
     # Local apps
     'AI_brain',
@@ -101,6 +133,7 @@ MIDDLEWARE = [
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
     'django.contrib.auth.middleware.AuthenticationMiddleware',
+    'allauth.account.middleware.AccountMiddleware',
     'card.middleware.PersonaReminderMiddleware',
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
@@ -204,6 +237,60 @@ LOCALE_PATHS = [
 LOGIN_URL = 'users:login'  # Or whatever your login name is
 LOGIN_REDIRECT_URL = 'main:home'
 LOGOUT_REDIRECT_URL = 'main:home'
+SITE_ID = 1
+
+AUTHENTICATION_BACKENDS = [
+    'django.contrib.auth.backends.ModelBackend',
+    'allauth.account.auth_backends.AuthenticationBackend',
+]
+
+ACCOUNT_ADAPTER = 'users.adapters.AccountAdapter'
+SOCIALACCOUNT_ADAPTER = 'users.adapters.SocialAccountAdapter'
+SOCIALACCOUNT_LOGIN_ON_GET = True
+SOCIALACCOUNT_AUTO_SIGNUP = True
+SOCIALACCOUNT_STORE_TOKENS = True
+
+GOOGLE_CLIENT_ID = (os.getenv('GOOGLE_CLIENT_ID', '') or '').strip()
+GOOGLE_CLIENT_SECRET = (os.getenv('GOOGLE_CLIENT_SECRET', '') or '').strip()
+FACEBOOK_APP_ID = (os.getenv('FACEBOOK_APP_ID', os.getenv('FACEBOOK_CLIENT_ID', '')) or '').strip()
+FACEBOOK_APP_SECRET = (os.getenv('FACEBOOK_APP_SECRET', os.getenv('FACEBOOK_CLIENT_SECRET', '')) or '').strip()
+X_CLIENT_ID = (os.getenv('X_CLIENT_ID', os.getenv('TWITTER_CLIENT_ID', '')) or '').strip()
+X_CLIENT_SECRET = (os.getenv('X_CLIENT_SECRET', os.getenv('TWITTER_CLIENT_SECRET', '')) or '').strip()
+
+GOOGLE_OAUTH_ENABLED = bool(GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET)
+FACEBOOK_OAUTH_ENABLED = bool(FACEBOOK_APP_ID and FACEBOOK_APP_SECRET)
+X_OAUTH_ENABLED = bool(X_CLIENT_ID and X_CLIENT_SECRET)
+
+
+def _social_apps(client_id, secret, key=''):
+    if not client_id or not secret:
+        return []
+    return [{
+        'client_id': client_id,
+        'secret': secret,
+        'key': key,
+    }]
+
+
+SOCIALACCOUNT_PROVIDERS = {
+    'google': {
+        'SCOPE': ['profile', 'email'],
+        'AUTH_PARAMS': {'prompt': 'select_account'},
+        'APPS': _social_apps(GOOGLE_CLIENT_ID, GOOGLE_CLIENT_SECRET),
+    },
+    'facebook': {
+        'METHOD': 'oauth2',
+        'SCOPE': ['email', 'public_profile'],
+        'FIELDS': ['id', 'email', 'name', 'first_name', 'last_name'],
+        'VERIFIED_EMAIL': False,
+        'VERSION': 'v22.0',
+        'APPS': _social_apps(FACEBOOK_APP_ID, FACEBOOK_APP_SECRET),
+    },
+    'twitter_oauth2': {
+        'SCOPE': ['tweet.read', 'users.read'],
+        'APPS': _social_apps(X_CLIENT_ID, X_CLIENT_SECRET),
+    },
+}
 
 if DJANGO_Q_AVAILABLE:
     Q_CLUSTER = {

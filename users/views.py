@@ -1,9 +1,12 @@
+from django.conf import settings
+from django.contrib.auth.views import LoginView
 from django.shortcuts import render, redirect
 from django.contrib.auth import login, update_session_auth_hash, logout as auth_logout
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
 from django.utils.http import url_has_allowed_host_and_scheme
 from django.urls import reverse
+from django.utils.translation import gettext as _
 from urllib.parse import urlencode
 
 from .forms import (
@@ -18,6 +21,60 @@ from .forms import (
 )
 from .models import UserAIPersona, PersonaDataSnapshot
 from .utils import get_user_gender
+
+
+SOCIAL_PROVIDER_META = {
+    'google': {
+        'name': 'Google',
+        'icon': 'bi-google',
+        'url_name': 'google_login',
+        'enabled_setting': 'GOOGLE_OAUTH_ENABLED',
+        'missing_message': _('Google login is not configured yet. Add GOOGLE_CLIENT_ID and GOOGLE_CLIENT_SECRET in your environment.'),
+    },
+    'facebook': {
+        'name': 'Facebook',
+        'icon': 'bi-facebook',
+        'url_name': 'facebook_login',
+        'enabled_setting': 'FACEBOOK_OAUTH_ENABLED',
+        'missing_message': _('Facebook login is not configured yet. Add FACEBOOK_APP_ID and FACEBOOK_APP_SECRET in your environment.'),
+    },
+    'twitter': {
+        'name': 'X',
+        'icon': 'bi-twitter-x',
+        'url_name': 'twitter_oauth2_login',
+        'enabled_setting': 'X_OAUTH_ENABLED',
+        'missing_message': _('X login is not configured yet. Add X_CLIENT_ID and X_CLIENT_SECRET in your environment.'),
+    },
+}
+
+
+def _build_social_providers(request):
+    next_url = request.GET.get('next') or request.POST.get('next') or ''
+    providers = []
+
+    for slug, meta in SOCIAL_PROVIDER_META.items():
+        url = reverse('users:social_login', kwargs={'provider': slug})
+        if next_url:
+            url = f"{url}?{urlencode({'next': next_url})}"
+
+        providers.append({
+            'slug': slug,
+            'name': meta['name'],
+            'icon': meta['icon'],
+            'url': url,
+            'enabled': bool(getattr(settings, meta['enabled_setting'], False)),
+        })
+
+    return providers
+
+
+class AfyaLoginView(LoginView):
+    template_name = 'users/login.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['social_providers'] = _build_social_providers(self.request)
+        return context
 
 
 def _store_persona_snapshot(user, persona, source='profile_update'):
@@ -47,7 +104,27 @@ def register(request):
             return redirect('users:onboarding', step=1)
     else:
         form = ZanzHubRegisterForm()
-    return render(request, 'users/register.html', {'form': form})
+    return render(request, 'users/register.html', {
+        'form': form,
+        'social_providers': _build_social_providers(request),
+    })
+
+
+def social_login_redirect(request, provider):
+    meta = SOCIAL_PROVIDER_META.get(provider)
+    if not meta:
+        messages.error(request, _('That social login provider is not supported.'))
+        return redirect('users:login')
+
+    if not getattr(settings, meta['enabled_setting'], False):
+        messages.error(request, meta['missing_message'])
+        return redirect('users:login')
+
+    next_url = request.GET.get('next') or ''
+    target_url = reverse(meta['url_name'])
+    if next_url and url_has_allowed_host_and_scheme(next_url, allowed_hosts={request.get_host()}, require_https=request.is_secure()):
+        target_url = f"{target_url}?{urlencode({'next': next_url})}"
+    return redirect(target_url)
 
 
 @login_required
