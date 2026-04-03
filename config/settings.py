@@ -2,7 +2,9 @@ from pathlib import Path
 import os
 from dotenv import load_dotenv
 from django.core.management.utils import get_random_secret_key
-load_dotenv(override=True)
+
+BASE_DIR = Path(__file__).resolve().parent.parent
+load_dotenv(BASE_DIR / '.env', override=True)
 
 DJANGO_Q_ENABLED = os.getenv('ENABLE_DJANGO_Q', 'False') == 'True'
 
@@ -14,9 +16,6 @@ if DJANGO_Q_ENABLED:
         DJANGO_Q_AVAILABLE = False
 else:
     DJANGO_Q_AVAILABLE = False
-
-
-BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = os.getenv('SECRET_KEY') or os.getenv('DJANGO_SECRET_KEY')
 if not SECRET_KEY:
