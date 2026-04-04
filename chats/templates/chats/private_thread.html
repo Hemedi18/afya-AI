@@ -1451,6 +1451,19 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
 <script>
 (function () {
   'use strict';
+  
+  // Global error handler
+  window.addEventListener('error', (event) => {
+    console.error('❌ GLOBAL ERROR:', event.error?.message || event.message);
+    console.error('📍 At:', event.filename, ':', event.lineno, ':', event.colno);
+  });
+  
+  window.addEventListener('unhandledrejection', (event) => {
+    console.error('❌ UNHANDLED PROMISE REJECTION:', event.reason);
+  });
+  
+  console.log('✅ Chat script starting...');
+  
   const CONVO_ID = {{ conversation.id }};
   const MY_UID   = {{ user.id }};
   const POLL_URL = "{% url 'chats:conversation_poll' conversation.id %}";
@@ -3147,10 +3160,48 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
     if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); doSend(); }
   });
 
-  /* ── Send ── */
-  sendBtn.addEventListener('click', doSend);
-  voiceCallBtn?.addEventListener('click', () => { unlockAudioPlayback(); startOutgoingCall('audio'); });
-  videoCallBtn?.addEventListener('click', () => { unlockAudioPlayback(); startOutgoingCall('video'); });
+  /* ── Send & Call buttons ── */
+  console.log('🔘 Setting up button handlers...');
+  console.log('📤 sendBtn:', sendBtn?.id || 'NOT FOUND');
+  console.log('☎️ voiceCallBtn:', voiceCallBtn?.id || 'NOT FOUND');
+  console.log('📹 videoCallBtn:', videoCallBtn?.id || 'NOT FOUND');
+  
+  if (sendBtn) {
+    sendBtn.addEventListener('click', () => {
+      console.log('📤 Send button clicked');
+      doSend();
+    });
+  }
+  
+  if (voiceCallBtn) {
+    voiceCallBtn.addEventListener('click', () => {
+      console.log('☎️ Voice call button clicked');
+      try {
+        unlockAudioPlayback();
+        startOutgoingCall('audio');
+      } catch (err) {
+        console.error('❌ Voice call error:', err);
+        showStatus('Hitilafu ya simu: ' + err.message, 'err', true);
+      }
+    });
+  } else {
+    console.warn('⚠️ Voice call button not found');
+  }
+  
+  if (videoCallBtn) {
+    videoCallBtn.addEventListener('click', () => {
+      console.log('📹 Video call button clicked');
+      try {
+        unlockAudioPlayback();
+        startOutgoingCall('video');
+      } catch (err) {
+        console.error('❌ Video call error:', err);
+        showStatus('Hitilafu ya simu: ' + err.message, 'err', true);
+      }
+    });
+  } else {
+    console.warn('⚠️ Video call button not found');
+  }
   function doSend() {
     const content = (textInput.value || '').trim();
     if (!content && !pendingFile) return;
@@ -3347,6 +3398,13 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
     emojiPicker.classList.remove('show');
     menuEl.style.display = 'none';
     hideContextMenu();
+  });
+  
+  console.log('✅ Chat script initialization COMPLETE');
+  console.log('🔘 Buttons ready:', {
+    voiceCallBtn: !!voiceCallBtn,
+    videoCallBtn: !!videoCallBtn,
+    sendBtn: !!sendBtn
   });
 })();
 </script>
