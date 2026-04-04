@@ -5,7 +5,40 @@
 
 {% block content %}
 <style>
+  .otp-page {
+    position: relative;
+    min-height: calc(100vh - 72px);
+    overflow: hidden;
+    background:
+      radial-gradient(circle at 18% 20%, rgba(56, 189, 248, .16), transparent 24%),
+      radial-gradient(circle at 82% 16%, rgba(168, 85, 247, .18), transparent 22%),
+      radial-gradient(circle at 50% 82%, rgba(244, 63, 94, .14), transparent 28%),
+      linear-gradient(180deg, #040814 0%, #07111f 45%, #02050d 100%);
+  }
+  .otp-page::before,
+  .otp-page::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+  }
+  .otp-page::before {
+    background-image:
+      radial-gradient(2px 2px at 12% 18%, rgba(255,255,255,.85) 0, transparent 100%),
+      radial-gradient(1.5px 1.5px at 74% 22%, rgba(255,255,255,.75) 0, transparent 100%),
+      radial-gradient(2px 2px at 63% 74%, rgba(255,255,255,.7) 0, transparent 100%),
+      radial-gradient(1.5px 1.5px at 34% 68%, rgba(255,255,255,.72) 0, transparent 100%),
+      radial-gradient(2px 2px at 88% 58%, rgba(255,255,255,.78) 0, transparent 100%),
+      radial-gradient(1.5px 1.5px at 24% 84%, rgba(255,255,255,.7) 0, transparent 100%),
+      radial-gradient(1px 1px at 50% 40%, rgba(255,255,255,.65) 0, transparent 100%);
+    opacity: .9;
+  }
+  .otp-page::after {
+    background: radial-gradient(circle at center, transparent 0%, rgba(2,6,23,.1) 55%, rgba(2,6,23,.45) 100%);
+  }
   .otp-shell {
+    position: relative;
+    z-index: 1;
     max-width: 760px;
     margin: 0 auto;
     min-height: 82vh;
@@ -15,13 +48,73 @@
     padding: 1rem;
   }
   .otp-card {
+    position: relative;
+    z-index: 2;
+    isolation: isolate;
     width: 100%;
     border-radius: 24px;
     overflow: hidden;
+    border: 1px solid rgba(148, 163, 184, .16);
+    background: rgba(7, 12, 24, .78);
+    box-shadow: 0 24px 80px rgba(2, 6, 23, .55);
+    backdrop-filter: blur(18px);
   }
   .otp-left {
-    background: linear-gradient(135deg, rgba(201,24,74,.10), rgba(255,133,161,.18));
-    border-right: 1px solid rgba(201,24,74,.14);
+    position: relative;
+    background:
+      radial-gradient(circle at 62% 38%, rgba(251, 191, 36, .26), rgba(251, 191, 36, .06) 18%, transparent 19%),
+      radial-gradient(circle at 68% 36%, rgba(255, 244, 214, .95), rgba(255, 244, 214, .18) 8%, transparent 24%),
+      linear-gradient(160deg, rgba(15, 23, 42, .92), rgba(30, 41, 59, .88));
+    border-right: 1px solid rgba(148, 163, 184, .14);
+    color: #e2e8f0;
+  }
+  .otp-card form,
+  .otp-card .otp-meta,
+  .otp-card .small,
+  .otp-card h4,
+  .otp-card p {
+    position: relative;
+    z-index: 3;
+  }
+  .otp-card button,
+  .otp-card a,
+  .otp-card input,
+  .otp-card label {
+    position: relative;
+    z-index: 4;
+  }
+  .otp-left::before,
+  .otp-left::after {
+    content: "";
+    position: absolute;
+    border-radius: 999px;
+    pointer-events: none;
+  }
+  .otp-left::before {
+    width: 220px;
+    height: 220px;
+    right: -20px;
+    top: 22px;
+    border: 1px solid rgba(148, 163, 184, .22);
+    box-shadow:
+      0 0 0 26px rgba(148, 163, 184, .05),
+      0 0 0 54px rgba(148, 163, 184, .04),
+      0 0 0 82px rgba(148, 163, 184, .03);
+  }
+  .otp-left::after {
+    width: 16px;
+    height: 16px;
+    right: 148px;
+    top: 126px;
+    background: linear-gradient(135deg, #60a5fa, #38bdf8);
+    box-shadow:
+      -72px 58px 0 -2px rgba(244, 114, 182, .95),
+      -122px -12px 0 -4px rgba(192, 132, 252, .92),
+      -22px -78px 0 -3px rgba(74, 222, 128, .92);
+  }
+  .otp-left .text-muted,
+  .otp-left .small {
+    color: rgba(226, 232, 240, .8) !important;
   }
   .otp-pin {
     letter-spacing: .45rem;
@@ -40,11 +133,12 @@
   @media (max-width: 992px) {
     .otp-left {
       border-right: none;
-      border-bottom: 1px solid rgba(201,24,74,.14);
+      border-bottom: 1px solid rgba(148, 163, 184, .14);
     }
   }
 </style>
 
+<div class="otp-page">
 <div class="otp-shell">
   <div class="card-custom otp-card p-0">
     <div class="row g-0">
@@ -89,6 +183,7 @@
       </div>
     </div>
   </div>
+</div>
 </div>
 
 <script>

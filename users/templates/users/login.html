@@ -14,8 +14,28 @@
     }
     
     .login-card {
+        position: relative;
+        z-index: 2;
+        isolation: isolate;
         width: 100%;
         max-width: 420px;
+    }
+    .login-card .card-custom {
+        position: relative;
+        z-index: 2;
+    }
+    .login-card form,
+    .login-card .social-auth-list,
+    .login-card .text-center {
+        position: relative;
+        z-index: 3;
+    }
+    .login-card button,
+    .login-card a,
+    .login-card input,
+    .login-card label {
+        position: relative;
+        z-index: 4;
     }
     .field-error {
         font-size: .82rem;
