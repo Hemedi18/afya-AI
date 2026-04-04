@@ -1537,6 +1537,9 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
   let audioPlaybackUnlocked = false;
   let speakerBoost = false;
   let selectedSinkId = 'default';
+  let otherUserOnline = true;  // Track if OTHER user is online based on activity
+  let lastOtherUserActivityTime = Date.now();  // Track last message/activity from other user
+  let presenceCheckTimer = null;  // Timer to check if user should be marked offline
   const defaultPageTitle = document.title;
   const MAX_WS = 5;
   const REPLY_RE = /^\[\[reply:(.*?)\|(.*?)\]\]\n?([\s\S]*)$/;
@@ -1931,6 +1934,12 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
     if (msg.id > lastId) lastId = msg.id;
     const row = buildMessageRow(msg);
     insertMessageRow(row);
+    
+    // Mark other user as online when they send a message
+    if (msg.sender_id !== MY_UID) {
+      lastOtherUserActivityTime = Date.now();
+      setOtherUserOnline(true);
+    }
   }
 
   function callingSupported() {
@@ -1989,16 +1998,54 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
     return wsSent;
   }
 
-  function setRealtimeState(connected) {
+  function setOtherUserOnline(online) {
+    if (otherUserOnline === online) return;  // No change
+    
+    otherUserOnline = online;
+    console.log(`👤 Other user online status: ${online ? '🟢' : '🔴'}`);
+    
+    // Update button states based on actual user presence, not WebSocket connection
     [voiceCallBtn, videoCallBtn].forEach(btn => {
       if (!btn) return;
-      btn.disabled = !connected;
-      btn.title = connected
+      btn.disabled = !online;
+      btn.title = online
         ? btn.title.replace(' (imekatika)', '')
         : `${btn.title.replace(' (imekatika)', '')} (imekatika)`;
     });
+    
+    // Update presence display when not on call
     if (presenceEl && !currentCall) {
-      presenceEl.textContent = connected ? 'online' : 'offline';
+      presenceEl.textContent = online ? 'online' : 'offline';
+    }
+  }
+
+  function setRealtimeState(connected) {
+    // Realtime state now ONLY affects message sending, not call buttons
+    // Call buttons are controlled by actual user presence (setOtherUserOnline)
+    
+    console.log(`📡 WebSocket connection state: ${connected ? '✅' : '❌'}`);
+    
+    if (!connected) {
+      // On WebSocket disconnect, don't immediately mark user as offline
+      // They may still be online, just our connection dropped
+      // Set a 5-second grace period before marking them offline
+      clearTimeout(presenceCheckTimer);
+      presenceCheckTimer = setTimeout(() => {
+        // Only mark offline if no recent activity
+        const timeSinceLastActivity = Date.now() - lastOtherUserActivityTime;
+        if (timeSinceLastActivity > 5000) {
+          console.log('⏱️ 5s timeout: Marking user offline due to inactivity');
+          setOtherUserOnline(false);
+        }
+      }, 5000);
+    } else {
+      // On WebSocket connect/reconnect, if we had recent activity, mark user online
+      clearTimeout(presenceCheckTimer);
+      const timeSinceLastActivity = Date.now() - lastOtherUserActivityTime;
+      if (timeSinceLastActivity < 30000) {  // Within 30 seconds of activity
+        console.log('✅ WebSocket reconnected + recent activity: marking user online');
+        setOtherUserOnline(true);
+      }
     }
   }
 
@@ -2771,6 +2818,12 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
       return;
     }
 
+    // Mark other user as online when they send any call signal
+    if (payload.sender_id !== MY_UID) {
+      lastOtherUserActivityTime = Date.now();
+      setOtherUserOnline(true);
+    }
+
     if (payload.event === 'call_invite') {
       console.log('📥 Incoming call_invite');
       if (currentCall && currentCall.id !== payload.call_id) {
@@ -2894,7 +2947,12 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
   function connectWS() {
     if (wsRetries >= MAX_WS) return;
     try { socket = new WebSocket(WS_URL); } catch { wsRetries++; return; }
-    socket.onopen  = () => { wsRetries = 0; setRealtimeState(true); showStatus('Imeunganishwa', 'ok', true); if (presenceEl) presenceEl.textContent = 'online'; };
+    socket.onopen  = () => { 
+      wsRetries = 0; 
+      setRealtimeState(true); 
+      showStatus('Imeunganishwa', 'ok', true);
+      // Don't override presence display - it's based on actual user activity, not WebSocket state
+    };
     socket.onmessage = e => {
       try {
         const payload = JSON.parse(e.data);
@@ -2906,10 +2964,14 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
         }
         if (payload.sender_id !== MY_UID && typingEl) {
           typingEl.classList.add('show');
+          // Mark user as online when typing
+          lastOtherUserActivityTime = Date.now();
+          setOtherUserOnline(true);
           if (presenceEl) presenceEl.textContent = 'typing...';
           setTimeout(() => {
             typingEl.classList.remove('show');
-            if (presenceEl) presenceEl.textContent = 'online';
+            // Only update presence if user is still marked online
+            if (presenceEl && otherUserOnline && !currentCall) presenceEl.textContent = 'online';
             renderMessage(payload);
           }, 620);
           return;
