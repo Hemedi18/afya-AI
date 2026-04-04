@@ -553,7 +553,10 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
   backdrop-filter: blur(16px);
 }
 .wa-call-modal.show {
-  display: flex;
+  display: flex !important;
+  opacity: 1 !important;
+  visibility: visible !important;
+  pointer-events: auto !important;
 }
 .wa-call-dialog {
   width: min(96vw, 1100px);
@@ -2704,7 +2707,7 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
         // Try ICE restart before giving up
         if (state === 'failed' && currentCall) {
           console.log('🔄 Attempting ICE restart after connection failure...');
-          await restartIceGathering();
+          restartIceGathering();
           // Give it 5 seconds to reconnect
           setTimeout(() => {
             if (peerConnection?.connectionState === 'failed') {
