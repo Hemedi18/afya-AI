@@ -666,6 +666,10 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
   height: 100%;
   object-fit: contain;
   background: #020617;
+  display: block;
+}
+.wa-call-remote {
+  z-index: 2;
 }
 .wa-call-local {
   position: absolute;
@@ -673,6 +677,7 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
   bottom: 1rem;
   width: min(26vw, 180px);
   height: min(26vw, 180px);
+  z-index: 4;
   border-radius: 18px;
   border: 2px solid rgba(255,255,255,.18);
   box-shadow: 0 18px 40px rgba(0,0,0,.3);
@@ -691,6 +696,11 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
   color: rgba(255,255,255,.84);
   text-align: center;
   padding: 1rem;
+  z-index: 3;
+  background: rgba(0,0,0,.45);
+}
+.wa-call-placeholder[hidden] {
+  display: none !important;
 }
 .wa-call-placeholder i {
   font-size: 3rem;
@@ -2234,8 +2244,13 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
   }
 
   async function ensureRemotePlayback() {
+    console.log('🔊 ensureRemotePlayback called');
     const elements = [remoteAudio, remoteVideo].filter(Boolean);
-    if (!elements.length) return;
+    if (!elements.length) {
+      console.warn('❌ No remote elements found');
+      return;
+    }
+    console.log(`✅ Setting up ${elements.length} remote elements`);
 
     for (const el of elements) {
       el.muted = false;
@@ -2244,18 +2259,28 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
       el.playsInline = true;
       el.setAttribute('playsinline', '');
       el.setAttribute('webkit-playsinline', 'true');
+      console.log(`✅ Configured ${el.tagName}. Visible: ${el.offsetParent !== null}`);
     }
 
     const outputEl = getAudioOutputElement();
     if (selectedSinkId && outputEl && typeof outputEl.setSinkId === 'function') {
-      try { await outputEl.setSinkId(selectedSinkId); } catch {}
+      try { 
+        await outputEl.setSinkId(selectedSinkId); 
+        console.log('✅ Audio output set to:', selectedSinkId);
+      } catch (err) {
+        console.warn('⚠️ setSinkId failed:', err.message);
+      }
     }
 
     try {
       await Promise.all(elements.map(el => el.play().catch(() => null)));
-    } catch {}
+      console.log('✅ Play promise resolved');
+    } catch (err) {
+      console.warn('⚠️ Play error:', err.message);
+    }
 
     const retry = () => {
+      console.log('🔄 Retrying remote playback on user interaction');
       elements.forEach(el => el.play().catch(() => {}));
       document.removeEventListener('click', retry, true);
       document.removeEventListener('touchstart', retry, true);
@@ -2587,10 +2612,11 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
     });
 
     peerConnection.ontrack = (event) => {
-      console.log('🎵 ontrack event fired. Streams:', event.streams?.length, 'Track type:', event.track?.kind);
+      console.log('🎵 ontrack event fired. Streams:', event.streams?.length, 'Track type:', event.track?.kind, 'Enabled:', event.track?.enabled);
       const inboundStream = event.streams && event.streams[0] ? event.streams[0] : null;
       if (inboundStream) {
         remoteStream = inboundStream;
+        console.log('✅ Using inbound stream. Video tracks:', inboundStream.getVideoTracks().length);
         remoteVideo.srcObject = inboundStream;
         if (remoteAudio) remoteAudio.srcObject = inboundStream;
       } else {
@@ -2598,13 +2624,20 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
         if (event.track && !remoteStream.getTracks().some(existing => existing.id === event.track.id)) {
           remoteStream.addTrack(event.track);
         }
+        console.log('✅ Added track. Now remote has:', remoteStream.getTracks().length, 'video:', remoteStream.getVideoTracks().length);
         remoteVideo.srcObject = remoteStream;
         if (remoteAudio) remoteAudio.srcObject = remoteStream;
       }
 
-      if (currentCall?.mode === 'video' && remoteStream.getVideoTracks().length) {
+      const hasVideo = remoteStream.getVideoTracks().length > 0;
+      console.log(`📺 Remote stream video check: ${hasVideo ? '✅ HAS VIDEO' : '❌ NO VIDEO'}`);
+      console.log(`📹 Call mode: ${currentCall?.mode}, Remote video element visible: ${remoteVideo?.offsetParent !== null}`);
+      
+      if (currentCall?.mode === 'video' && hasVideo) {
+        console.log('✅ Video call detected + video tracks present - hiding placeholder');
         setCallPlaceholder('Video inaendelea', 'Muunganisho wa video umefika.', false);
       } else {
+        console.log('ℹ️ Audio-only or no video tracks - showing placeholder');
         setCallPlaceholder('Voice call inaendelea', 'Sauti ya upande wa pili ipo hai.', true);
       }
       ensureRemotePlayback();
