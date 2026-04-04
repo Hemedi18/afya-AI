@@ -38,6 +38,8 @@ from .forms import (
     AvatarBioForm,
     PersonaFullEditForm,
     ZanzPasswordChangeForm,
+    ForgotPasswordRequestForm,
+    ForgotPasswordResetForm,
 )
 from .models import UserAIPersona, PersonaDataSnapshot
 from .utils import get_user_gender
@@ -94,6 +96,7 @@ class AfyaLoginView(LoginView):
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['social_providers'] = _build_social_providers(self.request)
+        context['forgot_password_url'] = reverse('users:forgot_password')
         return context
 
 
@@ -208,6 +211,59 @@ def _get_pending_signup_payload(token):
 
 def _save_pending_signup_payload(token, payload):
     cache.set(_pending_signup_cache_key(token), payload, timeout=60 * 60 * 24)
+
+
+def _pending_password_reset_cache_key(token):
+    return f'pending_password_reset:{token}'
+
+
+def _queue_pending_password_reset(user):
+    token = secrets.token_urlsafe(32)
+    otp = ''.join(secrets.choice('0123456789') for _ in range(6))
+    now_ts = int(timezone.now().timestamp())
+    payload = {
+        'user_id': user.id,
+        'email': (user.email or '').strip().lower(),
+        'otp': otp,
+        'otp_attempts': 0,
+        'next_resend_at': now_ts + 30,
+        'otp_verified': False,
+    }
+    cache.set(_pending_password_reset_cache_key(token), payload, timeout=60 * 60)
+    return token
+
+
+def _get_pending_password_reset_payload(token):
+    return cache.get(_pending_password_reset_cache_key(token))
+
+
+def _save_pending_password_reset_payload(token, payload):
+    cache.set(_pending_password_reset_cache_key(token), payload, timeout=60 * 60)
+
+
+def _send_password_reset_otp_email(email, otp):
+    subject = _('Your AfyaSmart password reset code')
+    text_body = (
+        _('We received a request to reset your AfyaSmart password.') + '\n\n' +
+        _('Use this OTP code to continue:') + '\n' +
+        f'{otp}\n\n' +
+        _('This code expires when the reset session expires (1 hour).')
+    )
+    html_body = (
+        f"<p>{_('We received a request to reset your AfyaSmart password.')}</p>"
+        f"<p>{_('Use this OTP code to continue:')}</p>"
+        f"<p style=\"font-size:28px;font-weight:800;letter-spacing:4px;\">{otp}</p>"
+        f"<p>{_('This code expires when the reset session expires (1 hour).')}</p>"
+    )
+
+    send_mail(
+        subject=subject,
+        message=text_body,
+        from_email=getattr(settings, 'DEFAULT_FROM_EMAIL', None),
+        recipient_list=[email],
+        fail_silently=False,
+        html_message=html_body,
+    )
 
 def register(request):
     if request.method == 'POST':
@@ -324,6 +380,120 @@ def verify_signup_otp(request, token):
     login(request, user, backend='django.contrib.auth.backends.ModelBackend')
     messages.success(request, _('Email verified successfully. Complete your AI persona now.'))
     return redirect('users:onboarding', step=1)
+
+
+def forgot_password(request):
+    if request.method == 'POST':
+        form = ForgotPasswordRequestForm(request.POST)
+        if form.is_valid():
+            email = form.cleaned_data['email']
+            user = User.objects.filter(email__iexact=email).order_by('id').first()
+            if not user:
+                form.add_error('email', _('No account found with that email.'))
+            else:
+                try:
+                    token = _queue_pending_password_reset(user)
+                    payload = _get_pending_password_reset_payload(token)
+                    _send_password_reset_otp_email(email, payload['otp'])
+                except Exception as exc:
+                    form.add_error(None, _('Could not send reset email right now.'))
+                    form.add_error(None, str(exc))
+                else:
+                    messages.success(request, _('OTP sent to your email. Enter it to continue resetting your password.'))
+                    return redirect('users:forgot_password_verify', token=token)
+    else:
+        form = ForgotPasswordRequestForm()
+
+    return render(request, 'users/forgot_password.html', {'form': form})
+
+
+def forgot_password_verify(request, token):
+    payload = _get_pending_password_reset_payload(token)
+    if not payload:
+        messages.error(request, _('Password reset session is invalid or expired. Please try again.'))
+        return redirect('users:forgot_password')
+
+    email = (payload.get('email') or '').strip().lower()
+    now_ts = int(timezone.now().timestamp())
+
+    if request.method != 'POST':
+        return render(request, 'users/forgot_password_verify_otp.html', {
+            'email': email,
+            'seconds_left': max(0, int(payload.get('next_resend_at') or 0) - now_ts),
+            'token': token,
+        })
+
+    action = (request.POST.get('action') or 'verify').strip()
+    if action == 'resend':
+        next_resend_at = int(payload.get('next_resend_at') or 0)
+        if now_ts < next_resend_at:
+            messages.warning(request, _('Please wait %(secs)s seconds before resending.') % {'secs': next_resend_at - now_ts})
+        else:
+            new_otp = ''.join(secrets.choice('0123456789') for _ in range(6))
+            payload['otp'] = new_otp
+            payload['otp_attempts'] = 0
+            payload['next_resend_at'] = now_ts + 30
+            _save_pending_password_reset_payload(token, payload)
+            try:
+                _send_password_reset_otp_email(email, new_otp)
+                messages.success(request, _('A new OTP has been sent to your email.'))
+            except Exception as exc:
+                messages.error(request, str(exc))
+        return redirect('users:forgot_password_verify', token=token)
+
+    entered_otp = (request.POST.get('otp') or '').strip()
+    if not entered_otp:
+        messages.error(request, _('Please enter the OTP code.'))
+        return redirect('users:forgot_password_verify', token=token)
+
+    if entered_otp != str(payload.get('otp') or ''):
+        payload['otp_attempts'] = int(payload.get('otp_attempts') or 0) + 1
+        _save_pending_password_reset_payload(token, payload)
+        remaining = max(0, 5 - payload['otp_attempts'])
+        if payload['otp_attempts'] >= 5:
+            cache.delete(_pending_password_reset_cache_key(token))
+            messages.error(request, _('Too many incorrect OTP attempts. Please request a new reset code.'))
+            return redirect('users:forgot_password')
+        messages.error(request, _('Invalid OTP. You have %(count)s attempts left.') % {'count': remaining})
+        return redirect('users:forgot_password_verify', token=token)
+
+    payload['otp_verified'] = True
+    _save_pending_password_reset_payload(token, payload)
+    messages.success(request, _('OTP verified successfully. Set your new password now.'))
+    return redirect('users:forgot_password_reset', token=token)
+
+
+def forgot_password_reset(request, token):
+    payload = _get_pending_password_reset_payload(token)
+    if not payload:
+        messages.error(request, _('Password reset session is invalid or expired. Please try again.'))
+        return redirect('users:forgot_password')
+
+    if not payload.get('otp_verified'):
+        messages.warning(request, _('Enter the OTP first before setting a new password.'))
+        return redirect('users:forgot_password_verify', token=token)
+
+    user = User.objects.filter(id=payload.get('user_id'), email__iexact=(payload.get('email') or '')).first()
+    if not user:
+        cache.delete(_pending_password_reset_cache_key(token))
+        messages.error(request, _('Could not find that account anymore. Please try again.'))
+        return redirect('users:forgot_password')
+
+    if request.method == 'POST':
+        form = ForgotPasswordResetForm(request.POST)
+        if form.is_valid():
+            user.set_password(form.cleaned_data['new_password1'])
+            user.save(update_fields=['password'])
+            cache.delete(_pending_password_reset_cache_key(token))
+            messages.success(request, _('Password changed successfully. You can now login with your new password.'))
+            return redirect('users:login')
+    else:
+        form = ForgotPasswordResetForm()
+
+    return render(request, 'users/forgot_password_reset.html', {
+        'form': form,
+        'email': payload.get('email'),
+    })
 
 
 def social_login_redirect(request, provider):

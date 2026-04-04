@@ -10,6 +10,13 @@
     min-height: calc(100vh - 72px);
     overflow: hidden;
     background:
+      radial-gradient(circle at 18% 20%, rgba(59, 130, 246, .10), transparent 24%),
+      radial-gradient(circle at 82% 16%, rgba(236, 72, 153, .10), transparent 22%),
+      radial-gradient(circle at 50% 82%, rgba(251, 191, 36, .10), transparent 28%),
+      linear-gradient(180deg, rgba(248, 250, 252, .96) 0%, rgba(241, 245, 249, .98) 100%);
+  }
+  html[data-theme='dark'] .otp-page {
+    background:
       radial-gradient(circle at 18% 20%, rgba(56, 189, 248, .16), transparent 24%),
       radial-gradient(circle at 82% 16%, rgba(168, 85, 247, .18), transparent 22%),
       radial-gradient(circle at 50% 82%, rgba(244, 63, 94, .14), transparent 28%),
@@ -33,8 +40,17 @@
       radial-gradient(1px 1px at 50% 40%, rgba(255,255,255,.65) 0, transparent 100%);
     opacity: .9;
   }
+  html[data-theme='dark'] .otp-page::before {
+    opacity: .9;
+  }
+  html:not([data-theme='dark']) .otp-page::before {
+    opacity: .45;
+  }
   .otp-page::after {
     background: radial-gradient(circle at center, transparent 0%, rgba(2,6,23,.1) 55%, rgba(2,6,23,.45) 100%);
+  }
+  html:not([data-theme='dark']) .otp-page::after {
+    background: radial-gradient(circle at center, transparent 0%, rgba(255,255,255,.05) 55%, rgba(148,163,184,.12) 100%);
   }
   .otp-shell {
     position: relative;
@@ -59,6 +75,10 @@
     box-shadow: 0 24px 80px rgba(2, 6, 23, .55);
     backdrop-filter: blur(18px);
   }
+  html:not([data-theme='dark']) .otp-card {
+    background: rgba(255, 255, 255, .82);
+    box-shadow: 0 24px 80px rgba(148, 163, 184, .24);
+  }
   .otp-left {
     position: relative;
     background:
@@ -67,6 +87,13 @@
       linear-gradient(160deg, rgba(15, 23, 42, .92), rgba(30, 41, 59, .88));
     border-right: 1px solid rgba(148, 163, 184, .14);
     color: #e2e8f0;
+  }
+  html:not([data-theme='dark']) .otp-left {
+    background:
+      radial-gradient(circle at 62% 38%, rgba(251, 191, 36, .18), rgba(251, 191, 36, .05) 18%, transparent 19%),
+      radial-gradient(circle at 68% 36%, rgba(255, 244, 214, .85), rgba(255, 244, 214, .12) 8%, transparent 24%),
+      linear-gradient(160deg, rgba(226, 232, 240, .88), rgba(248, 250, 252, .92));
+    color: #0f172a;
   }
   .otp-card form,
   .otp-card .otp-meta,
@@ -115,6 +142,10 @@
   .otp-left .text-muted,
   .otp-left .small {
     color: rgba(226, 232, 240, .8) !important;
+  }
+  html:not([data-theme='dark']) .otp-left .text-muted,
+  html:not([data-theme='dark']) .otp-left .small {
+    color: rgba(15, 23, 42, .72) !important;
   }
   .otp-pin {
     letter-spacing: .45rem;

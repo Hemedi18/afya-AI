@@ -152,6 +152,65 @@ class ZanzPasswordChangeForm(PasswordChangeForm):
             field.widget.attrs['class'] = 'form-control'
 
 
+class ForgotPasswordRequestForm(forms.Form):
+    email = forms.EmailField(
+        required=True,
+        label=_('Email'),
+        widget=forms.EmailInput(
+            attrs={
+                'class': 'form-control form-control-lg',
+                'placeholder': _('Weka email yako'),
+                'autocomplete': 'email',
+            }
+        ),
+    )
+
+    def clean_email(self):
+        email = (self.cleaned_data.get('email') or '').strip().lower()
+        if not email:
+            raise forms.ValidationError(_('Email is required.'))
+        if not User.objects.filter(email__iexact=email).exists():
+            raise forms.ValidationError(_('No account found with that email.'))
+        return email
+
+
+class ForgotPasswordResetForm(forms.Form):
+    new_password1 = forms.CharField(
+        label=_('New password'),
+        widget=forms.PasswordInput(
+            attrs={
+                'class': 'form-control form-control-lg',
+                'placeholder': _('Weka nenosiri jipya'),
+                'autocomplete': 'new-password',
+            }
+        ),
+        help_text=_('Use at least 8 characters.'),
+    )
+    new_password2 = forms.CharField(
+        label=_('Confirm new password'),
+        widget=forms.PasswordInput(
+            attrs={
+                'class': 'form-control form-control-lg',
+                'placeholder': _('Rudia nenosiri jipya'),
+                'autocomplete': 'new-password',
+            }
+        ),
+    )
+
+    def clean(self):
+        cleaned_data = super().clean()
+        p1 = cleaned_data.get('new_password1') or ''
+        p2 = cleaned_data.get('new_password2') or ''
+
+        if p1 and len(p1) < 8:
+            self.add_error('new_password1', _('Password must be at least 8 characters.'))
+
+        if p1 and p2 and p1 != p2:
+            self.add_error('new_password2', _('Passwords do not match.'))
+
+        return cleaned_data
+
+
 class LanguagePreferenceForm(forms.ModelForm):
     class Meta:
         model = UserAIPersona
