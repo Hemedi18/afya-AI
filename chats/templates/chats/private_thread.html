@@ -1461,8 +1461,14 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
   const CSRF     = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
   const RTC_CONFIG = {
     iceServers: [
-      { urls: ['stun:stun.l.google.com:19302', 'stun:stun1.l.google.com:19302'] },
+      // Google STUN servers
+      { urls: ['stun:stun.l.google.com:19302', 'stun:stun1.l.google.com:19302', 'stun:stun2.l.google.com:19302', 'stun:stun3.l.google.com:19302', 'stun:stun4.l.google.com:19302'] },
+      // Twilio STUN server (reliable fallback)
+      { urls: ['stun:stun.stunprotocol.org:3478'] },
+      // Nextcloud STUN (public)
+      { urls: ['stun:stun.nextcloud.com:443'] },
     ],
+    iceCandidatePoolSize: 10,
   };
 
   const appEl       = document.getElementById('waApp');
@@ -2579,7 +2585,23 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
       const candidate = pendingIceCandidates.shift();
       try {
         await peerConnection.addIceCandidate(candidate);
-      } catch {}
+      } catch (err) {
+        console.warn('⚠️ Failed to add ICE candidate:', err.message);
+      }
+    }
+  }
+
+  async function restartIceGathering() {
+    if (!peerConnection) {
+      console.warn('❌ No peer connection to restart ICE');
+      return;
+    }
+    try {
+      console.log('🔄 Restarting ICE gathering...');
+      await peerConnection.restartIce();
+      console.log('✅ ICE restart initiated');
+    } catch (err) {
+      console.error('❌ ICE restart failed:', err.message);
     }
   }
 
@@ -2666,7 +2688,44 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
         if (presenceEl) presenceEl.textContent = currentCall?.mode === 'video' ? 'video call active' : 'voice call active';
       } else if (['failed', 'disconnected'].includes(state)) {
         console.error('❌ Connection failed or disconnected:', state);
-        finalizeCall('Muunganisho wa simu umekatika.');
+        // Try ICE restart before giving up
+        if (state === 'failed' && currentCall) {
+          console.log('🔄 Attempting ICE restart after connection failure...');
+          await restartIceGathering();
+          // Give it 5 seconds to reconnect
+          setTimeout(() => {
+            if (peerConnection?.connectionState === 'failed') {
+              console.error('❌ ICE restart failed, ending call');
+              finalizeCall('Muunganisho wa simu umekatika.');
+            }
+          }, 5000);
+        } else {
+          finalizeCall('Muunganisho wa simu umekatika.');
+        }
+      }
+    };
+
+    // Monitor ICE gathering state
+    peerConnection.onicegatheringstatechange = () => {
+      const state = peerConnection?.iceGatheringState;
+      console.log('❄️ ICE gathering state:', state);
+      if (state === 'gathering') {
+        console.log('⏳ Gathering ICE candidates...');
+      } else if (state === 'complete') {
+        console.log('✅ ICE gathering complete. ICE candidates ready for exchange.');
+      }
+    };
+
+    // Monitor ICE connection state
+    peerConnection.oniceconnectionstatechange = () => {
+      const state = peerConnection?.iceConnectionState;
+      console.log('🌐 ICE connection state:', state);
+      if (state === 'connected' || state === 'completed') {
+        console.log('✅ ICE connection established');
+      } else if (state === 'failed') {
+        console.error('❌ ICE connection failed - network issue or STUN server unreachable');
+      } else if (state === 'disconnected') {
+        console.warn('⚠️ ICE connection disconnected');
       }
     };
 
