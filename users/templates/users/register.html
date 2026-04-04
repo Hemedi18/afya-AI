@@ -407,6 +407,9 @@
                     <button type="submit" class="btn btn-danger w-100 rounded-pill py-2">{% trans "Jisajili" %}</button>
                 </form>
 
+                <p class="text-center small mt-2 mb-0">
+                    <a href="{% url 'users:forgot_password' %}" class="text-decoration-none">{% trans "Forgot password?" %}</a>
+                </p>
                 <p class="text-center mt-3 mb-0">{% trans "Una akaunti tayari?" %} <a href="{% url 'users:login' %}">{% trans "Ingia hapa" %}</a></p>
             </div>
         </div>
