@@ -1998,6 +1998,8 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
     return wsSent;
   }
 
+  let wsDisabled = false;  // Flag to disable WS if repeatedly fails
+  
   function setOtherUserOnline(online) {
     if (otherUserOnline === online) return;  // No change
     
@@ -2028,21 +2030,21 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
     if (!connected) {
       // On WebSocket disconnect, don't immediately mark user as offline
       // They may still be online, just our connection dropped
-      // Set a 5-second grace period before marking them offline
+      // Polling should keep us updated
       clearTimeout(presenceCheckTimer);
       presenceCheckTimer = setTimeout(() => {
-        // Only mark offline if no recent activity
+        // Only mark offline if NO recent activity AND ws is disconnected
         const timeSinceLastActivity = Date.now() - lastOtherUserActivityTime;
-        if (timeSinceLastActivity > 5000) {
-          console.log('⏱️ 5s timeout: Marking user offline due to inactivity');
+        if (timeSinceLastActivity > 15000 && wsDisabled) {  // 15s inactivity + ws dead
+          console.log('⏱️ 15s timeout + WS down: Marking user offline');
           setOtherUserOnline(false);
         }
-      }, 5000);
+      }, 15000);
     } else {
-      // On WebSocket connect/reconnect, if we had recent activity, mark user online
+      // On WebSocket connect/reconnect
       clearTimeout(presenceCheckTimer);
       const timeSinceLastActivity = Date.now() - lastOtherUserActivityTime;
-      if (timeSinceLastActivity < 30000) {  // Within 30 seconds of activity
+      if (timeSinceLastActivity < 60000) {  // Within 1 min of activity
         console.log('✅ WebSocket reconnected + recent activity: marking user online');
         setOtherUserOnline(true);
       }
@@ -2928,31 +2930,72 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
   /* ── HTTP Polling ── */
   function poll() {
     fetch(`${POLL_URL}?since=${lastId}`, { credentials: 'same-origin' })
-      .then(r => r.json())
+      .then(r => {
+        if (!r.ok) {
+          console.warn('❌ Poll response not ok:', r.status);
+          return null;
+        }
+        return r.json();
+      })
       .then(d => {
-        if (!d.ok) return;
-        if (d.messages.length) d.messages.forEach(renderMessage);
+        if (!d || !d.ok) {
+          console.warn('❌ Poll data invalid:', d);
+          return;
+        }
+        
+        if (d.messages && d.messages.length) {
+          console.log(`📨 Poll got ${d.messages.length} messages`);
+          d.messages.forEach(renderMessage);
+        }
+        
         if (Array.isArray(d.call_events) && d.call_events.length) {
+          console.log(`📞 Poll got ${d.call_events.length} call events`);
           d.call_events.forEach((ev) => {
-            handleCallSignal(ev).catch(() => {});
+            handleCallSignal(ev).catch((err) => {
+              console.error('❌ Call signal handling error:', err);
+            });
           });
         }
       })
-      .catch(() => {})
-      .finally(() => { pollTimer = setTimeout(poll, 3000); });
+      .catch((err) => {
+        console.error('❌ Poll fetch error:', err.message);
+      })
+      .finally(() => { 
+        pollTimer = setTimeout(poll, 3000); 
+      });
   }
   poll();
 
   /* ── WebSocket ── */
   function connectWS() {
-    if (wsRetries >= MAX_WS) return;
-    try { socket = new WebSocket(WS_URL); } catch { wsRetries++; return; }
+    // If WS has failed too many times, stop trying (use polling fallback)
+    if (wsRetries >= MAX_WS) {
+      wsDisabled = true;
+      console.warn('⚠️ WebSocket disabled after', MAX_WS, 'retries. Using HTTP polling only.');
+      return;
+    }
+    
+    try { 
+      socket = new WebSocket(WS_URL); 
+    } catch (err) { 
+      console.error('❌ WebSocket creation failed:', err.message);
+      wsRetries++; 
+      return; 
+    }
+    
     socket.onopen  = () => { 
+      wsDisabled = false;
       wsRetries = 0; 
       setRealtimeState(true); 
       showStatus('Imeunganishwa', 'ok', true);
+      console.log('✅ WebSocket connected successfully');
       // Don't override presence display - it's based on actual user activity, not WebSocket state
     };
+    
+    socket.onerror = (err) => {
+      console.error('❌ WebSocket error:', err);
+    };
+    
     socket.onmessage = e => {
       try {
         const payload = JSON.parse(e.data);
@@ -2979,16 +3022,27 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
         renderMessage(payload);
       } catch {}
     };
+    
     socket.onclose = () => {
       wsRetries++;
+      console.warn('⚠️ WebSocket closed. Retry count:', wsRetries, '/', MAX_WS);
       setRealtimeState(false);
+      
       if (currentCall) {
-        finalizeCall('Muunganisho wa chat umekatika, hivyo simu imezimwa.');
+        // Don't end call just because WS disconnected - HTTP polling should handle it
+        console.log('ℹ️ Call active but WS down. Using HTTP fallback for signals.');
       }
-      if (wsRetries < MAX_WS) setTimeout(connectWS, 4000);
+      
+      if (wsRetries < MAX_WS) {
+        setTimeout(connectWS, 4000);
+      } else {
+        wsDisabled = true;
+        console.log('✅ WebSocket disabled. Continuing with HTTP polling.');
+      }
     };
   }
-  setRealtimeState(false);
+  // Don't call setRealtimeState(false) on startup - user may already be online
+  // Let polling + WebSocket establish state
   forceHideBaseNavForChat();
   connectWS();
 
