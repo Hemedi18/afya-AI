@@ -1,0 +1,94 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Create Group" %} | AfyaSmart{% endblock %}
+
+{% block content %}
+<style>
+.group-create-shell { max-width: 980px; margin: 0 auto; padding: 1rem 1rem 5rem; }
+.group-create-wrap { display:grid; grid-template-columns: 1.1fr .9fr; gap: 1rem; }
+.group-create-main, .group-create-side {
+  border:1px solid var(--line-soft);
+  border-radius:18px;
+  background: var(--card-bg);
+  box-shadow: 0 10px 26px rgba(0,0,0,.06);
+}
+.group-create-main { padding: 1rem; }
+.group-create-side { padding: 1rem; }
+.hero-cover {
+  height: 190px; border-radius: 14px; overflow: hidden; margin-bottom: .9rem;
+  border:1px solid var(--line-soft);
+  background: linear-gradient(135deg, color-mix(in srgb, var(--primary) 24%, transparent), color-mix(in srgb, var(--secondary) 18%, transparent));
+}
+.hero-cover img { width:100%; height:100%; object-fit:cover; display:block; }
+.form-label-soft { font-size:.8rem; font-weight: 700; color: var(--text-muted); margin-bottom:.35rem; }
+.create-btn {
+  border:0; border-radius:12px; width:100%; padding:.72rem .9rem;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color:#fff; font-weight: 800;
+}
+.meta-pill {
+  display:inline-flex; gap:.35rem; align-items:center;
+  border:1px solid var(--line-soft); border-radius:999px;
+  font-size:.75rem; padding:.22rem .58rem;
+  background: color-mix(in srgb, var(--card-bg) 90%, var(--app-bg));
+}
+@media (max-width: 900px){ .group-create-wrap { grid-template-columns: 1fr; } }
+</style>
+
+<div class="group-create-shell">
+  <div class="mb-3">
+    <a href="{% url 'chats:feed_groups' %}" class="btn btn-outline-secondary btn-sm rounded-pill"><i class="bi bi-arrow-left"></i> {% trans "Back to Groups" %}</a>
+  </div>
+
+  <div class="group-create-wrap">
+    <section class="group-create-main">
+      <div class="hero-cover">
+        <img src="https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=1400&q=80" alt="{% trans 'Group cover' %}">
+      </div>
+      <h4 class="fw-bold mb-1">{% trans "Create a New Group" %}</h4>
+      <div class="text-muted small mb-3">{% trans "Set a clear name and short description so people can discover and join easily." %}</div>
+
+      <form method="post" enctype="multipart/form-data" class="row g-3" novalidate>
+        {% csrf_token %}
+        <div class="col-12">
+          <label class="form-label-soft">{% trans "Group name" %}</label>
+          {{ group_form.name }}
+        </div>
+        <div class="col-12">
+          <label class="form-label-soft">{% trans "Description" %}</label>
+          {{ group_form.description }}
+        </div>
+        <div class="col-12">
+          <label class="form-label-soft">{% trans "Group image" %}</label>
+          {{ group_form.image }}
+          <div class="text-muted small mt-1">{% trans "Optional, but recommended for better recognition." %}</div>
+        </div>
+        <div class="col-12 d-flex flex-column gap-2">
+          <label class="d-inline-flex align-items-center gap-2 small">{{ group_form.require_join_approval }} <span>{% trans "Require approval for new members" %}</span></label>
+          <label class="d-inline-flex align-items-center gap-2 small">{{ group_form.send_admin_preview }} <span>{% trans "Send for admin preview" %}</span></label>
+        </div>
+        <div class="col-12">
+          <label class="form-label-soft">{% trans "Preview note" %}</label>
+          {{ group_form.preview_note }}
+        </div>
+        <div class="col-12">
+          <button class="create-btn" type="submit"><i class="bi bi-plus-circle me-1"></i>{% trans "Create Group" %}</button>
+        </div>
+      </form>
+    </section>
+
+    <aside class="group-create-side">
+      <h6 class="fw-bold mb-3">{% trans "Tips for a great group" %}</h6>
+      <div class="d-flex flex-column gap-2 small">
+        <div class="meta-pill"><i class="bi bi-check2-circle"></i>{% trans "Use a simple and searchable name" %}</div>
+        <div class="meta-pill"><i class="bi bi-check2-circle"></i>{% trans "Describe your group goal in one sentence" %}</div>
+        <div class="meta-pill"><i class="bi bi-check2-circle"></i>{% trans "Choose whether members need approval" %}</div>
+        <div class="meta-pill"><i class="bi bi-check2-circle"></i>{% trans "Add a cover image for trust" %}</div>
+      </div>
+      <hr>
+      <div class="small text-muted">{% trans "Audience is assigned automatically from your profile context to keep communities relevant." %}</div>
+    </aside>
+  </div>
+</div>
+{% endblock %}

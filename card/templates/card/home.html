@@ -1,152 +1,365 @@
 {% extends 'base.html' %}
+{% load i18n %}
 
-{% block title %}Kadi ya AfyaSmart{% endblock %}
+{% block title %}{% trans "Kadi ya AfyaSmart" %}{% endblock %}
 
 {% block extra_head %}
 <style>
-.card-shell { max-width: 1020px; margin: 1rem auto 2rem; }
-.card-stage { perspective: 1200px; }
-.health-card {
-  width: min(100%, 460px);
-  min-height: 280px;
-  margin: 0 auto;
-  position: relative;
-  transform-style: preserve-3d;
-  transition: transform .75s ease;
+:root {
+  --card-shadow: 0 32px 80px rgba(0,0,0,.32), 0 8px 24px rgba(0,0,0,.16);
+  --card-glow:   0 0 70px rgba(220,38,38,.28);
+  --card-w:      min(100%, 480px);
+  --card-h:      295px;
+  --card-r:      24px;
 }
-.health-card.flipped { transform: rotateY(180deg); }
-.health-face {
-  position: absolute;
-  inset: 0;
-  border-radius: 22px;
-  backface-visibility: hidden;
-  overflow: hidden;
-  border: 1px solid var(--line-soft);
-  box-shadow: 0 24px 48px rgba(0,0,0,.16);
-  background: linear-gradient(135deg, color-mix(in srgb, var(--primary) 25%, transparent), color-mix(in srgb, var(--secondary) 14%, transparent));
+.card-page-shell { max-width:1080px; margin:0 auto 3rem; padding:0 .5rem; }
+.section-pill {
+  display:inline-flex; align-items:center; gap:.45rem;
+  background:color-mix(in srgb, var(--primary) 12%, transparent);
+  border:1px solid color-mix(in srgb, var(--primary) 25%, transparent);
+  border-radius:999px; padding:.3rem .85rem;
+  font-size:.78rem; font-weight:600; letter-spacing:.04em;
+  color:var(--primary); text-transform:uppercase; margin-bottom:.6rem;
 }
-.health-front { padding: 1rem; }
-.health-back { transform: rotateY(180deg); padding: 1rem; display:flex; flex-direction:column; justify-content:center; align-items:center; gap:.8rem; }
-.health-face.theme-classic {
-  background: linear-gradient(135deg, #1f2937, #374151 45%, #0f172a);
-  color: #f8fafc;
+.card-main-grid { display:grid; grid-template-columns:1.1fr .9fr; gap:1.5rem; align-items:start; }
+@media(max-width:991.98px){ .card-main-grid{ grid-template-columns:1fr; } }
+
+/* flip */
+.flip-stage { perspective:1400px; width:var(--card-w); height:var(--card-h); margin:0 auto; }
+.flip-inner {
+  width:100%; height:100%; position:relative;
+  transform-style:preserve-3d;
+  transition:transform .75s cubic-bezier(.4,.2,.2,1);
+  cursor:pointer;
 }
-.health-face.theme-aurora {
-  background: linear-gradient(135deg, #4f46e5, #0ea5e9 45%, #14b8a6);
-  color: #f8fafc;
+.flip-inner.flipped { transform:rotateY(180deg); }
+
+/* card face */
+.card-face {
+  position:absolute; inset:0;
+  border-radius:var(--card-r);
+  backface-visibility:hidden; overflow:hidden;
+  box-shadow:var(--card-shadow);
+  padding:1.6rem; display:flex; flex-direction:column; color:#fff;
 }
-.health-face.theme-midnight {
-  background: radial-gradient(circle at 20% 15%, #334155, #111827 58%, #020617);
-  color: #e2e8f0;
+/* themes */
+.theme-classic  .card-face { background:linear-gradient(135deg,#1f2937,#374151 48%,#0f172a); }
+.theme-aurora   .card-face { background:linear-gradient(135deg,#4f46e5,#0ea5e9 48%,#14b8a6); }
+.theme-midnight .card-face { background:radial-gradient(ellipse at 20% 15%,#334155,#111827 60%,#020617); }
+.theme-emerald  .card-face { background:linear-gradient(135deg,#065f46,#0f766e 48%,#064e3b); }
+/* shimmer overlay */
+.card-face::before {
+  content:''; position:absolute; inset:0;
+  background:linear-gradient(115deg,transparent 30%,rgba(255,255,255,.09) 50%,transparent 70%);
+  background-size:220% 100%; animation:shimmer 4s linear infinite; pointer-events:none;
 }
-.health-face.theme-emerald {
-  background: linear-gradient(135deg, #065f46, #0f766e 45%, #064e3b);
-  color: #ecfeff;
+@keyframes shimmer { 0%{background-position:220% 0} 100%{background-position:-220% 0} }
+/* decorative circle */
+.card-face::after {
+  content:''; position:absolute; top:-55px; right:-55px;
+  width:210px; height:210px; border-radius:50%; background:rgba(255,255,255,.04); pointer-events:none;
 }
-.health-watermark {
-  position: absolute;
-  inset: auto -18% 24% auto;
-  transform: rotate(-27deg);
-  font-size: clamp(1.15rem, 1rem + .8vw, 1.85rem);
-  letter-spacing: .08em;
-  font-weight: 800;
-  opacity: .12;
-  pointer-events: none;
-  text-transform: uppercase;
-}
-.health-back .health-watermark {
-  inset: auto auto 12% -14%;
-  transform: rotate(23deg);
-}
-.profile-pic {
-  width: 78px; height: 78px; border-radius: 50%; object-fit: cover;
-  border: 2px solid color-mix(in srgb, var(--line-soft) 60%, transparent);
-  background: rgba(255,255,255,.24);
-}
-.qr-box { width: 220px; height: 220px; border-radius: 14px; background:#fff; padding:.65rem; display:flex; align-items:center; justify-content:center; }
-.qr-box img { width: 100%; height: 100%; object-fit: contain; }
-.card-grid { display:grid; grid-template-columns: 1.1fr .9fr; gap: 1rem; }
-@media (max-width: 991.98px){ .card-grid{ grid-template-columns: 1fr; } }
+.card-back { transform:rotateY(180deg); justify-content:center; align-items:center; gap:.9rem; }
+
+/* chip */
+.card-chip { width:44px; height:34px; background:linear-gradient(135deg,#d4af37,#f0c040 45%,#b8941a); border-radius:7px; position:relative; flex-shrink:0; }
+.card-chip::before,.card-chip::after { content:''; position:absolute; background:rgba(0,0,0,.22); }
+.card-chip::before { top:50%; left:0; right:0; height:1px; transform:translateY(-50%); }
+.card-chip::after  { left:50%; top:0; bottom:0; width:1px; transform:translateX(-50%); }
+
+/* card number */
+.card-number-row { margin-top:auto; display:flex; flex-direction:column; gap:.18rem; }
+.card-number-label { font-size:.6rem; letter-spacing:.12em; text-transform:uppercase; opacity:.55; }
+.card-number-value { font-family:'Courier New',Courier,monospace; font-size:clamp(.88rem,.95rem + .2vw,1.12rem); letter-spacing:.16em; font-weight:700; opacity:.95; text-shadow:0 1px 4px rgba(0,0,0,.35); }
+
+/* watermark */
+.card-watermark { position:absolute; bottom:18px; right:-16px; transform:rotate(-22deg); font-size:clamp(1rem,.9rem + .8vw,1.75rem); letter-spacing:.1em; font-weight:900; opacity:.10; pointer-events:none; text-transform:uppercase; white-space:nowrap; }
+.card-back .card-watermark { bottom:14px; right:auto; left:-14px; transform:rotate(20deg); }
+
+/* avatar */
+.card-avatar { width:70px; height:70px; border-radius:50%; object-fit:cover; border:2px solid rgba(255,255,255,.3); flex-shrink:0; background:rgba(255,255,255,.2); }
+.card-avatar-placeholder { width:70px; height:70px; border-radius:50%; background:rgba(255,255,255,.22); border:2px solid rgba(255,255,255,.3); display:flex; align-items:center; justify-content:center; font-size:1.6rem; font-weight:800; flex-shrink:0; }
+
+/* QR */
+.qr-box { background:#fff; border-radius:16px; padding:.75rem; width:195px; height:195px; display:flex; align-items:center; justify-content:center; box-shadow:0 4px 18px rgba(0,0,0,.18); }
+.qr-box img { width:100%; height:100%; object-fit:contain; }
+
+/* flip btn */
+.flip-btn { width:var(--card-w); max-width:480px; margin:1rem auto 0; display:flex; }
+
+/* info panels */
+.info-panels { display:flex; flex-direction:column; gap:1rem; }
+
+/* stat row */
+.stat-row { display:grid; grid-template-columns:repeat(3,1fr); gap:.75rem; }
+.stat-chip { background:color-mix(in srgb, var(--bs-body-bg,#fff) 80%, var(--primary) 20%); border:1px solid var(--line-soft,#e5e7eb); border-radius:14px; padding:.8rem .6rem; text-align:center; transition:transform .2s,box-shadow .2s; }
+.stat-chip:hover { transform:translateY(-3px); box-shadow:0 6px 18px rgba(0,0,0,.08); }
+.stat-chip .s-icon { font-size:1.3rem; }
+.stat-chip .s-val  { font-weight:700; font-size:.93rem; display:block; margin:.2rem 0 .1rem; }
+.stat-chip .s-lbl  { font-size:.67rem; color:var(--text-muted,#6b7280); text-transform:uppercase; letter-spacing:.07em; }
+
+/* notif strip */
+.notif-strip { display:flex; align-items:flex-start; gap:.65rem; padding:.8rem; border-radius:14px; border-left:4px solid #f59e0b; background:rgba(245,158,11,.08); font-size:.82rem; }
+
+/* url copy */
+.url-copy-wrap { display:flex; gap:.4rem; align-items:center; }
+.url-copy-wrap .form-control { font-size:.78rem; }
+
+/* hover glow */
+.flip-stage:hover .flip-inner:not(.flipped) { filter:drop-shadow(0 0 22px rgba(220,38,38,.28)); }
+
+/* badge pulse */
+@keyframes badgePulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.7;transform:scale(1.08)} }
+.badge-pulse { animation:badgePulse 2.4s ease-in-out infinite; }
+
+/* entry anim */
+@keyframes fadeSlideUp { from{opacity:0;transform:translateY(28px)} to{opacity:1;transform:translateY(0)} }
+.anim-entry   { animation:fadeSlideUp .52s ease-out both; }
+.anim-delay-1 { animation-delay:.1s; }
+.anim-delay-2 { animation-delay:.22s; }
 </style>
 {% endblock %}
 
 {% block content %}
-<div class="card-shell">
-  <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap gap-2">
-    <h4 class="mb-0 fw-bold"><i class="bi bi-credit-card-2-front me-2"></i>Kadi ya Mtandaoni ya AfyaSmart</h4>
-    <div class="d-flex gap-2">
-      <a href="{% url 'card:details' %}" class="btn btn-outline-danger rounded-pill"><i class="bi bi-sliders me-1"></i>Sasisha Maelezo ya Kadi</a>
-      <a href="{% url 'card:notifications' %}" class="btn btn-danger rounded-pill">
-        <i class="bi bi-bell me-1"></i>Arifa
-        {% if unread_notifications %}<span class="badge text-bg-light ms-1">{{ unread_notifications|length }}</span>{% endif %}
+<div class="card-page-shell">
+
+  <!-- header -->
+  <div class="d-flex justify-content-between align-items-center mb-4 flex-wrap gap-2 anim-entry">
+    <div>
+      <div class="section-pill"><i class="bi bi-credit-card-2-front"></i> AfyaSmart ID</div>
+      <h4 class="mb-0 fw-bold">{% trans "Kadi Yako ya Afya ya Dijitali" %}</h4>
+      <p class="text-muted small mb-0">{% trans "Kadi inayoweza kuskaniwa, kushirikishwa, na kudhibitiwa." %}</p>
+    </div>
+    <div class="d-flex gap-2 flex-wrap">
+      <a href="{% url 'card:details' %}" class="btn btn-outline-danger rounded-pill btn-sm">
+        <i class="bi bi-sliders me-1"></i>{% trans "Hariri Kadi" %}
+      </a>
+      <a href="{% url 'card:notifications' %}" class="btn btn-danger rounded-pill btn-sm position-relative">
+        <i class="bi bi-bell-fill me-1"></i>{% trans "Arifa" %}
+        {% if unread_notifications %}
+        <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark badge-pulse">{{ unread_notifications|length }}</span>
+        {% endif %}
       </a>
     </div>
   </div>
 
-  <div class="card-grid">
-    <div class="card-custom p-3 p-lg-4">
-      <div class="card-stage">
-        <div class="health-card" id="healthCard">
-          <article class="health-face health-front theme-{{ card_obj.style_theme }}">
-            {% if card_obj.show_watermark %}<span class="health-watermark">{{ card_obj.watermark_text|default:'AfyaSmart' }}</span>{% endif %}
-            <div class="d-flex justify-content-between align-items-start mb-3">
-              <div class="small text-muted">Utambulisho wa Afya wa AfyaSmart</div>
-              <span class="badge text-bg-danger">Mbele</span>
-            </div>
-            <div class="d-flex align-items-center gap-3 mb-3">
-              {% if card_obj.display_photo_url %}
-              <img src="{{ card_obj.display_photo_url }}" alt="Wasifu" class="profile-pic">
-              {% else %}
-              <div class="profile-pic d-inline-flex align-items-center justify-content-center fw-bold">{{ request.user.username|first|upper }}</div>
-              {% endif %}
-              <div>
-                <div class="fw-bold fs-5">{{ card_obj.display_name }}</div>
-                <div class="small text-muted">@{{ request.user.username }}</div>
-              </div>
-            </div>
-            <div class="row g-2 small">
-              <div class="col-6"><span class="text-muted">Jinsia:</span> <strong>{{ card_obj.display_gender }}</strong></div>
-              <div class="col-6"><span class="text-muted">Tarehe ya kuzaliwa:</span> <strong>{% if card_obj.display_birth_date %}{{ card_obj.display_birth_date }}{% else %}Haijawekwa{% endif %}</strong></div>
-            </div>
-          </article>
+  <div class="card-main-grid">
 
-          <article class="health-face health-back theme-{{ card_obj.style_theme }}">
-            {% if card_obj.show_watermark %}<span class="health-watermark">{{ card_obj.watermark_text|default:'AfyaSmart' }}</span>{% endif %}
-            <span class="badge text-bg-primary">Nyuma</span>
-            <div class="qr-box">
-              <img src="{{ qr_image }}" alt="Msimbo wa QR wa kadi">
-            </div>
-            <div class="small text-muted text-center">Skena QR kupata taarifa ulizoruhusu zionekane.</div>
-          </article>
+    <!-- LEFT: card display -->
+    <div class="anim-entry anim-delay-1">
+      <div class="card-custom p-3 p-lg-4">
+
+        <div class="flip-stage theme-{{ card_obj.style_theme }}" id="flipStage">
+          <div class="flip-inner" id="flipInner">
+
+            <!-- FRONT -->
+            <div class="card-face">
+              {% if card_obj.show_watermark %}<span class="card-watermark">{{ card_obj.watermark_text|default:'AfyaSmart' }}</span>{% endif %}
+
+              <div class="d-flex justify-content-between align-items-start mb-2">
+                <div style="font-size:.72rem;letter-spacing:.08em;text-transform:uppercase;font-weight:700;opacity:.8;">
+                  AfyaSmart <span style="opacity:.5;">&#183; Health ID</span>
+                </div>
+                <span class="badge" style="background:rgba(255,255,255,.18);font-size:.65rem;">{% trans "MBELE" %}</span>
+              </div>
+
+              <div class="d-flex align-items-center gap-3 mt-1">
+                <div class="card-chip"></div>
+                {% if card_obj.display_photo_url %}
+                <img src="{{ card_obj.display_photo_url }}" alt="avatar" class="card-avatar ms-auto">
+                {% else %}
+                <div class="card-avatar-placeholder ms-auto">{{ request.user.username|first|upper }}</div>
+                {% endif %}
+              </div>
+
+              <div class="mt-2">
+                <div class="fw-bold" style="font-size:1.08rem;">{{ card_obj.display_name }}</div>
+                <div style="font-size:.74rem;opacity:.55;">@{{ request.user.username }}</div>
+              </div>
+
+              <div class="d-flex gap-3 mt-1" style="font-size:.74rem;opacity:.8;">
+                <span><span style="opacity:.6;">{% trans "Jinsia" %}: </span><strong>{{ card_obj.display_gender }}</strong></span>
+                <span><span style="opacity:.6;">{% trans "Tarehe" %}: </span>
+                  <strong>{% if card_obj.display_birth_date %}{{ card_obj.display_birth_date }}{% else %}&mdash;{% endif %}</strong>
+                </span>
+              </div>
+
+              <!-- card number at bottom -->
+              <div class="card-number-row">
+                <span class="card-number-label">{% trans "Nambari ya Kadi" %}</span>
+                <span class="card-number-value">{{ card_obj.card_number }}</span>
+              </div>
+            </div><!-- /front -->
+
+            <!-- BACK -->
+            <div class="card-face card-back">
+              {% if card_obj.show_watermark %}<span class="card-watermark">{{ card_obj.watermark_text|default:'AfyaSmart' }}</span>{% endif %}
+              <span class="badge mb-1" style="background:rgba(255,255,255,.18);font-size:.65rem;">{% trans "NYUMA &#8212; SKANISHA QR" %}</span>
+              <div class="qr-box">
+                <img src="{{ qr_image }}" alt="{% trans 'Msimbo wa QR' %}">
+              </div>
+              <div style="font-size:.74rem;opacity:.7;text-align:center;max-width:210px;">
+                {% trans "Skanisha kupata taarifa ulizoruhusu zionekane hadharani." %}
+              </div>
+              <div style="font-family:'Courier New',monospace;font-size:.78rem;letter-spacing:.13em;opacity:.48;">
+                {{ card_obj.card_number }}
+              </div>
+            </div><!-- /back -->
+
+          </div><!-- /flip-inner -->
+        </div><!-- /flip-stage -->
+
+        <div class="flip-btn">
+          <button class="btn btn-dark rounded-pill w-100 mt-2" id="flipBtn">
+            <i class="bi bi-arrow-repeat me-1"></i>{% trans "Geuza Kadi" %}
+          </button>
+        </div>
+
+        <!-- share -->
+        <div class="mt-3 pt-3 border-top">
+          <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="small fw-semibold"><i class="bi bi-share me-1"></i>{% trans "Shiriki Kadi" %}</span>
+            <a href="{{ public_url }}" target="_blank" rel="noopener" class="btn btn-outline-secondary btn-sm rounded-pill">
+              <i class="bi bi-box-arrow-up-right me-1"></i>{% trans "Fungua" %}
+            </a>
+          </div>
+          <div class="url-copy-wrap">
+            <input type="text" id="publicUrlInput" class="form-control form-control-sm" value="{{ public_url }}" readonly>
+            <button class="btn btn-outline-danger btn-sm rounded-pill flex-shrink-0" id="copyUrlBtn">
+              <i class="bi bi-clipboard" id="copyIcon"></i>
+            </button>
+          </div>
+        </div>
+
+      </div>
+    </div><!-- /left -->
+
+
+    <!-- RIGHT: info panels -->
+    <div class="info-panels anim-entry anim-delay-2">
+
+      <!-- stat chips -->
+      <div class="stat-row">
+        <div class="stat-chip">
+          <span class="s-icon">&#127995;</span>
+          <span class="s-val" style="font-size:.64rem;font-family:'Courier New',monospace;letter-spacing:.04em;">
+            {{ card_obj.card_number|slice:":9" }}&hellip;
+          </span>
+          <span class="s-lbl">{% trans "Nambari" %}</span>
+        </div>
+        <div class="stat-chip">
+          <span class="s-icon">&#127912;</span>
+          <span class="s-val">{{ card_obj.get_style_theme_display }}</span>
+          <span class="s-lbl">{% trans "Mandhari" %}</span>
+        </div>
+        <div class="stat-chip">
+          <span class="s-icon">&#128260;</span>
+          <span class="s-val small">{{ card_obj.updated_at|date:"d M" }}</span>
+          <span class="s-lbl">{% trans "Ilisasishwa" %}</span>
         </div>
       </div>
-      <div class="d-grid mt-3">
-        <button class="btn btn-dark rounded-pill" id="flipBtn"><i class="bi bi-arrow-repeat me-1"></i>Geuza Kadi</button>
+
+      {% if unread_notifications %}
+      <div class="card-custom p-3">
+        <h6 class="fw-bold mb-2 small"><i class="bi bi-bell-fill text-warning me-1"></i>{% trans "Arifa Mpya" %}</h6>
+        {% for notif in unread_notifications %}
+        <div class="notif-strip mb-2">
+          <i class="bi bi-exclamation-circle-fill text-warning fs-5 flex-shrink-0 mt-1"></i>
+          <div>
+            <div class="fw-semibold">{{ notif.title }}</div>
+            <div class="text-muted">{{ notif.body|truncatechars:80 }}</div>
+          </div>
+        </div>
+        {% endfor %}
+        <a href="{% url 'card:notifications' %}" class="btn btn-sm btn-outline-warning rounded-pill w-100">{% trans "Angalia Arifa Zote" %}</a>
       </div>
-    </div>
+      {% endif %}
 
-    <div class="card-custom p-3 p-lg-4">
-      <h6 class="fw-bold mb-2"><i class="bi bi-qr-code me-1"></i>Kiungo cha Uskenaji</h6>
-      <div class="small text-muted mb-2">Hii ndio link itafunguliwa baada ya QR kuscan:</div>
-      <div class="form-control small" style="word-break:break-all;">{{ public_url }}</div>
+      <!-- privacy -->
+      <div class="card-custom p-3">
+        <h6 class="fw-bold mb-2 small"><i class="bi bi-shield-lock-fill text-success me-1"></i>{% trans "Faragha &amp; Usalama" %}</h6>
+        <ul class="list-unstyled small mb-2" style="line-height:2.2;">
+          <li>
+            <i class="bi {% if card_obj.show_name %}bi-toggle-on text-success{% else %}bi-toggle-off text-muted{% endif %} me-1"></i>
+            {% trans "Jina" %} &mdash; <span class="{% if card_obj.show_name %}text-success{% else %}text-muted{% endif %}">{% if card_obj.show_name %}{% trans "Inaonekana" %}{% else %}{% trans "Imefichwa" %}{% endif %}</span>
+          </li>
+          <li>
+            <i class="bi {% if card_obj.show_health_notes %}bi-toggle-on text-success{% else %}bi-toggle-off text-muted{% endif %} me-1"></i>
+            {% trans "Maelezo ya Afya" %} &mdash; <span class="{% if card_obj.show_health_notes %}text-success{% else %}text-muted{% endif %}">{% if card_obj.show_health_notes %}{% trans "Inaonekana" %}{% else %}{% trans "Imefichwa" %}{% endif %}</span>
+          </li>
+          <li>
+            <i class="bi {% if card_obj.requires_public_password %}bi-lock-fill text-danger{% else %}bi-unlock-fill text-warning{% endif %} me-1"></i>
+            {% trans "Nenosiri la Umma" %} &mdash; <span class="{% if card_obj.requires_public_password %}text-danger{% else %}text-warning{% endif %}">{% if card_obj.requires_public_password %}{% trans "Imewekwa" %}{% else %}{% trans "Haijawekwa" %}{% endif %}</span>
+          </li>
+        </ul>
+        <a href="{% url 'card:details' %}" class="btn btn-sm btn-outline-danger rounded-pill w-100">
+          <i class="bi bi-pencil me-1"></i>{% trans "Badilisha Mipangilio" %}
+        </a>
+      </div>
 
-      <hr>
-      <h6 class="fw-bold mb-2"><i class="bi bi-clock-history me-1"></i>Mantiki ya Vikumbusho vya Persona</h6>
-      <ul class="small mb-0">
-        <li>Muda wa kikumbusho: <strong>kila siku {{ persona_config.interval_days }}</strong></li>
-        <li>Mpumziko wa kikumbusho: <strong>siku {{ persona_config.reminder_cooldown_days }}</strong></li>
-        <li>Persona ikivuka muda, arifa hutumwa kiotomatiki.</li>
-      </ul>
-    </div>
-  </div>
-</div>
+      <!-- reminder config -->
+      <div class="card-custom p-3">
+        <h6 class="fw-bold mb-2 small"><i class="bi bi-clock-history text-primary me-1"></i>{% trans "Vikumbusho vya Persona" %}</h6>
+        <div class="d-flex gap-2">
+          <div class="flex-fill p-2 rounded-3 text-center" style="background:color-mix(in srgb, var(--primary) 8%, transparent);border:1px solid color-mix(in srgb, var(--primary) 18%, transparent);">
+            <div class="fw-bold">{{ persona_config.interval_days }}d</div>
+            <div class="text-muted" style="font-size:.67rem;text-transform:uppercase;letter-spacing:.07em;">{% trans "Mzunguko" %}</div>
+          </div>
+          <div class="flex-fill p-2 rounded-3 text-center" style="background:color-mix(in srgb, var(--primary) 8%, transparent);border:1px solid color-mix(in srgb, var(--primary) 18%, transparent);">
+            <div class="fw-bold">{{ persona_config.reminder_cooldown_days }}d</div>
+            <div class="text-muted" style="font-size:.67rem;text-transform:uppercase;letter-spacing:.07em;">{% trans "Mapumziko" %}</div>
+          </div>
+        </div>
+        <div class="small text-muted mt-2">
+          {% trans "Kikumbusho kingine kitatumwa baada ya siku" %} {{ persona_config.interval_days }}.
+        </div>
+      </div>
+
+    </div><!-- /right -->
+  </div><!-- /grid -->
+
+</div><!-- /shell -->
 
 <script>
-(function(){
-  const card = document.getElementById('healthCard');
-  const btn = document.getElementById('flipBtn');
-  if (!card || !btn) return;
-  btn.addEventListener('click', () => card.classList.toggle('flipped'));
+(function () {
+  var stage = document.getElementById('flipStage');
+  var inner = document.getElementById('flipInner');
+  var flipBtn = document.getElementById('flipBtn');
+
+  function doFlip() { inner.classList.toggle('flipped'); }
+  if (stage)   stage.addEventListener('click', doFlip);
+  if (flipBtn) flipBtn.addEventListener('click', function(e){ e.stopPropagation(); doFlip(); });
+
+  /* copy URL */
+  var copyBtn  = document.getElementById('copyUrlBtn');
+  var urlInput = document.getElementById('publicUrlInput');
+  var copyIcon = document.getElementById('copyIcon');
+  if (copyBtn && urlInput) {
+    copyBtn.addEventListener('click', function() {
+      navigator.clipboard.writeText(urlInput.value).then(function(){
+        copyIcon.className = 'bi bi-clipboard-check-fill text-success';
+        copyBtn.classList.replace('btn-outline-danger','btn-success');
+        setTimeout(function(){
+          copyIcon.className = 'bi bi-clipboard';
+          copyBtn.classList.replace('btn-success','btn-outline-danger');
+        }, 2200);
+      }).catch(function(){ urlInput.select(); document.execCommand('copy'); });
+    });
+  }
+
+  /* tilt on hover (desktop only) */
+  if (window.matchMedia('(hover:hover)').matches && stage) {
+    stage.addEventListener('mousemove', function(e){
+      if (inner.classList.contains('flipped')) return;
+      var r = stage.getBoundingClientRect();
+      var x = ((e.clientX - r.left) / r.width  - 0.5) * 14;
+      var y = ((e.clientY - r.top)  / r.height - 0.5) * -10;
+      inner.style.transform = 'rotateY('+x+'deg) rotateX('+y+'deg)';
+    });
+    stage.addEventListener('mouseleave', function(){
+      if (!inner.classList.contains('flipped')) inner.style.transform = '';
+    });
+  }
 })();
 </script>
 {% endblock %}

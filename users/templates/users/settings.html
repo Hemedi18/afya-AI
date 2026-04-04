@@ -135,7 +135,7 @@
         display: block;
     }
 
-    .form-group input,
+    .form-group input:not([type="checkbox"]):not([type="radio"]),
     .form-group textarea,
     .form-group select {
         width: 100%;
@@ -148,7 +148,7 @@
         transition: all .2s ease;
     }
 
-    .form-group input:focus,
+    .form-group input:not([type="checkbox"]):not([type="radio"]):focus,
     .form-group textarea:focus,
     .form-group select:focus {
         outline: none;
@@ -160,6 +160,45 @@
     .form-group textarea {
         resize: vertical;
         min-height: 100px;
+    }
+
+    /* Checkbox/Switch fixes (prevent stretched full-width inputs) */
+    .form-group .form-check {
+        display: flex;
+        align-items: center;
+        gap: .6rem;
+        padding-left: 0;
+    }
+
+    .form-group .form-check-input {
+        width: 2.45rem;
+        max-width: 2.45rem;
+        height: 1.25rem;
+        padding: 0;
+        margin: 0;
+        flex: 0 0 auto;
+        cursor: pointer;
+        border-radius: 999px;
+        position: relative;
+        z-index: 2;
+        background-repeat: no-repeat;
+        background-position: left center;
+        box-shadow: none;
+    }
+
+    .form-group .form-check.form-switch .form-check-input {
+        min-width: 2.55rem;
+    }
+
+    .form-group .form-check-label {
+        display: inline;
+        margin: 0;
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .form-group .form-check + .helptext {
+        margin-left: 3.05rem;
     }
 
     .form-actions {
@@ -209,11 +248,13 @@
 
     .errorlist li {
         background: #fee2e2;
-        color: #991b1b;
+        border: 1px solid #fca5a5;
+        color: #dc2626;
         padding: .5rem .7rem;
         border-radius: 6px;
         margin-bottom: .4rem;
         font-size: .9rem;
+        font-weight: 600;
     }
 
     .avatar-preview {
@@ -415,9 +456,6 @@
                             {% endfor %}
                         </ul>
                         {% endif %}
-                        {% if field.help_text %}
-                        <span class="helptext">{{ field.help_text|safe }}</span>
-                        {% endif %}
                     </div>
                     {% endif %}
                 {% endfor %}
@@ -437,7 +475,7 @@
                 <h3 style="font-size:1.02rem;font-weight:700;margin-bottom:1rem;">{% trans "Mipangilio ya Faragha na Vikumbusho" %}</h3>
                 {% for field in forms.privacy %}
                 <div class="form-group" style="margin-bottom: .9rem;">
-                    <div class="form-check">
+                    <div class="form-check form-switch">
                         {{ field }}
                         <label class="form-check-label" for="{{ field.id_for_label }}">{{ field.label }}</label>
                     </div>

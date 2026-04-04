@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load i18n %}
 
 {# ─── Hide EVERYTHING from base — we own the full screen ─── #}
 {% block extra_head %}
@@ -7,6 +8,16 @@
 body            { padding-bottom: 0 !important; overflow: hidden !important; height: 100dvh !important; }
 .navbar         { display: none !important; }
 .mobile-nav     { display: none !important; }
+.afya-mobile-sub-nav { display: none !important; }
+.afya-mobile-primary-nav { display: none !important; }
+.afya-mobile-primary-links { display: none !important; }
+.afya-sub-links-mobile { display: none !important; }
+.mobile-bottom-nav { display: none !important; }
+.bottom-nav { display: none !important; }
+.app-bottom-nav { display: none !important; }
+.site-bottom-nav { display: none !important; }
+.floating-bottom-nav { display: none !important; }
+footer.mobile-footer { display: none !important; }
 .desktop-footer { display: none !important; }
 .ai-fab         { display: none !important; }
 .ai-chat-widget { display: none !important; }
@@ -82,6 +93,25 @@ html[data-theme='dark'] {
   display: inline-flex;
   align-items: center;
   justify-content: center;
+}
+.wa-call-btn {
+  cursor: pointer;
+}
+.wa-call-btn:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+}
+.wa-theme-toggle,
+.wa-header-menu,
+.wa-call-action,
+.wa-call-close {
+  transition: transform .18s ease, opacity .18s ease, background .18s ease;
+}
+.wa-theme-toggle:hover,
+.wa-header-menu:hover,
+.wa-call-action:hover,
+.wa-call-close:hover {
+  transform: translateY(-1px);
 }
 
 /* ═══════════════════════════════ WALLPAPER BODY ═══════════════════════ */
@@ -511,6 +541,209 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
   border-radius: 18px;
 }
 
+.wa-call-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 5100;
+  display: none;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: rgba(2, 6, 23, .84);
+  backdrop-filter: blur(16px);
+}
+.wa-call-modal.show {
+  display: flex;
+}
+.wa-call-dialog {
+  width: min(96vw, 1100px);
+  height: min(94dvh, 860px);
+  min-height: min(94dvh, 720px);
+  border-radius: 28px;
+  overflow: hidden;
+  background: linear-gradient(180deg, color-mix(in srgb, var(--wa-header-bg) 96%, #0f172a), color-mix(in srgb, var(--wa-wall-bg) 90%, #020617));
+  border: 1px solid color-mix(in srgb, var(--wa-time-color) 16%, transparent);
+  box-shadow: 0 26px 80px rgba(0,0,0,.42);
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+.wa-call-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  padding: 1rem 1.1rem .2rem;
+}
+.wa-call-head-main {
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: .35rem;
+}
+.wa-call-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: .45rem;
+  padding: .42rem .8rem;
+  border-radius: 999px;
+  font-size: .8rem;
+  font-weight: 700;
+  color: #fff;
+  background: color-mix(in srgb, var(--primary) 58%, #0f172a);
+}
+.wa-call-elapsed {
+  display: inline-flex;
+  align-items: center;
+  gap: .35rem;
+  font-size: .78rem;
+  font-weight: 700;
+  color: rgba(255,255,255,.88);
+}
+.wa-call-close {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  border: 0;
+  color: #fff;
+  background: rgba(255,255,255,.1);
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.wa-call-participant {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: .45rem;
+  padding: .35rem 1rem 1rem;
+}
+.wa-call-avatar {
+  width: 92px;
+  height: 92px;
+  border-radius: 50%;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 2rem;
+  font-weight: 800;
+  box-shadow: 0 14px 36px rgba(0,0,0,.24);
+}
+.wa-call-name {
+  font-size: 1.2rem;
+  font-weight: 800;
+  color: #fff;
+}
+.wa-call-status {
+  min-height: 1.4rem;
+  font-size: .92rem;
+  color: rgba(255,255,255,.76);
+}
+.wa-call-stage {
+  padding: 0 1rem 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: .85rem;
+  flex: 1;
+  min-height: 0;
+  position: relative;
+}
+.wa-call-videos {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  border-radius: 24px;
+  overflow: hidden;
+  background: linear-gradient(135deg, rgba(15,23,42,.86), rgba(30,41,59,.92));
+  border: 1px solid rgba(255,255,255,.08);
+}
+.wa-call-remote,
+.wa-call-local {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background: #020617;
+}
+.wa-call-local {
+  position: absolute;
+  right: 1rem;
+  bottom: 1rem;
+  width: min(26vw, 180px);
+  height: min(26vw, 180px);
+  border-radius: 18px;
+  border: 2px solid rgba(255,255,255,.18);
+  box-shadow: 0 18px 40px rgba(0,0,0,.3);
+}
+.wa-call-modal.audio-only .wa-call-local {
+  display: none;
+}
+.wa-call-placeholder {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: .7rem;
+  color: rgba(255,255,255,.84);
+  text-align: center;
+  padding: 1rem;
+}
+.wa-call-placeholder i {
+  font-size: 3rem;
+  opacity: .9;
+}
+.wa-call-placeholder-title {
+  font-size: 1rem;
+  font-weight: 700;
+}
+.wa-call-placeholder-text {
+  max-width: 28rem;
+  font-size: .86rem;
+  opacity: .76;
+}
+.wa-call-actions {
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+  gap: .85rem;
+  flex-wrap: wrap;
+  position: absolute;
+  top: .85rem;
+  left: .85rem;
+  right: .85rem;
+  z-index: 4;
+  background: linear-gradient(180deg, rgba(2,6,23,.86), rgba(2,6,23,.38));
+  padding: .5rem;
+  border-radius: 14px;
+  backdrop-filter: blur(6px);
+}
+.wa-call-action {
+  border: 0;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.2rem;
+  color: #fff;
+  background: rgba(255,255,255,.12);
+  box-shadow: 0 12px 28px rgba(0,0,0,.22);
+}
+.wa-call-action[hidden] {
+  display: none !important;
+}
+.wa-call-action.accept { background: linear-gradient(135deg, #10b981, #22c55e); }
+.wa-call-action.reject,
+.wa-call-action.end { background: linear-gradient(135deg, #ef4444, #f97316); }
+.wa-call-action.active {
+  background: color-mix(in srgb, var(--primary) 78%, #fff);
+}
+
 /* local light mode for this chat only */
 .wa.wa-light {
   --wa-header-bg: #eef1f5;
@@ -633,7 +866,7 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
   }
   .wa-shell {
     width: 100%;
-    height: 100%;
+    height: 100dvh;
     padding: 0;
     gap: 0;
     grid-template-columns: 1fr;
@@ -641,6 +874,7 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
   }
   .wa-side { display: none; }
   .wa-main {
+    height: 100dvh;
     border-radius: 0;
     border: 0;
     box-shadow: none;
@@ -745,11 +979,14 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
 
   .wa-footer {
     margin: 0;
-    padding: 4px 0 8px;
+    padding: 4px 8px calc(8px + env(safe-area-inset-bottom));
     gap: 6px;
     background: transparent;
     border: 0;
     align-items: center;
+    position: sticky;
+    bottom: 0;
+    z-index: 16;
   }
   .wa-input-wrap {
     border-radius: 24px;
@@ -827,6 +1064,70 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
   .wa-media-modal-body {
     padding: .7rem;
   }
+
+  .wa-call-modal {
+    padding: 0;
+    align-items: stretch;
+    justify-content: stretch;
+  }
+  .wa-call-dialog {
+    width: 100vw;
+    height: 100dvh;
+    min-height: 100dvh;
+    max-height: 100dvh;
+    border-radius: 0;
+  }
+  .wa-call-head {
+    padding: .85rem .85rem .15rem;
+  }
+  .wa-call-avatar {
+    width: 82px;
+    height: 82px;
+    font-size: 1.8rem;
+  }
+  .wa-call-videos {
+    min-height: 0;
+    border-radius: 0;
+    height: 100%;
+  }
+  .wa-call-remote {
+    object-fit: cover;
+    background: #000;
+  }
+  .wa-call-local {
+    width: 102px;
+    height: 138px;
+    right: .7rem;
+    top: calc(4.4rem + env(safe-area-inset-top));
+    bottom: auto;
+    z-index: 6;
+  }
+  .wa-call-actions {
+    top: calc(.55rem + env(safe-area-inset-top));
+    left: .55rem;
+    right: .55rem;
+    justify-content: center;
+    gap: .48rem;
+    border-radius: 12px;
+    padding: .42rem;
+  }
+  .wa-call-action {
+    width: 46px;
+    height: 46px;
+  }
+  .wa-call-stage {
+    gap: 0;
+    padding: 0;
+  }
+  .wa-call-participant {
+    display: none;
+  }
+  .wa-call-head-main {
+    gap: .25rem;
+  }
+  .wa-call-elapsed {
+    font-size: .76rem;
+  }
 }
 </style>
 {% endblock %}
@@ -854,7 +1155,10 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
   </div>
 </aside>
 
-<div class="wa wa-main" id="waApp" data-delete-url-template="{% url 'chats:conversation_delete_message' conversation.id 0 %}">
+<div class="wa wa-main" id="waApp"
+  data-delete-url-template="{% url 'chats:conversation_delete_message' conversation.id 0 %}"
+  data-other-name="{% if user == conversation.doctor %}{{ conversation.patient.get_full_name|default:conversation.patient.username|escape }}{% else %}{{ conversation.doctor.get_full_name|default:conversation.doctor.username|escape }}{% endif %}"
+  data-other-initial="{% if user == conversation.doctor %}{{ conversation.patient.username|first|upper }}{% else %}{{ conversation.doctor.username|first|upper }}{% endif %}">
 
   {# ── STATUS BAR ── #}
   <div id="wa-conn-status"></div>
@@ -887,6 +1191,8 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
     {% if user == conversation.doctor %}
     <a href="{% url 'doctor:create_patient_log' conversation.patient.id %}" class="wa-theme-toggle" title="Unda/Angalia fomu za log za mgonjwa huyu"><i class="bi bi-journal-plus"></i></a>
     {% endif %}
+    <button class="wa-theme-toggle wa-call-btn" id="waVoiceCallBtn" type="button" title="Piga simu ya sauti"><i class="bi bi-telephone"></i></button>
+    <button class="wa-theme-toggle wa-call-btn" id="waVideoCallBtn" type="button" title="Piga simu ya video"><i class="bi bi-camera-video"></i></button>
     <button class="wa-theme-toggle" id="waThemeBtn" title="Mandhari"><i class="bi bi-brightness-high"></i></button>
     <button class="wa-header-menu" id="waMenuBtn"><i class="bi bi-three-dots-vertical"></i></button>
     <div id="waMenu" style="display:none;position:absolute;right:12px;top:58px;background:var(--wa-recv-bg);border-radius:10px;box-shadow:0 6px 20px rgba(0,0,0,.18);z-index:30;min-width:170px;">
@@ -1006,6 +1312,59 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
     </div>
   </div>
 
+  <div class="wa-call-modal audio-only" id="waCallModal" aria-hidden="true">
+    <div class="wa-call-dialog" role="dialog" aria-modal="true" aria-label="Dirisha la simu">
+      <div class="wa-call-head">
+        <div class="wa-call-head-main">
+          <div class="wa-call-badge" id="waCallBadge"><i class="bi bi-telephone"></i> Voice call</div>
+          <div class="wa-call-elapsed" id="waCallElapsed"><i class="bi bi-stopwatch"></i> 00:00</div>
+        </div>
+        <button type="button" class="wa-call-close" id="waCallCloseBtn" aria-label="Funga simu">
+          <i class="bi bi-x-lg"></i>
+        </button>
+      </div>
+      <div class="wa-call-participant">
+        <div class="wa-call-avatar" id="waCallAvatar">{{ conversation.doctor.username|first|upper }}</div>
+        <div class="wa-call-name" id="waCallName">
+          {% if user == conversation.doctor %}
+            {{ conversation.patient.get_full_name|default:conversation.patient.username }}
+          {% else %}
+            {{ conversation.doctor.get_full_name|default:conversation.doctor.username }}
+          {% endif %}
+        </div>
+        <div class="wa-call-status" id="waCallStatus">Bonyeza sauti au video kuanza simu.</div>
+      </div>
+      <div class="wa-call-stage">
+        <div class="wa-call-videos">
+          <video class="wa-call-remote" id="waRemoteVideo" autoplay playsinline></video>
+          <video class="wa-call-local" id="waLocalVideo" autoplay muted playsinline></video>
+          <div class="wa-call-placeholder" id="waCallPlaceholder">
+            <i class="bi bi-broadcast-pin"></i>
+            <div class="wa-call-placeholder-title" id="waCallPlaceholderTitle">Hakuna simu inayoendelea</div>
+            <div class="wa-call-placeholder-text" id="waCallPlaceholderText">Ukiita au ukipokea simu, video au sauti itaonekana hapa.</div>
+          </div>
+        </div>
+        <div class="wa-call-actions">
+          <button type="button" class="wa-call-action accept" id="waCallAcceptBtn" hidden title="Kubali simu">
+            <i class="bi bi-telephone-inbound-fill"></i>
+          </button>
+          <button type="button" class="wa-call-action reject" id="waCallRejectBtn" hidden title="Kataa simu">
+            <i class="bi bi-telephone-x-fill"></i>
+          </button>
+          <button type="button" class="wa-call-action" id="waMuteBtn" hidden title="Washa/Zima sauti yako">
+            <i class="bi bi-mic-fill"></i>
+          </button>
+          <button type="button" class="wa-call-action" id="waCameraBtn" hidden title="Washa/Zima kamera yako">
+            <i class="bi bi-camera-video-fill"></i>
+          </button>
+          <button type="button" class="wa-call-action end" id="waEndCallBtn" hidden title="Maliza simu">
+            <i class="bi bi-telephone-x-fill"></i>
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+
 </div>
 </div>
 
@@ -1016,12 +1375,20 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
   const MY_UID   = {{ user.id }};
   const POLL_URL = "{% url 'chats:conversation_poll' conversation.id %}";
   const POST_URL = "{% url 'chats:conversation_detail' conversation.id %}";
+  const CALL_SIGNAL_URL = "{% url 'chats:conversation_call_signal' conversation.id %}";
   const WS_PROTO = location.protocol === 'https:' ? 'wss' : 'ws';
   const WS_URL   = `${WS_PROTO}://${location.host}/ws/chats/private/${CONVO_ID}/`;
   const CSRF     = document.querySelector('[name=csrfmiddlewaretoken]')?.value || '';
+  const RTC_CONFIG = {
+    iceServers: [
+      { urls: ['stun:stun.l.google.com:19302', 'stun:stun1.l.google.com:19302'] },
+    ],
+  };
 
   const appEl       = document.getElementById('waApp');
   const DELETE_URL_TEMPLATE = appEl?.dataset?.deleteUrlTemplate || '';
+  const OTHER_NAME = appEl?.dataset?.otherName || 'Participant';
+  const OTHER_INITIAL = appEl?.dataset?.otherInitial || (OTHER_NAME[0] || 'P');
   const body        = document.getElementById('waBody');
   const textInput   = document.getElementById('wa-text-input');
   const sendBtn     = document.getElementById('waSendBtn');
@@ -1049,12 +1416,49 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
   const mediaOpenBtn = document.getElementById('waMediaOpenBtn');
   const mediaDownloadBtn = document.getElementById('waMediaDownloadBtn');
   const mediaCloseBtn = document.getElementById('waMediaCloseBtn');
+  const voiceCallBtn = document.getElementById('waVoiceCallBtn');
+  const videoCallBtn = document.getElementById('waVideoCallBtn');
+  const callModal = document.getElementById('waCallModal');
+  const callBadge = document.getElementById('waCallBadge');
+  const callCloseBtn = document.getElementById('waCallCloseBtn');
+  const callElapsedEl = document.getElementById('waCallElapsed');
+  const callAvatar = document.getElementById('waCallAvatar');
+  const callNameEl = document.getElementById('waCallName');
+  const callStatusEl = document.getElementById('waCallStatus');
+  const remoteVideo = document.getElementById('waRemoteVideo');
+  const localVideo = document.getElementById('waLocalVideo');
+  const callPlaceholder = document.getElementById('waCallPlaceholder');
+  const callPlaceholderTitle = document.getElementById('waCallPlaceholderTitle');
+  const callPlaceholderText = document.getElementById('waCallPlaceholderText');
+  const callAcceptBtn = document.getElementById('waCallAcceptBtn');
+  const callRejectBtn = document.getElementById('waCallRejectBtn');
+  const muteBtn = document.getElementById('waMuteBtn');
+  const cameraBtn = document.getElementById('waCameraBtn');
+  const endCallBtn = document.getElementById('waEndCallBtn');
 
   let lastId = 0, pollTimer = null, socket = null, wsRetries = 0, pendingFile = null;
   let replyState = null;
   let contextTarget = null;
   let holdTimer = null;
   let pendingUploads = new Map();
+  let peerConnection = null;
+  let localStream = null;
+  let remoteStream = null;
+  let remoteDescriptionQueue = null;
+  let pendingIceCandidates = [];
+  let currentCall = null;
+  let callUiState = 'idle';
+  let localStreamMode = null;
+  let isMuted = false;
+  let isCameraOff = false;
+  let callTimeoutTimer = null;
+  let callElapsedTimer = null;
+  let callStartedAt = null;
+  let ringtoneContext = null;
+  let ringtoneInterval = null;
+  let incomingNotification = null;
+  let titleBlinkTimer = null;
+  const defaultPageTitle = document.title;
   const MAX_WS = 5;
   const REPLY_RE = /^\[\[reply:(.*?)\|(.*?)\]\]\n?([\s\S]*)$/;
 
@@ -1450,6 +1854,638 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
     insertMessageRow(row);
   }
 
+  function callingSupported() {
+    return !!(navigator.mediaDevices?.getUserMedia && window.RTCPeerConnection);
+  }
+
+  async function postCallSignalFallback(payload) {
+    try {
+      const res = await fetch(CALL_SIGNAL_URL, {
+        method: 'POST',
+        credentials: 'same-origin',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': CSRF,
+          'X-Requested-With': 'XMLHttpRequest',
+        },
+        body: JSON.stringify(payload || {}),
+      });
+      const data = await res.json().catch(() => ({}));
+      const ok = !!(res.ok && data.ok);
+      if (!ok && String(payload?.event || '').startsWith('call_')) {
+        showStatus('Call signal fallback failed.', 'err', true);
+      }
+      return ok;
+    } catch {
+      if (String(payload?.event || '').startsWith('call_')) {
+        showStatus('Call signal fallback network error.', 'err', true);
+      }
+      return false;
+    }
+  }
+
+  function sendRealtimePayload(payload) {
+    const eventName = String(payload?.event || '');
+    const isCallControlEvent = eventName.startsWith('call_');
+    let wsSent = false;
+
+    if (!socket || socket.readyState !== WebSocket.OPEN) {
+      if (!isCallControlEvent) {
+        showStatus('Muunganisho wa moja kwa moja haupo sasa.', 'err', true);
+      }
+    } else {
+      socket.send(JSON.stringify(payload));
+      wsSent = true;
+    }
+
+    if (isCallControlEvent) {
+      postCallSignalFallback(payload);
+      return true;
+    }
+
+    return wsSent;
+  }
+
+  function setRealtimeState(connected) {
+    [voiceCallBtn, videoCallBtn].forEach(btn => {
+      if (!btn) return;
+      btn.disabled = !connected;
+      btn.title = connected
+        ? btn.title.replace(' (imekatika)', '')
+        : `${btn.title.replace(' (imekatika)', '')} (imekatika)`;
+    });
+    if (presenceEl && !currentCall) {
+      presenceEl.textContent = connected ? 'online' : 'offline';
+    }
+  }
+
+  function forceHideBaseNavForChat() {
+    const selectors = [
+      '.afya-mobile-sub-nav',
+      '.afya-mobile-primary-nav',
+      '.afya-mobile-primary-links',
+      '.afya-sub-links-mobile',
+      '.navbar',
+      '.mobile-nav',
+      '.mobile-bottom-nav',
+      '.bottom-nav',
+      '.app-bottom-nav',
+      '.site-bottom-nav',
+      '.floating-bottom-nav',
+    ];
+    selectors.forEach((selector) => {
+      document.querySelectorAll(selector).forEach((el) => {
+        el.style.setProperty('display', 'none', 'important');
+        el.style.setProperty('visibility', 'hidden', 'important');
+        el.style.setProperty('pointer-events', 'none', 'important');
+      });
+    });
+    document.body.style.setProperty('padding-bottom', '0px', 'important');
+  }
+
+  function buildCallId() {
+    return `call-${CONVO_ID}-${Date.now()}-${Math.random().toString(16).slice(2, 10)}`;
+  }
+
+  function ensureNotificationPermission() {
+    if (!('Notification' in window)) return;
+    if (Notification.permission === 'default') {
+      Notification.requestPermission().catch(() => {});
+    }
+  }
+
+  function closeIncomingNotification() {
+    if (incomingNotification) {
+      incomingNotification.close();
+      incomingNotification = null;
+    }
+  }
+
+  function startTitleBlink(mode = 'audio') {
+    stopTitleBlink();
+    const label = mode === 'video' ? '📹 Incoming video call' : '📞 Incoming voice call';
+    let on = false;
+    titleBlinkTimer = setInterval(() => {
+      on = !on;
+      document.title = on ? `${label} - ${OTHER_NAME}` : defaultPageTitle;
+    }, 900);
+  }
+
+  function stopTitleBlink() {
+    if (titleBlinkTimer) {
+      clearInterval(titleBlinkTimer);
+      titleBlinkTimer = null;
+    }
+    document.title = defaultPageTitle;
+  }
+
+  function playRingtonePulse() {
+    try {
+      if (!ringtoneContext || ringtoneContext.state === 'closed') {
+        ringtoneContext = new (window.AudioContext || window.webkitAudioContext)();
+      }
+
+      if (ringtoneContext.state === 'suspended') {
+        ringtoneContext.resume().catch(() => {});
+      }
+
+      const gain = ringtoneContext.createGain();
+      gain.gain.value = 0.0001;
+      gain.connect(ringtoneContext.destination);
+
+      const now = ringtoneContext.currentTime;
+      const tones = [523.25, 659.25];
+      tones.forEach((freq, index) => {
+        const osc = ringtoneContext.createOscillator();
+        osc.type = 'sine';
+        osc.frequency.value = freq;
+        osc.connect(gain);
+        const startAt = now + (index * 0.18);
+        const endAt = startAt + 0.14;
+        gain.gain.exponentialRampToValueAtTime(0.03, startAt + 0.02);
+        gain.gain.exponentialRampToValueAtTime(0.0001, endAt);
+        osc.start(startAt);
+        osc.stop(endAt);
+      });
+    } catch {}
+  }
+
+  function startIncomingRingtone(mode = 'audio', callerName = OTHER_NAME) {
+    stopIncomingRingtone();
+    startTitleBlink(mode);
+    playRingtonePulse();
+    ringtoneInterval = setInterval(playRingtonePulse, 1200);
+
+    if ('Notification' in window && Notification.permission === 'granted') {
+      try {
+        incomingNotification = new Notification(mode === 'video' ? 'Incoming video call' : 'Incoming voice call', {
+          body: `${callerName} anakupigia sasa.`,
+          requireInteraction: true,
+          tag: `incoming-call-${CONVO_ID}`,
+        });
+        incomingNotification.onclick = () => {
+          try { window.focus(); } catch {}
+          openCallModal(mode, `${callerName} anakupigia...`, 'Simu inakuja', 'Kubali au kataa simu.');
+        };
+      } catch {}
+    }
+  }
+
+  function stopIncomingRingtone() {
+    if (ringtoneInterval) {
+      clearInterval(ringtoneInterval);
+      ringtoneInterval = null;
+    }
+    closeIncomingNotification();
+    stopTitleBlink();
+  }
+
+  function setCallPlaceholder(title, text, visible = true) {
+    callPlaceholderTitle.textContent = title || 'Simu';
+    callPlaceholderText.textContent = text || '';
+    callPlaceholder.hidden = !visible;
+  }
+
+  function setCallMode(mode) {
+    const isVideo = mode === 'video';
+    callModal.classList.toggle('audio-only', !isVideo);
+    callBadge.innerHTML = isVideo
+      ? '<i class="bi bi-camera-video"></i> Video call'
+      : '<i class="bi bi-telephone"></i> Voice call';
+  }
+
+  function renderElapsed(seconds = 0) {
+    const clamped = Math.max(0, Number(seconds) || 0);
+    const hh = Math.floor(clamped / 3600);
+    const mm = Math.floor((clamped % 3600) / 60);
+    const ss = Math.floor(clamped % 60);
+    const value = hh > 0
+      ? `${String(hh).padStart(2, '0')}:${String(mm).padStart(2, '0')}:${String(ss).padStart(2, '0')}`
+      : `${String(mm).padStart(2, '0')}:${String(ss).padStart(2, '0')}`;
+    if (callElapsedEl) {
+      callElapsedEl.innerHTML = `<i class="bi bi-stopwatch"></i> ${value}`;
+    }
+  }
+
+  function stopCallElapsedTimer(reset = false) {
+    if (callElapsedTimer) {
+      clearInterval(callElapsedTimer);
+      callElapsedTimer = null;
+    }
+    if (reset) {
+      callStartedAt = null;
+      renderElapsed(0);
+    }
+  }
+
+  function startCallElapsedTimer() {
+    if (callElapsedTimer) return;
+    if (!callStartedAt) callStartedAt = Date.now();
+    renderElapsed(Math.floor((Date.now() - callStartedAt) / 1000));
+    callElapsedTimer = setInterval(() => {
+      renderElapsed(Math.floor((Date.now() - callStartedAt) / 1000));
+    }, 1000);
+  }
+
+  function syncCallToggles() {
+    muteBtn.classList.toggle('active', isMuted);
+    muteBtn.innerHTML = isMuted
+      ? '<i class="bi bi-mic-mute-fill"></i>'
+      : '<i class="bi bi-mic-fill"></i>';
+
+    cameraBtn.classList.toggle('active', isCameraOff);
+    cameraBtn.innerHTML = isCameraOff
+      ? '<i class="bi bi-camera-video-off-fill"></i>'
+      : '<i class="bi bi-camera-video-fill"></i>';
+  }
+
+  function setCallUiState(state, statusText = '') {
+    callUiState = state;
+    if (statusText) callStatusEl.textContent = statusText;
+
+    const incoming = state === 'incoming';
+    const inSession = ['dialing', 'connecting', 'active'].includes(state);
+    const hasLocalControls = inSession && !!currentCall;
+
+    callAcceptBtn.hidden = !incoming;
+    callRejectBtn.hidden = !incoming;
+    muteBtn.hidden = !hasLocalControls;
+    endCallBtn.hidden = !hasLocalControls;
+    cameraBtn.hidden = !(hasLocalControls && currentCall?.mode === 'video');
+    if (state === 'active') {
+      startCallElapsedTimer();
+    } else if (state === 'idle') {
+      stopCallElapsedTimer(true);
+    } else {
+      stopCallElapsedTimer(false);
+    }
+    syncCallToggles();
+  }
+
+  function openCallModal(mode, statusText, placeholderTitle, placeholderText) {
+    setCallMode(mode);
+    callAvatar.textContent = OTHER_INITIAL;
+    callNameEl.textContent = OTHER_NAME;
+    callStatusEl.textContent = statusText || 'Inaandaa simu...';
+    renderElapsed(0);
+    setCallPlaceholder(placeholderTitle, placeholderText, true);
+    callModal.classList.add('show');
+    callModal.setAttribute('aria-hidden', 'false');
+  }
+
+  function closeCallModal() {
+    callModal.classList.remove('show');
+    callModal.setAttribute('aria-hidden', 'true');
+  }
+
+  function clearCallTimeout() {
+    if (callTimeoutTimer) {
+      clearTimeout(callTimeoutTimer);
+      callTimeoutTimer = null;
+    }
+  }
+
+  function scheduleNoAnswerTimeout() {
+    clearCallTimeout();
+    callTimeoutTimer = setTimeout(() => {
+      if (!currentCall || callUiState === 'active') return;
+      sendRealtimePayload({
+        event: 'call_end',
+        call_id: currentCall.id,
+        call_mode: currentCall.mode,
+        reason: 'no_answer',
+      });
+      finalizeCall('Hakuna aliyejibu kwa sasa.');
+    }, 35000);
+  }
+
+  function stopLocalStream() {
+    if (localStream) {
+      localStream.getTracks().forEach(track => track.stop());
+    }
+    localStream = null;
+    localStreamMode = null;
+    if (localVideo) localVideo.srcObject = null;
+  }
+
+  function resetRemoteStream() {
+    if (remoteStream) {
+      remoteStream.getTracks().forEach(track => track.stop());
+    }
+    remoteStream = null;
+    if (remoteVideo) remoteVideo.srcObject = null;
+  }
+
+  async function ensureLocalStream(mode) {
+    if (!callingSupported()) {
+      throw new Error('Kifaa chako hakitumii voice/video call kwenye browser hii.');
+    }
+
+    const wantsVideo = mode === 'video';
+    const currentHasVideo = !!localStream?.getVideoTracks?.().length;
+    const reuseStream = !!localStream && ((wantsVideo && currentHasVideo) || (!wantsVideo && !currentHasVideo));
+    if (reuseStream) {
+      if (localVideo) localVideo.srcObject = localStream;
+      return localStream;
+    }
+
+    stopLocalStream();
+    const stream = await navigator.mediaDevices.getUserMedia({
+      audio: true,
+      video: wantsVideo ? { facingMode: 'user' } : false,
+    });
+    localStream = stream;
+    localStreamMode = wantsVideo ? 'video' : 'audio';
+    isMuted = false;
+    isCameraOff = false;
+    if (localVideo) localVideo.srcObject = stream;
+    syncCallToggles();
+    return stream;
+  }
+
+  async function flushPendingIceCandidates() {
+    if (!peerConnection?.remoteDescription) return;
+    while (pendingIceCandidates.length) {
+      const candidate = pendingIceCandidates.shift();
+      try {
+        await peerConnection.addIceCandidate(candidate);
+      } catch {}
+    }
+  }
+
+  async function createPeerConnection() {
+    if (peerConnection) return peerConnection;
+    await ensureLocalStream(currentCall?.mode || 'audio');
+
+    peerConnection = new RTCPeerConnection(RTC_CONFIG);
+    remoteStream = new MediaStream();
+    remoteVideo.srcObject = remoteStream;
+    remoteVideo.muted = false;
+    remoteVideo.volume = 1;
+
+    localStream.getTracks().forEach(track => {
+      peerConnection.addTrack(track, localStream);
+    });
+
+    peerConnection.ontrack = (event) => {
+      event.streams.forEach(stream => {
+        stream.getTracks().forEach(track => {
+          if (!remoteStream.getTracks().some(existing => existing.id === track.id)) {
+            remoteStream.addTrack(track);
+          }
+        });
+      });
+
+      if (currentCall?.mode === 'video' && remoteStream.getVideoTracks().length) {
+        setCallPlaceholder('Video inaendelea', 'Muunganisho wa video umefika.', false);
+      } else {
+        setCallPlaceholder('Voice call inaendelea', 'Sauti ya upande wa pili ipo hai.', true);
+      }
+      remoteVideo.play().catch(() => {});
+    };
+
+    peerConnection.onicecandidate = (event) => {
+      if (event.candidate && currentCall) {
+        sendRealtimePayload({
+          event: 'webrtc_ice',
+          call_id: currentCall.id,
+          call_mode: currentCall.mode,
+          candidate: event.candidate,
+        });
+      }
+    };
+
+    peerConnection.onconnectionstatechange = () => {
+      const state = peerConnection?.connectionState;
+      if (state === 'connected') {
+        clearCallTimeout();
+        if (!callStartedAt) callStartedAt = Date.now();
+        setCallUiState('active', currentCall?.mode === 'video' ? 'Video call imeunganishwa.' : 'Voice call imeunganishwa.');
+        if (presenceEl) presenceEl.textContent = currentCall?.mode === 'video' ? 'video call active' : 'voice call active';
+      } else if (['failed', 'disconnected'].includes(state)) {
+        finalizeCall('Muunganisho wa simu umekatika.');
+      }
+    };
+
+    if (remoteDescriptionQueue) {
+      await peerConnection.setRemoteDescription(remoteDescriptionQueue);
+      remoteDescriptionQueue = null;
+      await flushPendingIceCandidates();
+    }
+
+    return peerConnection;
+  }
+
+  async function answerPendingOffer() {
+    if (!peerConnection || !peerConnection.remoteDescription || peerConnection.signalingState !== 'have-remote-offer') {
+      return;
+    }
+    const answer = await peerConnection.createAnswer();
+    await peerConnection.setLocalDescription(answer);
+    sendRealtimePayload({
+      event: 'webrtc_answer',
+      call_id: currentCall.id,
+      call_mode: currentCall.mode,
+      description: peerConnection.localDescription,
+    });
+  }
+
+  async function startWebRtcOffer() {
+    const pc = await createPeerConnection();
+    const offer = await pc.createOffer();
+    await pc.setLocalDescription(offer);
+    sendRealtimePayload({
+      event: 'webrtc_offer',
+      call_id: currentCall.id,
+      call_mode: currentCall.mode,
+      description: pc.localDescription,
+    });
+  }
+
+  function teardownPeerConnection() {
+    if (peerConnection) {
+      peerConnection.ontrack = null;
+      peerConnection.onicecandidate = null;
+      peerConnection.onconnectionstatechange = null;
+      peerConnection.close();
+    }
+    peerConnection = null;
+    remoteDescriptionQueue = null;
+    pendingIceCandidates = [];
+    resetRemoteStream();
+  }
+
+  function finalizeCall(message = '') {
+    const activeMessage = message || 'Simu imefungwa.';
+    stopIncomingRingtone();
+    clearCallTimeout();
+    teardownPeerConnection();
+    stopLocalStream();
+    currentCall = null;
+    callStartedAt = null;
+    isMuted = false;
+    isCameraOff = false;
+    setCallUiState('idle', activeMessage);
+    setCallPlaceholder('Simu imeisha', activeMessage, true);
+    if (presenceEl) presenceEl.textContent = 'online';
+    setTimeout(() => {
+      if (!currentCall && callUiState === 'idle') closeCallModal();
+    }, 1800);
+  }
+
+  async function startOutgoingCall(mode) {
+    if (currentCall) {
+      showStatus('Maliza simu ya sasa kwanza.', 'err', true);
+      return;
+    }
+    try {
+      currentCall = { id: buildCallId(), mode, role: 'caller' };
+      openCallModal(mode, `Unampigia ${OTHER_NAME}...`, 'Ina-ring...', 'Subiri upande wa pili ukubali simu.');
+      setCallUiState('dialing', `Unampigia ${OTHER_NAME}...`);
+      await ensureLocalStream(mode);
+      if (!sendRealtimePayload({ event: 'call_invite', call_id: currentCall.id, call_mode: currentCall.mode })) {
+        finalizeCall('Imeshindikana kuanzisha simu sasa hivi.');
+        return;
+      }
+      scheduleNoAnswerTimeout();
+    } catch (error) {
+      finalizeCall(error.message || 'Imeshindikana kupata ruhusa ya kipaza sauti/kamera.');
+    }
+  }
+
+  async function acceptIncomingCall() {
+    if (!currentCall || currentCall.role !== 'callee') return;
+    try {
+      stopIncomingRingtone();
+      await ensureLocalStream(currentCall.mode);
+      await createPeerConnection();
+      setCallUiState('connecting', 'Inaunganisha simu...');
+      sendRealtimePayload({ event: 'call_accept', call_id: currentCall.id, call_mode: currentCall.mode });
+      if (remoteDescriptionQueue) {
+        await peerConnection.setRemoteDescription(remoteDescriptionQueue);
+        remoteDescriptionQueue = null;
+        await flushPendingIceCandidates();
+      }
+      await answerPendingOffer();
+    } catch (error) {
+      sendRealtimePayload({ event: 'call_reject', call_id: currentCall.id, call_mode: currentCall.mode, reason: 'media_error' });
+      finalizeCall(error.message || 'Imeshindikana kufungua kipaza sauti/kamera.');
+    }
+  }
+
+  function rejectIncomingCall() {
+    if (!currentCall) return;
+    stopIncomingRingtone();
+    sendRealtimePayload({ event: 'call_reject', call_id: currentCall.id, call_mode: currentCall.mode, reason: 'rejected' });
+    finalizeCall('Umeikataa simu.');
+  }
+
+  function endCurrentCall() {
+    if (!currentCall) {
+      closeCallModal();
+      return;
+    }
+    sendRealtimePayload({ event: 'call_end', call_id: currentCall.id, call_mode: currentCall.mode, reason: 'ended' });
+    finalizeCall('Umeimaliza simu.');
+  }
+
+  function toggleMute() {
+    if (!localStream) return;
+    isMuted = !isMuted;
+    localStream.getAudioTracks().forEach(track => { track.enabled = !isMuted; });
+    callStatusEl.textContent = isMuted ? 'Kipaza sauti chako kimezimwa.' : 'Kipaza sauti chako kimewashwa.';
+    syncCallToggles();
+  }
+
+  function toggleCamera() {
+    if (!localStream || currentCall?.mode !== 'video') return;
+    isCameraOff = !isCameraOff;
+    localStream.getVideoTracks().forEach(track => { track.enabled = !isCameraOff; });
+    setCallPlaceholder(
+      isCameraOff ? 'Kamera yako imezimwa' : 'Video call inaendelea',
+      isCameraOff ? 'Unaendelea na sauti pekee hadi uwashe kamera tena.' : 'Video yako imerudi hewani.',
+      isCameraOff
+    );
+    syncCallToggles();
+  }
+
+  async function handleCallSignal(payload) {
+    if (!payload?.event || payload.sender_id === MY_UID) return;
+
+    if (payload.event === 'call_invite') {
+      if (currentCall && currentCall.id !== payload.call_id) {
+        sendRealtimePayload({ event: 'call_busy', call_id: payload.call_id, call_mode: payload.call_mode || 'audio' });
+        return;
+      }
+      if (currentCall && currentCall.id === payload.call_id && callUiState === 'incoming') {
+        return;
+      }
+
+      currentCall = {
+        id: payload.call_id,
+        mode: payload.call_mode || 'audio',
+        role: 'callee',
+      };
+      startIncomingRingtone(currentCall.mode, payload.sender_name || OTHER_NAME);
+      openCallModal(currentCall.mode, `${payload.sender_name || OTHER_NAME} anakupigia...`, 'Simu inakuja', 'Kubali ili kuanza mazungumzo ya sauti au video.');
+      setCallUiState('incoming', `${payload.sender_name || OTHER_NAME} anakupigia...`);
+      if (presenceEl) presenceEl.textContent = currentCall.mode === 'video' ? 'incoming video call' : 'incoming voice call';
+      return;
+    }
+
+    if (!currentCall || payload.call_id !== currentCall.id) return;
+
+    if (payload.event === 'call_accept' && currentCall.role === 'caller') {
+      clearCallTimeout();
+      setCallUiState('connecting', `${payload.sender_name || OTHER_NAME} amekubali simu. Inaunganisha...`);
+      await startWebRtcOffer();
+      return;
+    }
+
+    if (payload.event === 'call_reject') {
+      finalizeCall(`${payload.sender_name || OTHER_NAME} amekataa simu.`);
+      return;
+    }
+
+    if (payload.event === 'call_busy') {
+      finalizeCall(`${payload.sender_name || OTHER_NAME} yuko kwenye simu nyingine.`);
+      return;
+    }
+
+    if (payload.event === 'call_end') {
+      finalizeCall(payload.reason === 'no_answer' ? 'Simu haikujibiwa.' : 'Simu imekatishwa na upande wa pili.');
+      return;
+    }
+
+    if (payload.event === 'webrtc_offer' && payload.description) {
+      remoteDescriptionQueue = payload.description;
+      if (peerConnection) {
+        await peerConnection.setRemoteDescription(remoteDescriptionQueue);
+        remoteDescriptionQueue = null;
+        await flushPendingIceCandidates();
+        await answerPendingOffer();
+      }
+      return;
+    }
+
+    if (payload.event === 'webrtc_answer' && payload.description && peerConnection && !peerConnection.currentRemoteDescription) {
+      await peerConnection.setRemoteDescription(payload.description);
+      await flushPendingIceCandidates();
+      return;
+    }
+
+    if (payload.event === 'webrtc_ice' && payload.candidate) {
+      const candidate = new RTCIceCandidate(payload.candidate);
+      if (!peerConnection?.remoteDescription) {
+        pendingIceCandidates.push(candidate);
+      } else {
+        try {
+          await peerConnection.addIceCandidate(candidate);
+        } catch {}
+      }
+    }
+  }
+
   /* ── Status bar ── */
   let stTimer = null;
   function showStatus(msg, type, hide) {
@@ -1463,7 +2499,15 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
   function poll() {
     fetch(`${POLL_URL}?since=${lastId}`, { credentials: 'same-origin' })
       .then(r => r.json())
-      .then(d => { if (d.ok && d.messages.length) d.messages.forEach(renderMessage); })
+      .then(d => {
+        if (!d.ok) return;
+        if (d.messages.length) d.messages.forEach(renderMessage);
+        if (Array.isArray(d.call_events) && d.call_events.length) {
+          d.call_events.forEach((ev) => {
+            handleCallSignal(ev).catch(() => {});
+          });
+        }
+      })
       .catch(() => {})
       .finally(() => { pollTimer = setTimeout(poll, 3000); });
   }
@@ -1473,10 +2517,16 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
   function connectWS() {
     if (wsRetries >= MAX_WS) return;
     try { socket = new WebSocket(WS_URL); } catch { wsRetries++; return; }
-    socket.onopen  = () => { wsRetries = 0; showStatus('Imeunganishwa', 'ok', true); if (presenceEl) presenceEl.textContent = 'online'; };
+    socket.onopen  = () => { wsRetries = 0; setRealtimeState(true); showStatus('Imeunganishwa', 'ok', true); if (presenceEl) presenceEl.textContent = 'online'; };
     socket.onmessage = e => {
       try {
         const payload = JSON.parse(e.data);
+        if (payload.event && payload.event !== 'chat_message') {
+          handleCallSignal(payload).catch(() => {
+            showStatus('Hitilafu ya simu ya moja kwa moja.', 'err', true);
+          });
+          return;
+        }
         if (payload.sender_id !== MY_UID && typingEl) {
           typingEl.classList.add('show');
           if (presenceEl) presenceEl.textContent = 'typing...';
@@ -1490,8 +2540,17 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
         renderMessage(payload);
       } catch {}
     };
-    socket.onclose = () => { wsRetries++; if (wsRetries < MAX_WS) setTimeout(connectWS, 4000); };
+    socket.onclose = () => {
+      wsRetries++;
+      setRealtimeState(false);
+      if (currentCall) {
+        finalizeCall('Muunganisho wa chat umekatika, hivyo simu imezimwa.');
+      }
+      if (wsRetries < MAX_WS) setTimeout(connectWS, 4000);
+    };
   }
+  setRealtimeState(false);
+  forceHideBaseNavForChat();
   connectWS();
 
   /* ── Auto-grow textarea ── */
@@ -1505,6 +2564,8 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
 
   /* ── Send ── */
   sendBtn.addEventListener('click', doSend);
+  voiceCallBtn?.addEventListener('click', () => startOutgoingCall('audio'));
+  videoCallBtn?.addEventListener('click', () => startOutgoingCall('video'));
   function doSend() {
     const content = (textInput.value || '').trim();
     if (!content && !pendingFile) return;
@@ -1636,16 +2697,50 @@ html[data-theme='dark'] .wa-empty { background:rgba(31,44,52,.9); color:#8696a0;
   mediaModal?.addEventListener('click', (e) => {
     if (e.target === mediaModal) closeMediaModal();
   });
+  callAcceptBtn?.addEventListener('click', acceptIncomingCall);
+  callRejectBtn?.addEventListener('click', rejectIncomingCall);
+  muteBtn?.addEventListener('click', toggleMute);
+  cameraBtn?.addEventListener('click', toggleCamera);
+  endCallBtn?.addEventListener('click', endCurrentCall);
+  callCloseBtn?.addEventListener('click', () => {
+    if (currentCall) {
+      if (callUiState === 'incoming') {
+        rejectIncomingCall();
+      } else {
+        endCurrentCall();
+      }
+      return;
+    }
+    closeCallModal();
+  });
   document.addEventListener('keydown', (e) => {
     if (e.key === 'Escape' && mediaModal?.classList.contains('show')) {
       closeMediaModal();
+      return;
+    }
+    if (e.key === 'Escape' && callModal?.classList.contains('show')) {
+      if (currentCall) {
+        endCurrentCall();
+      } else {
+        closeCallModal();
+      }
     }
   });
+  window.addEventListener('beforeunload', () => {
+    if (currentCall) {
+      sendRealtimePayload({ event: 'call_end', call_id: currentCall.id, call_mode: currentCall.mode, reason: 'ended' });
+    }
+    stopIncomingRingtone();
+  });
+  document.addEventListener('click', ensureNotificationPermission, { once: true });
   if (localStorage.getItem('wa-chat-light') === '1') {
     appEl.classList.add('wa-light');
     document.body.classList.add('wa-global-light');
   }
   hydrateInitialMessages();
+  syncCallToggles();
+  forceHideBaseNavForChat();
+  window.addEventListener('resize', forceHideBaseNavForChat);
   document.addEventListener('click', () => {
     emojiPicker.classList.remove('show');
     menuEl.style.display = 'none';

@@ -5,7 +5,7 @@ from django.views import View
 from django.utils import timezone
 from collections import Counter
 
-from .services import generate_ai_text
+from .services import generate_ai_text, transcribe_audio_file
 from .diagnostic_ai import generate_diagnostic_questions as generate_ai_diagnostic_questions
 from .history_ai import build_user_history_context
 from .risk_engine import calculate_risk
@@ -513,6 +513,21 @@ def _store_ai_log(user, question, reply, persona, context_payload):
 	)
 
 
+def _resolve_chat_input(request):
+	question = (request.POST.get('question') or '').strip()
+	voice_file = request.FILES.get('voice_file')
+	transcript = ''
+	input_mode = 'text'
+
+	if voice_file:
+		input_mode = 'voice'
+		transcript = (transcribe_audio_file(voice_file) or '').strip()
+		if transcript and not question:
+			question = transcript
+
+	return question, transcript, input_mode
+
+
 class AIChatView(LoginRequiredMixin, View):
 	template_name = 'AI_brain/ai_chat.html'
 
@@ -532,7 +547,7 @@ class AIChatView(LoginRequiredMixin, View):
 		)
 
 	def post(self, request, *args, **kwargs):
-		question = (request.POST.get('question') or '').strip()
+		question, transcript, input_mode = _resolve_chat_input(request)
 		persona, _ = UserAIPersona.objects.get_or_create(user=request.user)
 		persona.update_quality_metrics(save=True)
 
@@ -714,7 +729,7 @@ class AIChatView(LoginRequiredMixin, View):
 			self.template_name,
 			{
 				'reply': reply,
-				'question': question,
+				'question': transcript or question,
 				'suggestions': suggestions,
 				'diagnostic_questions': diagnostic_questions,
 				'symptom': detected_symptom,
@@ -723,15 +738,19 @@ class AIChatView(LoginRequiredMixin, View):
 				'needs_clarification': needs_clarification if question else False,
 				'clarification_advice': clarification_advice if question else [],
 				'onboarding_complete': persona.onboarding_complete,
+				'input_mode': input_mode,
 			},
 		)
 
 
 class AIQuickChatView(LoginRequiredMixin, View):
 	def post(self, request, *args, **kwargs):
-		question = (request.POST.get('question') or '').strip()
+		question, transcript, input_mode = _resolve_chat_input(request)
 		if not question:
-			return JsonResponse({'ok': False, 'error': 'Tafadhali andika swali.'}, status=400)
+			message = 'Tafadhali andika swali.'
+			if input_mode == 'voice':
+				message = 'Sauti haijasomeka vizuri. Jaribu kurekodi tena kwa sauti wazi.'
+			return JsonResponse({'ok': False, 'error': message}, status=400)
 
 		persona, _ = UserAIPersona.objects.get_or_create(user=request.user)
 		persona.update_quality_metrics(save=True)
@@ -783,6 +802,8 @@ class AIQuickChatView(LoginRequiredMixin, View):
 			return JsonResponse({
 				'ok': True,
 				'reply': reply,
+				'transcript': transcript,
+				'input_mode': input_mode,
 				'suggestions': suggestions,
 				'diagnostic_questions': diagnostic_questions,
 				'symptom': None,
@@ -901,6 +922,8 @@ class AIQuickChatView(LoginRequiredMixin, View):
 		return JsonResponse({
 			'ok': True,
 			'reply': reply,
+			'transcript': transcript,
+			'input_mode': input_mode,
 			'suggestions': suggestions,
 			'diagnostic_questions': diagnostic_questions,
 			'symptom': detected_symptom,

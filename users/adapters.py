@@ -1,6 +1,7 @@
 import re
 
 from allauth.account.adapter import DefaultAccountAdapter
+from allauth.account.models import EmailAddress
 from allauth.socialaccount.adapter import DefaultSocialAccountAdapter
 from django.contrib.auth import get_user_model
 from django.urls import reverse
@@ -31,6 +32,13 @@ def _unique_username(seed: str, fallback: str = 'user') -> str:
 class AccountAdapter(DefaultAccountAdapter):
     def get_login_redirect_url(self, request):
         if request.user.is_authenticated:
+            user_email = (request.user.email or '').strip()
+            social_verified = hasattr(request.user, 'socialaccount_set') and request.user.socialaccount_set.exists()
+            email_verified = bool(
+                user_email and EmailAddress.objects.filter(user=request.user, email__iexact=user_email, verified=True).exists()
+            )
+            if not (social_verified or email_verified):
+                return reverse('account_email_verification_sent')
             persona, _created = UserAIPersona.objects.get_or_create(user=request.user)
             if not persona.onboarding_complete:
                 return reverse('users:onboarding', kwargs={'step': 1})
@@ -38,6 +46,11 @@ class AccountAdapter(DefaultAccountAdapter):
 
 
 class SocialAccountAdapter(DefaultSocialAccountAdapter):
+    def is_email_verified(self, request, email_address):
+        # Social provider emails (Google, Facebook, X) are pre-verified
+        # by the provider — no additional email confirmation needed.
+        return True
+
     def populate_user(self, request, sociallogin, data):
         user = super().populate_user(request, sociallogin, data)
         extra = sociallogin.account.extra_data or {}

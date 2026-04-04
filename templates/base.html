@@ -1,6 +1,7 @@
 {% load static i18n %}
 <!DOCTYPE html>
 {% get_current_language as CURRENT_LANGUAGE %}
+{% get_available_languages as LANGUAGES_LIST %}
 <html lang="{{ CURRENT_LANGUAGE }}" dir="{% if CURRENT_LANGUAGE == 'ar' %}rtl{% else %}ltr{% endif %}">
 <head>
     <meta charset="UTF-8">
@@ -377,6 +378,28 @@
         }
 
         .nav-link { color: var(--text-main) !important; }
+
+        /* Mobile icon-only actions (phase 2) */
+        @media (max-width: 768px) {
+            .mobile-icon-only {
+                display: inline-flex !important;
+                align-items: center;
+                justify-content: center;
+                min-width: 40px;
+                min-height: 40px;
+                padding: .42rem .52rem !important;
+                gap: 0 !important;
+            }
+
+            .mobile-icon-only .btn-label-text {
+                display: none !important;
+            }
+
+            .mobile-icon-only i.bi {
+                margin: 0 !important;
+                font-size: 1rem;
+            }
+        }
         .text-muted { color: var(--text-muted) !important; }
 
         .afya-main-nav .container {
@@ -457,6 +480,67 @@
             min-width: 56px;
             cursor: pointer;
         }
+
+        /* ── Language switcher ─────────────────────────────────────── */
+        .afya-lang-switcher {
+            position: relative;
+            display: inline-flex;
+            align-items: center;
+        }
+        .afya-lang-btn {
+            display: inline-flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 2px;
+            padding: .3rem .5rem;
+            border-radius: 10px;
+            border: 1px solid transparent;
+            background: transparent;
+            color: inherit;
+            font-size: .72rem;
+            font-weight: 700;
+            cursor: pointer;
+            line-height: 1;
+            min-width: 44px;
+        }
+        .afya-lang-btn i { font-size: .95rem; }
+        .afya-lang-btn:hover {
+            background: color-mix(in srgb, var(--card-bg) 78%, transparent);
+            border-color: var(--line-soft);
+        }
+        .afya-lang-menu {
+            display: none;
+            position: absolute;
+            top: calc(100% + 6px);
+            right: 0;
+            min-width: 130px;
+            background: var(--card-bg);
+            border: 1px solid var(--line-soft);
+            border-radius: 14px;
+            box-shadow: 0 10px 28px rgba(0,0,0,.12);
+            z-index: 9999;
+            overflow: hidden;
+        }
+        .afya-lang-menu.open { display: block; }
+        .afya-lang-item {
+            display: flex;
+            align-items: center;
+            gap: .55rem;
+            padding: .55rem 1rem;
+            font-size: .88rem;
+            font-weight: 600;
+            color: var(--text-main);
+            text-decoration: none;
+            border: none;
+            background: none;
+            width: 100%;
+            cursor: pointer;
+            text-align: left;
+        }
+        .afya-lang-item:hover { background: color-mix(in srgb, var(--primary) 8%, transparent); }
+        .afya-lang-item.active { color: var(--primary); }
+        .afya-lang-flag { font-size: 1.1rem; line-height: 1; }
+        /* ───────────────────────────────────────────────────────────── */
 
         .afya-main-link:hover,
         .afya-main-link.is-active,
@@ -1597,12 +1681,12 @@
 <nav class="navbar sticky-top afya-main-nav py-1">
     <div class="container d-flex justify-content-between align-items-center">
         <a class="afya-brand text-danger" href="{% url 'main:home' %}">
-            <img src="{% static 'favicon.png' %}" alt="Nembo ya AfyaSmart" class="afya-brand-logo">
+            <img src="{% static 'favicon.png' %}" alt="{% trans 'Nembo ya AfyaSmart' %}" class="afya-brand-logo">
             <span>AfyaSmart</span>
         </a>
         <div class="afya-main-links">
             {% if user.is_authenticated %}
-            <a href="{% url 'main:services' %}" class="afya-main-link afya-primary-link" data-nav-match="/services/" aria-label="{% trans 'Huduma' %}"><i class="bi bi-person-badge-fill"></i><span>{% trans "Huduma" %}</span></a>
+            <a href="{% url 'main:services' %}" class="afya-main-link afya-primary-link" data-nav-match="/services/" aria-label="{% trans 'Services' %}"><i class="bi bi-person-badge-fill"></i><span>{% trans "Services" %}</span></a>
             <a href="{% url 'menstrual:settings' %}" class="afya-main-link afya-primary-link" data-nav-match="/menstrual/settings/" aria-label="{% trans 'Mipangilio' %}"><i class="bi bi-gear"></i><span>{% trans "Mipangilio" %}</span></a>
             <a href="{% url 'chats:notifications' %}" class="afya-main-link afya-primary-link" data-nav-match="/social/notifications/" aria-label="{% trans 'Arifa' %}"><i class="bi bi-bell"></i><span>{% trans "Arifa" %}</span></a>
             <a href="{% url 'users:profile' %}" class="afya-main-link afya-primary-link d-lg-none" data-nav-match="/users/profile/" aria-label="{% trans 'Akaunti' %}">
@@ -1619,7 +1703,7 @@
             {% endif %}
 
             <a href="{% url 'AI_brain:chat' %}" class="afya-main-link d-none d-lg-inline-flex" data-nav-match="/ai/chat/"><i class="bi bi-robot"></i><span>AI</span></a>
-            <a href="{% url 'chats:feed' %}" class="afya-main-link d-none d-lg-inline-flex" data-nav-match="/social/"><i class="bi bi-people"></i><span>Jamii</span></a>
+            <a href="{% url 'chats:feed' %}" class="afya-main-link d-none d-lg-inline-flex" data-nav-match="/social/"><i class="bi bi-people"></i><span>{% trans "Jamii" %}</span></a>
             <a href="{% url 'chats:inbox' %}" class="afya-main-link d-none d-lg-inline-flex" data-nav-match="/social/inbox/"><i class="bi bi-chat-dots"></i><span>{% trans "Soga" %}</span></a>
             <a href="{% url 'card:home' %}" class="afya-main-link d-none d-lg-inline-flex" data-nav-match="/card/"><i class="bi bi-credit-card-2-front"></i><span>Card</span></a>
             <a href="{% url 'doctor:hub' %}" class="afya-main-link d-none d-lg-inline-flex" data-nav-match="/doctor/"><i class="bi bi-hospital"></i><span>{% trans "Madaktari" %}</span></a>
@@ -1629,6 +1713,26 @@
             {% if has_patient_logs %}
             <a href="{% url 'doctor:my_patient_logs' %}" class="afya-main-link d-none d-lg-inline-flex" data-nav-match="/doctor/my-logs/"><i class="bi bi-journal-medical"></i><span>{% trans "Log Zangu" %}</span></a>
             {% endif %}
+            <span class="afya-lang-switcher d-none d-lg-inline-flex" id="afyaLangSwitcher">
+                <button type="button" class="afya-lang-btn" id="afyaLangToggle" aria-label="{% trans 'Badili lugha' %}" aria-expanded="false">
+                    <i class="bi bi-translate"></i>
+                    <span>{% if CURRENT_LANGUAGE == 'en' %}EN{% elif CURRENT_LANGUAGE == 'ar' %}AR{% else %}SW{% endif %}</span>
+                </button>
+                <div class="afya-lang-menu" id="afyaLangMenu" role="menu">
+                    {% get_language_info_list for LANGUAGES_LIST as languages_info %}
+                    {% for lang in languages_info %}
+                    <form method="post" action="{% url 'set_language' %}" style="margin:0;">
+                        {% csrf_token %}
+                        <input type="hidden" name="language" value="{{ lang.code }}">
+                        <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                        <button type="submit" class="afya-lang-item{% if lang.code == CURRENT_LANGUAGE %} active{% endif %}" role="menuitem">
+                            <span class="afya-lang-flag">{% if lang.code == 'en' %}🇬🇧{% elif lang.code == 'ar' %}🇸🇦{% else %}🇹🇿{% endif %}</span>
+                            <span>{{ lang.name_local }}</span>
+                        </button>
+                    </form>
+                    {% endfor %}
+                </div>
+            </span>
             <button class="afya-main-link afya-theme-btn d-none d-lg-inline-flex" type="button" data-theme-toggle aria-label="{% trans 'Badili mandhari' %}">
                 <i class="bi bi-moon-stars"></i>
                 <span>{% trans "Mandhari" %}</span>
@@ -1666,14 +1770,14 @@
         <div class="afya-mobile-sub-shell">
             <div class="afya-mobile-brand-head">
                 <a class="afya-mobile-brand-link" href="{% url 'main:home' %}">
-                    <img src="{% static 'favicon.png' %}" alt="Nembo ya AfyaSmart" class="afya-brand-logo">
+                    <img src="{% static 'favicon.png' %}" alt="{% trans 'Nembo ya AfyaSmart' %}" class="afya-brand-logo">
                     <span>AfyaSmart</span>
                 </a>
-                <span class="afya-mobile-brand-motto">usiri, usahihi na uaminifu</span>
+                <span class="afya-mobile-brand-motto">{% trans "usiri, usahihi na uaminifu" %}</span>
             </div>
             <div class="afya-sub-links-mobile">
                 <a href="{% url 'AI_brain:chat' %}" class="afya-sub-mobile-link" data-nav-match="/ai/chat/"><i class="bi bi-robot"></i><span>AI</span></a>
-                <a href="{% url 'chats:feed' %}" class="afya-sub-mobile-link" data-nav-match="/social/"><i class="bi bi-people"></i><span>Jamii</span></a>
+                <a href="{% url 'chats:feed' %}" class="afya-sub-mobile-link" data-nav-match="/social/"><i class="bi bi-people"></i><span>{% trans "Jamii" %}</span></a>
                 <a href="{% url 'chats:inbox' %}" class="afya-sub-mobile-link" data-nav-match="/social/inbox/"><i class="bi bi-chat-dots"></i><span>{% trans "Soga" %}</span></a>
                 <a href="{% url 'card:home' %}" class="afya-sub-mobile-link" data-nav-match="/card/"><i class="bi bi-credit-card-2-front"></i><span>{% trans "Kadi" %}</span></a>
                 <a href="{% url 'doctor:hub' %}" class="afya-sub-mobile-link" data-nav-match="/doctor/"><i class="bi bi-hospital"></i><span>{% trans "Madaktari" %}</span></a>
@@ -1683,6 +1787,24 @@
                 {% if has_patient_logs %}
                 <a href="{% url 'doctor:my_patient_logs' %}" class="afya-sub-mobile-link" data-nav-match="/doctor/my-logs/"><i class="bi bi-journal-medical"></i><span>{% trans "Log Zangu" %}</span></a>
                 {% endif %}
+                <span class="afya-lang-switcher" id="afyaLangSwitcherMobile" style="position:relative;">
+                    <button type="button" class="afya-sub-mobile-link" id="afyaLangToggleMobile" aria-label="{% trans 'Lugha' %}" style="border:none;background:none;">
+                        <i class="bi bi-translate"></i><span>{% if CURRENT_LANGUAGE == 'en' %}EN{% elif CURRENT_LANGUAGE == 'ar' %}AR{% else %}SW{% endif %}</span>
+                    </button>
+                    <div class="afya-lang-menu" id="afyaLangMenuMobile" role="menu" style="bottom:calc(100% + 6px);top:auto;right:0;">
+                        {% for lang in languages_info %}
+                        <form method="post" action="{% url 'set_language' %}" style="margin:0;">
+                            {% csrf_token %}
+                            <input type="hidden" name="language" value="{{ lang.code }}">
+                            <input type="hidden" name="next" value="{{ request.get_full_path }}">
+                            <button type="submit" class="afya-lang-item{% if lang.code == CURRENT_LANGUAGE %} active{% endif %}" role="menuitem">
+                                <span class="afya-lang-flag">{% if lang.code == 'en' %}🇬🇧{% elif lang.code == 'ar' %}🇸🇦{% else %}🇹🇿{% endif %}</span>
+                                <span>{{ lang.name_local }}</span>
+                            </button>
+                        </form>
+                        {% endfor %}
+                    </div>
+                </span>
                 <button class="afya-sub-mobile-link afya-theme-btn" type="button" data-theme-toggle aria-label="{% trans 'Badili mandhari' %}"><i class="bi bi-moon-stars"></i><span>{% trans "Mandhari" %}</span></button>
             </div>
         </div>
@@ -1693,7 +1815,7 @@
 <nav class="afya-mobile-primary-nav d-lg-none" aria-label="Urambazaji mkuu wa simu">
     <div class="afya-mobile-primary-links">
         {% if user.is_authenticated %}
-        <a href="{% url 'main:services' %}" class="afya-mobile-primary-link" data-nav-match="/services/" aria-label="{% trans 'Huduma' %}"><i class="bi bi-person-badge-fill"></i><span>{% trans "Huduma" %}</span></a>
+        <a href="{% url 'main:services' %}" class="afya-mobile-primary-link" data-nav-match="/services/" aria-label="{% trans 'Services' %}"><i class="bi bi-person-badge-fill"></i><span>{% trans "Services" %}</span></a>
         <a href="{% url 'menstrual:settings' %}" class="afya-mobile-primary-link" data-nav-match="/menstrual/settings/" aria-label="{% trans 'Mipangilio' %}"><i class="bi bi-gear"></i><span>{% trans "Mipangilio" %}</span></a>
         <a href="{% url 'chats:notifications' %}" class="afya-mobile-primary-link" data-nav-match="/social/notifications/" aria-label="{% trans 'Arifa' %}"><i class="bi bi-bell"></i><span>{% trans "Arifa" %}</span></a>
         <a href="{% url 'users:profile' %}" class="afya-mobile-primary-link" data-nav-match="/users/profile/" aria-label="{% trans 'Akaunti' %}"><i class="bi bi-person-circle"></i><span>{% trans "Akaunti" %}</span></a>
@@ -1744,21 +1866,21 @@
 
 <section class="ai-chat-widget" id="aiChatWidget" aria-live="polite">
     <div class="ai-chat-head">
-        <div class="fw-semibold small"><i class="bi bi-stars text-warning me-1"></i> Msaidizi wa AfyaSmart</div>
+        <div class="fw-semibold small"><i class="bi bi-stars text-warning me-1"></i> {% trans "Msaidizi wa AfyaSmart" %}</div>
         <button type="button" class="btn btn-sm btn-light rounded-pill" id="aiChatClose" aria-label="{% trans 'Funga mazungumzo ya AI' %}"><i class="bi bi-x-lg"></i></button>
     </div>
     <div class="ai-chat-body" id="aiChatBody">
-        <div class="ai-msg ai-msg-bot"><i class="bi bi-hand-wave me-1"></i>Habari. Uliza swali lolote la afya. Nitakujibu kwa njia fupi, salama, na ya kibinafsi.</div>
+        <div class="ai-msg ai-msg-bot"><i class="bi bi-hand-wave me-1"></i>{% trans "Habari. Uliza swali lolote la afya. Nitakujibu kwa njia fupi, salama, na ya kibinafsi." %}</div>
     </div>
     <form class="ai-chat-form" id="aiQuickForm">
         <div class="ai-quick-prompts">
-            <button type="button" class="ai-quick-btn" data-ai-prompt="Nisaidie mpango wa usingizi bora wa afya.">Usingizi</button>
-            <button type="button" class="ai-quick-btn" data-ai-prompt="Nipe vidokezo vya kupunguza msongo wa mawazo kwa siku 7.">Msongo</button>
-            <button type="button" class="ai-quick-btn" data-ai-prompt="Nipe ushauri wa lishe ya afya ya mwili.">Lishe</button>
+            <button type="button" class="ai-quick-btn" data-ai-prompt="{% trans 'Nisaidie mpango wa usingizi bora wa afya.' %}">{% trans "Usingizi" %}</button>
+            <button type="button" class="ai-quick-btn" data-ai-prompt="{% trans 'Nipe vidokezo vya kupunguza msongo wa mawazo kwa siku 7.' %}">{% trans "Msongo" %}</button>
+            <button type="button" class="ai-quick-btn" data-ai-prompt="{% trans 'Nipe ushauri wa lishe ya afya ya mwili.' %}">{% trans "Lishe" %}</button>
         </div>
         <div class="input-group">
-            <input type="text" class="form-control" id="aiQuickInput" placeholder="Andika swali..." required>
-            <button class="btn btn-danger" type="submit" id="aiQuickSend">Tuma</button>
+            <input type="text" class="form-control" id="aiQuickInput" placeholder="{% trans 'Andika swali...' %}" required>
+            <button class="btn btn-danger" type="submit" id="aiQuickSend">{% trans "Tuma" %}</button>
         </div>
     </form>
 </section>
@@ -2164,6 +2286,629 @@
         syncMobileSystemBars(next);
     }
 
+    async function applyRuntimeTranslations() {
+        const lang = ('{{ CURRENT_LANGUAGE }}' || 'sw').split('-')[0];
+        if (lang === 'sw') return;
+
+        try {
+            const res = await fetch(`/i18n/runtime-map.json?lang=${encodeURIComponent(lang)}`, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            });
+            if (!res.ok) return;
+
+            const data = await res.json();
+            const map = data && data.map ? data.map : {};
+
+            const fallbackEn = {
+                'Nembo ya AfyaSmart': 'AfyaSmart logo',
+                'Picha ya wasifu ya': 'Profile picture of',
+                'Msaidizi wa AfyaSmart': 'AfyaSmart Health Assistant',
+                'Msaidizi wa Afya': 'Health Assistant',
+                'Jamii': 'Community',
+                'Soga': 'Chat',
+                'Madaktari': 'Doctors',
+                'Wagonjwa': 'Patients',
+                'Mandhari': 'Theme',
+                'Kadi ya Mtandaoni ya AfyaSmart': 'AfyaSmart Online Card',
+                'Utambulisho wa Afya wa AfyaSmart': 'AfyaSmart Health Identity',
+                'Mbele': 'Front',
+                'Nyuma': 'Back',
+                'Kiungo cha Uskenaji': 'Scan Link',
+                'Mantiki ya Vikumbusho vya Persona': 'Persona Reminder Logic',
+                'Muda wa kikumbusho:': 'Reminder interval:',
+                'Mpumziko wa kikumbusho:': 'Reminder cooldown:',
+                'kila siku': 'every',
+                'siku': 'days',
+                'Persona ikivuka muda, arifa hutumwa kiotomatiki.': 'If persona data expires, a reminder notification is sent automatically.',
+                'Wagonjwa Wangu': 'My Patients',
+                'Karibu AfyaSmart — Jisajili ili upate huduma zilizobinafsishwa.': 'Welcome to AfyaSmart — Sign up to access personalized services.',
+                'AfyaSmart ni platform ya afya ya uzazi na ustawi wa kila siku. Hapa utapata mfumo wa ku-track mzunguko, AI chat kwa majibu ya haraka, msaada wa jamii, na mwongozo wa wataalamu. Mtumiaji mpya anayejisajili ataelekezwa hapa kwanza ili apate maelezo kamili ya huduma, nyaraka za matumizi, na njia za mawasiliano.': 'AfyaSmart is a reproductive health and daily wellness platform. Here you get cycle tracking, quick AI chat answers, community support, and professional guidance. New users are guided here first for full service info, documentation, and contact options.',
+                'Huduma': 'Services',
+                'Chagua huduma unayotaka. Huduma zinazopatikana zinafunguka moja kwa moja; ambazo bado zinaandaliwa zitaonyesha taarifa.': 'Choose the service you want. Available services open immediately; those still being prepared will show a notice.',
+                'Idadi ya huduma:': 'Number of services:',
+                'Jinsia:': 'Gender:',
+                'Wote': 'Everyone',
+                'Inakuja Hivi Karibuni': 'Coming Soon',
+                'Dawa na Matumizi': 'Medication and Usage',
+                'Mwongozo wa dawa, matumizi salama, na maelezo muhimu ya matibabu.': 'Guidance on medicine, safe use, and important treatment information.',
+                'Magonjwa': 'Diseases',
+                'Elimu ya magonjwa, dalili, kinga, na hatua za awali za kujitunza.': 'Education about diseases, symptoms, prevention, and first self-care steps.',
+                'Balehe na Uzazi': 'Puberty and Reproductive Health',
+                'Maelezo ya mabadiliko ya balehe na afya ya uzazi kwa lugha rahisi.': 'Clear information about puberty changes and reproductive health in simple language.',
+                'Ukuaji wa Mtoto': 'Child Development',
+                'Ufuatiliaji wa ukuaji wa mtoto, hatua muhimu za ukuaji, na vidokezo vya malezi.': 'Track child development, key milestones, and parenting tips.',
+                'Mipangilio': 'Settings',
+                'Arifa': 'Notifications',
+                'Akaunti': 'Account',
+                'Jisajili': 'Sign up',
+                'Ingia': 'Login',
+                'Rekodi za Kila Siku': 'Daily Records',
+                'Weka rekodi kwa urahisi kila siku': 'Log your records easily every day',
+                'Maarifa ya AI': 'AI Insights',
+                'Mapendekezo yanayobinafsishwa': 'Personalized recommendations',
+                'Faragha Kwanza': 'Privacy First',
+                'Data inalindwa kwa mipangilio ya faragha': 'Data is protected by privacy settings',
+                'Wataalamu wa afya na zana za afya kidijitali': 'Healthcare experts and digital health tools',
+                'AI inaendelea kujifunza': 'AI keeps learning',
+                'Msaada wa jamii 24/7': '24/7 community support',
+                'Fuatilia • Tabiri • Boresha': 'Track • Predict • Improve',
+                'Ufuatiliaji wa Mzunguko': 'Cycle Tracking',
+                'Msaidizi wa AI': 'AI Assistant',
+                'Upatikanaji wa Daktari': 'Doctor Access',
+                'Inavyofanya Kazi': 'How It Works',
+                'Weka Rekodi ya Kila Siku': 'Log Daily Records',
+                'Pata Maarifa': 'Get Insights',
+                'Shirikiana': 'Collaborate',
+                'Nyaraka za Matumizi': 'Documentation',
+                'Mawasiliano na Msaada': 'Contact and Support',
+                'Kuhusu AfyaSmart': 'About AfyaSmart',
+                'Kwa nini niweke log kila siku?': 'Why should I log daily?',
+                'Data yangu iko salama?': 'Is my data safe?',
+                'Uchujaji wa jinsia unafanyaje kazi?': 'How does gender filtering work?',
+                'Dhibiti akaunti yako, wasifu, na mapendeleo ya faragha': 'Manage your account, profile, and privacy preferences',
+                'Mipangilio ya Jumla': 'General Settings',
+                'Hifadhi Mabadiliko': 'Save Changes',
+                'Ghairi': 'Cancel',
+                'Sasisha Maelezo ya Kadi': 'Update Card Details',
+                'Msimbo wa QR wa kadi': 'Card QR code',
+                'Skena QR kupata taarifa ulizoruhusu zionekane.': 'Scan QR to view only the information you allowed to be visible.',
+                'Hii ndio link itafunguliwa baada ya QR kuscan:': 'This is the link opened after scanning the QR:',
+                'Orodha ya wagonjwa wote uliozungumza nao kwenye private chat.': 'List of all patients you have chatted with in private chat.',
+                'Unaweza kutengeneza log forms na kuona data zao za afya.': 'You can create log forms and review their health data.',
+                'Chat ya mwisho:': 'Last chat:',
+                'Rudi Hub': 'Back to Hub',
+                'Bado hujazungumza na mgonjwa yeyote': 'You have not chatted with any patient yet',
+                'Wagonjwa wataonekana hapa baada ya kuanzisha private chat nao.': 'Patients will appear here after you start a private chat with them.'
+                ,'Upande wa Mbele': 'Front Side'
+                ,'Data itakayoonekana baada ya kuskena QR': 'Data visible after QR scan'
+                ,'Chagua data unazotaka zionekane baada ya uskenaji wa QR. Mfumo utaonyesha kwa mpangilio mzuri kulingana na chaguo zako.': 'Choose which data should appear after the QR scan. The system will display it neatly based on your selections.'
+                ,'Ratiba ya Vikumbusho vya Persona': 'Persona Reminder Schedule'
+                ,'Usalama wa Ukurasa wa Uskenaji': 'Scan Page Security'
+                ,'Weka nenosiri kulinda data ya ukurasa wa uskenaji. Ukiondoa tiki ya kuondoa nenosiri, ulinzi utaondoka.': 'Set a password to protect scan page data. If you tick remove password, the protection will be removed.'
+                ,'Hifadhi Maelezo': 'Save Details'
+                ,'Tengeneza chapisho': 'Create post'
+                ,'Andika chapisho jipya kwa jamii ya': 'Write a new post for the community of'
+                ,'Rudi kwenye machapisho': 'Back to posts'
+                ,'Profile haijakamilika': 'Profile is incomplete'
+                ,'Ukibonyeza Publish ukiwa hujakamilisha, utaelekezwa kwenye onboarding.': 'If you press Publish before completing it, you will be redirected to onboarding.'
+                ,'Kamilisha sasa →': 'Complete now →'
+                ,'Funga': 'Close'
+                ,'Fonti': 'Font'
+                ,'Rangi ya maandishi': 'Text color'
+                ,'Rangi ya mandharinyuma': 'Background color'
+                ,'Futa': 'Clear'
+                ,'Andika post yako hapa... unaweza kubold, kubadilisha rangi, kuweka link, headings na list.': 'Write your post here... you can bold text, change colors, add links, headings, and lists.'
+                ,'Maneno angalau 5 • Inashauriwa yasizidi 120 kwenye ukurasa wa mwanzo kabla ya "Soma zaidi".': 'At least 5 words • It is recommended not to exceed 120 on the home view before "Read more".'
+                ,'maneno 0': '0 words'
+                ,'Wigo wa chapisho': 'Post visibility'
+                ,'Chapisha kwa jamii yote, si kwa vikundi maalum': 'Publish to the whole community, not just specific groups'
+                ,'Chagua groups nyingi': 'Choose multiple groups'
+                ,'Kikundi cha jamii': 'Community group'
+                ,'Chaguo za chapisho': 'Post options'
+                ,'Chapisha pia kama status': 'Also publish as status'
+                ,'Chapisha bila kujitambulisha': 'Publish anonymously'
+                ,'Unaweza kuchagua groups nyingi, au ukaweka kwa jamii yote.': 'You can choose multiple groups, or post to the whole community.'
+                ,'Pakia picha': 'Upload image'
+                ,'Pakia video': 'Upload video'
+                ,'Unaweza kuweka picha/video moja, au tumia Ongeza zaidi kuongeza media nyingi.': 'You can attach one image/video, or use Add more to include multiple media files.'
+                ,'Ongeza media zaidi': 'Add more media'
+                ,'Ongeza zaidi': 'Add more'
+                ,'Muonekano wa fremu na ukataji': 'Frame and crop appearance'
+                ,'Chagua image au video. Hapa utaona crop/frame exactly jinsi itakavyoonekana kwenye post.': 'Choose an image or video. Here you will see the crop/frame exactly as it will appear in the post.'
+                ,'Hakiki ya ukataji': 'Crop preview'
+                ,'Uwiano wa vipimo': 'Aspect ratio'
+                ,'Otomatiki': 'Automatic'
+                ,'Umbo': 'Shape'
+                ,'Lina mviringo': 'Rounded'
+                ,'Duara': 'Circle'
+                ,'Lenga kushoto/kulia': 'Focus left/right'
+                ,'Lenga juu/chini': 'Focus up/down'
+                ,'Tuma kwa msimamizi/daktari kwa ufafanuzi': 'Send to a moderator/doctor for clarification'
+                ,'Mfano: Naomba afafanue kama dalili hizi ni za kawaida.': 'Example: Please clarify whether these symptoms are normal.'
+                ,'Chagua doctor wa kujibu': 'Choose a doctor to respond'
+                ,'Hakuna daktari aliyethibitishwa kwa sasa.': 'No verified doctor is available right now.'
+                ,'Nakubali': 'I agree to the'
+                ,'miongozo ya jamii': 'community guidelines'
+                ,'na': 'and'
+                ,'masharti ya huduma': 'terms of service'
+                ,'Chapisha': 'Publish'
+                ,'Kikasha cha Ufafanuzi': 'Clarification Inbox'
+                ,'Orodha ya maombi ya ufafanuzi kutoka jamii pamoja na majibu yake.': 'A list of clarification requests from the community together with their responses.'
+                ,'Rudi kwenye mtiririko': 'Back to feed'
+                ,'Daktari aliyechaguliwa: Dr.': 'Selected doctor: Dr.'
+                ,'Maudhui lengwa': 'Target content'
+                ,'Fungua chapisho husika na ujibu huko': 'Open the related post and reply there'
+                ,'Hakiki ya maoni husika pekee (haiwezi kubonyezwa)': 'Preview of the related comment only (not clickable)'
+                ,'Fungua kikundi husika': 'Open the related group'
+                ,'Jibu': 'Reply'
+                ,'Andika ufafanuzi hapa...': 'Write the clarification here...'
+                ,'Hakuna maombi ya ufafanuzi kwa sasa.': 'There are no clarification requests at the moment.'
+                ,'Hospital:': 'Hospital:'
+                ,'Gender:': 'Gender:'
+                ,'Hakuna madaktari waliopatikana.': 'No doctors were found.'
+                ,'Taarifa za Msingi': 'Basic Information'
+                ,'Jina la Mtumiaji': 'Username'
+                ,'Haiwezi kubadilishwa.': 'Cannot be changed.'
+                ,'Jina la Kwanza': 'First Name'
+                ,'Jina la Mwisho': 'Last Name'
+                ,'Barua Pepe': 'Email'
+                ,'Bio': 'Bio'
+                ,'Kuhusu Mimi': 'About Me'
+                ,'Bio yako ya sasa:': 'Your current bio:'
+                ,'Taarifa za Kimwili': 'Physical Information'
+                ,'Umri': 'Age'
+                ,'Urefu (cm)': 'Height (cm)'
+                ,'Uzito (kg)': 'Weight (kg)'
+                ,'Historia ya Afya': 'Health History'
+                ,'Maelezo ya Afya': 'Health Notes'
+                ,'Magonjwa ya Kudumu': 'Chronic Conditions'
+                ,'Dawa Unazotumia': 'Medications You Use'
+                ,'Mtindo wa Maisha': 'Lifestyle'
+                ,'Maelezo ya Maisha': 'Lifestyle Notes'
+                ,'Masaa ya Usingizi': 'Sleep Hours'
+                ,'Kiwango cha Msongo': 'Stress Level'
+                ,'Mazoezi': 'Exercise'
+                ,'Chakula (Si lazima)': 'Diet (Optional)'
+                ,'Malengo (Si lazima)': 'Goals (Optional)'
+                ,'Afya ya Akili (Si lazima)': 'Mental Health (Optional)'
+                ,'Angalia makosa kwenye fomu.': 'Please review the form errors.'
+                ,'Ubora wa Data na Uthibitisho': 'Data Quality and Verification'
+                ,'Jina la Mawasiliano ya Dharura': 'Emergency Contact Name'
+                ,'Namba ya Mawasiliano ya Dharura': 'Emergency Contact Number'
+                ,'Mkoa': 'Region'
+                ,'Lugha Unayopendelea': 'Preferred Language'
+                ,'Nakubali data yangu itumike kwa AI personalization salama': 'I consent to my data being used for safe AI personalization'
+                ,'Utambulisho umethibitishwa': 'Identity verified'
+                ,'Taarifa za kitabibu zimethibitishwa': 'Medical information verified'
+                ,'Maelezo ya Uthibitisho': 'Verification Notes'
+                ,'Kiwango cha ukamilifu:': 'Completion level:'
+                ,'mapitio ya mwisho': 'last review'
+                ,'Sasisha AI Persona': 'Update AI Persona'
+                ,'Jamii ya Afya ya': 'Health Community of'
+                ,'Chagua au tengeneza group yako': 'Choose or create your group'
+                ,'followers': 'followers'
+                ,'Join': 'Join'
+                ,'Fungua': 'Open'
+                ,'Tengeneza Group Mpya': 'Create New Group'
+                ,'Tengeneza': 'Create'
+                ,'Picha ya group inapendekezwa (si lazima).': 'A group image is recommended (optional).'
+                ,'Ruhusu kwa idhini kwa wanachama wapya': 'Require approval for new members'
+                ,'Tuma kwa uhakiki wa admin': 'Send for admin review'
+                ,'Stories za wanajamii leo': 'Community stories today'
+                ,'Ongeza Status': 'Add Status'
+                ,'Hakuna status kwa sasa.': 'There is no status right now.'
+                ,'Machapisho & Maoni Yote': 'All Posts & Comments'
+                ,'Muonekano wa posts na comments zote': 'View of all posts and comments'
+                ,'Mwanajamii asiyejulikana': 'Anonymous community member'
+                ,'Chanzo:': 'Source:'
+                ,'Haijulikani': 'Unknown'
+                ,'Jibu...': 'Reply...'
+                ,'Hakuna comments bado.': 'No comments yet.'
+                ,'Andika comment...': 'Write a comment...'
+                ,'Tuma': 'Send'
+                ,'Hakuna posts kwa sasa.': 'There are no posts right now.'
+                ,'Hakuna status.': 'No status.'
+                ,'Require approval': 'Require approval'
+                ,'Add Group': 'Add Group'
+                ,'new': 'new'
+                ,'amekomenti post yako': 'commented on your post'
+                ,'ago': 'ago'
+                ,'Umejibiwa na': 'You have been answered by'
+                ,'Hakuna notifications mpya.': 'No new notifications.'
+                ,'Recent Posts': 'Recent Posts'
+                ,'Hakuna post mpya bado.': 'No new post yet.'
+                ,'Hakuna verified doctors.': 'There are no verified doctors.'
+                ,'Ongeza status': 'Add status'
+                ,'Stori yako': 'Your story'
+                ,'Tengeneza stori': 'Create story'
+                ,'Jielezesha kwa ufupi...': 'Describe yourself briefly...'
+                ,'Mfano: Dar es Salaam': 'Example: Dar es Salaam'
+                ,'Andika username yako': 'Enter your username'
+                ,'Tumia herufi, namba au alama @ . + - _ (max 150).': 'Use letters, numbers, or @ . + - _ symbols (max 150).'
+                ,'Tengeneza nenosiri imara': 'Create a strong password'
+                ,'Angalau herufi 8; epuka nenosiri rahisi au la namba pekee.': 'Use at least 8 characters; avoid simple or numeric-only passwords.'
+                ,'Rudia nenosiri lako': 'Repeat your password'
+                ,'Rudia nenosiri kwa uhakiki.': 'Repeat the password for confirmation.'
+                ,'Mfano: pressure, allergy, operations za zamani...': 'Example: blood pressure, allergy, past operations...'
+                ,'Mfano: asthma, diabetes, none': 'Example: asthma, diabetes, none'
+                ,'Mfano: metformin, none': 'Example: metformin, none'
+                ,'Eleza maisha yako ya kila siku kwa ufupi...': 'Describe your daily life briefly...'
+                ,'Weka password ya scan page': 'Enter a password for the scan page'
+                ,'Rudia password': 'Repeat password'
+                ,'Acha wazi kutumia jina la profile': 'Leave blank to use the profile name'
+                ,'Acha wazi kutumia gender ya persona': 'Leave blank to use the persona gender'
+                ,'Mfano: AfyaSmart • VERIFIED': 'Example: AfyaSmart • VERIFIED'
+                ,'Ondoa password ya scan page': 'Remove scan page password'
+                ,'Password hazifanani.': 'Passwords do not match.'
+                ,'Password iwe angalau herufi 4.': 'Password must be at least 4 characters.'
+                ,'Mfano: Maumivu makali ya tumbo': 'Example: Severe stomach pain'
+                ,'Eleza tatizo lako kwa kifupi...': 'Describe your issue briefly...'
+                ,'Andika ujumbe wako...': 'Write your message...'
+                ,'Andika ujumbe au chagua attachment.': 'Write a message or choose an attachment.'
+                ,'Sababu ya report': 'Reason for report'
+                ,'Maelezo ya ziada...': 'Additional details...'
+                ,'Maelezo kwa admin kuhusu group hii...': 'Notes for the admin about this group...'
+                ,'Mfano: Afya na Lishe': 'Example: Health and Nutrition'
+                ,'Lengo la group hii...': 'Purpose of this group...'
+                ,'Status yako ya leo...': 'Your status today...'
+                ,'Eleza unachotaka kufafanuliwa...': 'Explain what you want clarified...'
+                ,'Chagua daktari unayetaka akujibu.': 'Choose the doctor you want to answer you.'
+                ,'Habari. Uliza swali lolote la afya. Nitakujibu kwa njia fupi, salama, na ya kibinafsi.': 'Hello. Ask any health question. I will answer briefly, safely, and personally.'
+                ,'Usingizi': 'Sleep'
+                ,'Msongo': 'Stress'
+                ,'Lishe': 'Nutrition'
+                ,'Andika swali...': 'Type your question...'
+                ,'Nisaidie mpango wa usingizi bora wa afya.': 'Help me with a healthier sleep plan.'
+                ,'Nipe vidokezo vya kupunguza msongo wa mawazo kwa siku 7.': 'Give me tips to reduce stress for 7 days.'
+                ,'Nipe ushauri wa lishe ya afya ya mwili.': 'Give me healthy nutrition advice for the body.'
+                ,'Muonekano na Wasifu': 'Display & Profile'
+                ,'Avatar ya Sasa': 'Current Avatar'
+                ,'Avatar ya sasa': 'Current avatar'
+                ,'Chagua Rangi ya Mandhari': 'Choose Theme Colors'
+                ,'Tumia rangi binafsi': 'Use custom colors'
+                ,'Maandishi ya ufuatiliaji wa mzunguko': 'Cycle tracking illustration'
+                ,'Dhana ya msaidizi wa AI': 'AI assistant concept'
+                ,'Watu wakisaidiana kwenye jamii': 'People helping each other in the community'
+                ,'Ushauri wa daktari': 'Doctor consultation'
+                ,'Log za kila siku, flow intensity, dalili, na trend analysis. Mfumo unakusaidia kuona pattern ya mzunguko mapema.': 'Daily logs, flow intensity, symptoms, and trend analysis. The system helps you spot cycle patterns early.'
+                ,'Majibu ya haraka kwa maswali ya afya, ushauri wa mtindo wa maisha, na mapendekezo binafsi kulingana na data yako.': 'Quick answers to health questions, lifestyle guidance, and personalized recommendations based on your data.'
+                ,'Jamii salama ya kuuliza, kujifunza, na kupata msaada. Unaweza kushiriki masasisho na kujifunza kutoka uzoefu wa wengine.': 'A safe community to ask, learn, and get support. You can share updates and learn from others’ experiences.'
+                ,'Unganishwa na madaktari wa mfumo kwa mwongozo wa ziada, hasa unapohitaji ufafanuzi wa kitaalamu kwa haraka.': 'Connect with platform doctors for extra guidance, especially when you need quick professional clarification.'
+                ,'Unda akaunti na ukamilishe AI persona ili mfumo uanze kukuelewa.': 'Create an account and complete your AI persona so the system can start understanding you.'
+                ,'Andika flow, dalili, hisia, na notes kila siku kwa matokeo bora.': 'Log flow, symptoms, mood, and notes daily for better results.'
+                ,'Tazama mwenendo, vikumbusho, na mapendekezo ya AI kwenye dashibodi.': 'View trends, reminders, and AI recommendations on your dashboard.'
+                ,'Uliza jamii au daktari pale unapotaka ushauri wa ziada.': 'Ask the community or a doctor whenever you need extra guidance.'
+                ,'Nyaraka zetu za matumizi zinaelezea kila kitu: kuanza kutumia mfumo, jinsi ya kuweka data sahihi, namna ya kutumia AI Chat, usimamizi wa jamii, na usalama wa taarifa zako.': 'Our documentation explains everything: getting started, entering accurate data, using AI Chat, managing community features, and protecting your information.'
+                ,'Ukifuata mwongozo huu, uzoefu wako utakuwa laini na taarifa zitakuwa na ubora wa juu kwa maarifa binafsi.': 'If you follow this guide, your experience will be smoother and your data quality will be higher for personalized insights.'
+                ,'Unahitaji msaada?': 'Need help?'
+                ,'Kwa changamoto za akaunti, hitilafu za kiufundi, au ushauri wa matumizi, tumia ukurasa wa mawasiliano. Timu yetu itakusaidia haraka kulingana na aina ya tatizo.': 'For account issues, technical errors, or usage guidance, use the contact page. Our team will help you quickly based on the type of issue.'
+                ,'Msaada wa kuingia, wasifu, na usalama wa akaunti': 'Help with login, profile, and account security'
+                ,'Msaada wa AI chat, arifa, na njia ya daktari': 'Help with AI chat, notifications, and doctor access'
+                ,'Mwongozo wa jinsi ya kutumia vipengele kwa ufanisi': 'Guidance on using features effectively'
+                ,'Fahamu dhamira, usalama wa data, na mwelekeo wa huduma zetu za afya kidigitali kwa muda mrefu.': 'Learn about our mission, data safety, and the long-term direction of our digital health services.'
+                ,'Rekodi za kila siku husaidia mfumo kugundua mwelekeo wako mapema na kutoa mapendekezo sahihi zaidi.': 'Daily records help the system detect your trends early and provide more accurate recommendations.'
+                ,'Ndiyo. Mfumo una mipangilio ya faragha na udhibiti wa akaunti ili taarifa zako zibaki salama.': 'Yes. The system has privacy settings and account controls to keep your information secure.'
+                ,'Baada ya usanidi wa awali, mfumo unaonyesha njia na stori zinazolingana na jinsia uliyochagua kwenye AI persona.': 'After initial setup, the system shows paths and stories that match the gender selected in your AI persona.'
+                ,'Imejengwa kwa huduma salama na ya faragha ya afya ya uzazi': 'Built for safe and private reproductive health care.'
+                ,'Badilisha Nenosiri': 'Change Password'
+                ,'Usalama na Faragha': 'Security and Privacy'
+                ,'Usalama na Faragh': 'Security and Privacy'
+                ,'Mipangilio ya Faragha na Vikumbusho': 'Privacy and Reminder Settings'
+                ,'Hifadhi Mipangilio ya Faragha': 'Save Privacy Settings'
+                ,'Hifadhi Lugha': 'Save Language'
+                ,'Chagua lugha': 'Choose language'
+                ,'Baada ya kuhifadhi, tovuti itabadilika kwenda lugha uliyochagua.': 'After saving, the site will switch to the language you selected.'
+                ,'Tafuta daktari/utaalamu...': 'Search doctor/specialization...'
+                ,'Historia': 'History'
+                ,'Hakuna historia bado.': 'No history yet.'
+                ,'Haraka': 'Quick'
+                ,'Dalili': 'Symptoms'
+                ,'Mimba': 'Pregnancy'
+                ,'Habari. Uliza swali lako, nitakupa jibu fupi na salama.': 'Hello. Ask your question and I will give you a brief, safe answer.'
+                ,'Andika ujumbe': 'Type a message'
+                ,'Afyacom si daktari. Wasiliana na daktari.': 'Afyacom is not a doctor. Please contact a doctor.'
+                ,'Mazungumzo mapya': 'New chat'
+                ,'Paneli': 'Panel'
+                ,'Uchambuzi wa kina (kabla ya jibu)': 'Deep analysis (before answer)'
+                ,'Dalili:': 'Symptoms:'
+                ,'Tuma Jibu': 'Submit answer'
+                ,'Nasa': 'Capture'
+                ,'Picha': 'Image'
+                ,'Hati': 'Document'
+                ,'Sauti': 'Audio'
+                ,'Rudi': 'Back'
+                ,'Community ya Afya ya': 'Health Community of'
+                ,'Unafikiria nini?': 'What is on your mind?'
+                ,'status ya': 'status of'
+                ,'stori ya': 'story of'
+                ,'Machapisho ya jamii': 'Community posts'
+                ,'Machapisho yanaanza hapa. Tumia Ongeza Chapisho kwenda ukurasa maalum wa kuchapisha.': 'Posts start here. Use Add Post to go to the dedicated post creation page.'
+                ,'Ongeza Chapisho': 'Add Post'
+                ,'Form Zilizotumwa': 'Submitted Forms'
+                ,'Logs za Patient Kwa Siku': 'Patient Daily Logs'
+                ,'Unda Form': 'Create Form'
+                ,'Bado hujatengeneza form kwa patient huyu.': 'You have not created a form for this patient yet.'
+                ,'Hakuna submission bado kutoka kwa patient huyu.': 'There are no submissions yet from this patient.'
+                ,'Hifadhi Mabadiliko': 'Save'
+                ,'Hifadhi Mipangilio ya Faragha': 'Save Privacy'
+                ,'Hifadhi Lugha': 'Save Language'
+                ,'Hifadhi': 'Save'
+                ,'Ghairi': 'Cancel'
+                ,'Badilisha Nenosiri': 'Change Password'
+                ,'Ongeza Lengo': 'Add Goal'
+                ,'Hifadhi Tokeo': 'Save Result'
+                ,'Hifadhi Kipimo': 'Save Measure'
+                ,'Tuma Ombi la Mpenzi': 'Send Partner Request'
+                ,'Rudi dashibodi': 'Back to Dashboard'
+                ,'Hifadhi mipangilio': 'Save Settings'
+                ,'Rudi Dashboard': 'Back to Dashboard'
+                ,'Fungua Django Admin': 'Open Django Admin'
+                ,'Rudi kuingia': 'Back to Login'
+                ,'Rudi kwa madaktari': 'Back to Doctors'
+                ,'Fungua chapisho': 'Open Post'
+                ,'Hariri fomu': 'Edit form'
+                ,'Rudi Kwenye Nyumbani': 'Back Home'
+                ,'Hifadhi na Anza Mzunguko': 'Save and Start Cycle'
+                ,'Fungua Data ya Kadi': 'Open Card Data'
+                ,'Nenda AI': 'Go to AI'
+                ,'Nenda Jamii': 'Go to Community'
+                ,'Nenda Kituo': 'Go to Hub'
+                ,'Fungua Kikasha': 'Open Inbox'
+                ,'Jaribu AI Chat': 'Try AI Chat'
+                ,'Soma Mwongozo': 'Read Guide'
+                ,'Fungua Nyaraka': 'Open Docs'
+                ,'Nenda Mawasiliano': 'Go to Contact'
+                ,'Soma Kuhusu': 'Read About'
+                ,'Ingia hapa': 'Login here'
+                ,'Karibu AfyaSmart': 'Welcome to AfyaSmart'
+                ,'Unda akaunti yako na uanze kufuatilia mzunguko wako kwa usalama, AI insight, na msaada wa wataalamu.': 'Create your account and start tracking your cycle safely, with AI insight and expert support.'
+                ,'Utabiri wa mzunguko unaoeleweka': 'Understandable cycle predictions'
+                ,'Ushauri wa AI + msaada wa daktari': 'AI advice + doctor support'
+                ,'Faragha yako inalindwa': 'Your privacy is protected'
+                ,'Jisajili kwa AfyaSmart': 'Sign up for AfyaSmart'
+                ,'Ni dakika chache tu kuanza.': 'Just a few minutes to get started.'
+                ,"Social signup itafanya account itengenezwe na kisha utaendelea kwenye onboarding yako.": "Social signup will create your account and you'll proceed to onboarding."
+                ,'au tumia username na nenosiri': 'or use username and password'
+                ,'Jina la mtumiaji': 'Username'
+                ,'Nenosiri': 'Password'
+                ,'Thibitisha nenosiri': 'Confirm password'
+                ,'Una akaunti tayari?': 'Already have an account?'
+                ,'Ingia kwenye AfyaSmart': 'Login to AfyaSmart'
+                ,'au endelea na': 'or continue with'
+                ,'Huna akaunti?': "Don't have an account?"
+                ,'Jisajili hapa': 'Sign up here'
+                ,'Uthibitisho wa madaktari': 'Doctor approvals'
+                ,'Usajili wa daktari': 'Doctor registration'
+                ,'Anza Mzunguko': 'Start Cycle'
+                ,'Ongeza Logi': 'Add Log'
+                ,'Ongeza Log': 'Add Log'
+                ,'Hariri Log': 'Edit Log'
+                ,'Fungua chanzo': 'Open source'
+                ,'Wasilisha Usajili': 'Submit Registration'
+                ,'Rudi kwenye Hub ya Madaktari': 'Back to Doctors Hub'
+                ,'Rudi kwenye mtiririko': 'Back to feed'
+                ,'Rudi Hub': 'Back to Hub'
+                ,'Rudi kuingia': 'Back to Login'
+                ,'Fungua Data ya Kadi': 'Open Card Data'
+                ,'Angalia zote': 'View all'
+                ,'Rudi kwenye machapisho': 'Back to posts'
+            };
+
+            const finalMap = { ...map, ...(lang === 'en' ? fallbackEn : {}) };
+            const entries = Object.entries(finalMap).sort((a, b) => b[0].length - a[0].length);
+            if (!entries.length) return;
+            const substringEntries = entries.filter(([sw]) => sw && (sw.length >= 12 || /\s|[:•,.!?()\-]/.test(sw)));
+
+            const skipTags = new Set(['SCRIPT', 'STYLE', 'NOSCRIPT', 'TEXTAREA', 'CODE', 'PRE']);
+            const walker = document.createTreeWalker(document.body, NodeFilter.SHOW_TEXT, {
+                acceptNode(node) {
+                    if (!node || !node.nodeValue || !node.nodeValue.trim()) return NodeFilter.FILTER_REJECT;
+                    const parent = node.parentElement;
+                    if (!parent || skipTags.has(parent.tagName) || parent.isContentEditable) return NodeFilter.FILTER_REJECT;
+                    return NodeFilter.FILTER_ACCEPT;
+                },
+            });
+
+            const nodes = [];
+            let currentNode;
+            while ((currentNode = walker.nextNode())) nodes.push(currentNode);
+
+            nodes.forEach((node) => {
+                const raw = node.nodeValue;
+                const trimmed = raw.trim();
+                if (trimmed && Object.prototype.hasOwnProperty.call(finalMap, trimmed)) {
+                    node.nodeValue = raw.replace(trimmed, finalMap[trimmed]);
+                    return;
+                }
+
+                let value = raw;
+                substringEntries.forEach(([sw, translated]) => {
+                    if (!sw || !translated) return;
+                    if (value.includes(sw)) value = value.split(sw).join(translated);
+                });
+                node.nodeValue = value;
+            });
+
+            document.querySelectorAll('[placeholder], [title], [aria-label], [alt]').forEach((el) => {
+                ['placeholder', 'title', 'aria-label', 'alt'].forEach((attr) => {
+                    const raw = el.getAttribute(attr);
+                    if (!raw) return;
+                    const trimmed = raw.trim();
+                    if (trimmed && Object.prototype.hasOwnProperty.call(finalMap, trimmed)) {
+                        el.setAttribute(attr, raw.replace(trimmed, finalMap[trimmed]));
+                        return;
+                    }
+                    let value = raw;
+                    substringEntries.forEach(([sw, translated]) => {
+                        if (!sw || !translated) return;
+                        if (value.includes(sw)) value = value.split(sw).join(translated);
+                    });
+                    if (value !== raw) el.setAttribute(attr, value);
+                });
+            });
+
+            if (lang === 'en') {
+                const actionIcons = {
+                    'Save': 'bi-check-circle',
+                    'Save Privacy': 'bi-shield-check',
+                    'Save Language': 'bi-translate',
+                    'Cancel': 'bi-x-circle',
+                    'Send': 'bi-send',
+                    'Open': 'bi-box-arrow-up-right',
+                    'Back': 'bi-arrow-left',
+                    'Add': 'bi-plus-circle',
+                    'Create': 'bi-plus-square',
+                    'Publish': 'bi-upload',
+                    'Edit': 'bi-pencil-square',
+                    'View': 'bi-eye',
+                    'Login': 'bi-box-arrow-in-right',
+                    'Sign up': 'bi-person-plus',
+                    'Change Password': 'bi-key',
+                };
+
+                const labelMap = {
+                    'Tuma': 'Send',
+                    'Send': 'Send',
+                    'Ghairi': 'Cancel',
+                    'Cancel': 'Cancel',
+                    'Hifadhi': 'Save',
+                    'Save': 'Save',
+                    'Fungua': 'Open',
+                    'Open': 'Open',
+                    'Rudi': 'Back',
+                    'Back': 'Back',
+                    'Ongeza': 'Add',
+                    'Add': 'Add',
+                    'Tengeneza': 'Create',
+                    'Create': 'Create',
+                    'Chapisha': 'Publish',
+                    'Publish': 'Publish',
+                    'Hariri': 'Edit',
+                    'Edit': 'Edit',
+                    'Angalia': 'View',
+                    'View': 'View',
+                    'Ingia': 'Login',
+                    'Login': 'Login',
+                    'Jisajili': 'Sign up',
+                    'Sign up': 'Sign up',
+                    'Badilisha Nenosiri': 'Change Password',
+                    'Change Password': 'Change Password',
+                    'Hifadhi mipangilio': 'Save Settings',
+                    'Hifadhi Dokezo': 'Save Tip',
+                    'Ongeza Logi': 'Add Log',
+                    'Ongeza Log': 'Add Log',
+                    'Hariri Log': 'Edit Log',
+                    'Fungua chanzo': 'Open source',
+                    'Wasilisha Usajili': 'Submit Registration',
+                    'Uthibitisho wa madaktari': 'Doctor approvals',
+                    'Usajili wa daktari': 'Doctor registration',
+                    'Angalia zote': 'View all',
+                    'Rudi dashibodi': 'Back to Dashboard',
+                    'Rudi Hub': 'Back to Hub',
+                    'Rudi kwenye mtiririko': 'Back to feed',
+                    'Rudi kwenye machapisho': 'Back to posts',
+                    'Jaribu AI Chat': 'Try AI Chat',
+                    'Soma Mwongozo': 'Read Guide',
+                    'Fungua Nyaraka': 'Open Docs',
+                    'Nenda Mawasiliano': 'Go to Contact',
+                    'Soma Kuhusu': 'Read About',
+                    'Ingia hapa': 'Login here',
+                };
+
+                const normalizeActionLabel = (rawText) => {
+                    const t = (rawText || '').replace(/\s+/g, ' ').trim();
+                    if (!t) return '';
+                    if (labelMap[t]) return labelMap[t];
+
+                    const rules = [
+                        [/badilisha\s+nenosiri/i, 'Change Password'],
+                        [/hifadhi/i, 'Save'],
+                        [/ghairi/i, 'Cancel'],
+                        [/tuma/i, 'Send'],
+                        [/fungua/i, 'Open'],
+                        [/^rudi\b|\brudi\b/i, 'Back'],
+                        [/ongeza/i, 'Add'],
+                        [/tengeneza|unda/i, 'Create'],
+                        [/hariri/i, 'Edit'],
+                        [/angalia/i, 'View'],
+                        [/ingia/i, 'Login'],
+                        [/jisajili|usajili|wasilisha\s+usajili/i, 'Sign up'],
+                        [/chapisha/i, 'Publish'],
+                        [/nenda/i, 'Go'],
+                        [/soma/i, 'Read'],
+                        [/jaribu/i, 'Try'],
+                        [/anza\s+mzunguko/i, 'Start Cycle'],
+                    ];
+
+                    for (const [regex, out] of rules) {
+                        if (regex.test(t)) return out;
+                    }
+                    return '';
+                };
+
+                const actionEls = document.querySelectorAll('button, a.btn, .action-btn, .add-comment-btn, .comment-action-btn');
+                actionEls.forEach((el) => {
+                    if (el.dataset.iconized === '1') return;
+                    const raw = (el.textContent || '').replace(/\s+/g, ' ').trim();
+                    const mapped = normalizeActionLabel(raw);
+                    if (!mapped) return;
+
+                    const iconClass = actionIcons[mapped] || 'bi-circle';
+                    const hasIcon = !!el.querySelector('i.bi');
+
+                    if (!hasIcon) {
+                        const icon = document.createElement('i');
+                        icon.className = `bi ${iconClass}`;
+                        icon.setAttribute('aria-hidden', 'true');
+                        el.prepend(icon);
+                    } else {
+                        const icon = el.querySelector('i.bi');
+                        if (icon) icon.className = `bi ${iconClass}`;
+                    }
+
+                    // keep short text for clarity, icon first
+                    const iconEl = el.querySelector('i.bi');
+                    if (iconEl) {
+                        const labelSpan = document.createElement('span');
+                        labelSpan.className = 'btn-label-text';
+                        labelSpan.textContent = ` ${mapped}`;
+                        el.innerHTML = '';
+                        el.appendChild(iconEl);
+                        el.appendChild(labelSpan);
+                    } else {
+                        const icon = document.createElement('i');
+                        icon.className = `bi ${iconClass}`;
+                        icon.setAttribute('aria-hidden', 'true');
+                        const labelSpan = document.createElement('span');
+                        labelSpan.className = 'btn-label-text';
+                        labelSpan.textContent = ` ${mapped}`;
+                        el.innerHTML = '';
+                        el.appendChild(icon);
+                        el.appendChild(labelSpan);
+                    }
+
+                    const compactEligible =
+                        el.classList.contains('btn-sm') ||
+                        el.classList.contains('action-btn') ||
+                        el.classList.contains('comment-action-btn') ||
+                        el.classList.contains('add-comment-btn') ||
+                        el.classList.contains('mobile-action-btn') ||
+                        el.classList.contains('sidebar-see-all');
+
+                    if (compactEligible) {
+                        el.classList.add('mobile-icon-only');
+                        if (!el.getAttribute('title')) el.setAttribute('title', mapped);
+                        el.setAttribute('aria-label', mapped);
+                    }
+
+                    el.dataset.iconized = '1';
+                });
+            }
+        } catch (err) {
+            console.warn('Runtime i18n map failed:', err);
+        }
+    }
+
     function getCookie(name) {
         const value = `; ${document.cookie}`;
         const parts = value.split(`; ${name}=`);
@@ -2212,7 +2957,8 @@
                 addMessage('Kuna hitilafu ya mtandao. Tafadhali jaribu tena.', 'bot');
             } finally {
                 send.disabled = false;
-                send.textContent = 'Tuma';
+                const lang = (document.documentElement.lang || '').toLowerCase();
+                send.textContent = lang.startsWith('en') ? 'Send' : 'Tuma';
             }
         }
 
@@ -2357,12 +3103,30 @@
     }
 
     document.addEventListener('DOMContentLoaded', function () {
+        applyRuntimeTranslations();
         const current = document.documentElement.getAttribute('data-theme') || 'light';
         applyThemeIcon(current);
         syncMobileSystemBars(current);
         document.querySelectorAll('[data-theme-toggle]').forEach((btn) => {
             btn.addEventListener('click', toggleTheme);
         });
+
+            // ── Language switcher toggle ───────────────────────────
+            [['afyaLangToggle','afyaLangMenu'], ['afyaLangToggleMobile','afyaLangMenuMobile']].forEach(([btnId, menuId]) => {
+                const btn = document.getElementById(btnId);
+                const menu = document.getElementById(menuId);
+                if (!btn || !menu) return;
+                btn.addEventListener('click', (e) => {
+                    e.stopPropagation();
+                    const isOpen = menu.classList.toggle('open');
+                    btn.setAttribute('aria-expanded', isOpen ? 'true' : 'false');
+                });
+            });
+            document.addEventListener('click', () => {
+                document.querySelectorAll('.afya-lang-menu.open').forEach(m => m.classList.remove('open'));
+            });
+            // ─────────────────────────────────────────────────────────
+
         document.querySelectorAll('[data-global-back]').forEach((btn) => {
             btn.addEventListener('click', () => {
                 if (window.history.length > 1) {
@@ -2655,6 +3419,167 @@
             if (submitter) submitter.disabled = false;
         }
     }, true);
+
+    {% if user.is_authenticated %}
+    const globalCallInboxUrl = "{% url 'chats:conversation_call_inbox' %}";
+    const conversationTemplateUrl = "{% url 'chats:conversation_detail' 0 %}";
+    const isConversationPage = /\/social\/conversation\/\d+\//.test(window.location.pathname);
+    const seenGlobalCalls = new Set();
+    let globalCallPollTimer = null;
+    let globalRingCtx = null;
+    let globalRingTimer = null;
+    let globalIncomingBanner = null;
+
+    function ensureGlobalBanner() {
+        if (globalIncomingBanner) return globalIncomingBanner;
+        const el = document.createElement('div');
+        el.id = 'globalIncomingCallBanner';
+        el.style.cssText = [
+            'position:fixed',
+            'left:12px',
+            'right:12px',
+            'bottom:calc(14px + env(safe-area-inset-bottom))',
+            'z-index:20000',
+            'display:none',
+            'align-items:center',
+            'justify-content:space-between',
+            'gap:.7rem',
+            'padding:.8rem .9rem',
+            'border-radius:14px',
+            'background:var(--card-bg)',
+            'border:1px solid var(--line-soft)',
+            'box-shadow:var(--shadow-soft)',
+        ].join(';');
+        el.innerHTML = `
+            <div style="min-width:0;display:flex;flex-direction:column;line-height:1.2;">
+                <strong id="globalIncomingCallTitle" style="font-size:.88rem;">Incoming call</strong>
+                <span id="globalIncomingCallText" style="font-size:.74rem;color:var(--text-muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;"></span>
+            </div>
+            <div style="display:inline-flex;gap:.45rem;flex-shrink:0;">
+                <button type="button" id="globalIncomingCallOpen" class="btn btn-sm btn-danger">Open</button>
+                <button type="button" id="globalIncomingCallDismiss" class="btn btn-sm btn-outline-secondary">Dismiss</button>
+            </div>
+        `;
+        document.body.appendChild(el);
+        globalIncomingBanner = el;
+        return el;
+    }
+
+    function globalRingPulse() {
+        try {
+            if (!globalRingCtx || globalRingCtx.state === 'closed') {
+                globalRingCtx = new (window.AudioContext || window.webkitAudioContext)();
+            }
+            if (globalRingCtx.state === 'suspended') {
+                globalRingCtx.resume().catch(() => {});
+            }
+            const osc = globalRingCtx.createOscillator();
+            const gain = globalRingCtx.createGain();
+            osc.type = 'triangle';
+            osc.frequency.value = 784;
+            gain.gain.value = 0.0001;
+            osc.connect(gain);
+            gain.connect(globalRingCtx.destination);
+            const now = globalRingCtx.currentTime;
+            gain.gain.exponentialRampToValueAtTime(0.05, now + 0.02);
+            gain.gain.exponentialRampToValueAtTime(0.0001, now + 0.27);
+            osc.start(now);
+            osc.stop(now + 0.29);
+        } catch (e) {}
+    }
+
+    function startGlobalRing() {
+        stopGlobalRing();
+        globalRingPulse();
+        globalRingTimer = setInterval(globalRingPulse, 1100);
+    }
+
+    function stopGlobalRing() {
+        if (globalRingTimer) {
+            clearInterval(globalRingTimer);
+            globalRingTimer = null;
+        }
+    }
+
+    function showGlobalIncomingCall(eventPayload) {
+        const banner = ensureGlobalBanner();
+        const title = banner.querySelector('#globalIncomingCallTitle');
+        const text = banner.querySelector('#globalIncomingCallText');
+        const openBtn = banner.querySelector('#globalIncomingCallOpen');
+        const dismissBtn = banner.querySelector('#globalIncomingCallDismiss');
+
+        title.textContent = eventPayload.call_mode === 'video' ? 'Incoming video call' : 'Incoming voice call';
+        text.textContent = `${eventPayload.sender_name || 'Someone'} is calling you now.`;
+        banner.style.display = 'flex';
+
+        const targetUrl = conversationTemplateUrl.replace('/0/', `/${eventPayload.conversation_id}/`);
+        openBtn.onclick = () => {
+            stopGlobalRing();
+            banner.style.display = 'none';
+            window.location.href = targetUrl;
+        };
+        dismissBtn.onclick = () => {
+            stopGlobalRing();
+            banner.style.display = 'none';
+        };
+
+        if ('Notification' in window && Notification.permission === 'granted') {
+            try {
+                const n = new Notification(title.textContent, {
+                    body: text.textContent,
+                    tag: `global-call-${eventPayload.call_id}`,
+                    requireInteraction: true,
+                });
+                n.onclick = () => {
+                    window.focus();
+                    window.location.href = targetUrl;
+                };
+            } catch (e) {}
+        }
+
+        startGlobalRing();
+    }
+
+    async function pollGlobalCallInbox() {
+        try {
+            const res = await fetch(globalCallInboxUrl, {
+                credentials: 'same-origin',
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            });
+            const data = await res.json().catch(() => ({}));
+            if (res.ok && data.ok && Array.isArray(data.events)) {
+                data.events.forEach((ev) => {
+                    if (!ev || !ev.call_id) return;
+                    if (seenGlobalCalls.has(ev.call_id)) return;
+                    seenGlobalCalls.add(ev.call_id);
+                    if (ev.event === 'call_invite') {
+                        showGlobalIncomingCall(ev);
+                    }
+                    if (ev.event === 'call_end' || ev.event === 'call_reject' || ev.event === 'call_busy') {
+                        stopGlobalRing();
+                        if (globalIncomingBanner) globalIncomingBanner.style.display = 'none';
+                    }
+                });
+                if (seenGlobalCalls.size > 100) {
+                    seenGlobalCalls.clear();
+                }
+            }
+        } catch (e) {}
+        finally {
+            globalCallPollTimer = setTimeout(pollGlobalCallInbox, 2000);
+        }
+    }
+
+    document.addEventListener('click', () => {
+        if ('Notification' in window && Notification.permission === 'default') {
+            Notification.requestPermission().catch(() => {});
+        }
+    }, { once: true });
+
+    if (!isConversationPage) {
+        pollGlobalCallInbox();
+    }
+    {% endif %}
 
     /* ── Global Loading Animation Control (Disabled) ── */
     window.GlobalLoading = {

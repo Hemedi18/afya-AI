@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load i18n chats_media %}
 
 {% block content %}
 <style>
@@ -794,6 +795,146 @@
     color: var(--text-muted);
 }
 
+/* ── Groups page (Facebook-like layout) ── */
+.groups-fb-shell {
+    display: grid;
+    grid-template-columns: 1fr 340px;
+    gap: 1rem;
+    align-items: start;
+}
+.groups-fb-main,
+.groups-fb-side {
+    background: var(--card-bg);
+    border: 1px solid var(--line-soft);
+    border-radius: 16px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.06);
+}
+.groups-fb-main { padding: .95rem; }
+.groups-fb-side {
+    padding: .95rem;
+    position: sticky;
+    top: .8rem;
+}
+.groups-fb-head {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .6rem;
+    margin-bottom: .8rem;
+}
+.groups-fb-head h5 {
+    font-size: 1rem;
+    font-weight: 900;
+    margin: 0;
+}
+.groups-fb-sub {
+    color: var(--text-muted);
+    font-size: .82rem;
+}
+.groups-fb-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: .85rem;
+}
+.groups-fb-card {
+    border: 1px solid var(--line-soft);
+    border-radius: 14px;
+    overflow: hidden;
+    background: color-mix(in srgb, var(--card-bg) 92%, var(--app-bg));
+    transition: transform .18s ease, box-shadow .18s ease, border-color .18s ease;
+}
+.groups-fb-card:hover {
+    transform: translateY(-2px);
+    border-color: color-mix(in srgb, var(--primary) 36%, var(--line-soft));
+    box-shadow: 0 10px 26px rgba(0,0,0,.08);
+}
+.groups-fb-cover {
+    width: 100%;
+    aspect-ratio: 16 / 9;
+    object-fit: cover;
+    display: block;
+    background: color-mix(in srgb, var(--primary) 14%, var(--card-bg));
+}
+.groups-fb-body { padding: .65rem .72rem .72rem; }
+.groups-fb-name {
+    display: block;
+    text-decoration: none;
+    color: var(--text-main);
+    font-size: .88rem;
+    font-weight: 800;
+    line-height: 1.35;
+    margin-bottom: .2rem;
+}
+.groups-fb-name:hover { color: var(--primary); }
+.groups-fb-meta {
+    color: var(--text-muted);
+    font-size: .76rem;
+    margin-bottom: .55rem;
+}
+.groups-fb-actions {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: .45rem;
+}
+.groups-fb-join,
+.groups-fb-open {
+    border: 1px solid var(--line-soft);
+    border-radius: 10px;
+    font-size: .76rem;
+    font-weight: 800;
+    padding: .34rem .62rem;
+    text-decoration: none;
+}
+.groups-fb-join {
+    background: color-mix(in srgb, var(--primary) 92%, #fff 8%);
+    color: #fff;
+    border-color: color-mix(in srgb, var(--primary) 42%, var(--line-soft));
+}
+.groups-fb-join:hover { opacity: .9; }
+.groups-fb-open {
+    color: var(--text-main);
+    background: color-mix(in srgb, var(--card-bg) 88%, var(--app-bg));
+}
+.groups-fb-open:hover {
+    border-color: var(--primary);
+    color: var(--primary);
+}
+.groups-fb-create-title {
+    font-size: .92rem;
+    font-weight: 900;
+    margin: 0 0 .2rem;
+}
+.groups-fb-create-copy {
+    color: var(--text-muted);
+    font-size: .78rem;
+    margin-bottom: .75rem;
+}
+.groups-fb-side .form-control,
+.groups-fb-side .form-select,
+.groups-fb-side textarea {
+    border-radius: 10px;
+}
+.groups-fb-side .add-comment-btn {
+    border-radius: 10px;
+    width: 100%;
+    justify-content: center;
+}
+
+@media (max-width: 991px) {
+    .groups-fb-shell {
+        grid-template-columns: 1fr;
+    }
+    .groups-fb-side {
+        position: static;
+    }
+}
+@media (max-width: 640px) {
+    .groups-fb-grid {
+        grid-template-columns: 1fr;
+    }
+}
+
 /* ── Notifications ── */
 .notif-row {
     display: flex; align-items: flex-start; gap: .65rem;
@@ -1408,20 +1549,20 @@
 <div class="community-shell {% if active_section != 'posts' %}community-shell-free{% endif %}">
     <div class="community-hero{% if is_regular_user %} d-none{% endif %}">
         <div class="community-hero-bar">
-            <div class="hero-title"><i class="bi bi-flower1 me-1"></i>Jamii ya Afya ya {{ community_gender_label }}</div>
+            <div class="hero-title"><i class="bi bi-flower1 me-1"></i>{% blocktrans trimmed with gender_label=community_gender_label %}Jamii ya Afya ya {{ gender_label }}{% endblocktrans %}</div>
             <div class="community-chip-scroll d-flex gap-2 flex-wrap align-items-center">
                 {% if is_moderator_user %}<span class="badge rounded-pill" style="background:color-mix(in srgb,#f59e0b 18%,var(--card-bg));color:#f59e0b;border:1px solid #f59e0b66;">Moderator</span>{% endif %}
                 {% if is_admin_user %}<span class="badge rounded-pill" style="background:color-mix(in srgb,#ef4444 14%,var(--card-bg));color:#ef4444;border:1px solid #ef444466;">Admin</span>{% endif %}
                 <div class="community-chip-row">
-                    <a href="{% url 'chats:feed' %}" data-community-partial="true" class="community-chip {% if not active_section %}chip-active{% endif %}"><i class="bi bi-house-heart"></i> Home</a>
-                    <a href="{% url 'chats:feed_groups' %}" data-community-partial="true" class="community-chip {% if active_section == 'groups' %}chip-active{% endif %}"><i class="bi bi-people-fill"></i> Groups</a>
-                    <a href="{% url 'chats:feed_posts' %}" data-community-partial="true" class="community-chip {% if active_section == 'posts' %}chip-active{% endif %}"><i class="bi bi-card-text"></i> Posts</a>
-                    <a href="{% url 'chats:post_create' %}{% if selected_group %}?group={{ selected_group.id }}{% endif %}" class="community-chip"><i class="bi bi-plus-circle-fill"></i> Add Post</a>
-                    <a href="{% url 'chats:feed_status' %}" data-community-partial="true" class="community-chip {% if active_section == 'status' %}chip-active{% endif %}"><i class="bi bi-broadcast"></i> Status</a>
-                    <a href="{% url 'chats:feed_private' %}" data-community-partial="true" class="community-chip {% if active_section == 'private' %}chip-active{% endif %}"><i class="bi bi-lock-fill"></i> Private</a>
-                    <a href="{% url 'chats:notifications' %}" class="community-chip"><i class="bi bi-bell-fill"></i> Notifications</a>
-                    {% if is_moderator_user or is_admin_user %}<a href="{% url 'chats:moderator_dashboard' %}" class="community-chip"><i class="bi bi-shield-fill-exclamation"></i> Moderator</a>{% endif %}
-                    {% if is_admin_user or is_doctor_user %}<a href="{% url 'chats:clarification_inbox' %}" class="community-chip"><i class="bi bi-patch-question-fill"></i> Clarifications</a>{% endif %}
+                    <a href="{% url 'chats:feed' %}" data-community-partial="true" class="community-chip {% if not active_section %}chip-active{% endif %}"><i class="bi bi-house-heart"></i> {% trans "Home" %}</a>
+                    <a href="{% url 'chats:feed_groups' %}" data-community-partial="true" class="community-chip {% if active_section == 'groups' %}chip-active{% endif %}"><i class="bi bi-people-fill"></i> {% trans "Groups" %}</a>
+                    <a href="{% url 'chats:feed_posts' %}" data-community-partial="true" class="community-chip {% if active_section == 'posts' %}chip-active{% endif %}"><i class="bi bi-card-text"></i> {% trans "Posts" %}</a>
+                    <a href="{% url 'chats:post_create' %}{% if selected_group %}?group={{ selected_group.id }}{% endif %}" class="community-chip"><i class="bi bi-plus-circle-fill"></i> {% trans "Add Post" %}</a>
+                    <a href="{% url 'chats:feed_status' %}" data-community-partial="true" class="community-chip {% if active_section == 'status' %}chip-active{% endif %}"><i class="bi bi-broadcast"></i> {% trans "Status" %}</a>
+                    <a href="{% url 'chats:feed_private' %}" data-community-partial="true" class="community-chip {% if active_section == 'private' %}chip-active{% endif %}"><i class="bi bi-lock-fill"></i> {% trans "Private" %}</a>
+                    <a href="{% url 'chats:notifications' %}" class="community-chip"><i class="bi bi-bell-fill"></i> {% trans "Notifications" %}</a>
+                    {% if is_moderator_user or is_admin_user %}<a href="{% url 'chats:moderator_dashboard' %}" class="community-chip"><i class="bi bi-shield-fill-exclamation"></i> {% trans "Moderator" %}</a>{% endif %}
+                    {% if is_admin_user or is_doctor_user %}<a href="{% url 'chats:clarification_inbox' %}" class="community-chip"><i class="bi bi-patch-question-fill"></i> {% trans "Clarifications" %}</a>{% endif %}
                 </div>
             </div>
         </div>
@@ -1434,72 +1575,87 @@
     <div class="section-hero d-flex align-items-center gap-2">
         <i class="bi bi-people-fill fs-4" style="color:var(--primary);"></i>
         <div>
-            <div class="fw-bold">Groups</div>
-            <div class="small text-muted">Chagua au tengeneza group yako</div>
+            <div class="fw-bold">{% trans "Groups" %}</div>
+            <div class="small text-muted">{% trans "Chagua au tengeneza group yako" %}</div>
         </div>
     </div>
-    <div class="c-card">
-        <div class="c-card-body">
-            <div class="group-inline-grid mb-3">
+    <div class="groups-fb-shell">
+        <section class="groups-fb-main">
+            <div class="groups-fb-head">
+                <div>
+                    <h5><i class="bi bi-collection-fill me-1"></i>{% trans "Discover Groups" %}</h5>
+                    <div class="groups-fb-sub">{% trans "Jiunge na vikundi vinavyolingana na afya na maslahi yako." %}</div>
+                </div>
+                <div class="d-flex align-items-center gap-2">
+                    <span class="badge rounded-pill text-bg-light border">{{ groups|length }} {% trans "groups" %}</span>
+                    <a href="{% url 'chats:group_add' %}" class="groups-fb-open"><i class="bi bi-plus-circle me-1"></i>{% trans "Add Group" %}</a>
+                </div>
+            </div>
+
+            <div class="groups-fb-grid">
                 {% for group in groups %}
-                <article class="group-preview-card {% if selected_group and selected_group.id == group.id %}border-primary{% endif %}">
+                <article class="groups-fb-card {% if selected_group and selected_group.id == group.id %}border-primary{% endif %}">
                     <a href="{% url 'chats:group_detail' group.id %}">
                         {% if group.image %}
-                        <img src="{{ group.image.url }}" alt="{{ group.name }}" class="group-preview-image">
+                        <img src="{{ group.image|safe_media_url }}" alt="{{ group.name }}" class="groups-fb-cover">
                         {% else %}
-                        <img src="https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&w=900&q=80" alt="{{ group.name }}" class="group-preview-image">
+                        <img src="https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&w=900&q=80" alt="{{ group.name }}" class="groups-fb-cover">
                         {% endif %}
                     </a>
-                    <div class="group-preview-body">
-                        <a href="{% url 'chats:group_detail' group.id %}" class="group-preview-name">{{ group.name }}</a>
-                        <div class="group-preview-row">
-                            <span class="group-preview-members">{{ group.members.count }} followers</span>
+                    <div class="groups-fb-body">
+                        <a href="{% url 'chats:group_detail' group.id %}" class="groups-fb-name">{{ group.name }}</a>
+                        <div class="groups-fb-meta">{{ group.members.count }} {% trans "followers" %} • {{ group.audience_gender|title }}</div>
+                        <div class="groups-fb-actions">
                             {% if group.id not in my_group_ids %}
                             <form method="post" action="{% url 'chats:group_join' group.id %}" class="d-inline js-partial-submit">
                                 {% csrf_token %}
-                                <button class="comment-action-btn" type="submit"><i class="bi bi-plus-circle"></i> Join</button>
+                                <button class="groups-fb-join" type="submit"><i class="bi bi-plus-circle me-1"></i>{% trans "Join Group" %}</button>
                             </form>
                             {% else %}
-                            <a href="{% url 'chats:group_detail' group.id %}" class="comment-action-btn">Fungua</a>
+                            <a href="{% url 'chats:group_detail' group.id %}" class="groups-fb-open"><i class="bi bi-door-open me-1"></i>{% trans "Open Group" %}</a>
                             {% endif %}
+                            <a href="{% url 'chats:feed' %}?group={{ group.id }}" class="groups-fb-open"><i class="bi bi-grid me-1"></i>{% trans "View Feed" %}</a>
                         </div>
                     </div>
                 </article>
                 {% empty %}
-                <span class="text-muted small">Hakuna groups bado.</span>
+                <div class="text-muted small">{% trans "Hakuna groups bado." %}</div>
                 {% endfor %}
             </div>
-            <hr style="border-color:var(--line-soft);opacity:.6;">
-            <div class="fw-bold mb-2 small"><i class="bi bi-plus-lg" style="color:var(--primary);"></i> Tengeneza Group Mpya</div>
+        </section>
+
+        <aside class="groups-fb-side">
+            <h6 class="groups-fb-create-title"><i class="bi bi-plus-lg me-1" style="color:var(--primary);"></i>{% trans "Tengeneza Group Mpya" %}</h6>
+            <div class="groups-fb-create-copy">{% trans "Andika jina na maelezo mafupi, kisha tengeneza group lako." %}</div>
             <form method="post" action="{% url 'chats:group_create' %}" enctype="multipart/form-data" class="row g-2 js-partial-submit" id="create-group-form">
                 {% csrf_token %}
-                <div class="col-12 col-md-5">{{ group_form.name }}</div>
-                <div class="col-12 col-md-5">{{ group_form.description }}</div>
-                <div class="col-12 col-md-2 d-grid">
-                    <button class="add-comment-btn" style="border-radius:12px;padding:.55rem .9rem;" type="submit">Tengeneza</button>
-                </div>
-                <div class="col-12 col-md-6">
+                <div class="col-12">{{ group_form.name }}</div>
+                <div class="col-12">{{ group_form.description }}</div>
+                <div class="col-12">
                     {{ group_form.image }}
-                    <div class="small text-muted mt-1">Picha ya group inapendekezwa (si lazima).</div>
+                    <div class="small text-muted mt-1">{% trans "Picha ya group inapendekezwa (si lazima)." %}</div>
                 </div>
-                <div class="col-12 col-md-6 d-flex align-items-center gap-3 flex-wrap">
-                    <label class="d-inline-flex align-items-center gap-2 small">{{ group_form.require_join_approval }} <span>Ruhusu kwa idhini kwa wanachama wapya</span></label>
-                    <label class="d-inline-flex align-items-center gap-2 small">{{ group_form.send_admin_preview }} <span>Tuma kwa uhakiki wa admin</span></label>
+                <div class="col-12 d-flex align-items-center gap-3 flex-wrap">
+                    <label class="d-inline-flex align-items-center gap-2 small">{{ group_form.require_join_approval }} <span>{% trans "Ruhusu kwa idhini kwa wanachama wapya" %}</span></label>
+                    <label class="d-inline-flex align-items-center gap-2 small">{{ group_form.send_admin_preview }} <span>{% trans "Tuma kwa uhakiki wa admin" %}</span></label>
                 </div>
                 <div class="col-12">{{ group_form.preview_note }}</div>
+                <div class="col-12 d-grid">
+                    <button class="add-comment-btn" style="padding:.6rem .95rem;" type="submit"><i class="bi bi-plus-circle me-1"></i>{% trans "Tengeneza" %}</button>
+                </div>
             </form>
-        </div>
+        </aside>
     </div>
 
     {% elif active_section == 'status' %}
     <div class="section-hero d-flex align-items-center gap-2">
         <i class="bi bi-broadcast fs-4" style="color:var(--primary);"></i>
         <div>
-            <div class="fw-bold">Status (24h)</div>
-            <div class="small text-muted">Stories za wanajamii leo</div>
+            <div class="fw-bold">{% trans "Status (24h)" %}</div>
+            <div class="small text-muted">{% trans "Stories za wanajamii leo" %}</div>
         </div>
         <a href="{% url 'chats:status_new' %}{% if selected_group %}?group={{ selected_group.id }}{% endif %}" class="action-btn ms-auto">
-            <i class="bi bi-plus-circle-fill"></i> Ongeza Status
+            <i class="bi bi-plus-circle-fill"></i> {% trans "Ongeza Status" %}
         </a>
     </div>
 
@@ -1512,7 +1668,7 @@
                     <div class="story-ring">
                         <div class="story-ring-inner">
                             {% if st.image %}
-                            <img src="{{ st.image.url }}" alt="status">
+                            <img src="{{ st.image|safe_media_url }}" alt="status">
                             {% else %}
                             {{ st.user.username|first|upper }}
                             {% endif %}
@@ -1537,16 +1693,18 @@
                     </div>
                     <div class="comment-text">{{ st.content }}</div>
                     {% if st.image %}
-                    <img src="{{ st.image.url }}" class="img-fluid rounded-3 mt-2" alt="status image" style="max-height:200px;object-fit:cover;">
+                    <img src="{{ st.image|safe_media_url }}" class="img-fluid rounded-3 mt-2" alt="status image" style="max-height:200px;object-fit:cover;">
                     <div class="mt-1">
+                        {% if st.image|media_exists %}
                         <a href="{{ st.image.url }}" download class="btn btn-sm btn-outline-dark rounded-pill d-inline-flex align-items-center gap-2"><i class="bi bi-download"></i><span>Hifadhi picha</span></a>
+                        {% endif %}
                     </div>
                     {% endif %}
                 </div>
             </div>
             {% empty %}
             <div class="col-12">
-                <div class="text-muted small text-center py-3">Hakuna status kwa sasa.</div>
+                <div class="text-muted small text-center py-3">{% trans "Hakuna status kwa sasa." %}</div>
             </div>
             {% endfor %}
             </div>
@@ -1557,8 +1715,8 @@
     <div class="section-hero d-flex align-items-center gap-2">
         <i class="bi bi-lock-fill fs-4" style="color:var(--primary);"></i>
         <div>
-            <div class="fw-bold">Machapisho &amp; Maoni Yote</div>
-            <div class="small text-muted">Muonekano wa posts na comments zote</div>
+            <div class="fw-bold">{% trans "Machapisho & Maoni Yote" %}</div>
+            <div class="small text-muted">{% trans "Muonekano wa posts na comments zote" %}</div>
         </div>
     </div>
     <div id="social-private">
@@ -1570,10 +1728,10 @@
                         {% if post.is_anonymous %}?{% else %}{{ post.user.username|first|upper }}{% endif %}
                     </div>
                     <div>
-                        <div class="fw-bold small">{% if post.is_anonymous %}Mwanajamii asiyejulikana{% else %}{{ post.user.username }}{% endif %}</div>
+                        <div class="fw-bold small">{% if post.is_anonymous %}{% trans "Mwanajamii asiyejulikana" %}{% else %}{{ post.user.username }}{% endif %}</div>
                         <div class="post-meta">
                             {{ post.created_at|timesince }} iliyopita
-                            <span class="post-source-pill"><i class="bi bi-broadcast-pin"></i>Chanzo: {% if post.is_anonymous %}Haijulikani{% else %}{{ post.user.username }}{% endif %}</span>
+                                <span class="post-source-pill"><i class="bi bi-broadcast-pin"></i>{% trans "Chanzo:" %} {% if post.is_anonymous %}{% trans "Haijulikani" %}{% else %}{{ post.user.username }}{% endif %}</span>
                             {% if post.groups.all %}
                                 {% for group in post.groups.all %}
                                     <a href="{% url 'chats:group_detail' group.id %}" class="post-group-tag post-group-link"><i class="bi bi-people-fill"></i>{{ group.name }}</a>
@@ -1584,7 +1742,7 @@
                         </div>
                     </div>
                 </div>
-                <a href="{% url 'chats:post_detail' post.id %}" class="action-btn" style="font-size:.76rem;"><i class="bi bi-box-arrow-up-right"></i> Fungua</a>
+                <a href="{% url 'chats:post_detail' post.id %}" class="action-btn" style="font-size:.76rem;"><i class="bi bi-box-arrow-up-right"></i> {% trans "Fungua" %}</a>
             </div>
             <div class="post-body mb-2">{{ post.content|safe }}</div>
             {% url 'chats:post_detail' post.id as post_detail_url %}
@@ -1608,7 +1766,7 @@
                                 <input type="hidden" name="next" value="{{ request.get_full_path }}">
                                 <input type="hidden" name="parent_id" value="{{ reply.id }}">
                                 <div class="add-comment-row" style="border-radius:12px;">
-                                    <input type="text" name="content" class="add-comment-input" placeholder="Jibu..." required autocomplete="off">
+                                    <input type="text" name="content" class="add-comment-input" placeholder="{% trans 'Jibu...' %}" required autocomplete="off">
                                     <button class="add-comment-btn" type="submit" style="font-size:.78rem;"><i class="bi bi-reply"></i></button>
                                 </div>
                             </form>
@@ -1619,7 +1777,7 @@
                     </div>
                     {% endif %}
                 {% empty %}
-                <div class="small text-muted">Hakuna comments bado.</div>
+                <div class="small text-muted">{% trans "Hakuna comments bado." %}</div>
                 {% endfor %}
             </div>
             <div class="add-comment-wrap mt-2">
@@ -1627,14 +1785,14 @@
                     {% csrf_token %}
                     <input type="hidden" name="next" value="{{ request.get_full_path }}">
                     <div class="add-comment-row" style="border-radius:12px;">
-                        <input type="text" name="content" class="add-comment-input" placeholder="Andika comment..." autocomplete="off">
-                        <button class="add-comment-btn" type="submit" style="font-size:.78rem;">Tuma</button>
+                        <input type="text" name="content" class="add-comment-input" placeholder="{% trans 'Andika comment...' %}" autocomplete="off">
+                        <button class="add-comment-btn" type="submit" style="font-size:.78rem;">{% trans "Tuma" %}</button>
                     </div>
                 </form>
             </div>
         </div>
         {% empty %}
-        <div class="c-card c-card-body text-center text-muted">Hakuna posts kwa sasa.</div>
+        <div class="c-card c-card-body text-center text-muted">{% trans "Hakuna posts kwa sasa." %}</div>
         {% endfor %}
     </div>
 
@@ -1646,12 +1804,12 @@
             {% if is_regular_user %}
             <div class="sidebar-card sidebar-clickable" id="social-chat" data-sidebar-link="{% url 'chats:feed_status' %}" data-community-partial="true">
                 <div class="sidebar-card-head">
-                    <h6><i class="bi bi-broadcast" style="color:var(--primary);"></i> Status (24h)</h6>
-                    <a href="{% url 'chats:feed_status' %}" data-community-partial="true" class="sidebar-see-all"><i class="bi bi-broadcast"></i> <span>All</span></a>
+                    <h6><i class="bi bi-broadcast" style="color:var(--primary);"></i> {% trans "Status (24h)" %}</h6>
+                    <a href="{% url 'chats:feed_status' %}" data-community-partial="true" class="sidebar-see-all"><i class="bi bi-broadcast"></i> <span>{% trans "All" %}</span></a>
                 </div>
                 <div class="sidebar-card-body">
                     <a href="{% url 'chats:status_new' %}{% if selected_group %}?group={{ selected_group.id }}{% endif %}" class="action-btn w-100 justify-content-center mb-2">
-                        <i class="bi bi-plus-circle-fill"></i> Add Status
+                        <i class="bi bi-plus-circle-fill"></i> {% trans "Add Status" %}
                     </a>
                     {% if statuses %}
                     <div class="story-row mb-2">
@@ -1659,7 +1817,7 @@
                         <a href="{% url 'chats:status_detail' st.id %}" class="story-item status-click-link">
                             <div class="story-ring">
                                 <div class="story-ring-inner">
-                                    {% if st.image %}<img src="{{ st.image.url }}" alt="">{% else %}{{ st.user.username|first|upper }}{% endif %}
+                                    {% if st.image %}<img src="{{ st.image|safe_media_url }}" alt="">{% else %}{{ st.user.username|first|upper }}{% endif %}
                                 </div>
                             </div>
                             <div class="story-name">{{ st.user.username }}</div>
@@ -1677,7 +1835,7 @@
                             </div>
                         </a>
                         {% empty %}
-                        <span class="text-muted small">Hakuna status.</span>
+                        <span class="text-muted small">{% trans "Hakuna status." %}</span>
                         {% endfor %}
                     </div>
                 </div>
@@ -1687,8 +1845,8 @@
             <!-- Groups -->
             <div class="sidebar-card sidebar-clickable" data-sidebar-link="{% url 'chats:feed_groups' %}" data-community-partial="true">
                 <div class="sidebar-card-head">
-                    <h6><i class="bi bi-people-fill" style="color:var(--primary);"></i> Groups</h6>
-                    <a href="{% url 'chats:feed_groups' %}" data-community-partial="true" class="sidebar-see-all"><i class="bi bi-grid"></i> <span>All</span></a>
+                    <h6><i class="bi bi-people-fill" style="color:var(--primary);"></i> {% trans "Groups" %}</h6>
+                    <a href="{% url 'chats:feed_groups' %}" data-community-partial="true" class="sidebar-see-all"><i class="bi bi-grid"></i> <span>{% trans "All" %}</span></a>
                 </div>
                 <div class="sidebar-card-body">
                     <div class="d-flex flex-wrap gap-2 mb-3">
@@ -1703,7 +1861,7 @@
                             </form>
                             {% endif %}
                         {% empty %}
-                        <span class="text-muted small">Hakuna groups bado.</span>
+                        <span class="text-muted small">{% trans "Hakuna groups bado." %}</span>
                         {% endfor %}
                     </div>
                     <form method="post" action="{% url 'chats:group_create' %}" enctype="multipart/form-data" class="row g-2 js-partial-submit">
@@ -1712,13 +1870,13 @@
                         <div class="col-12">{{ group_form.description }}</div>
                         <div class="col-12">
                             {{ group_form.image }}
-                            <div class="small text-muted mt-1">Picha ya group inapendekezwa (si lazima).</div>
+                            <div class="small text-muted mt-1">{% trans "Picha ya group inapendekezwa (si lazima)." %}</div>
                         </div>
-                        <div class="col-12 small d-flex align-items-center gap-2">{{ group_form.require_join_approval }} <span>Require approval</span></div>
-                        <div class="col-12 small d-flex align-items-center gap-2">{{ group_form.send_admin_preview }} <span>Send admin preview</span></div>
+                        <div class="col-12 small d-flex align-items-center gap-2">{{ group_form.require_join_approval }} <span>{% trans "Require approval" %}</span></div>
+                        <div class="col-12 small d-flex align-items-center gap-2">{{ group_form.send_admin_preview }} <span>{% trans "Send admin preview" %}</span></div>
                         <div class="col-12">{{ group_form.preview_note }}</div>
                         <div class="col-12 d-grid">
-                            <button class="add-comment-btn" style="border-radius:12px;padding:.55rem;" type="submit"><i class="bi bi-plus-lg"></i> Add Group</button>
+                            <button class="add-comment-btn" style="border-radius:12px;padding:.55rem;" type="submit"><i class="bi bi-plus-lg"></i> {% trans "Add Group" %}</button>
                         </div>
                     </form>
                 </div>
@@ -1727,12 +1885,12 @@
             <!-- Status -->
             <div class="sidebar-card sidebar-clickable" id="social-chat" data-sidebar-link="{% url 'chats:feed_status' %}" data-community-partial="true">
                 <div class="sidebar-card-head">
-                    <h6><i class="bi bi-broadcast" style="color:var(--primary);"></i> Status (24h)</h6>
-                    <a href="{% url 'chats:feed_status' %}" data-community-partial="true" class="sidebar-see-all"><i class="bi bi-broadcast"></i> <span>All</span></a>
+                    <h6><i class="bi bi-broadcast" style="color:var(--primary);"></i> {% trans "Status (24h)" %}</h6>
+                    <a href="{% url 'chats:feed_status' %}" data-community-partial="true" class="sidebar-see-all"><i class="bi bi-broadcast"></i> <span>{% trans "All" %}</span></a>
                 </div>
                 <div class="sidebar-card-body">
                     <a href="{% url 'chats:status_new' %}{% if selected_group %}?group={{ selected_group.id }}{% endif %}" class="action-btn w-100 justify-content-center mb-2">
-                        <i class="bi bi-plus-circle-fill"></i> Add Status
+                        <i class="bi bi-plus-circle-fill"></i> {% trans "Add Status" %}
                     </a>
                     {% if statuses %}
                     <div class="story-row mb-2">
@@ -1740,7 +1898,7 @@
                         <a href="{% url 'chats:status_detail' st.id %}" class="story-item status-click-link">
                             <div class="story-ring">
                                 <div class="story-ring-inner">
-                                    {% if st.image %}<img src="{{ st.image.url }}" alt="">{% else %}{{ st.user.username|first|upper }}{% endif %}
+                                    {% if st.image %}<img src="{{ st.image|safe_media_url }}" alt="">{% else %}{{ st.user.username|first|upper }}{% endif %}
                                 </div>
                             </div>
                             <div class="story-name">{{ st.user.username }}</div>
@@ -1758,7 +1916,7 @@
                             </div>
                         </a>
                         {% empty %}
-                        <span class="text-muted small">Hakuna status.</span>
+                        <span class="text-muted small">{% trans "Hakuna status." %}</span>
                         {% endfor %}
                     </div>
                 </div>
@@ -1767,10 +1925,10 @@
             <!-- Notifications -->
             <div class="sidebar-card sidebar-clickable" id="social-notifications" data-sidebar-link="{% url 'chats:notifications' %}">
                 <div class="sidebar-card-head">
-                    <h6><i class="bi bi-bell-fill" style="color:var(--primary);"></i> Notifications</h6>
+                    <h6><i class="bi bi-bell-fill" style="color:var(--primary);"></i> {% trans "Notifications" %}</h6>
                     <div class="d-flex align-items-center gap-2">
-                        {% if unread_private_count %}<span class="badge rounded-pill" style="background:#ef4444;color:#fff;font-size:.7rem;">{{ unread_private_count }} new</span>{% endif %}
-                        <a href="{% url 'chats:notifications' %}" class="sidebar-see-all"><i class="bi bi-bell"></i> <span>All</span></a>
+                        {% if unread_private_count %}<span class="badge rounded-pill" style="background:#ef4444;color:#fff;font-size:.7rem;">{{ unread_private_count }} {% trans "new" %}</span>{% endif %}
+                        <a href="{% url 'chats:notifications' %}" class="sidebar-see-all"><i class="bi bi-bell"></i> <span>{% trans "All" %}</span></a>
                     </div>
                 </div>
                 <div class="sidebar-card-body">
@@ -1779,8 +1937,8 @@
                     <div class="notif-row">
                         <div class="notif-icon type-comment"><i class="bi bi-chat-fill"></i></div>
                         <div>
-                            <div class="notif-text"><strong>{{ c.user.username }}</strong> amekomenti post yako</div>
-                            <div class="notif-time">{{ c.created_at|timesince }} ago</div>
+                            <div class="notif-text">{% blocktrans trimmed with username=c.user.username %}<strong>{{ username }}</strong> amekomenti post yako{% endblocktrans %}</div>
+                            <div class="notif-time">{{ c.created_at|timesince }} {% trans "ago" %}</div>
                         </div>
                     </div>
                     {% endfor %}
@@ -1790,8 +1948,8 @@
                     <div class="notif-row">
                         <div class="notif-icon type-clarify"><i class="bi bi-patch-check-fill"></i></div>
                         <div>
-                            <div class="notif-text">Umejibiwa na <strong>{{ item.responded_by.username|default:'staff' }}</strong></div>
-                            <div class="notif-time">{{ item.updated_at|timesince }} ago</div>
+                            <div class="notif-text">{% blocktrans trimmed with username=item.responded_by.username|default:'staff' %}Umejibiwa na <strong>{{ username }}</strong>{% endblocktrans %}</div>
+                            <div class="notif-time">{{ item.updated_at|timesince }} {% trans "ago" %}</div>
                         </div>
                     </div>
                     {% endfor %}
@@ -1807,7 +1965,7 @@
                     {% endfor %}
                     {% endif %}
                     {% if not recent_comment_notifications and not recent_clarification_answers and not recent_report_updates %}
-                    <div class="small text-muted text-center py-2">Hakuna notifications mpya.</div>
+                    <div class="small text-muted text-center py-2">{% trans "Hakuna notifications mpya." %}</div>
                     {% endif %}
                 </div>
             </div>
@@ -1815,7 +1973,7 @@
             <!-- Recent Posts -->
             <div class="sidebar-card sidebar-clickable" data-sidebar-link="{% url 'chats:feed_posts' %}" data-community-partial="true">
                 <div class="sidebar-card-head">
-                    <h6><i class="bi bi-clock-history" style="color:var(--primary);"></i> Recent Posts</h6>
+                    <h6><i class="bi bi-clock-history" style="color:var(--primary);"></i> {% trans "Recent Posts" %}</h6>
                 </div>
                 <div class="sidebar-card-body">
                     {% for post in recent_posts %}
@@ -1827,7 +1985,7 @@
                         </div>
                     </a>
                     {% empty %}
-                    <div class="text-muted small text-center">Hakuna post mpya bado.</div>
+                    <div class="text-muted small text-center">{% trans "Hakuna post mpya bado." %}</div>
                     {% endfor %}
                 </div>
             </div>
@@ -1835,7 +1993,7 @@
             <!-- Suggested Doctors -->
             <div class="sidebar-card sidebar-clickable" data-sidebar-link="{% url 'doctor:hub' %}">
                 <div class="sidebar-card-head">
-                    <h6><i class="bi bi-heart-pulse-fill" style="color:var(--primary);"></i> Madaktari</h6>
+                    <h6><i class="bi bi-heart-pulse-fill" style="color:var(--primary);"></i> {% trans "Madaktari" %}</h6>
                 </div>
                 <div class="sidebar-card-body">
                     {% for doctor in suggested_doctors %}
@@ -1848,11 +2006,11 @@
                             </div>
                         </div>
                         <a href="{% url 'chats:start_private_chat' doctor.id %}" class="action-btn" style="font-size:.76rem;white-space:nowrap;">
-                            <i class="bi bi-chat-dots"></i> Chat
+                            <i class="bi bi-chat-dots"></i> {% trans "Chat" %}
                         </a>
                     </div>
                     {% empty %}
-                    <div class="text-muted small text-center">Hakuna verified doctors.</div>
+                    <div class="text-muted small text-center">{% trans "Hakuna verified doctors." %}</div>
                     {% endfor %}
                 </div>
             </div>
@@ -1866,28 +2024,28 @@
             <section class="jamii-top-social">
                 <div class="jamii-composer-row">
                     <div class="post-avatar" style="width:40px;height:40px;">{{ request.user.username|first|upper }}</div>
-                    <a href="{% url 'chats:post_create' %}{% if selected_group %}?group={{ selected_group.id }}{% endif %}" class="jamii-composer-pill">Unafikiria nini?</a>
+                    <a href="{% url 'chats:post_create' %}{% if selected_group %}?group={{ selected_group.id }}{% endif %}" class="jamii-composer-pill">{% trans "Unafikiria nini?" %}</a>
                 </div>
 
                 <div class="jamii-status-cycles mb-2">
-                    <a href="{% url 'chats:status_new' %}{% if selected_group %}?group={{ selected_group.id }}{% endif %}" class="status-cycle-item" aria-label="Ongeza status">
+                    <a href="{% url 'chats:status_new' %}{% if selected_group %}?group={{ selected_group.id }}{% endif %}" class="status-cycle-item" aria-label="{% trans 'Ongeza status' %}">
                         <span class="status-cycle-ring">
                             <span class="status-cycle-inner"><i class="bi bi-plus-lg"></i></span>
                         </span>
-                        <span class="status-cycle-name">Stori yako</span>
+                        <span class="status-cycle-name">{% trans "Stori yako" %}</span>
                     </a>
                     {% for st in status_featured %}
                     <a href="{% url 'chats:status_detail' st.id %}" class="status-cycle-item js-status-open"
                        data-status-user="{{ st.user.username }}"
                        data-status-content="{{ st.content|striptags|truncatechars:450 }}"
-                       data-status-image="{% if st.image %}{{ st.image.url }}{% endif %}"
+                       data-status-image="{% if st.image %}{{ st.image|safe_media_url }}{% endif %}"
                        data-status-likes="{{ st.likes_total }}"
                        data-status-comments="{{ st.comments_total }}"
                        data-status-shares="{{ st.shares_total }}"
                        data-status-link="{% url 'chats:status_detail' st.id %}">
                         <span class="status-cycle-ring">
                             <span class="status-cycle-inner">
-                                {% if st.image %}<img src="{{ st.image.url }}" alt="status ya {{ st.user.username }}">{% else %}{{ st.user.username|first|upper }}{% endif %}
+                                {% if st.image %}<img src="{{ st.image|safe_media_url }}" alt="{% trans 'status ya' %} {{ st.user.username }}">{% else %}{{ st.user.username|first|upper }}{% endif %}
                             </span>
                         </span>
                         <span class="status-cycle-name">{{ st.user.username }}</span>
@@ -1899,19 +2057,19 @@
                     <a href="{% url 'chats:status_new' %}{% if selected_group %}?group={{ selected_group.id }}{% endif %}" class="status-story-card create-card">
                         <span class="status-story-create-body">
                             <span class="status-story-create-plus"><i class="bi bi-plus-lg"></i></span>
-                            <span class="status-story-create-text">Tengeneza stori</span>
+                            <span class="status-story-create-text">{% trans "Tengeneza stori" %}</span>
                         </span>
                     </a>
                     {% for st in status_featured %}
                     <a href="{% url 'chats:status_detail' st.id %}" class="status-story-card js-status-open"
                        data-status-user="{{ st.user.username }}"
                        data-status-content="{{ st.content|striptags|truncatechars:450 }}"
-                       data-status-image="{% if st.image %}{{ st.image.url }}{% endif %}"
+                       data-status-image="{% if st.image %}{{ st.image|safe_media_url }}{% endif %}"
                        data-status-likes="{{ st.likes_total }}"
                        data-status-comments="{{ st.comments_total }}"
                        data-status-shares="{{ st.shares_total }}"
                        data-status-link="{% url 'chats:status_detail' st.id %}">
-                        {% if st.image %}<img src="{{ st.image.url }}" alt="stori ya {{ st.user.username }}" class="status-story-bg">{% endif %}
+                        {% if st.image %}<img src="{{ st.image|safe_media_url }}" alt="{% trans 'stori ya' %} {{ st.user.username }}" class="status-story-bg">{% endif %}
                         <span class="status-story-overlay"></span>
                         <span class="status-story-top">
                             <span class="status-rank-badge">{{ forloop.counter }}</span>
@@ -1927,11 +2085,11 @@
 
             <div class="posts-topbar">
                 <div>
-                    <div class="posts-topbar-title">Machapisho ya jamii</div>
-                    <div class="posts-topbar-sub">Machapisho yanaanza hapa. Tumia Ongeza Chapisho kwenda ukurasa maalum wa kuchapisha.</div>
+                    <div class="posts-topbar-title">{% trans "Machapisho ya jamii" %}</div>
+                    <div class="posts-topbar-sub">{% trans "Machapisho yanaanza hapa. Tumia Ongeza Chapisho kwenda ukurasa maalum wa kuchapisha." %}</div>
                 </div>
                 <a href="{% url 'chats:post_create' %}{% if selected_group %}?group={{ selected_group.id }}{% endif %}" class="action-btn">
-                    <i class="bi bi-plus-circle-fill"></i> Ongeza Chapisho
+                    <i class="bi bi-plus-circle-fill"></i> {% trans "Ongeza Chapisho" %}
                 </a>
             </div>
 
@@ -1952,7 +2110,7 @@
                             <a href="{% url 'chats:user_profile' post.user.id %}" class="post-name-link">{{ post.user.username }}</a>
                             {% endif %}
                             <div class="post-meta">
-                                {{ post.created_at|timesince }} zilizopita
+                                {% blocktrans trimmed with ago=post.created_at|timesince %}{{ ago }} zilizopita{% endblocktrans %}
                                 <span class="post-source-pill"><i class="bi bi-broadcast-pin"></i>Chanzo: {% if post.is_anonymous %}Asiyejulikana{% else %}{{ post.user.username }}{% endif %}</span>
                                 {% if post.groups.all %}
                                     {% for group in post.groups.all %}
@@ -2150,7 +2308,7 @@
             <article class="group-preview-card">
                 <a href="{% url 'chats:group_detail' group.id %}">
                     {% if group.image %}
-                    <img src="{{ group.image.url }}" alt="{{ group.name }}" class="group-preview-image">
+                    <img src="{{ group.image|safe_media_url }}" alt="{{ group.name }}" class="group-preview-image">
                     {% else %}
                     <img src="https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&w=900&q=80" alt="{{ group.name }}" class="group-preview-image">
                     {% endif %}

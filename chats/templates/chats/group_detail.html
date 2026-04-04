@@ -1,131 +1,274 @@
 {% extends 'base.html' %}
-{% load i18n %}
+{% load i18n chats_media %}
 
 {% block title %}{{ group.name }} | {% trans "Group" %}{% endblock %}
 
 {% block content %}
 <style>
-.group-post-card {
+.gd-shell { max-width: 1120px; margin: 0 auto; padding: .9rem 1rem 5rem; }
+
+.gd-cover {
+  position: relative;
   border: 1px solid var(--line-soft);
   border-radius: 18px;
-  background: var(--card-bg);
-  padding: .9rem 1rem;
-  margin-bottom: .9rem;
+  overflow: hidden;
+  box-shadow: 0 12px 28px rgba(0,0,0,.08);
+  margin-bottom: .75rem;
 }
-.group-post-head { display:flex; justify-content:space-between; align-items:flex-start; gap:.7rem; margin-bottom:.55rem; }
+.gd-cover-img {
+  width: 100%;
+  height: clamp(200px, 30vw, 340px);
+  object-fit: cover;
+  display: block;
+}
+.gd-cover::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to top, rgba(0,0,0,.5), rgba(0,0,0,.08) 48%, rgba(0,0,0,0));
+}
+
+.gd-header {
+  position: absolute;
+  left: 1rem;
+  right: 1rem;
+  bottom: .95rem;
+  z-index: 2;
+  display: flex;
+  align-items: end;
+  justify-content: space-between;
+  gap: .8rem;
+  flex-wrap: wrap;
+}
+.gd-title-wrap { color: #fff; }
+.gd-title { margin: 0; font-weight: 900; font-size: clamp(1.05rem, 1rem + .7vw, 1.45rem); }
+.gd-meta { font-size: .82rem; opacity: .92; margin-top: .18rem; }
+
+.gd-btns { display:flex; gap:.45rem; flex-wrap: wrap; }
+.gd-btn {
+  border: 1px solid rgba(255,255,255,.34);
+  border-radius: 10px;
+  background: rgba(255,255,255,.16);
+  color: #fff;
+  padding: .38rem .68rem;
+  font-size: .78rem;
+  font-weight: 800;
+  text-decoration: none;
+  backdrop-filter: blur(5px);
+}
+.gd-btn:hover { color: #fff; opacity: .92; }
+
+.gd-tabs {
+  display: flex;
+  gap: .3rem;
+  flex-wrap: wrap;
+  margin-bottom: .8rem;
+}
+.gd-tab {
+  border: 1px solid var(--line-soft);
+  border-radius: 999px;
+  padding: .34rem .7rem;
+  font-size: .76rem;
+  font-weight: 800;
+  color: var(--text-main);
+  background: var(--card-bg);
+  text-decoration: none;
+}
+.gd-tab:hover { border-color: var(--primary); color: var(--primary); }
+
+.gd-layout { display:grid; grid-template-columns: 1fr 320px; gap: 1rem; align-items: start; }
+.gd-main, .gd-side {
+  border: 1px solid var(--line-soft);
+  border-radius: 16px;
+  background: var(--card-bg);
+  box-shadow: 0 8px 22px rgba(0,0,0,.06);
+}
+.gd-main { padding: .95rem; }
+.gd-side { padding: .95rem; position: sticky; top: .8rem; }
+
+.gd-pinned {
+  border: 1px dashed color-mix(in srgb, var(--primary) 32%, var(--line-soft));
+  border-radius: 12px;
+  padding: .72rem .78rem;
+  background: color-mix(in srgb, var(--primary) 8%, var(--card-bg));
+  margin-bottom: .85rem;
+}
+.gd-pinned h6 { margin: 0 0 .35rem; font-weight: 900; font-size: .84rem; }
+.gd-pinned p { margin: 0; font-size: .84rem; color: var(--text-muted); line-height: 1.6; }
+
+.group-post-card {
+  border: 1px solid var(--line-soft);
+  border-radius: 14px;
+  background: color-mix(in srgb, var(--card-bg) 94%, var(--app-bg));
+  padding: .86rem .92rem;
+  margin-bottom: .82rem;
+}
+.group-post-head { display:flex; justify-content:space-between; align-items:flex-start; gap:.7rem; margin-bottom:.52rem; }
 .group-post-meta { font-size:.74rem; color: var(--text-muted); }
 .group-post-body { font-size:.9rem; color: var(--text-main); margin-bottom:.55rem; line-height:1.58; }
 .group-post-actions { display:flex; flex-wrap:wrap; gap:.45rem; border-top:1px solid var(--line-soft); padding-top:.55rem; }
 .group-post-actions .action-btn { display:inline-flex; align-items:center; gap:.35rem; padding:.35rem .65rem; border-radius:999px; border:1px solid var(--line-soft); text-decoration:none; color:var(--text-main); font-size:.78rem; }
 .group-post-actions .action-btn:hover { border-color: var(--primary); color: var(--primary); }
+
+.gd-members { display:flex; flex-direction: column; gap: .52rem; }
+.gd-member-chip {
+  display: flex;
+  align-items: center;
+  gap: .55rem;
+  border: 1px solid var(--line-soft);
+  border-radius: 10px;
+  padding: .45rem .55rem;
+  font-size: .8rem;
+}
+.gd-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 800;
+  background: linear-gradient(135deg, var(--primary), var(--secondary));
+  color: #fff;
+}
+
+@media (max-width: 980px){
+  .gd-layout { grid-template-columns: 1fr; }
+  .gd-side { position: static; }
+}
 </style>
-<div class="py-3" style="max-width:1050px;margin:0 auto;">
-  <div class="card-custom p-3 p-md-4 mb-3">
-    <div class="row g-3 align-items-center">
-      <div class="col-md-3">
-        {% if group.image %}
-        <img src="{{ group.image.url }}" alt="{{ group.name }}" class="img-fluid rounded-4 border" style="width:100%;aspect-ratio:1/1;object-fit:cover;">
-        {% else %}
-        <img src="https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&w=900&q=80" alt="{{ group.name }}" class="img-fluid rounded-4 border" style="width:100%;aspect-ratio:1/1;object-fit:cover;">
-        {% endif %}
+<div class="gd-shell">
+  <section class="gd-cover">
+    {% if group.image %}
+    <img src="{{ group.image|safe_media_url }}" alt="{{ group.name }}" class="gd-cover-img">
+    {% else %}
+    <img src="https://images.unsplash.com/photo-1579154204601-01588f351e67?auto=format&fit=crop&w=1400&q=80" alt="{{ group.name }}" class="gd-cover-img">
+    {% endif %}
+
+    <div class="gd-header">
+      <div class="gd-title-wrap">
+        <h2 class="gd-title">{{ group.name }}</h2>
+        <div class="gd-meta">{{ group.members.count }} {% trans "members" %} • {{ group.audience_gender|title }} {% trans "audience" %}</div>
       </div>
-      <div class="col-md-9">
-        <div class="d-flex justify-content-between align-items-start gap-2 flex-wrap">
+      <div class="gd-btns">
+        {% if is_member %}
+        <span class="gd-btn"><i class="bi bi-check-circle me-1"></i>{% trans "Member" %}</span>
+        {% elif user_join_request and user_join_request.status == 'pending' %}
+        <span class="gd-btn"><i class="bi bi-hourglass-split me-1"></i>{% trans "Pending" %}</span>
+        {% else %}
+        <form method="post" action="{% url 'chats:group_join' group.id %}">
+          {% csrf_token %}
+          <button class="gd-btn" type="submit"><i class="bi bi-plus-circle me-1"></i>{% trans "Join Group" %}</button>
+        </form>
+        {% endif %}
+        <a href="{% url 'chats:post_create' %}?group={{ group.id }}" class="gd-btn"><i class="bi bi-plus-circle-fill me-1"></i>{% trans "Add Post" %}</a>
+      </div>
+    </div>
+  </section>
+
+  <nav class="gd-tabs" aria-label="group tabs">
+    <a href="#about" class="gd-tab"><i class="bi bi-info-circle me-1"></i>{% trans "About" %}</a>
+    <a href="#posts" class="gd-tab"><i class="bi bi-card-text me-1"></i>{% trans "Posts" %}</a>
+    <a href="#members" class="gd-tab"><i class="bi bi-people me-1"></i>{% trans "Members" %}</a>
+    <a href="{% url 'chats:feed' %}?group={{ group.id }}" class="gd-tab"><i class="bi bi-grid me-1"></i>{% trans "Open in feed" %}</a>
+  </nav>
+
+  <div class="gd-layout">
+    <main class="gd-main" id="posts">
+      <section class="gd-pinned" id="about">
+        <h6><i class="bi bi-pin-angle-fill me-1"></i>{% trans "Pinned intro" %}</h6>
+        <p>
+          {% if group.description %}
+            {{ group.description }}
+          {% else %}
+            {% trans "No description yet." %}
+          {% endif %}
+        </p>
+      </section>
+
+      {% if pending_requests %}
+      <div class="card-custom p-3 mb-3">
+        <h6 class="fw-bold mb-3"><i class="bi bi-person-check"></i> {% trans "Pending join requests" %}</h6>
+        {% for req in pending_requests %}
+        <div class="border rounded-3 p-2 p-md-3 mb-2 d-flex justify-content-between align-items-center gap-2">
           <div>
-            <h4 class="fw-bold mb-1">{{ group.name }}</h4>
-            <div class="small text-muted mb-2">{{ group.members.count }} {% trans "members" %} • {{ group.audience_gender|title }} {% trans "audience" %}</div>
-            <div class="small">
-              {% if group.description %}
-                {{ group.description }}
-              {% else %}
-                {% trans "No description yet." %}
-              {% endif %}
-            </div>
+            <div class="fw-semibold small">{{ req.user.username }}</div>
+            <div class="small text-muted">{{ req.created_at|timesince }} {% trans "ago" %}</div>
           </div>
           <div class="d-flex gap-2">
-            {% if is_member %}
-            <span class="btn btn-success btn-sm rounded-pill disabled"><i class="bi bi-check-circle"></i> {% trans "Member" %}</span>
-            {% elif user_join_request and user_join_request.status == 'pending' %}
-            <span class="btn btn-warning btn-sm rounded-pill disabled"><i class="bi bi-hourglass-split"></i> {% trans "Pending" %}</span>
-            {% else %}
-            <form method="post" action="{% url 'chats:group_join' group.id %}">
+            <form method="post" action="{% url 'chats:group_join_request_decision' req.id %}">
               {% csrf_token %}
-              <button class="btn btn-primary btn-sm rounded-pill" type="submit"><i class="bi bi-plus-circle"></i> {% trans "Join" %}</button>
+              <input type="hidden" name="action" value="approve">
+              <button class="btn btn-sm btn-success rounded-pill" type="submit">{% trans "Approve" %}</button>
             </form>
-            {% endif %}
-            <a href="{% url 'chats:feed' %}?group={{ group.id }}" class="btn btn-outline-secondary btn-sm rounded-pill"><i class="bi bi-grid"></i> {% trans "Open in feed" %}</a>
+            <form method="post" action="{% url 'chats:group_join_request_decision' req.id %}">
+              {% csrf_token %}
+              <input type="hidden" name="action" value="reject">
+              <button class="btn btn-sm btn-outline-danger rounded-pill" type="submit">{% trans "Reject" %}</button>
+            </form>
           </div>
         </div>
+        {% empty %}
+        <div class="small text-muted">{% trans "No pending requests." %}</div>
+        {% endfor %}
       </div>
-    </div>
-  </div>
+      {% endif %}
 
-  {% if pending_requests %}
-  <div class="card-custom p-3 p-md-4 mb-3">
-    <h6 class="fw-bold mb-3"><i class="bi bi-person-check"></i> {% trans "Pending join requests" %}</h6>
-    {% for req in pending_requests %}
-    <div class="border rounded-3 p-2 p-md-3 mb-2 d-flex justify-content-between align-items-center gap-2">
-      <div>
-        <div class="fw-semibold small">{{ req.user.username }}</div>
-        <div class="small text-muted">{{ req.created_at|timesince }} ago</div>
+      <div class="d-flex justify-content-between align-items-center mb-3">
+        <h6 class="fw-bold mb-0"><i class="bi bi-card-text"></i> {% trans "Group posts" %}</h6>
+        <a href="{% url 'chats:post_create' %}?group={{ group.id }}" class="btn btn-sm btn-danger rounded-pill"><i class="bi bi-plus-circle-fill"></i> {% trans "Add Post" %}</a>
       </div>
-      <div class="d-flex gap-2">
-        <form method="post" action="{% url 'chats:group_join_request_decision' req.id %}">
-          {% csrf_token %}
-          <input type="hidden" name="action" value="approve">
-          <button class="btn btn-sm btn-success rounded-pill" type="submit">{% trans "Approve" %}</button>
-        </form>
-        <form method="post" action="{% url 'chats:group_join_request_decision' req.id %}">
-          {% csrf_token %}
-          <input type="hidden" name="action" value="reject">
-          <button class="btn btn-sm btn-outline-danger rounded-pill" type="submit">{% trans "Reject" %}</button>
-        </form>
-      </div>
-    </div>
-    {% empty %}
-    <div class="small text-muted">{% trans "No pending requests." %}</div>
-    {% endfor %}
-  </div>
-  {% endif %}
 
-  <div class="card-custom p-3 p-md-4">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-      <h6 class="fw-bold mb-0"><i class="bi bi-card-text"></i> {% trans "Group posts" %}</h6>
-      <a href="{% url 'chats:post_create' %}?group={{ group.id }}" class="btn btn-sm btn-danger rounded-pill"><i class="bi bi-plus-circle-fill"></i> {% trans "Add Post" %}</a>
-    </div>
-
-    {% for post in posts %}
-    <article class="group-post-card">
-      <div class="group-post-head">
-        <div>
-          <div class="fw-semibold">{% if post.is_anonymous %}{% trans "Anonymous member" %}{% else %}{{ post.user.username }}{% endif %}</div>
-          <div class="group-post-meta">{{ post.created_at|timesince }} ago</div>
+      {% for post in posts %}
+      <article class="group-post-card">
+        <div class="group-post-head">
+          <div>
+            <div class="fw-semibold">{% if post.is_anonymous %}{% trans "Anonymous member" %}{% else %}{{ post.user.username }}{% endif %}</div>
+            <div class="group-post-meta">{{ post.created_at|timesince }} {% trans "ago" %}</div>
+          </div>
+          <a href="{% url 'chats:post_detail' post.id %}" class="action-btn"><i class="bi bi-box-arrow-up-right"></i> {% trans "Open" %}</a>
         </div>
-        <a href="{% url 'chats:post_detail' post.id %}" class="action-btn"><i class="bi bi-box-arrow-up-right"></i> {% trans "Open" %}</a>
-      </div>
-      <div class="group-post-body">{{ post.content|safe }}</div>
-      {% if post.image %}<img src="{{ post.image.url }}" class="img-fluid rounded-3 border" alt="post image">{% endif %}
-      <div class="group-post-actions mt-2">
-        <a href="{% url 'chats:post_detail' post.id %}" class="action-btn"><i class="bi bi-heart"></i> {{ post.likes.count }}</a>
-        <a href="{% url 'chats:post_detail' post.id %}" class="action-btn"><i class="bi bi-chat"></i> {{ post.replies.count }}</a>
-        <a href="{% url 'chats:post_detail' post.id %}" class="action-btn"><i class="bi bi-arrows-angle-expand"></i> {% trans "View" %}</a>
-      </div>
-    </article>
-    {% empty %}
-    <div class="small text-muted">{% trans "Hakuna posts kwenye group hii bado." %}</div>
-    {% endfor %}
+        <div class="group-post-body">{{ post.content|safe }}</div>
+        {% if post.image %}<img src="{{ post.image|safe_media_url }}" class="img-fluid rounded-3 border" alt="post image">{% endif %}
+        <div class="group-post-actions mt-2">
+          <a href="{% url 'chats:post_detail' post.id %}" class="action-btn"><i class="bi bi-heart"></i> {{ post.likes.count }}</a>
+          <a href="{% url 'chats:post_detail' post.id %}" class="action-btn"><i class="bi bi-chat"></i> {{ post.replies.count }}</a>
+          <a href="{% url 'chats:post_detail' post.id %}" class="action-btn"><i class="bi bi-arrows-angle-expand"></i> {% trans "View" %}</a>
+        </div>
+      </article>
+      {% empty %}
+      <div class="small text-muted">{% trans "No posts in this group yet." %}</div>
+      {% endfor %}
 
-    {% if posts.has_other_pages %}
-    <div class="d-flex justify-content-center gap-2 mt-3">
-      {% if posts.has_previous %}
-      <a href="?page={{ posts.previous_page_number }}" class="btn btn-sm btn-outline-secondary rounded-pill"><i class="bi bi-chevron-left"></i></a>
+      {% if posts.has_other_pages %}
+      <div class="d-flex justify-content-center gap-2 mt-3">
+        {% if posts.has_previous %}
+        <a href="?page={{ posts.previous_page_number }}" class="btn btn-sm btn-outline-secondary rounded-pill"><i class="bi bi-chevron-left"></i></a>
+        {% endif %}
+        <span class="btn btn-sm btn-light rounded-pill disabled">{{ posts.number }} / {{ posts.paginator.num_pages }}</span>
+        {% if posts.has_next %}
+        <a href="?page={{ posts.next_page_number }}" class="btn btn-sm btn-outline-secondary rounded-pill"><i class="bi bi-chevron-right"></i></a>
+        {% endif %}
+      </div>
       {% endif %}
-      <span class="btn btn-sm btn-light rounded-pill disabled">{{ posts.number }} / {{ posts.paginator.num_pages }}</span>
-      {% if posts.has_next %}
-      <a href="?page={{ posts.next_page_number }}" class="btn btn-sm btn-outline-secondary rounded-pill"><i class="bi bi-chevron-right"></i></a>
-      {% endif %}
-    </div>
-    {% endif %}
+    </main>
+
+    <aside class="gd-side" id="members">
+      <h6 class="fw-bold mb-2"><i class="bi bi-people-fill me-1"></i>{% trans "Members" %}</h6>
+      <div class="gd-members">
+        {% for member in group.members.all|slice:":10" %}
+        <div class="gd-member-chip">
+          <span class="gd-avatar">{{ member.username|first|upper }}</span>
+          <span>{{ member.username }}</span>
+          {% if group.created_by_id == member.id %}
+          <span class="ms-auto badge rounded-pill text-bg-light border">{% trans "Admin" %}</span>
+          {% endif %}
+        </div>
+        {% empty %}
+        <div class="small text-muted">{% trans "No members yet." %}</div>
+        {% endfor %}
+      </div>
+    </aside>
   </div>
 </div>
 {% endblock %}

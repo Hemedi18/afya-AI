@@ -107,6 +107,7 @@
     display: block;
     width: 100% !important;
     max-width: 100%;
+    height: 220px !important;
 }
 
 @media (max-width: 768px) {
@@ -413,7 +414,7 @@
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false,
+                maintainAspectRatio: true,
                 interaction: { mode: 'index', intersect: false },
                 scales: { y: { beginAtZero: true } },
                 plugins: { legend: { display: false } },
@@ -434,7 +435,7 @@
                     borderWidth: 1,
                 }],
             },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } } },
+            options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { display: false } } },
         });
     }
 
@@ -449,7 +450,7 @@
                     backgroundColor: ['#2F6B3F','#7FB77E','#F59E0B','#2563EB','#7C3AED','#DB2777','#0891B2'],
                 }],
             },
-            options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom' } } },
+            options: { responsive: true, maintainAspectRatio: true, plugins: { legend: { position: 'bottom' } } },
         });
     }
 
@@ -469,7 +470,7 @@
             },
             options: {
                 responsive: true,
-                maintainAspectRatio: false,
+                maintainAspectRatio: true,
                 scales: { y: { beginAtZero: true, max: 100 } },
                 plugins: { legend: { display: false } },
             },

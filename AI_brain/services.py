@@ -101,6 +101,39 @@ def _generate_with_groq(prompt: str) -> str | None:
         return None
 
 
+def transcribe_audio_file(uploaded_file) -> str | None:
+    """Transcribe uploaded audio using Groq Whisper-compatible endpoint."""
+    api_key = getattr(settings, 'GROQ_API_KEY', None)
+    if not api_key or not uploaded_file:
+        return None
+
+    max_size = 15 * 1024 * 1024
+    try:
+        if getattr(uploaded_file, 'size', 0) and uploaded_file.size > max_size:
+            return None
+        uploaded_file.seek(0)
+        payload = uploaded_file.read()
+        if not payload:
+            return None
+        client = Groq(api_key=api_key)
+        transcription = client.audio.transcriptions.create(
+            file=(getattr(uploaded_file, 'name', 'voice-message.webm'), payload),
+            model='whisper-large-v3-turbo',
+            prompt=(
+                'Transcribe this health voice note carefully. Preserve Swahili words, '
+                'medical symptoms, time expressions, and short mixed English phrases.'
+            ),
+            language='sw',
+            temperature=0,
+        )
+        text = getattr(transcription, 'text', None)
+        if not text and isinstance(transcription, dict):
+            text = transcription.get('text')
+        return (text or '').strip() or None
+    except Exception:
+        return None
+
+
 def generate_ai_text(prompt: str, fallback: str) -> str:
     """Centralized AI text generation helper for the project."""
     provider = getattr(settings, 'AI_PROVIDER', 'groq').lower()

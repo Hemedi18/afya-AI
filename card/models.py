@@ -1,4 +1,6 @@
 from datetime import timedelta
+import random
+import string
 import uuid
 
 from django.conf import settings
@@ -7,6 +9,17 @@ from django.utils import timezone
 from django.contrib.auth.hashers import check_password, make_password
 
 from users.models import UserAIPersona
+
+
+def _generate_card_number() -> str:
+    """Generate a unique AFYA-XXXX-XXXX-XXXX card number."""
+    chars = string.ascii_uppercase + string.digits
+    while True:
+        segments = [''.join(random.choices(chars, k=4)) for _ in range(3)]
+        number = f"AFYA-{'-'.join(segments)}"
+        # Ensure uniqueness (loop exits when not taken)
+        if not HealthCard.objects.filter(card_number=number).exists():
+            return number
 
 
 class CardNotification(models.Model):
@@ -56,6 +69,7 @@ class HealthCard(models.Model):
 
 	user = models.OneToOneField(settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name='health_card')
 	public_token = models.UUIDField(default=uuid.uuid4, unique=True, editable=False)
+	card_number = models.CharField(max_length=20, unique=True, blank=True, editable=False)
 
 	# Front data defaults (can be overridden)
 	full_name_override = models.CharField(max_length=150, blank=True)
@@ -85,6 +99,11 @@ class HealthCard(models.Model):
 
 	def __str__(self):
 		return f"HealthCard - {self.user}"
+
+	def save(self, *args, **kwargs):
+		if not self.card_number:
+			self.card_number = _generate_card_number()
+		super().save(*args, **kwargs)
 
 	@property
 	def display_name(self):

@@ -11,7 +11,7 @@
                 <h4 class="fw-bold mb-1">{% trans "Usanidi wa AI Persona" %}</h4>
                 <p class="text-muted mb-0">{% blocktrans trimmed with current=step title=step_title %}Hatua {{ current }} / 3 • {{ title }}{% endblocktrans %}</p>
             </div>
-            <a href="{% if next_url %}{{ next_url }}{% else %}{% url 'AI_brain:chat' %}{% endif %}" class="btn btn-sm btn-outline-secondary rounded-pill">{% trans "Ruka kwa sasa" %}</a>
+            <a href="{% if next_url %}{{ next_url }}{% else %}{% url 'main:services' %}{% endif %}" class="btn btn-sm btn-outline-secondary rounded-pill">{% trans "Ruka kwa sasa" %}</a>
         </div>
 
         <p class="text-muted small mb-3">{{ step_subtitle }}</p>
@@ -31,7 +31,7 @@
 
             <div class="row g-3">
                 {% for field in form %}
-                <div class="col-12 {% if field.name == 'age' or field.name == 'gender' or field.name == 'height_cm' or field.name == 'weight_kg' or field.name == 'sleep_hours' or field.name == 'stress_level' or field.name == 'exercise_frequency' %}col-md-6{% endif %}">
+                <div class="col-12 {% if field.name == 'birth_date' or field.name == 'gender' or field.name == 'height_cm' or field.name == 'weight_kg' or field.name == 'sleep_hours' or field.name == 'stress_level' or field.name == 'exercise_frequency' %}col-md-6{% endif %}">
                     <label class="form-label fw-semibold" for="{{ field.id_for_label }}">{{ field.label }}</label>
                     {{ field }}
                     {% if field.help_text %}<div class="small text-muted mt-1">{{ field.help_text }}</div>{% endif %}
@@ -47,9 +47,12 @@
                 <span></span>
                 {% endif %}
 
-                <button type="submit" class="btn btn-danger rounded-pill px-4">
-                    {% if step == 3 %}{% trans "Maliza" %}{% else %}{% trans "Endelea" %}{% endif %}
-                </button>
+                <div class="d-flex gap-2">
+                    <button type="submit" name="action" value="skip" class="btn btn-outline-secondary rounded-pill px-4">{% trans "Skip" %}</button>
+                    <button type="submit" class="btn btn-danger rounded-pill px-4">
+                        {% if step == 3 %}{% trans "Maliza" %}{% else %}{% trans "Endelea" %}{% endif %}
+                    </button>
+                </div>
             </div>
         </form>
     </div>

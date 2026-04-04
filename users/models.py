@@ -26,6 +26,7 @@ class UserAIPersona(models.Model):
 
 	# Step 1: Basic info (Required)
 	age = models.PositiveSmallIntegerField(null=True, blank=True)
+	birth_date = models.DateField(null=True, blank=True)
 	gender = models.CharField(max_length=20, choices=GENDER_CHOICES, blank=True)
 	height_cm = models.PositiveSmallIntegerField(null=True, blank=True)
 	weight_kg = models.DecimalField(max_digits=5, decimal_places=2, null=True, blank=True)
@@ -65,8 +66,24 @@ class UserAIPersona(models.Model):
 	def __str__(self):
 		return f"AI Persona - {self.user}"
 
+	def _calculate_age_from_birth_date(self):
+		if not self.birth_date:
+			return None
+		today = timezone.localdate()
+		years = today.year - self.birth_date.year
+		if (today.month, today.day) < (self.birth_date.month, self.birth_date.day):
+			years -= 1
+		return max(years, 0)
+
+	def save(self, *args, **kwargs):
+		calculated_age = self._calculate_age_from_birth_date()
+		if calculated_age is not None:
+			self.age = calculated_age
+		super().save(*args, **kwargs)
+
 	def calculate_completeness_score(self):
 		tracked_fields = {
+			'birth_date': self.birth_date,
 			'age': self.age,
 			'gender': self.gender,
 			'height_cm': self.height_cm,
@@ -108,17 +125,8 @@ class UserAIPersona(models.Model):
 	@property
 	def onboarding_complete(self):
 		required = [
-			self.age,
+			self.birth_date,
 			self.gender,
-			self.height_cm,
-			self.weight_kg,
-			self.health_notes.strip(),
-			self.permanent_diseases.strip(),
-			self.medications.strip(),
-			self.lifestyle_notes.strip(),
-			self.sleep_hours,
-			self.stress_level,
-			self.exercise_frequency,
 		]
 		return all(bool(v) for v in required)
 

@@ -283,31 +283,31 @@
             </div>
 
             <div class="profile-card">
-                <h6><i class="bi bi-person me-1"></i>Taarifa za Msingi</h6>
+                <h6><i class="bi bi-person me-1"></i>{% trans "Taarifa za Msingi" %}</h6>
 
                 <div class="mb-3">
-                    <label class="form-label">Jina la Mtumiaji</label>
+                    <label class="form-label">{% trans "Jina la Mtumiaji" %}</label>
                     <div class="username-readonly">@{{ user.username }}</div>
-                    <div class="form-text">Haiwezi kubadilishwa.</div>
+                    <div class="form-text">{% trans "Haiwezi kubadilishwa." %}</div>
                 </div>
 
                 <div class="row g-3">
                     <div class="col-sm-6">
-                        <label class="form-label">Jina la Kwanza</label>
+                        <label class="form-label">{% trans "Jina la Kwanza" %}</label>
                         {{ info_form.first_name }}
                         {% if info_form.first_name.errors %}
                             <div class="text-danger small">{{ info_form.first_name.errors.0 }}</div>
                         {% endif %}
                     </div>
                     <div class="col-sm-6">
-                        <label class="form-label">Jina la Mwisho</label>
+                        <label class="form-label">{% trans "Jina la Mwisho" %}</label>
                         {{ info_form.last_name }}
                         {% if info_form.last_name.errors %}
                             <div class="text-danger small">{{ info_form.last_name.errors.0 }}</div>
                         {% endif %}
                     </div>
                     <div class="col-12">
-                        <label class="form-label">Barua Pepe</label>
+                        <label class="form-label">{% trans "Barua Pepe" %}</label>
                         {{ info_form.email }}
                         {% if info_form.email.errors %}
                             <div class="text-danger small">{{ info_form.email.errors.0 }}</div>
@@ -317,19 +317,19 @@
             </div>
 
             <div class="profile-card">
-                <h6><i class="bi bi-chat-quote me-1"></i>Bio</h6>
-                <label class="form-label">Kuhusu Mimi</label>
+                <h6><i class="bi bi-chat-quote me-1"></i>{% trans "Bio" %}</h6>
+                <label class="form-label">{% trans "Kuhusu Mimi" %}</label>
                 {{ avatar_form.bio }}
                 {% if avatar_form.bio.errors %}
                     <div class="text-danger small">{{ avatar_form.bio.errors.0 }}</div>
                 {% endif %}
                 {% if persona.bio %}
-                    <div class="form-text">Bio yako ya sasa: <em>{{ persona.bio }}</em></div>
+                    <div class="form-text">{% trans "Bio yako ya sasa:" %} <em>{{ persona.bio }}</em></div>
                 {% endif %}
             </div>
 
             <button type="submit" class="btn btn-primary profile-action-btn w-100 rounded-pill fw-bold py-2">
-                <i class="bi bi-check2-circle me-1"></i> Hifadhi Mabadiliko
+                <i class="bi bi-check2-circle me-1"></i> {% trans "Hifadhi Mabadiliko" %}
             </button>
         </form>
     </div>
@@ -344,99 +344,100 @@
             <input type="hidden" name="_action" value="update_persona">
 
             <div class="profile-card">
-                <h6><i class="bi bi-body-text me-1"></i>Taarifa za Kimwili</h6>
+                <h6><i class="bi bi-body-text me-1"></i>{% trans "Taarifa za Kimwili" %}</h6>
                 <div class="row g-3">
                     <div class="col-6 col-sm-3">
-                        <label class="form-label">Umri</label>
-                        {{ persona_form.age }}
+                        <label class="form-label">{% trans "Date of Birth" %}</label>
+                        {{ persona_form.birth_date }}
+                        <div class="small text-muted mt-1">{% trans "Age is calculated automatically." %}</div>
                     </div>
                     <div class="col-6 col-sm-3">
-                        <label class="form-label">Jinsia</label>
+                        <label class="form-label">{% trans "Jinsia" %}</label>
                         {{ persona_form.gender }}
                     </div>
                     <div class="col-6 col-sm-3">
-                        <label class="form-label">Urefu (cm)</label>
+                        <label class="form-label">{% trans "Urefu (cm)" %}</label>
                         {{ persona_form.height_cm }}
                     </div>
                     <div class="col-6 col-sm-3">
-                        <label class="form-label">Uzito (kg)</label>
+                        <label class="form-label">{% trans "Uzito (kg)" %}</label>
                         {{ persona_form.weight_kg }}
                     </div>
                 </div>
             </div>
 
             <div class="profile-card">
-                <h6><i class="bi bi-heart-pulse me-1"></i>Historia ya Afya</h6>
+                <h6><i class="bi bi-heart-pulse me-1"></i>{% trans "Historia ya Afya" %}</h6>
                 <div class="row g-3">
                     <div class="col-12">
-                        <label class="form-label">Maelezo ya Afya</label>
+                        <label class="form-label">{% trans "Maelezo ya Afya" %}</label>
                         {{ persona_form.health_notes }}
                     </div>
                     <div class="col-12">
-                        <label class="form-label">Magonjwa ya Kudumu</label>
+                        <label class="form-label">{% trans "Magonjwa ya Kudumu" %}</label>
                         {{ persona_form.permanent_diseases }}
                     </div>
                     <div class="col-12">
-                        <label class="form-label">Dawa Unazotumia</label>
+                        <label class="form-label">{% trans "Dawa Unazotumia" %}</label>
                         {{ persona_form.medications }}
                     </div>
                 </div>
             </div>
 
             <div class="profile-card">
-                <h6><i class="bi bi-activity me-1"></i>Mtindo wa Maisha</h6>
+                <h6><i class="bi bi-activity me-1"></i>{% trans "Mtindo wa Maisha" %}</h6>
                 <div class="row g-3">
                     <div class="col-12">
-                        <label class="form-label">Maelezo ya Maisha</label>
+                        <label class="form-label">{% trans "Maelezo ya Maisha" %}</label>
                         {{ persona_form.lifestyle_notes }}
                     </div>
                     <div class="col-sm-4">
-                        <label class="form-label">Masaa ya Usingizi</label>
+                        <label class="form-label">{% trans "Masaa ya Usingizi" %}</label>
                         {{ persona_form.sleep_hours }}
                     </div>
                     <div class="col-sm-4">
-                        <label class="form-label">Kiwango cha Msongo</label>
+                        <label class="form-label">{% trans "Kiwango cha Msongo" %}</label>
                         {{ persona_form.stress_level }}
                     </div>
                     <div class="col-sm-4">
-                        <label class="form-label">Mazoezi</label>
+                        <label class="form-label">{% trans "Mazoezi" %}</label>
                         {{ persona_form.exercise_frequency }}
                     </div>
                     <div class="col-12">
-                        <label class="form-label">Chakula (Si lazima)</label>
+                        <label class="form-label">{% trans "Chakula (Si lazima)" %}</label>
                         {{ persona_form.diet }}
                     </div>
                     <div class="col-12">
-                        <label class="form-label">Malengo (Si lazima)</label>
+                        <label class="form-label">{% trans "Malengo (Si lazima)" %}</label>
                         {{ persona_form.goals }}
                     </div>
                     <div class="col-12">
-                        <label class="form-label">Afya ya Akili (Si lazima)</label>
+                        <label class="form-label">{% trans "Afya ya Akili (Si lazima)" %}</label>
                         {{ persona_form.mental_health }}
                     </div>
                 </div>
                 {% if persona_form.errors %}
-                    <div class="alert alert-danger mt-3 small">Angalia makosa kwenye fomu.</div>
+                    <div class="alert alert-danger mt-3 small">{% trans "Angalia makosa kwenye fomu." %}</div>
                 {% endif %}
             </div>
 
             <div class="profile-card">
-                <h6><i class="bi bi-database-check me-1"></i>Ubora wa Data na Uthibitisho</h6>
+                <h6><i class="bi bi-database-check me-1"></i>{% trans "Ubora wa Data na Uthibitisho" %}</h6>
                 <div class="row g-3">
                     <div class="col-sm-6">
-                        <label class="form-label">Jina la Mawasiliano ya Dharura</label>
+                        <label class="form-label">{% trans "Jina la Mawasiliano ya Dharura" %}</label>
                         {{ persona_form.emergency_contact_name }}
                     </div>
                     <div class="col-sm-6">
-                        <label class="form-label">Namba ya Mawasiliano ya Dharura</label>
+                        <label class="form-label">{% trans "Namba ya Mawasiliano ya Dharura" %}</label>
                         {{ persona_form.emergency_contact_phone }}
                     </div>
                     <div class="col-sm-6">
-                        <label class="form-label">Mkoa</label>
+                        <label class="form-label">{% trans "Mkoa" %}</label>
                         {{ persona_form.location_region }}
                     </div>
                     <div class="col-sm-6">
-                        <label class="form-label">Lugha Unayopendelea</label>
+                        <label class="form-label">{% trans "Lugha Unayopendelea" %}</label>
                         {{ persona_form.language_preference }}
                     </div>
 
@@ -444,35 +445,35 @@
                         <div class="form-check">
                             {{ persona_form.ai_data_consent }}
                             <label class="form-check-label" for="{{ persona_form.ai_data_consent.id_for_label }}">
-                                Nakubali data yangu itumike kwa AI personalization salama
+                                {% trans "Nakubali data yangu itumike kwa AI personalization salama" %}
                             </label>
                         </div>
                     </div>
                     <div class="col-sm-6">
                         <div class="form-check">
                             {{ persona_form.identity_verified }}
-                            <label class="form-check-label" for="{{ persona_form.identity_verified.id_for_label }}">Utambulisho umethibitishwa</label>
+                            <label class="form-check-label" for="{{ persona_form.identity_verified.id_for_label }}">{% trans "Utambulisho umethibitishwa" %}</label>
                         </div>
                     </div>
                     <div class="col-sm-6">
                         <div class="form-check">
                             {{ persona_form.medical_info_verified }}
-                            <label class="form-check-label" for="{{ persona_form.medical_info_verified.id_for_label }}">Taarifa za kitabibu zimethibitishwa</label>
+                            <label class="form-check-label" for="{{ persona_form.medical_info_verified.id_for_label }}">{% trans "Taarifa za kitabibu zimethibitishwa" %}</label>
                         </div>
                     </div>
                     <div class="col-12">
-                        <label class="form-label">Maelezo ya Uthibitisho</label>
+                        <label class="form-label">{% trans "Maelezo ya Uthibitisho" %}</label>
                         {{ persona_form.verification_notes }}
                     </div>
                 </div>
                 <div class="small text-muted mt-2">
-                    Kiwango cha ukamilifu: <strong>{{ persona.profile_completeness_score }}%</strong>
-                    {% if persona.last_data_reviewed_at %}• mapitio ya mwisho {{ persona.last_data_reviewed_at|date:'Y-m-d H:i' }}{% endif %}
+                    {% trans "Kiwango cha ukamilifu:" %} <strong>{{ persona.profile_completeness_score }}%</strong>
+                    {% if persona.last_data_reviewed_at %}• {% trans "mapitio ya mwisho" %} {{ persona.last_data_reviewed_at|date:'Y-m-d H:i' }}{% endif %}
                 </div>
             </div>
 
             <button type="submit" class="btn btn-primary profile-action-btn w-100 rounded-pill fw-bold py-2">
-                <i class="bi bi-stars me-1"></i> Sasisha AI Persona
+                <i class="bi bi-stars me-1"></i> {% trans "Sasisha AI Persona" %}
             </button>
         </form>
     </div>

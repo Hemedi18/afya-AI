@@ -33,6 +33,9 @@ ALLOWED_HOSTS = [
     '.pythonanywhere.com',
     'localhost',
     '127.0.0.1',
+    '.ngrok-free.dev',
+    '.ngrok-free.app',
+    '.ngrok.io',
 ]
 
 CSRF_TRUSTED_ORIGINS = [
@@ -83,9 +86,31 @@ BEEM_SEND_URL = os.getenv('BEEM_SEND_URL', 'https://apisms.beem.africa/v1/send')
 ANDROID_SMS_GATEWAY_SEND_URL = os.getenv('ANDROID_SMS_GATEWAY_SEND_URL', '')
 ANDROID_SMS_GATEWAY_TOKEN = os.getenv('ANDROID_SMS_GATEWAY_TOKEN', '')
 
+# ── Email / Gmail SMTP ─────────────────────────────────────────────────────
+_email_backend_env = (os.getenv('EMAIL_BACKEND', '') or '').strip()
+EMAIL_BACKEND = _email_backend_env if _email_backend_env else (
+    'django.core.mail.backends.smtp.EmailBackend'
+    if os.getenv('EMAIL_HOST_USER') else
+    'django.core.mail.backends.console.EmailBackend'
+)
+EMAIL_HOST         = (os.getenv('EMAIL_HOST', 'smtp.gmail.com') or 'smtp.gmail.com').strip()
+EMAIL_PORT         = int(os.getenv('EMAIL_PORT', '587') or '587')
+EMAIL_USE_TLS      = (os.getenv('EMAIL_USE_TLS', 'True') or 'True').strip().lower() in ('1', 'true', 'yes')
+EMAIL_USE_SSL      = (os.getenv('EMAIL_USE_SSL', 'False') or 'False').strip().lower() in ('1', 'true', 'yes')
+EMAIL_HOST_USER    = (os.getenv('EMAIL_HOST_USER', '') or '').strip()
+EMAIL_HOST_PASSWORD = (os.getenv('EMAIL_HOST_PASSWORD', '') or '').strip()
+DEFAULT_FROM_EMAIL = (os.getenv('DEFAULT_FROM_EMAIL', '') or '').strip() or (
+    f'AfyaSmart Health <{EMAIL_HOST_USER}>' if EMAIL_HOST_USER else 'AfyaSmart Health <noreply@afyasmart.app>'
+)
+SERVER_EMAIL       = DEFAULT_FROM_EMAIL
+EMAIL_SUBJECT_PREFIX = '[AfyaSmart] '
+EMAIL_TIMEOUT      = 20   # seconds
+# ───────────────────────────────────────────────────────────────────────────
+
 
 INSTALLED_APPS = [
     'jazzmin',
+    'daphne',
     'channels',
 
     # Authentication providers
@@ -109,6 +134,8 @@ INSTALLED_APPS = [
     'card',
     'offline_chat',
     'mobile_api',
+    'medics',
+    'diseases',
 
     # Third-party apps
 
@@ -210,8 +237,12 @@ STATIC_URL = '/static/'
 STATICFILES_DIRS = [
     BASE_DIR / "static",
     BASE_DIR / "assests",
-    BASE_DIR / "mobile_app" / "web",
 ]
+
+_mobile_web_dir = BASE_DIR / "mobile_app" / "web"
+if _mobile_web_dir.exists():
+    STATICFILES_DIRS.append(_mobile_web_dir)
+
 STATIC_ROOT = BASE_DIR / "staticfiles"
 
 MEDIA_URL = '/media/'
@@ -248,6 +279,28 @@ SOCIALACCOUNT_ADAPTER = 'users.adapters.SocialAccountAdapter'
 SOCIALACCOUNT_LOGIN_ON_GET = True
 SOCIALACCOUNT_AUTO_SIGNUP = True
 SOCIALACCOUNT_STORE_TOKENS = True
+
+# ── Allauth email verification ─────────────────────────────────────────────
+ACCOUNT_EMAIL_VERIFICATION    = os.getenv('ACCOUNT_EMAIL_VERIFICATION', 'optional').strip().lower()
+# Set ACCOUNT_EMAIL_VERIFICATION=mandatory in .env when you are ready to enforce it.
+# 'optional'  → email sent but not required to proceed
+# 'mandatory' → user must confirm email before logging in
+ACCOUNT_EMAIL_CONFIRMATION_EXPIRE_DAYS = 3
+ACCOUNT_LOGIN_ON_EMAIL_CONFIRMATION     = True
+ACCOUNT_CONFIRM_EMAIL_ON_GET            = True
+ACCOUNT_UNIQUE_EMAIL                    = True
+ACCOUNT_EMAIL_SUBJECT_PREFIX            = '[AfyaSmart] '
+
+# Social logins (Google, Facebook, X) skip email verification entirely —
+# the provider (e.g. Google) already guarantees the email is verified.
+SOCIALACCOUNT_EMAIL_VERIFICATION = 'none'
+SOCIALACCOUNT_EMAIL_REQUIRED     = False
+
+# New-style allauth settings (replaces deprecated ACCOUNT_EMAIL_REQUIRED,
+# ACCOUNT_USERNAME_REQUIRED, ACCOUNT_AUTHENTICATION_METHOD)
+ACCOUNT_SIGNUP_FIELDS = ['email*', 'username*', 'password1*', 'password2*']
+ACCOUNT_LOGIN_METHODS = {'email'}
+# ───────────────────────────────────────────────────────────────────────────
 
 GOOGLE_CLIENT_ID = (os.getenv('GOOGLE_CLIENT_ID', '') or '').strip()
 GOOGLE_CLIENT_SECRET = (os.getenv('GOOGLE_CLIENT_SECRET', '') or '').strip()
@@ -386,3 +439,7 @@ FILE_UPLOAD_PERMISSIONS = 0o644
 # Create tmp_uploads directory if it doesn't exist
 import os
 os.makedirs(FILE_UPLOAD_TEMP_DIR, exist_ok=True)
+
+
+MEDIA_URL = '/media/'
+MEDIA_ROOT = BASE_DIR / 'media'

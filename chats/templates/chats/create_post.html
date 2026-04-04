@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load i18n %}
 
 {% block extra_head %}
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/cropperjs@1.6.2/dist/cropper.min.css">
@@ -321,10 +322,10 @@
             <div class="create-post-card">
                 <div class="create-post-head">
                     <div>
-                        <div class="create-post-title">Tengeneza chapisho</div>
-                        <div class="create-post-sub">Andika chapisho jipya kwa jamii ya {{ community_gender_label }}.</div>
+                        <div class="create-post-title">{% trans "Tengeneza chapisho" %}</div>
+                        <div class="create-post-sub">{% blocktrans trimmed with gender_label=community_gender_label %}Andika chapisho jipya kwa jamii ya {{ gender_label }}.{% endblocktrans %}</div>
                     </div>
-                    <a href="{% url 'chats:feed_posts' %}" class="btn btn-sm btn-outline-secondary rounded-pill">Rudi kwenye machapisho</a>
+                    <a href="{% url 'chats:feed_posts' %}" class="btn btn-sm btn-outline-secondary rounded-pill">{% trans "Rudi kwenye machapisho" %}</a>
                 </div>
 
                 <form method="post" action="{% url 'chats:post_create' %}" enctype="multipart/form-data">
@@ -337,12 +338,12 @@
                     <div class="alert alert-danger fade show" role="alert" id="profileWarningBox" style="border-radius: 14px; border: 1px solid rgba(220,53,69,.45); margin-bottom: 1rem;">
                         <div class="d-flex justify-content-between align-items-start gap-2">
                             <div>
-                                <strong><i class="bi bi-exclamation-triangle-fill me-1"></i>Profile haijakamilika</strong><br>
-                                Kamilisha usajili wa wasifu wako (sasa {{ profile_completeness }}%) kabla ya kuchapisha bila kujitambulisha.
-                                Ukibonyeza Publish ukiwa hujakamilisha, utaelekezwa kwenye onboarding.
-                                <a href="{% url 'users:onboarding' step=1 %}?next={{ onboarding_next_url|urlencode }}" class="alert-link" id="completeProfileLink">Kamilisha sasa →</a>
+                                <strong><i class="bi bi-exclamation-triangle-fill me-1"></i>{% trans "Profile haijakamilika" %}</strong><br>
+                                {% blocktrans trimmed with completeness=profile_completeness %}Kamilisha usajili wa wasifu wako (sasa {{ completeness }}%) kabla ya kuchapisha bila kujitambulisha.{% endblocktrans %}
+                                {% trans "Ukibonyeza Publish ukiwa hujakamilisha, utaelekezwa kwenye onboarding." %}
+                                <a href="{% url 'users:onboarding' step=1 %}?next={{ onboarding_next_url|urlencode }}" class="alert-link" id="completeProfileLink">{% trans "Kamilisha sasa →" %}</a>
                             </div>
-                            <button type="button" class="btn-close" aria-label="Funga" id="dismissProfileWarning"></button>
+                            <button type="button" class="btn-close" aria-label="{% trans 'Funga' %}" id="dismissProfileWarning"></button>
                         </div>
                     </div>
                     {% endif %}
@@ -357,7 +358,7 @@
                             <button class="tool-btn" type="button" data-editor-block="blockquote"><i class="bi bi-chat-quote"></i></button>
                             <button class="tool-btn" type="button" data-editor-link><i class="bi bi-link-45deg"></i></button>
                             <select class="tool-select" data-editor-font-size>
-                                <option value="3">Fonti</option>
+                                <option value="3">{% trans "Fonti" %}</option>
                                 <option value="1">10px</option>
                                 <option value="2">13px</option>
                                 <option value="3">16px</option>
@@ -365,27 +366,27 @@
                                 <option value="5">24px</option>
                                 <option value="6">32px</option>
                             </select>
-                            <input class="tool-color" type="color" value="#2f6b3f" data-editor-color title="Rangi ya maandishi">
-                            <input class="tool-color" type="color" value="#fff6c0" data-editor-bg title="Rangi ya mandharinyuma">
-                            <button class="tool-btn" type="button" data-editor-clear>Futa</button>
+                            <input class="tool-color" type="color" value="#2f6b3f" data-editor-color title="{% trans 'Rangi ya maandishi' %}">
+                            <input class="tool-color" type="color" value="#fff6c0" data-editor-bg title="{% trans 'Rangi ya mandharinyuma' %}">
+                            <button class="tool-btn" type="button" data-editor-clear>{% trans "Futa" %}</button>
                         </div>
-                        <div id="postEditor" class="editor-surface" contenteditable="true" data-placeholder="Andika post yako hapa... unaweza kubold, kubadilisha rangi, kuweka link, headings na list."></div>
+                        <div id="postEditor" class="editor-surface" contenteditable="true" data-placeholder="{% trans 'Andika post yako hapa... unaweza kubold, kubadilisha rangi, kuweka link, headings na list.' %}"></div>
                     </div>
                     <textarea name="content" id="postContentInput" class="d-none"></textarea>
                     <div class="word-meter">
-                        <span>Maneno angalau 5 • Inashauriwa yasizidi 120 kwenye ukurasa wa mwanzo kabla ya "Soma zaidi".</span>
-                        <strong id="wordCountLabel">maneno 0</strong>
+                        <span>{% trans 'Maneno angalau 5 • Inashauriwa yasizidi 120 kwenye ukurasa wa mwanzo kabla ya "Soma zaidi".' %}</span>
+                        <strong id="wordCountLabel">{% trans "maneno 0" %}</strong>
                     </div>
 
                     <div class="post-options-grid">
                         <div class="option-card">
-                            <div class="fw-semibold small mb-2">Wigo wa chapisho</div>
+                            <div class="fw-semibold small mb-2">{% trans "Wigo wa chapisho" %}</div>
                             <div class="form-check mb-2">
                                 <input class="form-check-input" type="checkbox" name="post_for_all" id="id_post_for_all">
-                                <label class="form-check-label small" for="id_post_for_all">Chapisha kwa jamii yote, si kwa vikundi maalum</label>
+                                <label class="form-check-label small" for="id_post_for_all">{% trans "Chapisha kwa jamii yote, si kwa vikundi maalum" %}</label>
                             </div>
                             <details class="multi-picker">
-                                <summary><i class="bi bi-collection"></i> Chagua groups nyingi</summary>
+                                <summary><i class="bi bi-collection"></i> {% trans "Chagua groups nyingi" %}</summary>
                                 <div class="multi-picker-grid">
                                     {% for group in groups %}
                                     <label class="multi-option">
@@ -397,7 +398,7 @@
                                         </span>
                                     </label>
                                     {% empty %}
-                                    <div class="form-note">Hakuna groups bado.</div>
+                                    <div class="form-note">{% trans "Hakuna groups bado." %}</div>
                                     {% endfor %}
                                 </div>
                             </details>
@@ -405,30 +406,30 @@
 
                         <div class="option-card d-flex flex-column justify-content-between">
                             <div>
-                                <div class="fw-semibold small mb-2">Chaguo za chapisho</div>
+                                <div class="fw-semibold small mb-2">{% trans "Chaguo za chapisho" %}</div>
                                 <div class="form-check mb-2">
                                     <input class="form-check-input" type="checkbox" name="publish_as_status" id="id_publish_as_status">
-                                    <label class="form-check-label small" for="id_publish_as_status">Chapisha pia kama status</label>
+                                    <label class="form-check-label small" for="id_publish_as_status">{% trans "Chapisha pia kama status" %}</label>
                                 </div>
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" name="is_anonymous" id="id_is_anonymous_create" {% if default_anonymous_mode %}checked{% endif %}>
-                                    <label class="form-check-label small" for="id_is_anonymous_create">Chapisha bila kujitambulisha</label>
+                                    <label class="form-check-label small" for="id_is_anonymous_create">{% trans "Chapisha bila kujitambulisha" %}</label>
                                 </div>
                             </div>
-                            <div class="form-note mt-3">Unaweza kuchagua groups nyingi, au ukaweka kwa jamii yote.</div>
+                            <div class="form-note mt-3">{% trans "Unaweza kuchagua groups nyingi, au ukaweka kwa jamii yote." %}</div>
                         </div>
                     </div>
 
                     <div class="media-grid">
                         <div class="media-card">
-                            <label class="form-label fw-semibold small">Pakia picha</label>
+                            <label class="form-label fw-semibold small">{% trans "Pakia picha" %}</label>
                             <input type="file" name="image" id="postImageInput" class="form-control mb-2" accept="image/*">
-                            <label class="form-label fw-semibold small">Pakia video</label>
+                            <label class="form-label fw-semibold small">{% trans "Pakia video" %}</label>
                             <input type="file" name="video" id="postVideoInput" class="form-control" accept="video/*">
                             <div class="d-flex align-items-center justify-content-between gap-2 mt-2">
-                                <div class="form-note mb-0">Unaweza kuweka picha/video moja, au tumia Ongeza zaidi kuongeza media nyingi.</div>
-                                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill" id="addMoreMediaBtn" title="Ongeza media zaidi">
-                                    <i class="bi bi-plus-square-dotted me-1"></i> Ongeza zaidi
+                                <div class="form-note mb-0">{% trans "Unaweza kuweka picha/video moja, au tumia Ongeza zaidi kuongeza media nyingi." %}</div>
+                                <button type="button" class="btn btn-sm btn-outline-primary rounded-pill" id="addMoreMediaBtn" title="{% trans 'Ongeza media zaidi' %}">
+                                    <i class="bi bi-plus-square-dotted me-1"></i> {% trans "Ongeza zaidi" %}
                                 </button>
                             </div>
                             <input type="file" name="media_files" id="postMediaMultiInput" class="d-none" accept="image/*,video/*" multiple>
@@ -437,37 +438,37 @@
                         </div>
 
                         <div class="media-card">
-                            <div class="fw-semibold small mb-2">Muonekano wa fremu na ukataji</div>
+                            <div class="fw-semibold small mb-2">{% trans "Muonekano wa fremu na ukataji" %}</div>
                             <div id="mediaPreviewShell" class="media-preview-shell ratio-auto shape-rounded">
-                                <div id="mediaEmptyState" class="media-empty">Chagua image au video. Hapa utaona crop/frame exactly jinsi itakavyoonekana kwenye post.</div>
-                                <img id="imageCropTarget" alt="Hakiki ya ukataji" style="display:none;max-width:100%;">
+                                <div id="mediaEmptyState" class="media-empty">{% trans "Chagua image au video. Hapa utaona crop/frame exactly jinsi itakavyoonekana kwenye post." %}</div>
+                                <img id="imageCropTarget" alt="{% trans 'Hakiki ya ukataji' %}" style="display:none;max-width:100%;">
                                 <video id="videoPreviewTarget" style="display:none;" controls muted playsinline></video>
                             </div>
                             <div class="media-controls-grid">
                                 <div>
-                                    <label class="form-label fw-semibold small">Uwiano wa vipimo</label>
+                                    <label class="form-label fw-semibold small">{% trans "Uwiano wa vipimo" %}</label>
                                     <select name="media_ratio" id="mediaRatioSelect" class="form-select">
-                                        <option value="auto">Otomatiki</option>
-                                        <option value="square">Mraba</option>
+                                        <option value="auto">{% trans "Otomatiki" %}</option>
+                                        <option value="square">{% trans "Mraba" %}</option>
                                         <option value="portrait">Portrait 4:5</option>
                                         <option value="story">Story 9:16</option>
                                         <option value="landscape">Landscape 16:9</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <label class="form-label fw-semibold small">Umbo</label>
+                                    <label class="form-label fw-semibold small">{% trans "Umbo" %}</label>
                                     <select name="media_shape" id="mediaShapeSelect" class="form-select">
-                                        <option value="rounded">Lina mviringo</option>
-                                        <option value="square">Mraba</option>
-                                        <option value="circle">Duara</option>
+                                        <option value="rounded">{% trans "Lina mviringo" %}</option>
+                                        <option value="square">{% trans "Mraba" %}</option>
+                                        <option value="circle">{% trans "Duara" %}</option>
                                     </select>
                                 </div>
                                 <div>
-                                    <div class="media-range-label"><span>Lenga kushoto/kulia</span><span id="focusXValue">50%</span></div>
+                                    <div class="media-range-label"><span>{% trans "Lenga kushoto/kulia" %}</span><span id="focusXValue">50%</span></div>
                                     <input type="range" min="0" max="100" value="50" name="media_focus_x" id="mediaFocusX" class="form-range">
                                 </div>
                                 <div>
-                                    <div class="media-range-label"><span>Lenga juu/chini</span><span id="focusYValue">50%</span></div>
+                                    <div class="media-range-label"><span>{% trans "Lenga juu/chini" %}</span><span id="focusYValue">50%</span></div>
                                     <input type="range" min="0" max="100" value="50" name="media_focus_y" id="mediaFocusY" class="form-range">
                                 </div>
                             </div>
@@ -477,21 +478,21 @@
                     <div class="clarify-box mb-3">
                         <div class="form-check mb-2">
                             <input class="form-check-input" type="checkbox" name="request_clarification" id="id_request_clarification_create">
-                            <label class="form-check-label fw-semibold small" for="id_request_clarification_create">Tuma kwa msimamizi/daktari kwa ufafanuzi</label>
+                            <label class="form-check-label fw-semibold small" for="id_request_clarification_create">{% trans "Tuma kwa msimamizi/daktari kwa ufafanuzi" %}</label>
                         </div>
                         <div class="row g-2">
                             <div class="col-md-3">
                                 <select name="clarify_target_role" class="form-select form-select-sm">
-                                    <option value="doctor">Daktari</option>
-                                    <option value="admin">Msimamizi</option>
+                                    <option value="doctor">{% trans "Daktari" %}</option>
+                                    <option value="admin">{% trans "Msimamizi" %}</option>
                                 </select>
                             </div>
                             <div class="col-md-9">
-                                <input type="text" name="clarify_question" class="form-control form-control-sm" placeholder="Mfano: Naomba afafanue kama dalili hizi ni za kawaida.">
+                                <input type="text" name="clarify_question" class="form-control form-control-sm" placeholder="{% trans 'Mfano: Naomba afafanue kama dalili hizi ni za kawaida.' %}">
                             </div>
                         </div>
                         <details class="doctor-picker">
-                            <summary><i class="bi bi-person-badge"></i> Chagua doctor wa kujibu</summary>
+                            <summary><i class="bi bi-person-badge"></i> {% trans "Chagua doctor wa kujibu" %}</summary>
                             <div class="doctor-picker-grid">
                                 {% for doctor in available_doctors %}
                                 <label class="doctor-option">
@@ -503,7 +504,7 @@
                                     </span>
                                 </label>
                                 {% empty %}
-                                <div class="form-note">Hakuna daktari aliyethibitishwa kwa sasa.</div>
+                                <div class="form-note">{% trans "Hakuna daktari aliyethibitishwa kwa sasa." %}</div>
                                 {% endfor %}
                             </div>
                         </details>
@@ -513,14 +514,14 @@
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" name="terms_accepted" id="id_terms_accepted">
                             <label class="form-check-label fw-semibold small" for="id_terms_accepted">
-                                Nakubali <a href="#" class="text-decoration-none">miongozo ya jamii</a> na <a href="#" class="text-decoration-none">masharti ya huduma</a>
+                                {% trans "Nakubali" %} <a href="#" class="text-decoration-none">{% trans "miongozo ya jamii" %}</a> {% trans "na" %} <a href="#" class="text-decoration-none">{% trans "masharti ya huduma" %}</a>
                             </label>
                         </div>
                     </div>
 
                     <div class="d-flex gap-2 justify-content-end flex-wrap">
-                        <a href="{% url 'chats:feed_posts' %}" class="btn btn-outline-secondary rounded-pill px-4">Ghairi</a>
-                        <button class="btn btn-danger rounded-pill px-4" type="submit" id="publishBtn">Chapisha</button>
+                        <a href="{% url 'chats:feed_posts' %}" class="btn btn-outline-secondary rounded-pill px-4">{% trans "Ghairi" %}</a>
+                        <button class="btn btn-danger rounded-pill px-4" type="submit" id="publishBtn">{% trans "Chapisha" %}</button>
                     </div>
                 </form>
             </div>

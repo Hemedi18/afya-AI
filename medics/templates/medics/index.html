@@ -1,0 +1,282 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans 'Dawa na Matumizi' %} - AfyaSmart{% endblock %}
+
+{% block content %}
+<style>
+    .medics-shell {
+        max-width: 1160px;
+        margin: 0 auto;
+        padding: 1.25rem 1rem 6rem;
+    }
+    .medics-hero,
+    .medics-card,
+    .medics-panel {
+        background: color-mix(in srgb, var(--card-bg) 94%, transparent);
+        border: 1px solid var(--line-soft);
+        border-radius: 24px;
+        box-shadow: 0 14px 34px rgba(0,0,0,.08);
+    }
+    .medics-hero {
+        padding: 1.35rem;
+        margin-bottom: 1rem;
+        background-image: radial-gradient(circle at 10% 16%, color-mix(in srgb, var(--primary) 16%, transparent), transparent 34%), radial-gradient(circle at 90% 12%, color-mix(in srgb, var(--secondary) 16%, transparent), transparent 38%);
+    }
+    .banner-card {
+        position: relative;
+        min-height: 240px;
+        overflow: hidden;
+        border-radius: 24px;
+        margin-bottom: 1rem;
+        border: 1px solid var(--line-soft);
+        box-shadow: 0 16px 36px color-mix(in srgb, var(--primary) 16%, transparent);
+    }
+    .banner-card img {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+    .banner-card::after {
+        content: '';
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(110deg, rgba(10, 18, 16, .72), rgba(20, 42, 33, .32));
+    }
+    .banner-copy {
+        position: relative;
+        z-index: 1;
+        color: #fff;
+        padding: 1.35rem;
+        max-width: 640px;
+    }
+    .banner-chip {
+        display: inline-flex;
+        align-items: center;
+        gap: .45rem;
+        border-radius: 999px;
+        padding: .35rem .7rem;
+        background: rgba(255,255,255,.14);
+        border: 1px solid rgba(255,255,255,.22);
+        backdrop-filter: blur(8px);
+        margin-bottom: .85rem;
+        font-size: .84rem;
+    }
+    .banner-copy h3 { font-weight: 900; margin: 0 0 .4rem; }
+    .banner-copy p { margin: 0; line-height: 1.7; color: rgba(255,255,255,.92); }
+    .hero-title { font-weight: 900; margin: 0; }
+    .hero-copy { color: var(--text-muted); margin: .45rem 0 0; line-height: 1.7; }
+    .hero-meta {
+        display: inline-flex;
+        gap: .45rem;
+        align-items: center;
+        padding: .4rem .75rem;
+        margin-top: .9rem;
+        border-radius: 999px;
+        border: 1px solid var(--line-soft);
+        background: color-mix(in srgb, var(--card-bg) 86%, transparent);
+        font-size: .88rem;
+    }
+    .search-bar {
+        padding: 1rem;
+        margin-bottom: 1rem;
+    }
+    .search-grid {
+        display: grid;
+        grid-template-columns: 1.8fr auto auto;
+        gap: .75rem;
+        align-items: center;
+    }
+    .form-check-shell {
+        border: 1px solid var(--line-soft);
+        border-radius: 14px;
+        padding: .78rem .9rem;
+        background: color-mix(in srgb, var(--card-bg) 92%, transparent);
+    }
+    .section-label {
+        font-weight: 800;
+        margin-bottom: .75rem;
+        display: flex;
+        align-items: center;
+        gap: .45rem;
+    }
+    .result-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+        gap: 1rem;
+    }
+    .medics-card {
+        padding: 1rem;
+        height: 100%;
+    }
+    .medics-badge,
+    .source-badge {
+        display: inline-flex;
+        align-items: center;
+        border-radius: 999px;
+        padding: .24rem .55rem;
+        font-size: .72rem;
+        border: 1px solid var(--line-soft);
+    }
+    .source-badge { color: var(--primary); background: color-mix(in srgb, var(--primary) 8%, transparent); }
+    .med-name { font-weight: 900; margin: .6rem 0 .2rem; }
+    .med-sub { color: var(--text-muted); font-size: .92rem; margin-bottom: .65rem; }
+    .med-copy {
+        color: var(--text-muted);
+        line-height: 1.62;
+        font-size: .92rem;
+        min-height: 70px;
+    }
+    .pill-row {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .45rem;
+        margin-top: .75rem;
+    }
+    .info-pill {
+        border-radius: 999px;
+        padding: .35rem .65rem;
+        font-size: .76rem;
+        border: 1px solid var(--line-soft);
+        background: color-mix(in srgb, var(--card-bg) 90%, transparent);
+    }
+    .action-row {
+        display: flex;
+        gap: .65rem;
+        margin-top: .95rem;
+        flex-wrap: wrap;
+    }
+    .empty-state {
+        padding: 1.15rem;
+        text-align: center;
+        color: var(--text-muted);
+        border: 1px dashed color-mix(in srgb, var(--primary) 32%, var(--line-soft));
+        border-radius: 18px;
+        background: color-mix(in srgb, var(--card-bg) 90%, transparent);
+    }
+    @media (max-width: 767px) {
+        .search-grid { grid-template-columns: 1fr; }
+        .medics-hero, .medics-card, .medics-panel, .form-check-shell {
+            background: var(--mobile-solid) !important;
+            background-image: none !important;
+        }
+    }
+</style>
+
+<div class="medics-shell">
+    <section class="medics-hero">
+        <h2 class="hero-title"><i class="bi bi-capsule-pill me-2"></i>{% trans 'Dawa na Matumizi' %}</h2>
+        <p class="hero-copy">{% blocktrans trimmed %}Tafuta dawa, soma maelezo ya matumizi, na angalia taarifa za msingi kwa mtindo unaofanana na kurasa nyingine za AfyaSmart. Taarifa hizi ni za elimu na hazibadilishi ushauri wa daktari.{% endblocktrans %}</p>
+        <div class="hero-meta">
+            <i class="bi bi-search-heart"></i>
+            <span>{% blocktrans trimmed with count=results_count %}Matokeo yaliyopatikana: <strong>{{ count }}</strong>{% endblocktrans %}</span>
+        </div>
+    </section>
+
+    <section class="banner-card" aria-label="{% trans 'Bango la dawa' %}">
+        <img src="https://images.unsplash.com/photo-1587854692152-cbe660dbde88?auto=format&fit=crop&w=1400&q=80" alt="{% trans 'Picha ya dawa na vifaa vya afya' %}">
+        <div class="banner-copy">
+            <span class="banner-chip"><i class="bi bi-stars"></i>{% trans 'Mwonekano wa AfyaSmart' %}</span>
+            <h3>{% trans 'Maktaba ya dawa iliyo rahisi kuona' %}</h3>
+            <p>{% blocktrans trimmed %}Bango hili linafuata mtindo wa kadi, miale ya rangi, na lugha ya kirafiki ya mfumo. Hivyo ukurasa wa dawa unabaki kuwa wa kisasa lakini bado wa kitabibu na wa kueleweka kwa haraka.{% endblocktrans %}</p>
+        </div>
+    </section>
+
+    <section class="medics-panel search-bar">
+        <form method="get" class="search-grid">
+            <input type="text" name="q" class="form-control" value="{{ query }}" placeholder="{% trans 'Mfano: paracetamol, amoxicillin' %}">
+            <label class="form-check form-check-shell m-0">
+                <input class="form-check-input" type="checkbox" name="include_remote" value="1" {% if include_remote %}checked{% endif %}>
+                <span class="ms-2">{% trans 'Jumuisha matokeo ya nje' %}</span>
+            </label>
+            <button type="submit" class="btn btn-danger px-4"><i class="bi bi-search me-1"></i>{% trans 'Tafuta' %}</button>
+        </form>
+    </section>
+
+    <section class="mb-4">
+        <div class="section-label"><i class="bi bi-database"></i>{% trans 'Dawa zilizopo ndani ya mfumo' %}</div>
+        {% if local_items %}
+            <div class="result-grid">
+                {% for item in local_items %}
+                    <article class="medics-card">
+                        <span class="source-badge">{% trans 'Ndani ya mfumo' %}</span>
+                        <h4 class="med-name">{{ item.name }}</h4>
+                        <div class="med-sub">
+                            {% if item.generic_name %}
+                                {{ item.generic_name }}
+                            {% else %}
+                                {% trans 'Hakuna jina la generic' %}
+                            {% endif %}
+                        </div>
+                        <p class="med-copy">
+                            {% if item.description %}
+                                {{ item.description|truncatechars:180 }}
+                            {% else %}
+                                {% trans 'Hakuna maelezo ya ziada kwa sasa.' %}
+                            {% endif %}
+                        </p>
+                        <div class="pill-row">
+                            {% if item.dosage %}<span class="info-pill"><i class="bi bi-eyedropper me-1"></i>{{ item.dosage }}</span>{% endif %}
+                            {% if item.manufacturer %}<span class="info-pill"><i class="bi bi-building me-1"></i>{{ item.manufacturer }}</span>{% endif %}
+                            <span class="info-pill"><i class="bi bi-shield-check me-1"></i>{% if item.rx_required %}{% trans 'Inahitaji cheti cha daktari' %}{% else %}{% trans 'Bila cheti cha daktari' %}{% endif %}</span>
+                        </div>
+                        <div class="action-row">
+                            <a class="btn btn-outline-danger btn-sm" href="{% url 'medics:detail' item.id %}">{% trans 'Angalia Maelezo' %}</a>
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <i class="bi bi-inbox fs-3 d-block mb-2"></i>
+                {% trans 'Hakuna dawa za ndani zilizolingana na utafutaji wako bado.' %}
+            </div>
+        {% endif %}
+    </section>
+
+    <section>
+        <div class="section-label"><i class="bi bi-globe2"></i>{% trans 'Matokeo ya ziada kutoka chanzo cha dawa' %}</div>
+        {% if remote_items %}
+            <div class="result-grid">
+                {% for item in remote_items %}
+                    <article class="medics-card">
+                        <span class="source-badge">OpenFDA</span>
+                        <h4 class="med-name">
+                            {% if item.name %}
+                                {{ item.name }}
+                            {% else %}
+                                {% trans 'Jina halijapatikana' %}
+                            {% endif %}
+                        </h4>
+                        <div class="med-sub">
+                            {% if item.generic_name %}
+                                {{ item.generic_name }}
+                            {% else %}
+                                {% trans 'Hakuna jina la generic' %}
+                            {% endif %}
+                        </div>
+                        <p class="med-copy">
+                            {% if item.description %}
+                                {{ item.description|truncatechars:190 }}
+                            {% else %}
+                                {% trans 'Hakuna maelezo ya matumizi yaliyorejeshwa.' %}
+                            {% endif %}
+                        </p>
+                        <div class="pill-row">
+                            {% if item.dosage %}<span class="info-pill"><i class="bi bi-eyedropper me-1"></i>{{ item.dosage|truncatechars:60 }}</span>{% endif %}
+                            {% if item.manufacturer %}<span class="info-pill"><i class="bi bi-building me-1"></i>{{ item.manufacturer }}</span>{% endif %}
+                        </div>
+                    </article>
+                {% endfor %}
+            </div>
+        {% else %}
+            <div class="empty-state">
+                <i class="bi bi-cloud-slash fs-3 d-block mb-2"></i>
+                {% trans 'Hakuna matokeo ya ziada ya nje kwa utafutaji huu.' %}
+            </div>
+        {% endif %}
+    </section>
+</div>
+{% endblock %}

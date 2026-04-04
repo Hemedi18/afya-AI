@@ -3,6 +3,7 @@ anyio==4.13.0
 asgiref==3.11.1
 bleach==6.2.0
 channels==4.3.1
+daphne==4.2.1
 certifi==2026.2.25
 cryptography==46.0.3
 distro==1.9.0

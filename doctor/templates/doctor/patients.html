@@ -1,7 +1,7 @@
 {% extends 'base.html' %}
 {% load i18n %}
 
-{% block title %}Wagonjwa Wangu — AfyaSmart{% endblock %}
+{% block title %}{% trans "Wagonjwa Wangu" %} — AfyaSmart{% endblock %}
 
 {% block content %}
 <style>
@@ -21,14 +21,14 @@
     <div class="card-custom p-4 mb-4">
         <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
             <div>
-                <h4 class="fw-bold mb-1"><i class="bi bi-people-fill me-2 text-success"></i>Wagonjwa Wangu</h4>
+                <h4 class="fw-bold mb-1"><i class="bi bi-people-fill me-2 text-success"></i>{% trans "Wagonjwa Wangu" %}</h4>
                 <p class="text-muted small mb-0">
-                    Orodha ya wagonjwa wote uliozungumza nao kwenye private chat.
-                    Unaweza kutengeneza log forms na kuona data zao za afya.
+                    {% trans "Orodha ya wagonjwa wote uliozungumza nao kwenye private chat." %}
+                    {% trans "Unaweza kutengeneza log forms na kuona data zao za afya." %}
                 </p>
             </div>
             <a href="{% url 'doctor:hub' %}" class="btn btn-sm btn-outline-secondary rounded-pill">
-                <i class="bi bi-arrow-left me-1"></i>Rudi Hub
+                <i class="bi bi-arrow-left me-1"></i>{% trans "Rudi Hub" %}
             </a>
         </div>
     </div>
@@ -58,7 +58,7 @@
                     </div>
                     {% if patient.last_chat %}
                     <div class="text-muted small mb-3">
-                        <i class="bi bi-clock me-1"></i>Chat ya mwisho: {{ patient.last_chat|date:"d M Y" }}
+                        <i class="bi bi-clock me-1"></i>{% trans "Chat ya mwisho:" %} {{ patient.last_chat|date:"d M Y" }}
                     </div>
                     {% endif %}
                     <div class="d-flex gap-2 flex-wrap mt-auto">
@@ -109,9 +109,9 @@
     {% else %}
     <div class="card-custom p-5 text-center">
         <i class="bi bi-person-slash display-4 text-muted mb-3 d-block"></i>
-        <h5 class="fw-semibold">Bado hujazungumza na mgonjwa yeyote</h5>
-        <p class="text-muted">Wagonjwa wataonekana hapa baada ya kuanzisha private chat nao.</p>
-        <a href="{% url 'doctor:hub' %}" class="btn btn-outline-primary rounded-pill mt-2">Rudi Hub</a>
+        <h5 class="fw-semibold">{% trans "Bado hujazungumza na mgonjwa yeyote" %}</h5>
+        <p class="text-muted">{% trans "Wagonjwa wataonekana hapa baada ya kuanzisha private chat nao." %}</p>
+        <a href="{% url 'doctor:hub' %}" class="btn btn-outline-primary rounded-pill mt-2">{% trans "Rudi Hub" %}</a>
     </div>
     {% endif %}
 </div>

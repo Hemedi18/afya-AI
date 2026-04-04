@@ -1,0 +1,127 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{{ item.name }} - AfyaSmart{% endblock %}
+
+{% block content %}
+<style>
+    .detail-shell { max-width: 960px; margin: 0 auto; padding: 1.25rem 1rem 6rem; }
+    .detail-card, .info-card {
+        background: color-mix(in srgb, var(--card-bg) 94%, transparent);
+        border: 1px solid var(--line-soft);
+        border-radius: 24px;
+        box-shadow: 0 14px 34px rgba(0,0,0,.08);
+    }
+    .detail-card { padding: 1.35rem; margin-bottom: 1rem; }
+    .detail-title { font-weight: 900; margin: 0; }
+    .detail-sub { color: var(--text-muted); margin-top: .4rem; }
+    .info-grid { display: grid; grid-template-columns: repeat(2, minmax(0,1fr)); gap: 1rem; }
+    .info-card { padding: 1rem; }
+    .info-card h5 { font-weight: 800; margin-bottom: .5rem; }
+    .info-card p { margin: 0; color: var(--text-muted); line-height: 1.68; }
+    .top-actions { display: flex; gap: .7rem; flex-wrap: wrap; margin-top: 1rem; }
+    .pill-row { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .9rem; }
+    .info-pill {
+        border-radius: 999px;
+        padding: .38rem .7rem;
+        border: 1px solid var(--line-soft);
+        background: color-mix(in srgb, var(--card-bg) 90%, transparent);
+        font-size: .8rem;
+    }
+    @media (max-width: 767px) {
+        .info-grid { grid-template-columns: 1fr; }
+        .detail-card, .info-card { background: var(--mobile-solid) !important; background-image: none !important; }
+    }
+</style>
+
+<div class="detail-shell">
+    <section class="detail-card">
+        <h2 class="detail-title"><i class="bi bi-capsule me-2"></i>{{ item.name }}</h2>
+        <p class="detail-sub">
+            {% if item.generic_name %}
+                {{ item.generic_name }}
+            {% else %}
+                {% trans 'Hakuna jina la generic lililosajiliwa' %}
+            {% endif %}
+        </p>
+        <div class="pill-row">
+            {% if item.dosage %}<span class="info-pill"><i class="bi bi-eyedropper me-1"></i>{{ item.dosage }}</span>{% endif %}
+            {% if item.manufacturer %}<span class="info-pill"><i class="bi bi-building me-1"></i>{{ item.manufacturer }}</span>{% endif %}
+            <span class="info-pill"><i class="bi bi-shield-check me-1"></i>{% if item.rx_required %}{% trans 'Inahitaji cheti cha daktari' %}{% else %}{% trans 'Inaweza kupatikana bila cheti cha daktari' %}{% endif %}</span>
+        </div>
+        <div class="top-actions">
+            <a href="{% url 'medics:browse' %}" class="btn btn-outline-danger"><i class="bi bi-arrow-left me-1"></i>{% trans 'Rudi kwenye dawa' %}</a>
+            <a href="{% url 'main:services' %}" class="btn btn-danger"><i class="bi bi-grid me-1"></i>{% trans 'Huduma nyingine' %}</a>
+        </div>
+    </section>
+
+    <section class="info-grid">
+        <article class="info-card">
+            <h5>{% trans 'Maelezo' %}</h5>
+            <p>
+                {% if item.description %}
+                    {{ item.description }}
+                {% else %}
+                    {% trans 'Hakuna maelezo ya dawa hii kwa sasa.' %}
+                {% endif %}
+            </p>
+        </article>
+        <article class="info-card">
+            <h5>{% trans 'Viambato hai' %}</h5>
+            <p>
+                {% if item.active_ingredients %}
+                    {{ item.active_ingredients }}
+                {% else %}
+                    {% trans 'Hakuna viambato vilivyowekwa.' %}
+                {% endif %}
+            </p>
+        </article>
+            <article class="info-card">
+                <h5>{% trans 'Jinsi inavyofanya kazi' %}</h5>
+                <p>{{ item.mechanism|default:'Maelezo ya jinsi dawa hii inavyofanya kazi hayajapatikana.' }}</p>
+            </article>
+            <article class="info-card">
+                <h5>{% trans 'Madhara ya kawaida' %}</h5>
+                <ul>
+                    {% for effect in item.side_effects_list %}
+                        <li>{{ effect }}</li>
+                    {% empty %}
+                        <li>{% trans 'Hakuna taarifa za madhara yaliyohifadhiwa.' %}</li>
+                    {% endfor %}
+                </ul>
+            </article>
+            <article class="info-card">
+                <h5>{% trans 'Maswali yaulizwayo mara kwa mara (FAQs)' %}</h5>
+                <ul>
+                    {% for q, a in item.faqs_list %}
+                        <li><strong>{{ q }}</strong><br>{{ a }}</li>
+                    {% empty %}
+                        <li>{% trans 'Hakuna maswali yaliyohifadhiwa.' %}</li>
+                    {% endfor %}
+                </ul>
+            </article>
+            <article class="info-card">
+                <h5>{% trans 'Ushauri wa daktari' %}</h5>
+                <p>{{ item.doctor_advice|default:'Tafadhali wasiliana na daktari kwa ushauri binafsi kuhusu matumizi ya dawa hii.' }}</p>
+            </article>
+            <article class="info-card">
+                <h5>{% trans 'Je, wajua?' %}</h5>
+                <p>
+                    {% if item.did_you_know %}
+                        {{ item.did_you_know }}
+                    {% else %}
+                        {% trans 'Hakuna taarifa ya ziada kwa sasa.' %}
+                    {% endif %}
+                </p>
+            </article>
+            <article class="info-card">
+                <h5>{% trans 'Vyanzo vya kuaminika' %}</h5>
+                <ul>
+                    <li><a href="https://medlineplus.gov/druginfo/meds/" target="_blank">{% trans 'Taarifa za Dawa (MedlinePlus)' %}</a></li>
+                    <li><a href="https://www.who.int/medicines" target="_blank">{% trans 'Dawa za WHO' %}</a></li>
+                    <li><a href="https://www.fda.gov/drugs" target="_blank">{% trans 'Hifadhidata ya Dawa ya FDA' %}</a></li>
+                </ul>
+            </article>
+    </section>
+</div>
+{% endblock %}

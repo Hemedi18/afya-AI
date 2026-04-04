@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="sw">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Thibitisha Barua Pepe — AfyaSmart</title>
+  <style>
+    body { margin:0; padding:0; background:#f3f4f6; font-family:'Segoe UI',Arial,sans-serif; }
+    .wrap { max-width:580px; margin:40px auto; background:#fff; border-radius:18px; overflow:hidden; box-shadow:0 8px 32px rgba(0,0,0,.10); }
+    .header { background:linear-gradient(135deg,#dc2626,#b91c1c 55%,#991b1b); padding:36px 32px 28px; text-align:center; }
+    .header .logo { font-size:1.6rem; font-weight:900; color:#fff; letter-spacing:.04em; }
+    .header .logo span { color:#fca5a5; }
+    .header p { color:rgba(255,255,255,.75); font-size:.9rem; margin:6px 0 0; }
+    .body { padding:36px 32px; }
+    .body h2 { font-size:1.25rem; color:#111827; margin:0 0 10px; }
+    .body p  { color:#374151; line-height:1.7; margin:0 0 18px; font-size:.95rem; }
+    .btn-wrap { text-align:center; margin:28px 0; }
+    .btn { display:inline-block; background:linear-gradient(135deg,#dc2626,#b91c1c); color:#fff !important; text-decoration:none; padding:14px 36px; border-radius:999px; font-weight:700; font-size:1rem; letter-spacing:.02em; box-shadow:0 4px 18px rgba(220,38,38,.38); }
+    .divider { border:none; border-top:1px solid #e5e7eb; margin:24px 0; }
+    .fallback-url { background:#f9fafb; border:1px solid #e5e7eb; border-radius:10px; padding:12px 16px; font-size:.8rem; color:#6b7280; word-break:break-all; }
+    .footer { background:#f9fafb; padding:20px 32px; text-align:center; font-size:.78rem; color:#9ca3af; border-top:1px solid #f3f4f6; }
+    .footer a { color:#dc2626; text-decoration:none; }
+    .badge { display:inline-block; background:rgba(220,38,38,.1); color:#dc2626; border-radius:999px; padding:3px 12px; font-size:.72rem; font-weight:600; letter-spacing:.06em; text-transform:uppercase; margin-bottom:16px; }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <!-- header -->
+    <div class="header">
+      <div class="logo">Afya<span>Smart</span></div>
+      <p>Platform ya Afya ya Dijitali</p>
+    </div>
+
+    <!-- body -->
+    <div class="body">
+      <div class="badge">&#9993; Thibitisha Barua Pepe</div>
+      <h2>Habari {{ user.username }}! &#127881;</h2>
+      <p>Asante kwa kujisajili kwenye <strong>AfyaSmart Health</strong>. Hatua moja tu inabaki — thibitisha barua pepe yako ili kufungua akaunti yako kamili.</p>
+
+      <div class="btn-wrap">
+        <a href="{{ activate_url }}" class="btn">&#9989;&nbsp; Thibitisha Barua Pepe Yangu</a>
+      </div>
+
+      <hr class="divider">
+      <p style="font-size:.88rem;color:#6b7280;">Kiungo hiki kitaisha baada ya <strong>siku 3</strong>. Ikiwa kitufe haikufanya kazi, nakili na ubandike kiungo hapa chini kwenye kivinjari chako:</p>
+      <div class="fallback-url">{{ activate_url }}</div>
+
+      <hr class="divider">
+      <p style="font-size:.82rem;color:#9ca3af;">Ikiwa hukufanya ombi hili, unaweza kupuuza barua pepe hii — akaunti itabaki salama.</p>
+    </div>
+
+    <!-- footer -->
+    <div class="footer">
+      &copy; 2024 AfyaSmart Health &mdash; Mji wa Afya ya Dijitali<br>
+      <a href="https://afyacom.pythonanywhere.com">afyacom.pythonanywhere.com</a>
+    </div>
+  </div>
+</body>
+</html>

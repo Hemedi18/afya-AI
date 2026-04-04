@@ -5,7 +5,7 @@ from .models import UserAIPersona, PersonaDataSnapshot
 @admin.register(UserAIPersona)
 class UserAIPersonaAdmin(admin.ModelAdmin):
 	list_display = (
-		'user', 'age', 'gender', 'stress_level', 'exercise_frequency', 'onboarding_complete',
+		'user', 'birth_date', 'age', 'gender', 'stress_level', 'exercise_frequency', 'onboarding_complete',
 		'profile_completeness_score', 'identity_verified', 'medical_info_verified', 'updated_at',
 	)
 	list_filter = ('gender', 'stress_level', 'exercise_frequency', 'identity_verified', 'medical_info_verified')

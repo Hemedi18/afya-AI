@@ -1,0 +1,126 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block title %}{% trans "Email OTP Verification" %} - AfyaSmart{% endblock %}
+
+{% block content %}
+<style>
+  .otp-shell {
+    max-width: 760px;
+    margin: 0 auto;
+    min-height: 82vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 1rem;
+  }
+  .otp-card {
+    width: 100%;
+    border-radius: 24px;
+    overflow: hidden;
+  }
+  .otp-left {
+    background: linear-gradient(135deg, rgba(201,24,74,.10), rgba(255,133,161,.18));
+    border-right: 1px solid rgba(201,24,74,.14);
+  }
+  .otp-pin {
+    letter-spacing: .45rem;
+    font-size: 1.15rem;
+    text-align: center;
+    font-weight: 800;
+  }
+  .otp-meta {
+    font-size: .85rem;
+    color: var(--text-muted);
+  }
+  .otp-resend-btn[disabled] {
+    opacity: .6;
+    cursor: not-allowed;
+  }
+  @media (max-width: 992px) {
+    .otp-left {
+      border-right: none;
+      border-bottom: 1px solid rgba(201,24,74,.14);
+    }
+  }
+</style>
+
+<div class="otp-shell">
+  <div class="card-custom otp-card p-0">
+    <div class="row g-0">
+      <div class="col-lg-5 p-4 otp-left d-none d-lg-block">
+        <h4 class="fw-bold mb-2">{% trans "Almost done" %}</h4>
+        <p class="text-muted mb-4">{% trans "We sent a 6-digit OTP code to your email. Enter it to activate your account." %}</p>
+        <ul class="small ps-3 mb-0">
+          <li class="mb-2">{% trans "Code has 6 digits" %}</li>
+          <li class="mb-2">{% trans "You can resend after 30 seconds" %}</li>
+          <li>{% trans "Account is created only after successful OTP verification" %}</li>
+        </ul>
+      </div>
+
+      <div class="col-lg-7 p-4 p-xl-5">
+        <h4 class="fw-bold mb-1">{% trans "Enter OTP" %}</h4>
+        <p class="otp-meta mb-4">{% trans "Email" %}: <strong>{{ email }}</strong></p>
+
+        <form method="post" class="mb-3" novalidate>
+          {% csrf_token %}
+          <input type="hidden" name="action" value="verify">
+          <label for="otpInput" class="form-label fw-semibold">{% trans "Verification code" %}</label>
+          <input id="otpInput" name="otp" type="text" inputmode="numeric" maxlength="6" class="form-control form-control-lg otp-pin" placeholder="000000" required>
+          <div class="small text-muted mt-2">{% trans "Enter the 6-digit code from your email." %}</div>
+          <button type="submit" class="btn btn-danger w-100 rounded-pill py-2 mt-3">{% trans "Verify and Continue" %}</button>
+        </form>
+
+        <form method="post" class="d-grid">
+          {% csrf_token %}
+          <input type="hidden" name="action" value="resend">
+          <button id="resendBtn" type="submit" class="btn btn-outline-secondary rounded-pill otp-resend-btn" {% if seconds_left > 0 %}disabled{% endif %}>
+            {% trans "Resend OTP" %}
+          </button>
+        </form>
+
+        <p class="otp-meta mt-2 mb-0" id="resendHint" data-seconds="{{ seconds_left }}">
+          {% if seconds_left > 0 %}
+            {% blocktrans with secs=seconds_left %}You can resend in {{ secs }}s.{% endblocktrans %}
+          {% else %}
+            {% trans "You can resend now." %}
+          {% endif %}
+        </p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(() => {
+  const btn = document.getElementById('resendBtn');
+  const hint = document.getElementById('resendHint');
+  if (!btn || !hint) return;
+
+  let left = Number(hint.dataset.seconds || 0);
+  if (!Number.isFinite(left) || left < 0) left = 0;
+
+  const render = () => {
+    if (left > 0) {
+      btn.disabled = true;
+      hint.textContent = `You can resend in ${left}s.`;
+    } else {
+      btn.disabled = false;
+      hint.textContent = 'You can resend now.';
+    }
+  };
+
+  render();
+  if (left > 0) {
+    const t = setInterval(() => {
+      left -= 1;
+      if (left <= 0) {
+        left = 0;
+        clearInterval(t);
+      }
+      render();
+    }, 1000);
+  }
+})();
+</script>
+{% endblock %}

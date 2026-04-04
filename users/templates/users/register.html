@@ -3,6 +3,173 @@
 
 {% block title %}{% trans "Jisajili" %} - AfyaSmart{% endblock %}
 
+<script>
+(() => {
+    const _lang = (document.documentElement.lang || 'sw').split('-')[0];
+    const _t = (sw, en) => (_lang === 'en' ? en : sw);
+
+    const usernameInput = document.getElementById('{{ form.username.id_for_label }}');
+    const password1Input = document.getElementById('{{ form.password1.id_for_label }}');
+    const password2Input = document.getElementById('{{ form.password2.id_for_label }}');
+
+    const usernameLive = document.getElementById('usernameLive');
+    const usernameSuggestions = document.getElementById('usernameSuggestions');
+    const passwordLive = document.getElementById('passwordLive');
+    const passwordMatchLive = document.getElementById('passwordMatchLive');
+    const strengthFill = document.getElementById('passwordStrengthFill');
+
+    function setLive(el, text, mode = '') {
+        if (!el) return;
+        el.className = 'field-live' + (mode ? ` ${mode}` : '');
+        el.textContent = text || '';
+    }
+
+    function clearSuggestions() {
+        if (usernameSuggestions) usernameSuggestions.innerHTML = '';
+    }
+
+    function renderSuggestions(items) {
+        if (!usernameSuggestions) return;
+        usernameSuggestions.innerHTML = '';
+        (items || []).forEach((name) => {
+            const btn = document.createElement('button');
+            btn.type = 'button';
+            btn.className = 'suggestion-btn';
+            btn.textContent = name;
+            btn.addEventListener('click', () => {
+                if (!usernameInput) return;
+                usernameInput.value = name;
+                usernameInput.dispatchEvent(new Event('input', { bubbles: true }));
+                usernameInput.focus();
+                clearSuggestions();
+                setLive(usernameLive, _t('Username inapatikana.', 'Username is available.'), 'ok');
+            });
+            usernameSuggestions.appendChild(btn);
+        });
+    }
+
+    let usernameTimer = null;
+    async function checkUsername() {
+        if (!usernameInput || !usernameLive) return;
+        const value = (usernameInput.value || '').trim();
+
+        if (!value) {
+            setLive(usernameLive, _t('Andika username.', 'Enter a username.'), 'warn');
+            clearSuggestions();
+            return;
+        }
+
+        if (value.length < 3) {
+            setLive(usernameLive, _t('Username iwe na angalau herufi 3.', 'Username must be at least 3 characters.'), 'error');
+            clearSuggestions();
+            return;
+        }
+
+        try {
+            const res = await fetch(`{% url 'users:check_username' %}?username=${encodeURIComponent(value)}`, {
+                headers: { 'X-Requested-With': 'XMLHttpRequest' },
+            });
+            const data = await res.json();
+            if (data.available) {
+            setLive(usernameLive, _t('Username inapatikana.', 'Username is available.'), 'ok');
+                clearSuggestions();
+            } else {
+                setLive(usernameLive, data.message || _t('Username tayari imetumika.', 'Username is already taken.'), 'error');
+                renderSuggestions(data.suggestions || []);
+            }
+        } catch (_err) {
+            setLive(usernameLive, _t('Imeshindikana ku-check username sasa hivi.', 'Unable to check username right now.'), 'warn');
+            clearSuggestions();
+        }
+    }
+
+    function updatePasswordStrength() {
+        if (!password1Input || !passwordLive || !strengthFill) return;
+        const v = password1Input.value || '';
+
+        if (!v) {
+            setLive(passwordLive, _t('Andika nenosiri.', 'Enter a password.'), 'warn');
+            strengthFill.style.width = '0%';
+            strengthFill.style.background = '#ef4444';
+            return;
+        }
+
+        const checks = {
+            length: v.length >= 8,
+            letter: /[A-Za-z]/.test(v),
+            number: /\d/.test(v),
+            symbol: /[^A-Za-z0-9]/.test(v),
+            notNumericOnly: !/^\d+$/.test(v),
+        };
+
+        const score = Object.values(checks).filter(Boolean).length;
+        const pct = Math.min(100, Math.round((score / 5) * 100));
+        strengthFill.style.width = `${pct}%`;
+
+        if (score <= 2) {
+            strengthFill.style.background = '#ef4444';
+        } else if (score <= 3) {
+            strengthFill.style.background = '#f59e0b';
+        } else {
+            strengthFill.style.background = '#16a34a';
+        }
+
+        const missing = [];
+        if (!checks.length) missing.push(_t('angalau herufi 8', 'at least 8 chars'));
+        if (!checks.letter) missing.push(_t('herufi', 'a letter'));
+        if (!checks.number) missing.push(_t('namba', 'a number'));
+        if (!checks.symbol) missing.push(_t('alama (mf. @, #, !)', 'a symbol (e.g. @, #, !)'));
+        if (!checks.notNumericOnly) missing.push(_t('isiwe namba tupu', 'not only numbers'));
+
+        if (!missing.length) {
+            setLive(passwordLive, _t('Nenosiri ni imara.', 'Password is strong.'), 'ok');
+        } else {
+            setLive(passwordLive, _t('Inakosekana: ', 'Missing: ') + missing.join(', '), 'error');
+        }
+    }
+
+    function updatePasswordMatch() {
+        if (!password1Input || !password2Input || !passwordMatchLive) return;
+        const p1 = password1Input.value || '';
+        const p2 = password2Input.value || '';
+
+        if (!p2) {
+            setLive(passwordMatchLive, '', '');
+            return;
+        }
+
+        if (p1 === p2) {
+            setLive(passwordMatchLive, _t('Nenosiri linafanana.', 'Passwords match.'), 'ok');
+        } else {
+            setLive(passwordMatchLive, _t('Nenosiri halifanani.', 'Passwords do not match.'), 'error');
+        }
+    }
+
+    if (usernameInput) {
+        usernameInput.addEventListener('input', () => {
+            setLive(usernameLive, _t('Inacheki username...', 'Checking username...'), 'warn');
+            clearSuggestions();
+            clearTimeout(usernameTimer);
+            usernameTimer = setTimeout(checkUsername, 350);
+        });
+        usernameInput.addEventListener('blur', checkUsername);
+    }
+
+    if (password1Input) {
+        password1Input.addEventListener('input', () => {
+            updatePasswordStrength();
+            updatePasswordMatch();
+        });
+        password1Input.addEventListener('blur', updatePasswordStrength);
+    }
+
+    if (password2Input) {
+        password2Input.addEventListener('input', updatePasswordMatch);
+        password2Input.addEventListener('blur', updatePasswordMatch);
+    }
+})();
+</script>
+
 {% block content %}
 <style>
     .auth-shell { 
@@ -32,6 +199,47 @@
         background-color: var(--card-bg) !important;
     }
     .field-error { font-size: .82rem; color: #dc3545; margin-top: .25rem; }
+    .field-live {
+        font-size: .82rem;
+        margin-top: .32rem;
+        font-weight: 600;
+    }
+    .field-live.error { color: #dc2626; }
+    .field-live.ok { color: #16a34a; }
+    .field-live.warn { color: #d97706; }
+    .suggestions-wrap {
+        margin-top: .4rem;
+        display: flex;
+        flex-wrap: wrap;
+        gap: .35rem;
+    }
+    .suggestion-btn {
+        border: 1px solid color-mix(in srgb, #2563eb 35%, var(--line-soft));
+        background: color-mix(in srgb, var(--card-bg) 92%, transparent);
+        color: var(--text-main);
+        border-radius: 999px;
+        font-size: .76rem;
+        font-weight: 700;
+        padding: .2rem .58rem;
+        cursor: pointer;
+    }
+    .suggestion-btn:hover { background: color-mix(in srgb, #2563eb 10%, var(--card-bg)); }
+    .strength-bar {
+        margin-top: .5rem;
+        width: 100%;
+        height: 8px;
+        border-radius: 999px;
+        background: color-mix(in srgb, var(--line-soft) 90%, transparent);
+        overflow: hidden;
+    }
+    .strength-bar > span {
+        display: block;
+        height: 100%;
+        width: 0%;
+        transition: width .18s ease;
+        border-radius: inherit;
+        background: #ef4444;
+    }
     .social-divider {
         display: flex;
         align-items: center;
@@ -114,14 +322,14 @@
 
                 {% if social_providers %}
                 <div class="social-auth-list">
-                    {% for provider in social_providers %}
+                    {% for provider in social_providers %}{% if provider.slug == 'google' %}
                     <a href="{{ provider.url }}" class="social-auth-btn{% if not provider.enabled %} is-disabled{% endif %}">
                         <i class="bi {{ provider.icon }}"></i>
                         <span>{% blocktrans with provider_name=provider.name %}Sign up with {{ provider_name }}{% endblocktrans %}</span>
                     </a>
-                    {% endfor %}
+                    {% endif %}{% endfor %}
                 </div>
-                <p class="social-auth-note">{% trans "Social signup itafanya account itengenezwe na kisha utaendelea kwenye onboarding yako." %}</p>
+                <p class="social-auth-note">{% trans "Social signup creates your account and takes you to onboarding. Email/password signup requires email verification first." %}</p>
                 <div class="social-divider"><span>{% trans "au tumia username na nenosiri" %}</span></div>
                 {% endif %}
 
@@ -136,18 +344,43 @@
                         <label class="form-label fw-semibold" for="{{ form.username.id_for_label }}">{% trans "Jina la mtumiaji" %}</label>
                         {{ form.username }}
                         {% if form.username.errors %}<div class="field-error">{{ form.username.errors|striptags }}</div>{% endif %}
+                        <div id="usernameLive" class="field-live" aria-live="polite"></div>
+                        <div id="usernameSuggestions" class="suggestions-wrap"></div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label fw-semibold" for="{{ form.email.id_for_label }}">{% trans "Barua pepe" %}</label>
+                        {{ form.email }}
+                        {% if form.email.errors %}<div class="field-error">{{ form.email.errors|striptags }}</div>{% endif %}
+                        <div class="small text-muted mt-1">{% trans "Email must be unique and will be verified before persona setup." %}</div>
+                    </div>
+
+                    <div class="row g-3 mb-3">
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold" for="{{ form.birth_date.id_for_label }}">{% trans "Date of birth" %}</label>
+                            {{ form.birth_date }}
+                            {% if form.birth_date.errors %}<div class="field-error">{{ form.birth_date.errors|striptags }}</div>{% endif %}
+                        </div>
+                        <div class="col-md-6">
+                            <label class="form-label fw-semibold" for="{{ form.gender.id_for_label }}">{% trans "Gender" %}</label>
+                            {{ form.gender }}
+                            {% if form.gender.errors %}<div class="field-error">{{ form.gender.errors|striptags }}</div>{% endif %}
+                        </div>
                     </div>
 
                     <div class="mb-3">
                         <label class="form-label fw-semibold" for="{{ form.password1.id_for_label }}">{% trans "Nenosiri" %}</label>
                         {{ form.password1 }}
                         {% if form.password1.errors %}<div class="field-error">{{ form.password1.errors|striptags }}</div>{% endif %}
+                        <div class="strength-bar" aria-hidden="true"><span id="passwordStrengthFill"></span></div>
+                        <div id="passwordLive" class="field-live" aria-live="polite"></div>
                     </div>
 
                     <div class="mb-4">
                         <label class="form-label fw-semibold" for="{{ form.password2.id_for_label }}">{% trans "Thibitisha nenosiri" %}</label>
                         {{ form.password2 }}
                         {% if form.password2.errors %}<div class="field-error">{{ form.password2.errors|striptags }}</div>{% endif %}
+                        <div id="passwordMatchLive" class="field-live" aria-live="polite"></div>
                     </div>
 
                     <button type="submit" class="btn btn-danger w-100 rounded-pill py-2">{% trans "Jisajili" %}</button>

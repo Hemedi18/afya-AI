@@ -111,14 +111,13 @@
             {% if social_providers %}
             <div class="social-divider"><span>{% trans "au endelea na" %}</span></div>
             <div class="social-auth-list">
-                {% for provider in social_providers %}
+                {% for provider in social_providers %}{% if provider.slug == 'google' %}
                 <a href="{{ provider.url }}" class="social-auth-btn{% if not provider.enabled %} is-disabled{% endif %}">
                     <i class="bi {{ provider.icon }}"></i>
                     <span>{% blocktrans with provider_name=provider.name %}Continue with {{ provider_name }}{% endblocktrans %}</span>
                 </a>
-                {% endfor %}
+                {% endif %}{% endfor %}
             </div>
-            <p class="social-note">{% trans "Ukibonyeza provider ambaye bado hajapewa keys, utaonyeshwa ujumbe wa setup kwanza." %}</p>
             {% endif %}
 
             <p class="text-center mt-3 small">{% trans "Huna akaunti?" %} <a href="{% url 'users:register' %}">{% trans "Jisajili hapa" %}</a></p>

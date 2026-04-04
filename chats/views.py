@@ -1,4 +1,5 @@
 import base64
+import json
 import re
 import uuid
 from urllib.parse import urlencode
@@ -8,15 +9,19 @@ import bleach
 from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from django.contrib.auth.models import User
+from django.core.cache import cache
 from django.core.files.base import ContentFile
 from django.core.paginator import Paginator
 from django.db.models import Count, ExpressionWrapper, F, IntegerField, Prefetch, Q
 from django.http import JsonResponse
 from django.utils import timezone
 from django.utils.html import strip_tags
+from django.utils.translation import gettext as _
+from django.utils.decorators import method_decorator
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
 from django.views import View
+from django.views.decorators.csrf import csrf_exempt
 from bleach.css_sanitizer import CSSSanitizer
 
 from menstrual.models import (
@@ -57,8 +62,10 @@ def _avatar_url_for(user):
 	if not avatar:
 		return ''
 	try:
+		if not avatar.name or not avatar.storage.exists(avatar.name):
+			return ''
 		return avatar.url
-	except ValueError:
+	except (ValueError, OSError):
 		return ''
 
 
@@ -365,6 +372,43 @@ def _serialize_private_message(msg):
 		'is_read': bool(msg.is_read),
 		'created_at': msg.created_at.strftime('%d %b %Y %H:%M'),
 	}
+
+
+CALL_SIGNAL_EVENTS = {'call_invite', 'call_accept', 'call_reject', 'call_end', 'call_busy'}
+
+
+def _call_events_cache_key(user_id, conversation_id):
+	return f'private_call_events:{conversation_id}:{user_id}'
+
+
+def _global_call_events_cache_key(user_id):
+	return f'private_call_events_global:{user_id}'
+
+
+def _queue_private_call_event(recipient_id, conversation_id, payload):
+	key = _call_events_cache_key(recipient_id, conversation_id)
+	events = cache.get(key, [])
+	events.append(payload)
+	cache.set(key, events[-25:], timeout=120)
+
+	global_key = _global_call_events_cache_key(recipient_id)
+	global_events = cache.get(global_key, [])
+	global_events.append(payload)
+	cache.set(global_key, global_events[-60:], timeout=180)
+
+
+def _pop_private_call_events(user_id, conversation_id):
+	key = _call_events_cache_key(user_id, conversation_id)
+	events = cache.get(key, [])
+	cache.delete(key)
+	return events
+
+
+def _pop_global_private_call_events(user_id):
+	key = _global_call_events_cache_key(user_id)
+	events = cache.get(key, [])
+	cache.delete(key)
+	return events
 
 
 class SocialFeedView(LoginRequiredMixin, View):
@@ -938,32 +982,58 @@ class DeleteCommentView(LoginRequiredMixin, View):
 		return redirect('chats:feed')
 
 
+def _create_group_from_form(request, form):
+	audience_gender = _audience_for_user(request.user)
+	group = form.save(commit=False)
+	group.audience_gender = audience_gender
+	group.created_by = request.user
+	group.save()
+	group.members.add(request.user)
+
+	if form.cleaned_data.get('send_admin_preview'):
+		ClarificationRequest.objects.create(
+			asker=request.user,
+			group=group,
+			target_role=ClarificationRequest.TARGET_GROUP_ADMIN,
+			question=(form.cleaned_data.get('preview_note') or '').strip() or f'Naomba admin preview ya group: {group.name}',
+		)
+		messages.success(request, _('Group created. Admin preview request was sent.'))
+		return redirect('chats:group_detail', group_id=group.id)
+
+	messages.success(request, _('Group created successfully and you joined automatically.'))
+	return redirect('chats:group_detail', group_id=group.id)
+
+
+class CreateGroupPageView(LoginRequiredMixin, View):
+	template_name = 'chats/group_create.html'
+
+	def get(self, request, *args, **kwargs):
+		form = CommunityGroupForm()
+		context = {
+			'group_form': form,
+			'audience_gender': _audience_for_user(request.user),
+		}
+		return render(request, self.template_name, context)
+
+	def post(self, request, *args, **kwargs):
+		form = CommunityGroupForm(request.POST, request.FILES)
+		if not form.is_valid():
+			messages.error(request, _('Group was not created. Please check name and description.'))
+			context = {
+				'group_form': form,
+				'audience_gender': _audience_for_user(request.user),
+			}
+			return render(request, self.template_name, context, status=400)
+		return _create_group_from_form(request, form)
+
+
 class CreateGroupView(LoginRequiredMixin, View):
 	def post(self, request, *args, **kwargs):
 		form = CommunityGroupForm(request.POST, request.FILES)
 		if not form.is_valid():
 			messages.error(request, 'Group haijaundwa. Hakikisha jina na maelezo ni sahihi.')
 			return redirect('chats:feed')
-
-		audience_gender = _audience_for_user(request.user)
-		group = form.save(commit=False)
-		group.audience_gender = audience_gender
-		group.created_by = request.user
-		group.save()
-		group.members.add(request.user)
-
-		if form.cleaned_data.get('send_admin_preview'):
-			ClarificationRequest.objects.create(
-				asker=request.user,
-				group=group,
-				target_role=ClarificationRequest.TARGET_GROUP_ADMIN,
-				question=(form.cleaned_data.get('preview_note') or '').strip() or f'Naomba admin preview ya group: {group.name}',
-			)
-			messages.success(request, 'Group imeundwa. Ombi la admin preview limetumwa.')
-			return redirect('chats:group_detail', group_id=group.id)
-
-		messages.success(request, 'Group imeundwa na umejiunga moja kwa moja.')
-		return redirect('chats:group_detail', group_id=group.id)
+		return _create_group_from_form(request, form)
 
 
 class JoinGroupView(LoginRequiredMixin, View):
@@ -1466,7 +1536,65 @@ class ConversationMessagesPollView(LoginRequiredMixin, View):
 		for msg in qs:
 			data.append(_serialize_private_message(msg))
 
-		return JsonResponse({'ok': True, 'messages': data})
+		call_events = _pop_private_call_events(request.user.id, conversation.id)
+
+		return JsonResponse({'ok': True, 'messages': data, 'call_events': call_events})
+
+
+@method_decorator(csrf_exempt, name='dispatch')
+class ConversationCallSignalView(LoginRequiredMixin, View):
+	"""HTTP fallback for call control signaling.
+	Helps incoming call alerts appear even if websocket delivery is temporarily unavailable."""
+
+	def post(self, request, conversation_id, *args, **kwargs):
+		conversation = get_object_or_404(
+			PrivateConversation.objects.select_related('patient', 'doctor'),
+			pk=conversation_id,
+		)
+		if not (is_admin(request.user) or request.user in [conversation.patient, conversation.doctor]):
+			return JsonResponse({'ok': False, 'error': 'No permission'}, status=403)
+
+		try:
+			payload = json.loads(request.body.decode('utf-8') or '{}')
+		except (json.JSONDecodeError, UnicodeDecodeError):
+			payload = {}
+
+		event = str(payload.get('event') or '').strip()
+		if event not in CALL_SIGNAL_EVENTS:
+			return JsonResponse({'ok': False, 'error': 'Invalid call event'}, status=400)
+
+		call_id = str(payload.get('call_id') or '').strip()[:80]
+		if not call_id:
+			return JsonResponse({'ok': False, 'error': 'Missing call_id'}, status=400)
+
+		call_mode = str(payload.get('call_mode') or 'audio').strip().lower()
+		if call_mode not in {'audio', 'video'}:
+			call_mode = 'audio'
+
+		recipient_id = conversation.doctor_id if request.user.id == conversation.patient_id else conversation.patient_id
+		event_payload = {
+			'event': event,
+			'call_id': call_id,
+			'call_mode': call_mode,
+			'conversation_id': conversation.id,
+			'sender_id': request.user.id,
+			'sender_name': request.user.get_full_name() or request.user.username,
+		}
+
+		reason = str(payload.get('reason') or '').strip()
+		if reason:
+			event_payload['reason'] = reason[:160]
+
+		_queue_private_call_event(recipient_id, conversation.id, event_payload)
+		return JsonResponse({'ok': True})
+
+
+class ConversationCallInboxView(LoginRequiredMixin, View):
+	"""Global call events for the current user, usable from any page."""
+
+	def get(self, request, *args, **kwargs):
+		events = _pop_global_private_call_events(request.user.id)
+		return JsonResponse({'ok': True, 'events': events})
 
 
 class DeletePrivateMessageView(LoginRequiredMixin, View):

@@ -1,0 +1,15 @@
+Habari {{ user.username }},
+
+Asante kwa kujisajili kwenye AfyaSmart Health!
+
+Tafadhali bonyeza kiungo hapa chini kuthibitisha barua pepe yako:
+
+{{ activate_url }}
+
+Kiungo hiki kitaisha baada ya siku 3.
+
+Ikiwa hukufanya ombi hili, unaweza kupuuza barua pepe hii.
+
+Kwa upendo,
+Timu ya AfyaSmart Health
+https://afyacom.pythonanywhere.com

@@ -15,10 +15,12 @@ def role_flags(request):
         persona = getattr(user, 'ai_persona', None)
         if persona and getattr(persona, 'avatar', None):
             try:
-                avatar_url = persona.avatar.url
-                if getattr(persona, 'updated_at', None):
-                    avatar_version = int(persona.updated_at.timestamp())
-            except ValueError:
+                avatar = persona.avatar
+                if avatar.name and avatar.storage.exists(avatar.name):
+                    avatar_url = avatar.url
+                    if getattr(persona, 'updated_at', None):
+                        avatar_version = int(persona.updated_at.timestamp())
+            except (ValueError, OSError):
                 avatar_url = ''
         # Verified doctor flag (used to show "Patients" nav link)
         try:

@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load i18n %}
 
 {% block content %}
 <style>
@@ -197,6 +198,28 @@
 
     .ai-attachments { display: flex; gap: .4rem; flex-wrap: wrap; margin-top: .45rem; }
     .ai-attachment-chip { font-size: .82rem; border: 1px solid var(--line-soft); border-radius: 999px; padding: .3rem .66rem; color: var(--text-main); background: color-mix(in srgb, var(--card-bg) 92%, transparent); }
+    .ai-attachment-chip.recording {
+        border-color: color-mix(in srgb, var(--danger, #dc3545) 55%, var(--line-soft));
+        background: color-mix(in srgb, #dc3545 12%, var(--card-bg));
+        color: var(--text-main);
+    }
+    .ai-attachment-chip.recording::before {
+        content: '';
+        width: 8px;
+        height: 8px;
+        display: inline-block;
+        border-radius: 50%;
+        margin-right: .45rem;
+        background: #dc3545;
+        box-shadow: 0 0 0 0 rgba(220,53,69,.65);
+        animation: aiRecordPulse 1.2s infinite;
+        vertical-align: middle;
+    }
+    @keyframes aiRecordPulse {
+        0% { box-shadow: 0 0 0 0 rgba(220,53,69,.65); }
+        70% { box-shadow: 0 0 0 10px rgba(220,53,69,0); }
+        100% { box-shadow: 0 0 0 0 rgba(220,53,69,0); }
+    }
 
     .ai-camera-panel { margin-top: .55rem; border: 1px solid var(--line-soft); border-radius: 12px; padding: .55rem; display: none; }
     .ai-camera-panel.show { display: block; }
@@ -542,29 +565,29 @@
     <div class="ai-layout">
         <aside class="ai-sidebar" id="aiSidebar">
             <div class="ai-side-card">
-                <h6 class="ai-side-title">Historia</h6>
+                <h6 class="ai-side-title">{% trans "Historia" %}</h6>
                 <div id="aiHistory">
                     {% if question %}
                     <button type="button" class="ai-history-item" data-history-question="{{ question|escape }}" title="{{ question|escape }}">{{ question|truncatewords:8 }}</button>
                     {% else %}
-                    <div class="ai-history-item" style="cursor:default;">Hakuna historia bado.</div>
+                    <div class="ai-history-item" style="cursor:default;">{% trans "Hakuna historia bado." %}</div>
                     {% endif %}
                 </div>
             </div>
 
             <div class="ai-side-card">
-                <h6 class="ai-side-title">Haraka</h6>
-                <span class="ai-chip">Dalili</span>
-                <span class="ai-chip">Usingizi</span>
-                <span class="ai-chip">Lishe</span>
-                <span class="ai-chip">Msongo</span>
-                <span class="ai-chip">Mimba</span>
+                <h6 class="ai-side-title">{% trans "Haraka" %}</h6>
+                <span class="ai-chip">{% trans "Dalili" %}</span>
+                <span class="ai-chip">{% trans "Usingizi" %}</span>
+                <span class="ai-chip">{% trans "Lishe" %}</span>
+                <span class="ai-chip">{% trans "Msongo" %}</span>
+                <span class="ai-chip">{% trans "Mimba" %}</span>
             </div>
 
             {% if not onboarding_complete %}
             <div class="ai-side-card">
-                <h6 class="ai-side-title">Wasifu</h6>
-                <a href="{% url 'users:onboarding' step=1 %}" class="btn btn-sm btn-outline-light rounded-pill w-100">Kamilisha usanidi</a>
+                <h6 class="ai-side-title">{% trans "Wasifu" %}</h6>
+                <a href="{% url 'users:onboarding' step=1 %}" class="btn btn-sm btn-outline-light rounded-pill w-100">{% trans "Kamilisha usanidi" %}</a>
             </div>
             {% endif %}
         </aside>
@@ -572,22 +595,22 @@
         <section class="ai-main">
             <div class="ai-topbar">
                 <div class="ai-topbar-left">
-                    <button type="button" class="ai-back-btn" id="aiBackBtn" title="Rudi"><i class="bi bi-chevron-left"></i>Rudi</button>
+                    <button type="button" class="ai-back-btn" id="aiBackBtn" title="{% trans 'Rudi' %}"><i class="bi bi-chevron-left"></i>{% trans "Rudi" %}</button>
                 </div>
                 <div class="ai-top-actions">
-                    <button type="button" class="ai-new-chat" id="aiNewChatBtn" title="Mazungumzo mapya"><i class="bi bi-plus-circle"></i></button>
-                    <button type="button" class="ai-side-toggle" id="aiSideToggle"><i class="bi bi-layout-sidebar-inset"></i> Paneli</button>
+                    <button type="button" class="ai-new-chat" id="aiNewChatBtn" title="{% trans 'Mazungumzo mapya' %}"><i class="bi bi-plus-circle"></i></button>
+                    <button type="button" class="ai-side-toggle" id="aiSideToggle"><i class="bi bi-layout-sidebar-inset"></i> {% trans "Paneli" %}</button>
                 </div>
             </div>
 
             <div class="ai-thread" id="aiThread">
-                <div class="ai-bubble ai-bot"><i class="bi bi-hand-wave me-1"></i>Habari. Uliza swali lako, nitakupa jibu fupi na salama.</div>
+                <div class="ai-bubble ai-bot"><i class="bi bi-hand-wave me-1"></i>{% trans "Habari. Uliza swali lako, nitakupa jibu fupi na salama." %}</div>
                 {% if question %}
                 <div class="ai-bubble ai-user">{{ question }}</div>
                 {% endif %}
                 {% if pre_answer_questions %}
                 <div class="ai-preanalysis">
-                    <h6 class="ai-preanalysis-title"><i class="bi bi-diagram-3 me-1"></i>Uchambuzi wa kina (kabla ya jibu)</h6>
+                    <h6 class="ai-preanalysis-title"><i class="bi bi-diagram-3 me-1"></i>{% trans "Uchambuzi wa kina (kabla ya jibu)" %}</h6>
                     <ul class="ai-preanalysis-list">
                         {% for pre_q in pre_answer_questions %}
                         <li>{{ pre_q }}</li>
@@ -610,7 +633,7 @@
                 {% if diagnostic_questions %}
                 <div class="ai-diagnostic" id="diagnosticPanel" data-symptom="{{ symptom }}">
                     <div class="ai-diagnostic-title">
-                        <i class="bi bi-clipboard-check"></i>Dalili: {{ symptom|default:"Swali" }}
+                        <i class="bi bi-clipboard-check"></i>{% trans "Dalili:" %} {{ symptom|default:"Swali" }}
                     </div>
                     {% for question in diagnostic_questions %}
                     <div class="ai-diagnostic-question">
@@ -620,10 +643,10 @@
                     {% endfor %}
                     <div class="ai-diagnostic-answers">
                         <button type="button" class="ai-diagnostic-btn submit" id="diagSubmitBtn">
-                            <i class="bi bi-check-circle"></i> Tuma Jibu
+                            <i class="bi bi-check-circle"></i> {% trans "Tuma Jibu" %}
                         </button>
                         <button type="button" class="ai-diagnostic-btn clear" id="diagClearBtn">
-                            <i class="bi bi-x-circle"></i> Futa
+                            <i class="bi bi-x-circle"></i> {% trans "Futa" %}
                         </button>
                     </div>
                 </div>
@@ -637,15 +660,15 @@
                     <button type="button" class="ai-attach-main" id="aiAttachToggle" aria-label="Ambatisha">
                         <i class="bi bi-paperclip"></i>
                     </button>
-                    <textarea name="question" class="form-control ai-input" id="aiInput" rows="1" placeholder="Andika ujumbe" required autocomplete="off"></textarea>
+                    <textarea name="question" class="form-control ai-input" id="aiInput" rows="1" placeholder="{% trans 'Andika ujumbe' %}" required autocomplete="off"></textarea>
                     <button type="submit" class="btn btn-danger ai-send"><i class="bi bi-send"></i></button>
                 </div>
                 <div class="ai-attachments" id="aiAttachments"></div>
                 <div class="ai-camera-panel" id="aiCameraPanel">
                     <video id="aiCameraVideo" class="ai-camera-video" autoplay playsinline></video>
                     <div class="d-flex gap-2 mt-2">
-                        <button type="button" class="ai-attach-option" id="aiCaptureBtn"><i class="bi bi-camera"></i> Nasa</button>
-                        <button type="button" class="ai-attach-option" id="aiCloseCameraBtn"><i class="bi bi-x-circle"></i> Funga</button>
+                        <button type="button" class="ai-attach-option" id="aiCaptureBtn"><i class="bi bi-camera"></i> {% trans "Nasa" %}</button>
+                        <button type="button" class="ai-attach-option" id="aiCloseCameraBtn"><i class="bi bi-x-circle"></i> {% trans "Funga" %}</button>
                     </div>
                 </div>
                 <input type="file" id="aiImageInput" accept="image/*" hidden>
@@ -655,7 +678,7 @@
                 <input type="file" id="aiVideoInput" accept="video/*" hidden>
                 
                 <div class="ai-disclaimer">
-                    <i class="bi bi-exclamation-circle me-1"></i>Afyacom si daktari. Wasiliana na daktari.
+                    <i class="bi bi-exclamation-circle me-1"></i>{% trans "Afyacom si daktari. Wasiliana na daktari." %}
                 </div>
             </form>
         </section>
@@ -664,9 +687,9 @@
 
 <div class="ai-attach-sheet" id="aiAttachSheet">
     <div class="ai-attach-grid">
-        <button type="button" class="ai-attach-option" data-attach-type="image"><i class="bi bi-image"></i> Picha</button>
-        <button type="button" class="ai-attach-option" data-attach-type="document"><i class="bi bi-file-earmark-text"></i> Hati</button>
-        <button type="button" class="ai-attach-option" data-attach-type="audio"><i class="bi bi-file-music"></i> Sauti</button>
+        <button type="button" class="ai-attach-option" data-attach-type="image"><i class="bi bi-image"></i> {% trans "Picha" %}</button>
+        <button type="button" class="ai-attach-option" data-attach-type="document"><i class="bi bi-file-earmark-text"></i> {% trans "Hati" %}</button>
+        <button type="button" class="ai-attach-option" data-attach-type="audio"><i class="bi bi-file-music"></i> {% trans "Sauti" %}</button>
         <button type="button" class="ai-attach-option" data-attach-type="video"><i class="bi bi-file-play"></i> Video</button>
         <button type="button" class="ai-attach-option" data-attach-type="camera"><i class="bi bi-camera-video"></i> Kamera</button>
         <button type="button" class="ai-attach-option" data-attach-type="voice"><i class="bi bi-mic"></i> Sauti</button>
@@ -721,7 +744,12 @@
         });
         const historyKey = 'zh-ai-chat-history-v1';
         let attachments = [];
+        let pendingVoiceFile = null;
         let cameraStream = null;
+        let mediaRecorder = null;
+        let micStream = null;
+        let voiceChunks = [];
+        let isRecordingVoice = false;
 
         function loadHistory() {
             try { return JSON.parse(localStorage.getItem(historyKey) || '[]'); } catch (e) { return []; }
@@ -761,7 +789,7 @@
                 renderPreAnswerQuestions(item.preQuestions);
             }
             if (item.needsClarification && item.diagQuestions && item.diagQuestions.length) {
-                renderDiagnosticQuestions(item.diagQuestions, item.symptom || 'Swali');
+                renderDiagnosticQuestions(item.diagQuestions, item.symptom || '{% trans "Swali" %}');
             }
             if (item.r) addBubble(item.r, 'ai-bot');
             if (!item.needsClarification && item.advice && item.advice.length) {
@@ -773,12 +801,14 @@
         }
 
         function resetThread() {
-            thread.innerHTML = '<div class="ai-bubble ai-bot"><i class="bi bi-hand-wave me-1"></i>Habari. Uliza swali lako, nitakupa jibu fupi na salama.</div>';
+            thread.innerHTML = '<div class="ai-bubble ai-bot"><i class="bi bi-hand-wave me-1"></i>{% trans "Habari. Uliza swali lako, nitakupa jibu fupi na salama." %}</div>';
             input.value = '';
             autoGrow();
             attachments = [];
+            pendingVoiceFile = null;
             renderAttachments();
             stopCamera();
+            stopVoiceRecording(true);
             if (attachSheet) attachSheet.classList.remove('show');
             scrollThread();
         }
@@ -852,7 +882,7 @@
         function addHistory(text, questionObj) {
             if (!historyEl || !text) return;
             const empty = historyEl.querySelector('.ai-history-item');
-            if (empty && empty.textContent.trim() === 'Hakuna historia bado.') {
+            if (empty && empty.textContent.trim() === '{% trans "Hakuna historia bado." %}') {
                 historyEl.innerHTML = '';
             }
             const item = document.createElement('button');
@@ -928,33 +958,43 @@
 
         async function sendQuestion(question) {
             const cleaned = (question || '').trim();
-            if (!cleaned) return;
+            if (!cleaned && !pendingVoiceFile) return;
 
             const isClarifyPayload = cleaned.startsWith('CLARIFY_DATA:');
-            const visibleQuestion = isClarifyPayload
+            const isVoiceOnly = !cleaned && !!pendingVoiceFile;
+            const visibleQuestion = isVoiceOnly
+                ? '🎤 Voice message imetumwa...'
+                : isClarifyPayload
                 ? 'Majibu ya uchambuzi yametumwa.'
                 : cleaned;
 
             const attachSummary = attachments.length ? `\n\nAttachments: ${attachments.map(function (a) { return a.name; }).join(', ')}` : '';
-            addBubble(visibleQuestion + (isClarifyPayload ? '' : attachSummary), 'ai-user');
+            const userBubble = addBubble(visibleQuestion + ((isClarifyPayload || isVoiceOnly) ? '' : attachSummary), 'ai-user');
             const typing = typingBubble();
             input.value = '';
             autoGrow();
 
             try {
+                const formData = new FormData();
+                formData.append('question', cleaned + (isVoiceOnly ? '' : attachSummary));
+                if (pendingVoiceFile) {
+                    formData.append('voice_file', pendingVoiceFile, pendingVoiceFile.name || 'voice-message.webm');
+                }
                 const response = await fetch(chatUrl, {
                     method: 'POST',
                     headers: {
-                        'Content-Type': 'application/x-www-form-urlencoded;charset=UTF-8',
                         'X-CSRFToken': csrfInput ? csrfInput.value : '',
                         'X-Requested-With': 'XMLHttpRequest'
                     },
-                    body: new URLSearchParams({ question: cleaned + attachSummary }).toString()
+                    body: formData
                 });
 
                 const data = await response.json();
                 typing.remove();
                 if (data && data.ok && data.reply) {
+                    if (data.transcript && (data.input_mode === 'voice' || isVoiceOnly)) {
+                        userBubble.textContent = data.transcript;
+                    }
                     const hasPendingQuestions = !!(data.needs_clarification && data.diagnostic_questions && data.diagnostic_questions.length > 0);
 
                     if (data.pre_answer_questions && data.pre_answer_questions.length > 0) {
@@ -1001,7 +1041,7 @@
                     
                     // Save to local history with full QA pair
                     const chatObj = {
-                        q: cleaned,
+                        q: data.transcript || cleaned,
                         r: data.reply,
                         at: Date.now(),
                         symptom: data.symptom || '',
@@ -1014,21 +1054,32 @@
                     localHistory.unshift(chatObj);
                     saveHistory(localHistory);
                     // Update history button to include full object
-                    addHistory(cleaned, chatObj);
+                    addHistory(data.transcript || cleaned || 'Voice message', chatObj);
                 } else {
-                    addBubble('Samahani, kuna hitilafu kidogo. Jaribu tena.', 'ai-bot');
+                    addBubble((data && data.error) || 'Samahani, kuna hitilafu kidogo. Jaribu tena.', 'ai-bot');
                 }
             } catch (error) {
                 typing.remove();
                 addBubble('Samahani, mtandao una shida kidogo. Jaribu tena.', 'ai-bot');
             }
             attachments = [];
+            pendingVoiceFile = null;
             renderAttachments();
         }
 
         function renderAttachments() {
             if (!attachmentsWrap) return;
             attachmentsWrap.innerHTML = '';
+            if (isRecordingVoice) {
+                const liveChip = document.createElement('button');
+                liveChip.type = 'button';
+                liveChip.className = 'ai-attachment-chip recording';
+                liveChip.textContent = 'Inarekodi sauti — bonyeza kusitisha';
+                liveChip.addEventListener('click', function () {
+                    stopVoiceRecording(false);
+                });
+                attachmentsWrap.appendChild(liveChip);
+            }
             attachments.forEach(function (file, index) {
                 const chip = document.createElement('button');
                 chip.type = 'button';
@@ -1036,6 +1087,9 @@
                 chip.textContent = file.name + ' ×';
                 chip.addEventListener('click', function () {
                     attachments.splice(index, 1);
+                    if (file.isVoice) {
+                        pendingVoiceFile = null;
+                    }
                     renderAttachments();
                 });
                 attachmentsWrap.appendChild(chip);
@@ -1046,6 +1100,17 @@
             Array.from(fileList || []).forEach(function (f) {
                 attachments.push({ name: f.name, type: f.type || 'file' });
             });
+            renderAttachments();
+        }
+
+        function removeExistingVoiceAttachment() {
+            attachments = attachments.filter(function (item) { return !item.isVoice; });
+        }
+
+        function setVoiceAttachment(file) {
+            pendingVoiceFile = file;
+            removeExistingVoiceAttachment();
+            attachments.unshift({ name: file.name || 'voice-message.webm', type: file.type || 'audio/webm', isVoice: true });
             renderAttachments();
         }
 
@@ -1217,21 +1282,82 @@
             scrollThread();
         }
 
-        function startVoice() {
-            const SR = window.SpeechRecognition || window.webkitSpeechRecognition;
-            if (!SR) {
-                addBubble('Voice input haipo kwenye browser hii.', 'ai-bot');
+        async function startVoiceRecording() {
+            if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia || typeof MediaRecorder === 'undefined') {
+                addBubble('Kifaa hiki hakiungi mkono kurekodi sauti moja kwa moja.', 'ai-bot');
                 return;
             }
-            const rec = new SR();
-            rec.lang = 'sw-TZ';
-            rec.interimResults = false;
-            rec.maxAlternatives = 1;
-            rec.onresult = function (event) {
-                const text = event.results && event.results[0] && event.results[0][0] ? event.results[0][0].transcript : '';
-                if (text) input.value = text;
+            try {
+                micStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+                voiceChunks = [];
+                const supportedType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
+                    ? 'audio/webm;codecs=opus'
+                    : (MediaRecorder.isTypeSupported('audio/webm') ? 'audio/webm' : '');
+                mediaRecorder = supportedType ? new MediaRecorder(micStream, { mimeType: supportedType }) : new MediaRecorder(micStream);
+                mediaRecorder.ondataavailable = function (event) {
+                    if (event.data && event.data.size) {
+                        voiceChunks.push(event.data);
+                    }
+                };
+                mediaRecorder.onstop = function () {
+                    const mimeType = (voiceChunks[0] && voiceChunks[0].type) || 'audio/webm';
+                    const blob = new Blob(voiceChunks, { type: mimeType });
+                    if (blob.size) {
+                        const ext = mimeType.includes('ogg') ? 'ogg' : 'webm';
+                        const voiceFile = new File([blob], 'voice-message-' + Date.now() + '.' + ext, { type: mimeType });
+                        setVoiceAttachment(voiceFile);
+                    }
+                    if (micStream) {
+                        micStream.getTracks().forEach(function (track) { track.stop(); });
+                    }
+                    micStream = null;
+                    mediaRecorder = null;
+                    voiceChunks = [];
+                    isRecordingVoice = false;
+                    renderAttachments();
+                };
+                mediaRecorder.start();
+                isRecordingVoice = true;
+                renderAttachments();
+                addBubble('🎙️ Rekodi imeanza. Bonyeza chip ya recording ili kusitisha.', 'ai-bot');
+            } catch (error) {
+                addBubble('Imeshindikana kufungua microphone. Hakikisha umetoa ruhusa.', 'ai-bot');
+            }
+        }
+
+        function stopVoiceRecording(cancelOnly) {
+            if (!mediaRecorder) return;
+            const shouldDiscard = !!cancelOnly;
+            if (shouldDiscard) {
+                voiceChunks = [];
+            }
+            const recorder = mediaRecorder;
+            const originalStop = recorder.onstop;
+            recorder.onstop = function () {
+                if (shouldDiscard) {
+                    if (micStream) {
+                        micStream.getTracks().forEach(function (track) { track.stop(); });
+                    }
+                    micStream = null;
+                    mediaRecorder = null;
+                    voiceChunks = [];
+                    isRecordingVoice = false;
+                    renderAttachments();
+                    return;
+                }
+                if (typeof originalStop === 'function') {
+                    originalStop();
+                }
             };
-            rec.start();
+            recorder.stop();
+        }
+
+        function startVoice() {
+            if (isRecordingVoice) {
+                stopVoiceRecording(false);
+                return;
+            }
+            startVoiceRecording();
         }
 
         form.addEventListener('submit', function (event) {
@@ -1286,7 +1412,13 @@
         imageInput.addEventListener('change', function () { pushFiles(imageInput.files); imageInput.value = ''; });
         fileInput.addEventListener('change', function () { pushFiles(fileInput.files); fileInput.value = ''; });
         documentInput.addEventListener('change', function () { pushFiles(documentInput.files); documentInput.value = ''; });
-        audioInput.addEventListener('change', function () { pushFiles(audioInput.files); audioInput.value = ''; });
+        audioInput.addEventListener('change', function () {
+            const file = audioInput.files && audioInput.files[0];
+            if (file) {
+                setVoiceAttachment(file);
+            }
+            audioInput.value = '';
+        });
         videoInput.addEventListener('change', function () { pushFiles(videoInput.files); videoInput.value = ''; });
 
         // Handle static page diagnostic panel buttons
@@ -1316,6 +1448,7 @@
         }
         window.addEventListener('beforeunload', function () {
             stopCamera();
+            stopVoiceRecording(true);
             document.body.classList.remove('ai-chat-screen');
         });
 

@@ -1,4 +1,5 @@
 from django.contrib.auth.models import User
+from django.conf import settings
 from django.db.models import Count, Q
 from django.db.models.functions import TruncDate
 from django.http import HttpResponse, JsonResponse
@@ -8,12 +9,43 @@ from django.utils import timezone
 from django.utils.translation import gettext as _
 from django.views.generic import TemplateView
 import json
+from functools import lru_cache
+from pathlib import Path
 
 from AI_brain.models import AIInteractionLog
 from AI_brain.services import generate_ai_text
 from menstrual.models import CommunityPost, DailyLog, DoctorProfile, Reminder
 from users.permissions import AdminRequiredMixin
 from users.utils import get_user_gender
+
+
+@lru_cache(maxsize=1)
+def _load_unified_translations():
+    file_path = Path(settings.BASE_DIR) / 'locale' / 'unified_translations.json'
+    try:
+        with file_path.open('r', encoding='utf-8') as fh:
+            payload = json.load(fh)
+            return payload if isinstance(payload, dict) else {}
+    except Exception:
+        return {}
+
+
+def runtime_translation_map(request):
+    lang = (request.GET.get('lang') or getattr(request, 'LANGUAGE_CODE', 'sw') or 'sw').split('-')[0]
+    if lang not in {'en', 'ar'}:
+        return JsonResponse({'lang': lang, 'map': {}})
+
+    mapping = {}
+    source = _load_unified_translations()
+    for _, row in source.items():
+        if not isinstance(row, dict):
+            continue
+        sw_text = (row.get('sw') or '').strip()
+        target_text = (row.get(lang) or '').strip()
+        if sw_text and target_text and sw_text != target_text:
+            mapping[sw_text] = target_text
+
+    return JsonResponse({'lang': lang, 'map': mapping})
 
 # Create your views here.
 
@@ -56,7 +88,231 @@ def contact(request):
     return render(request, 'main/contact.html')
 
 def documentation(request):
-    return render(request, 'main/documentation.html')
+    gender = get_user_gender(request.user) if request.user.is_authenticated else None
+
+    if request.user.is_authenticated:
+        starter_title = _('Your personalized getting-started guide')
+        starter_intro = _('These first steps are prepared based on your account status, selected profile context, and the services most relevant to you now.')
+    else:
+        starter_title = _('Start here as a new user')
+        starter_intro = _('If you are not logged in yet, follow these steps to unlock the right services, keep your data safe, and get better insights from the platform.')
+
+    starter_steps = [
+        {
+            'title': _('Create an account or sign in'),
+            'copy': _('Register first or sign in so the system can remember your data, language preferences, and usage history.'),
+            'url': 'users:register' if not request.user.is_authenticated else 'users:profile',
+            'button': _('Open registration') if not request.user.is_authenticated else _('Open profile'),
+            'icon': 'bi-person-plus',
+        },
+        {
+            'title': _('Complete core profile info'),
+            'copy': _('Set gender, birth date, and key health context so AI and dashboards can provide guidance that matches you better.'),
+            'url': 'users:settings',
+            'button': _('Account settings'),
+            'icon': 'bi-sliders',
+        },
+        {
+            'title': _('Start with main services'),
+            'copy': _('After core setup, open AI Chat, the medication library, the disease library, or the dashboard that matches your needs.'),
+            'url': 'main:services',
+            'button': _('Open services'),
+            'icon': 'bi-grid-1x2-fill',
+        },
+    ]
+
+    if gender == 'female':
+        starter_steps.append(
+            {
+                'title': _('Open cycle dashboard'),
+                'copy': _('For female users, the cycle dashboard is the main place for cycle setup, daily logs, reminders, reports, and personal trends.'),
+                'url': 'menstrual:dashboard',
+                'button': _('Cycle dashboard'),
+                'icon': 'bi-calendar-heart',
+            }
+        )
+    else:
+        starter_steps.append(
+            {
+                'title': _('Open daily wellness dashboard'),
+                'copy': _('For male users or users not using cycle tracking, this dashboard provides daily wellness guidance, AI support, and quick access to other services.'),
+                'url': 'main:male_dashboard',
+                'button': _('Open dashboard'),
+                'icon': 'bi-activity',
+            }
+        )
+
+    feature_guides = [
+        {
+            'title': _('AI Chat (text and voice)'),
+            'icon': 'bi-robot',
+            'url': 'AI_brain:chat',
+            'button': _('Open AI Chat'),
+            'summary': _('Ask health questions by text or voice. The assistant may ask follow-up questions before a final response to improve accuracy.'),
+            'details': [
+                _('Type a direct question or use the voice button to record a voice note.'),
+                _('Voice notes are transcribed first, then answered in standard chat format.'),
+                _('Symptom-related questions may trigger clarification options before final guidance.'),
+                _('AI is not a doctor; urgent danger signs should always be treated as emergency care cases.'),
+            ],
+        },
+        {
+            'title': _('Medication library'),
+            'icon': 'bi-capsule-pill',
+            'url': 'medics:browse',
+            'button': _('Open medications'),
+            'summary': _('Browse medication information including use cases, ingredients, mechanism, common side effects, FAQs, and doctor guidance.'),
+            'details': [
+                _('Use search by brand or generic name.'),
+                _('Open detail pages for dosage, manufacturer, side effects, and trusted references.'),
+                _('This content is educational and should not replace professional prescription advice.'),
+            ],
+        },
+        {
+            'title': _('Disease library'),
+            'icon': 'bi-virus2',
+            'url': 'diseases:browse',
+            'button': _('Open diseases'),
+            'summary': _('View disease definitions, symptoms, prevention, basic treatment, potential complications, and first self-care guidance.'),
+            'details': [
+                _('Search by disease name or ICD code.'),
+                _('Review symptoms, prevention, treatment basics, and risk warnings.'),
+                _('Use this information for awareness, not as a substitute for diagnosis.'),
+            ],
+        },
+        {
+            'title': _('Community and social feed'),
+            'icon': 'bi-people-fill',
+            'url': 'chats:feed',
+            'button': _('Open community'),
+            'summary': _('Use posts, 24-hour status, groups, comments, and private chats in a supportive community flow.'),
+            'details': [
+                _('You can post, comment, like, share status, and request clarifications from doctors/admins.'),
+                _('Community audience filters help keep content relevant to each user context.'),
+                _('Use report tools if you find unsafe or inappropriate content.'),
+            ],
+        },
+        {
+            'title': _('Doctors and expert guidance'),
+            'icon': 'bi-heart-pulse',
+            'url': 'doctor:hub',
+            'button': _('Open doctors hub'),
+            'summary': _('When you need professional help, review verified doctors, profiles, ratings, and available support channels.'),
+            'details': [
+                _('Doctor hub highlights verified professionals and their specialties.'),
+                _('You can request clarifications through role-based workflows.'),
+                _('Assigned patients can submit requested logs from the patient log area.'),
+            ],
+        },
+        {
+            'title': _('Health card and shareable profile'),
+            'icon': 'bi-person-vcard',
+            'url': 'card:home',
+            'button': _('Open health card'),
+            'summary': _('Organize key health data in a single profile that can be shared securely according to your visibility settings.'),
+            'details': [
+                _('You can set profile photo, health notes, medications, goals, and visibility options.'),
+                _('Public card access can be password-protected.'),
+            ],
+        },
+    ]
+
+    if gender == 'female':
+        feature_guides.insert(
+            1,
+            {
+                'title': _('Cycle dashboard and daily logs'),
+                'icon': 'bi-calendar2-heart',
+                'url': 'menstrual:dashboard',
+                'button': _('Open dashboard'),
+                'summary': _('Your central cycle-care area for setup, daily logs, reports, reminders, women community access, and cycle-related medical support.'),
+                'details': [
+                    _('Start by setting cycle start date, cycle length, and period duration.'),
+                    _('Log flow intensity, physical symptoms, emotional changes, and sleep patterns.'),
+                    _('Track predictions and trends from your recent entries.'),
+                    _('Consistent logging improves report quality significantly.'),
+                ],
+            },
+        )
+    else:
+        feature_guides.insert(
+            1,
+            {
+                'title': _('Male wellness / daily health dashboard'),
+                'icon': 'bi-speedometer2',
+                'url': 'main:male_dashboard',
+                'button': _('Open dashboard'),
+                'summary': _('A daily wellness landing area for male users or users not using cycle tracking.'),
+                'details': [
+                    _('Use it as a quick start point before AI chat, disease library, or doctor services.'),
+                    _('It supports lifestyle, exercise, sleep, nutrition, and daily health awareness guidance.'),
+                ],
+            },
+        )
+
+    privacy_points = [
+        _('Your health data is used to improve responses only when relevant to your request.'),
+        _('You can control privacy settings from account settings and dashboard-level options.'),
+        _('Community participation can be anonymous depending on your preferences.'),
+        _('AI guidance does not replace professional diagnosis, especially for emergency signs.'),
+    ]
+
+    troubleshooting = [
+        {
+            'title': _('Cannot sign in or register'),
+            'copy': _('Check your email, username, and password. If the issue continues, use contact support or an available social login provider.'),
+        },
+        {
+            'title': _('AI Chat response is not accurate enough'),
+            'copy': _('Ask a direct question and include key symptoms, duration, and important context. Use feedback buttons after each response.'),
+        },
+        {
+            'title': _('Voice message is not transcribed well'),
+            'copy': _('Record in a quiet place, speak clearly near the microphone, and try again. Use text as backup if needed.'),
+        },
+        {
+            'title': _('Predictions or reports look weak'),
+            'copy': _('Make sure cycle setup is complete and daily logs are entered consistently. Limited data reduces trend quality.'),
+        },
+        {
+            'title': _('Community media is not loading'),
+            'copy': _('Fallback images are enabled for missing media. Refresh the page and contact support if the issue persists.'),
+        },
+    ]
+
+    faq_items = [
+        {
+            'q': _('Do I need to fill every profile field?'),
+            'a': _('Not immediately. However, richer profile data improves insight quality and personalization.'),
+        },
+        {
+            'q': _('Can AI give me a final diagnosis?'),
+            'a': _('No. AI gives education and early guidance. Final diagnosis requires professional assessment and sometimes tests.'),
+        },
+        {
+            'q': _('When should I use voice chat instead of text?'),
+            'a': _('Use voice when typing is difficult or slower. Use text for precise details like medication names and numbers.'),
+        },
+        {
+            'q': _('Why is daily logging important?'),
+            'a': _('Consistent logs create stronger patterns. Without enough data, reports, predictions, and contextual AI responses become weaker.'),
+        },
+    ]
+
+    return render(
+        request,
+        'main/documentation.html',
+        {
+            'user_gender': gender,
+            'starter_title': starter_title,
+            'starter_intro': starter_intro,
+            'starter_steps': starter_steps,
+            'feature_guides': feature_guides,
+            'privacy_points': privacy_points,
+            'troubleshooting_items': troubleshooting,
+            'faq_items': faq_items,
+        },
+    )
 
 
 def services(request):
@@ -64,38 +320,38 @@ def services(request):
 
     common_services = [
         {
-            'title': _('Dawa na Matumizi'),
-            'description': _('Mwongozo wa dawa, matumizi salama, na maelezo muhimu ya matibabu.'),
+            'title': _('Drugs & Usage'),
+            'description': _('Medication library with visual cards, safe-use guidance, and key treatment details.'),
             'image': 'https://images.unsplash.com/photo-1587854692152-cbe660dbde88?auto=format&fit=crop&w=1200&q=80',
             'icon': 'bi-capsule-pill',
-            'audience': _('Wote'),
-            'is_live': False,
-            'url': None,
+            'audience': _('Everyone'),
+            'is_live': True,
+            'url': 'medics:browse',
         },
         {
-            'title': _('Magonjwa'),
-            'description': _('Elimu ya magonjwa, dalili, kinga, na hatua za awali za kujitunza.'),
+            'title': _('Diseases'),
+            'description': _('Disease education with visual cards, symptoms, prevention, and first self-care steps.'),
             'image': 'https://images.unsplash.com/photo-1579165466741-7f35e4755660?auto=format&fit=crop&w=1200&q=80',
             'icon': 'bi-virus2',
-            'audience': _('Wote'),
-            'is_live': False,
-            'url': None,
+            'audience': _('Everyone'),
+            'is_live': True,
+            'url': 'diseases:browse',
         },
         {
-            'title': _('Balehe na Uzazi'),
-            'description': 'Maelezo ya mabadiliko ya balehe na afya ya uzazi kwa lugha rahisi.',
+            'title': _('Puberty & Reproductive Health'),
+            'description': _('Clear guidance about puberty changes and reproductive health.'),
             'image': 'https://images.unsplash.com/photo-1491438590914-bc09fcaaf77a?auto=format&fit=crop&w=1200&q=80',
             'icon': 'bi-person-hearts',
-            'audience': _('Wote'),
+            'audience': _('Everyone'),
             'is_live': False,
             'url': None,
         },
         {
-            'title': _('Ukuaji wa Mtoto'),
-            'description': _('Ufuatiliaji wa ukuaji wa mtoto, hatua muhimu za ukuaji, na vidokezo vya malezi.'),
+            'title': _('Child Growth'),
+            'description': _('Track child growth, milestones, and practical parenting tips.'),
             'image': 'https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=1200&q=80',
             'icon': 'bi-balloon-heart',
-            'audience': _('Wote'),
+            'audience': _('Everyone'),
             'is_live': False,
             'url': None,
         },
@@ -103,20 +359,20 @@ def services(request):
 
     female_services = [
         {
-            'title': _('Mzunguko wa Hedhi'),
-            'description': _('Fuatilia mzunguko wako, dalili, na vikumbusho kwa usahihi zaidi.'),
+            'title': _('Menstrual Cycle Tracker'),
+            'description': _('Track your cycle, symptoms, and reminders with better accuracy.'),
             'image': 'https://images.unsplash.com/photo-1511174511562-5f7f18b874f8?auto=format&fit=crop&w=1200&q=80',
             'icon': 'bi-calendar-heart',
-            'audience': _('Wanawake'),
+            'audience': _('Women'),
             'is_live': True,
             'url': 'menstrual:dashboard',
         },
         {
-            'title': _('Ujauzito'),
-            'description': 'Huduma za ujauzito, ufuatiliaji wa hatua kwa hatua, na ushauri salama.',
+            'title': _('Pregnancy Care'),
+            'description': _('Pregnancy support, stage-by-stage tracking, and safer guidance.'),
             'image': 'https://images.unsplash.com/photo-1544776193-352d25ca82cd?auto=format&fit=crop&w=1200&q=80',
             'icon': 'bi-heart-pulse',
-            'audience': _('Wanawake'),
+            'audience': _('Women'),
             'is_live': False,
             'url': None,
         },

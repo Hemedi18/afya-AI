@@ -1,20 +1,365 @@
-{% extends "base.html" %}
+{% extends 'base.html' %}
 {% load i18n %}
 
+{% block title %}{% trans 'Documentation' %} - AfyaSmart{% endblock %}
+
 {% block content %}
-<div class="container">
-    <h1 class="text-3xl font-bold mb-6">{% trans "Dashibodi ya Afya ya Hedhi" %}</h1>
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <div class="bg-white p-6 rounded-lg shadow-md">
-            <h2 class="text-2xl font-semibold mb-4">{% trans "Fuatilia Mzunguko Wako" %}</h2>
-            <p class="text-gray-700 mb-4">{% trans "Weka dalili za kila siku, kiwango cha mtiririko, na hali yako ili upate maarifa yaliyobinafsishwa." %}</p>
-            <a href="{% url 'log_daily' %}" class="bg-pink-500 text-white px-4 py-2 rounded hover:bg-pink-600 transition">{% trans "Weka Rekodi ya Leo" %}</a>
+<style>
+    .docs-shell {
+        max-width: 1180px;
+        margin: 0 auto;
+        padding: 1.25rem 1rem 6rem;
+    }
+    .docs-hero,
+    .docs-card,
+    .docs-feature,
+    .docs-faq,
+    .docs-side,
+    .docs-note {
+        background: color-mix(in srgb, var(--card-bg) 94%, transparent);
+        border: 1px solid var(--line-soft);
+        border-radius: 24px;
+        box-shadow: 0 14px 34px rgba(0,0,0,.08);
+    }
+    .docs-hero {
+        padding: 1.45rem;
+        margin-bottom: 1rem;
+        background-image: radial-gradient(circle at 10% 12%, color-mix(in srgb, var(--primary) 16%, transparent), transparent 33%), radial-gradient(circle at 86% 18%, color-mix(in srgb, var(--secondary) 16%, transparent), transparent 34%);
+    }
+    .docs-kicker {
+        display: inline-flex;
+        align-items: center;
+        gap: .45rem;
+        border-radius: 999px;
+        padding: .38rem .74rem;
+        border: 1px solid var(--line-soft);
+        background: color-mix(in srgb, var(--card-bg) 78%, transparent);
+        font-size: .84rem;
+        margin-bottom: .9rem;
+    }
+    .docs-title { margin: 0; font-weight: 900; }
+    .docs-sub { margin: .55rem 0 0; color: var(--text-muted); line-height: 1.72; max-width: 860px; }
+    .docs-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: .65rem;
+        margin-top: 1rem;
+    }
+    .docs-chip {
+        border-radius: 999px;
+        padding: .42rem .75rem;
+        border: 1px solid var(--line-soft);
+        background: color-mix(in srgb, var(--card-bg) 88%, transparent);
+        font-size: .84rem;
+        color: var(--text-main);
+        text-decoration: none;
+    }
+    .docs-layout {
+        display: grid;
+        grid-template-columns: 290px minmax(0, 1fr);
+        gap: 1rem;
+        align-items: start;
+    }
+    .docs-side {
+        position: sticky;
+        top: 88px;
+        padding: 1rem;
+    }
+    .docs-side h5,
+    .docs-section h4,
+    .docs-feature h5,
+    .docs-card h5,
+    .docs-faq h5,
+    .docs-note h5 {
+        font-weight: 900;
+        margin: 0 0 .7rem;
+    }
+    .docs-nav {
+        display: flex;
+        flex-direction: column;
+        gap: .5rem;
+        margin-bottom: 1rem;
+    }
+    .docs-nav a {
+        text-decoration: none;
+        color: var(--text-main);
+        border-radius: 14px;
+        border: 1px solid var(--line-soft);
+        padding: .62rem .78rem;
+        background: color-mix(in srgb, var(--card-bg) 88%, transparent);
+        font-size: .9rem;
+    }
+    .docs-nav a:hover {
+        border-color: color-mix(in srgb, var(--primary) 30%, var(--line-soft));
+        transform: translateY(-1px);
+    }
+    .docs-side-copy {
+        color: var(--text-muted);
+        font-size: .9rem;
+        line-height: 1.7;
+    }
+    .docs-main {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+    .docs-section {
+        scroll-margin-top: 92px;
+    }
+    .docs-card,
+    .docs-note,
+    .docs-faq,
+    .docs-feature {
+        padding: 1rem;
+    }
+    .docs-grid,
+    .docs-feature-grid {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1rem;
+    }
+    .docs-step-icon,
+    .docs-feature-icon {
+        width: 44px;
+        height: 44px;
+        border-radius: 14px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: #fff;
+        box-shadow: 0 10px 24px color-mix(in srgb, var(--primary) 26%, transparent);
+        margin-bottom: .75rem;
+        font-size: 1rem;
+    }
+    .docs-copy {
+        color: var(--text-muted);
+        line-height: 1.74;
+        margin: 0;
+    }
+    .docs-list {
+        margin: .8rem 0 0;
+        padding-left: 1.1rem;
+        color: var(--text-muted);
+    }
+    .docs-list li {
+        margin-bottom: .45rem;
+        line-height: 1.68;
+    }
+    .docs-actions {
+        display: flex;
+        gap: .6rem;
+        flex-wrap: wrap;
+        margin-top: .95rem;
+    }
+    .docs-btn {
+        border-radius: 999px;
+        text-decoration: none;
+        padding: .64rem .95rem;
+        display: inline-flex;
+        align-items: center;
+        gap: .45rem;
+        font-weight: 800;
+        border: 1px solid var(--line-soft);
+        color: var(--text-main);
+        background: color-mix(in srgb, var(--card-bg) 90%, transparent);
+    }
+    .docs-btn.primary {
+        background: linear-gradient(135deg, var(--primary), var(--secondary));
+        color: var(--seed-on-color);
+        border: 0;
+        box-shadow: 0 12px 24px color-mix(in srgb, var(--primary) 28%, transparent);
+    }
+    .docs-btn:hover { transform: translateY(-1px); }
+    .docs-note {
+        background: color-mix(in srgb, var(--primary) 7%, var(--card-bg));
+        border-style: dashed;
+    }
+    .docs-faq-item + .docs-faq-item {
+        border-top: 1px solid var(--line-soft);
+        margin-top: .9rem;
+        padding-top: .9rem;
+    }
+    @media (max-width: 991px) {
+        .docs-layout { grid-template-columns: 1fr; }
+        .docs-side { position: static; }
+    }
+    @media (max-width: 767px) {
+        .docs-grid,
+        .docs-feature-grid { grid-template-columns: 1fr; }
+        .docs-hero,
+        .docs-card,
+        .docs-feature,
+        .docs-faq,
+        .docs-side,
+        .docs-note {
+            background: var(--mobile-solid) !important;
+            background-image: none !important;
+        }
+    }
+</style>
+
+<div class="docs-shell">
+    <section class="docs-hero">
+        <div class="docs-kicker"><i class="bi bi-journal-richtext"></i>{% trans 'Official AfyaSmart usage guide' %}</div>
+        <h2 class="docs-title">{% trans 'Complete documentation for every user' %}</h2>
+        <p class="docs-sub">
+            {% blocktrans trimmed %}
+            This page explains how to use AfyaSmart step by step, from account registration,
+            profile setup, AI Chat (text and voice), and dashboard usage, to community engagement,
+            medication and disease lookup, doctor access, and protecting your data privacy.
+            {% endblocktrans %}
+        </p>
+        <div class="docs-meta">
+            <span class="docs-chip"><i class="bi bi-person-check me-1"></i>{% if request.user.is_authenticated %}{% trans 'You are signed in' %}{% else %}{% trans 'You are not signed in yet' %}{% endif %}</span>
+            <span class="docs-chip"><i class="bi bi-gender-ambiguous me-1"></i>{% trans 'Profile context:' %} <strong>{{ user_gender|default:'Not selected' }}</strong></span>
+            <a href="{% url 'main:services' %}" class="docs-chip"><i class="bi bi-grid me-1"></i>{% trans 'View all services' %}</a>
+            <a href="{% url 'main:contact' %}" class="docs-chip"><i class="bi bi-headset me-1"></i>{% trans 'Get support' %}</a>
         </div>
-        <div class="bg-white p-6 rounded-lg shadow-md">
-            <h2 class="text-2xl font-semibold mb-4">{% trans "Utabiri wa Mzunguko" %}</h2>
-            <p class="text-gray-700 mb-4">{% trans "Angalia utabiri wa hedhi ijayo, ovulation, na siku za uzazi kulingana na data uliyoingiza." %}</p>
-            <a  href="{% url 'cycle_predictions' %}" class="bg-pink-500 text-white px-4 py-2 rounded hover:bg-pink-600 transition">{% trans "Angalia Utabiri" %}</a>
-        </div>
+    </section>
+
+    <div class="docs-layout">
+        <aside class="docs-side">
+            <h5>{% trans 'Jump to a section' %}</h5>
+            <div class="docs-nav">
+                <a href="#getting-started">{% trans '1. Getting started' %}</a>
+                <a href="#features">{% trans '2. Core features' %}</a>
+                <a href="#privacy">{% trans '3. Privacy and safety' %}</a>
+                <a href="#troubleshooting">{% trans '4. Troubleshooting' %}</a>
+                <a href="#faq">{% trans '5. Frequently asked questions' %}</a>
+            </div>
+            <p class="docs-side-copy">
+                {% blocktrans trimmed %}
+                If you are a new user, start with section one. If you already use the platform and want details
+                about a specific feature like voice AI Chat, dashboards, or community tools, jump directly to
+                the features section.
+                {% endblocktrans %}
+            </p>
+        </aside>
+
+        <main class="docs-main">
+            <section class="docs-section" id="getting-started">
+                <div class="docs-card">
+                    <h4><i class="bi bi-signpost-split me-2"></i>{{ starter_title }}</h4>
+                    <p class="docs-copy">{{ starter_intro }}</p>
+                </div>
+                <div class="docs-grid">
+                    {% for item in starter_steps %}
+                    <article class="docs-card">
+                        <div class="docs-step-icon"><i class="bi {{ item.icon }}"></i></div>
+                        <h5>{{ item.title }}</h5>
+                        <p class="docs-copy">{{ item.copy }}</p>
+                        <div class="docs-actions">
+                            <a href="{% url item.url %}" class="docs-btn primary"><i class="bi bi-arrow-right-circle"></i>{{ item.button }}</a>
+                        </div>
+                    </article>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <section class="docs-section" id="features">
+                <div class="docs-card">
+                    <h4><i class="bi bi-ui-checks-grid me-2"></i>{% trans 'Important feature explanations' %}</h4>
+                    <p class="docs-copy">{% trans 'Each section below explains what a feature does, how to use it, and what to keep in mind for the best results.' %}</p>
+                </div>
+                <div class="docs-feature-grid">
+                    {% for item in feature_guides %}
+                    <article class="docs-feature">
+                        <div class="docs-feature-icon"><i class="bi {{ item.icon }}"></i></div>
+                        <h5>{{ item.title }}</h5>
+                        <p class="docs-copy">{{ item.summary }}</p>
+                        <ul class="docs-list">
+                            {% for detail in item.details %}
+                            <li>{{ detail }}</li>
+                            {% endfor %}
+                        </ul>
+                        <div class="docs-actions">
+                            <a href="{% url item.url %}" class="docs-btn primary"><i class="bi bi-box-arrow-up-right"></i>{{ item.button }}</a>
+                        </div>
+                    </article>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <section class="docs-section">
+                <div class="docs-note">
+                    <h5><i class="bi bi-mic-fill me-2"></i>{% trans 'How to use voice AI Chat correctly' %}</h5>
+                    <p class="docs-copy">
+                        {% blocktrans trimmed %}
+                        Tap the voice button in AI Chat, record your question, then stop recording.
+                        The system sends your audio for transcription and the AI responds based on the generated text.
+                        {% endblocktrans %}
+                    </p>
+                    <ul class="docs-list">
+                        <li>{% trans 'Speak clearly and record in a quiet place.' %}</li>
+                        <li>{% trans 'Mention key symptoms, duration, and whether you have fever, pain, or current medications.' %}</li>
+                        <li>{% trans 'If transcription is inaccurate, re-record or switch to text input.' %}</li>
+                    </ul>
+                </div>
+            </section>
+
+            <section class="docs-section" id="privacy">
+                <div class="docs-card">
+                    <h4><i class="bi bi-shield-lock me-2"></i>{% trans 'Privacy, safety, and data usage' %}</h4>
+                    <p class="docs-copy">{% trans 'Because the platform handles health-related information, it is important to understand how your data is used and where privacy settings can be adjusted.' %}</p>
+                    <ul class="docs-list">
+                        {% for point in privacy_points %}
+                        <li>{{ point }}</li>
+                        {% endfor %}
+                    </ul>
+                    <div class="docs-actions">
+                        <a href="{% url 'users:settings' %}" class="docs-btn"><i class="bi bi-sliders"></i>{% trans 'Account settings' %}</a>
+                        {% if user_gender == 'female' %}
+                        <a href="{% url 'menstrual:settings' %}" class="docs-btn"><i class="bi bi-gear"></i>{% trans 'Menstrual settings' %}</a>
+                        {% endif %}
+                    </div>
+                </div>
+            </section>
+
+            <section class="docs-section" id="troubleshooting">
+                <div class="docs-card">
+                    <h4><i class="bi bi-tools me-2"></i>{% trans 'Common troubleshooting' %}</h4>
+                    <p class="docs-copy">{% trans 'If a feature is not behaving as expected, review this quick checklist before contacting support.' %}</p>
+                </div>
+                <div class="docs-grid">
+                    {% for item in troubleshooting_items %}
+                    <article class="docs-card">
+                        <h5>{{ item.title }}</h5>
+                        <p class="docs-copy">{{ item.copy }}</p>
+                    </article>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <section class="docs-section" id="faq">
+                <div class="docs-faq">
+                    <h4><i class="bi bi-patch-question me-2"></i>{% trans 'Frequently asked questions' %}</h4>
+                    {% for item in faq_items %}
+                    <div class="docs-faq-item">
+                        <h5>{{ item.q }}</h5>
+                        <p class="docs-copy">{{ item.a }}</p>
+                    </div>
+                    {% endfor %}
+                </div>
+            </section>
+
+            <section class="docs-section">
+                <div class="docs-card">
+                    <h4><i class="bi bi-check2-circle me-2"></i>{% trans 'Best-use summary' %}</h4>
+                    <ul class="docs-list">
+                        <li>{% trans 'Complete your profile early so the system can personalize guidance correctly.' %}</li>
+                        <li>{% trans 'Use AI Chat for early guidance, but seek medical care for severe symptoms or emergencies.' %}</li>
+                        <li>{% trans 'Log records consistently so trends, reports, and recommendations improve.' %}</li>
+                        <li>{% trans 'Compare library information with professional medical advice when making decisions.' %}</li>
+                        <li>{% trans 'If you are stuck, use the contact page instead of waiting without support.' %}</li>
+                    </ul>
+                    <div class="docs-actions">
+                        <a href="{% url 'main:services' %}" class="docs-btn primary"><i class="bi bi-grid"></i>{% trans 'Back to services' %}</a>
+                        <a href="{% url 'main:contact' %}" class="docs-btn"><i class="bi bi-headset"></i>{% trans 'Contact support' %}</a>
+                    </div>
+                </div>
+            </section>
+        </main>
     </div>
 </div>
 {% endblock %}

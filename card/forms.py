@@ -1,4 +1,5 @@
 from django import forms
+from django.utils.translation import gettext_lazy as _
 
 from .models import HealthCard, PersonaReminderConfig
 
@@ -6,12 +7,12 @@ from .models import HealthCard, PersonaReminderConfig
 class HealthCardForm(forms.ModelForm):
     public_password = forms.CharField(
         required=False,
-        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Weka password ya scan page'}),
-        help_text='Ikiwekwa, anayescan QR atatakiwa kuingiza password hii kuona data.'
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': _('Weka password ya scan page')}),
+        help_text=_('Ikiwekwa, anayescan QR atatakiwa kuingiza password hii kuona data.')
     )
     public_password_confirm = forms.CharField(
         required=False,
-        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': 'Rudia password'}),
+        widget=forms.PasswordInput(attrs={'class': 'form-control', 'placeholder': _('Rudia password')}),
     )
     clear_public_password = forms.BooleanField(
         required=False,
@@ -43,9 +44,9 @@ class HealthCardForm(forms.ModelForm):
         ]
         widgets = {
             'birth_date': forms.DateInput(attrs={'type': 'date', 'class': 'form-control'}),
-            'full_name_override': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Acha wazi kutumia jina la profile'}),
-            'gender_override': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Acha wazi kutumia gender ya persona'}),
-            'watermark_text': forms.TextInput(attrs={'class': 'form-control', 'placeholder': 'Mfano: AfyaSmart • VERIFIED'}),
+            'full_name_override': forms.TextInput(attrs={'class': 'form-control', 'placeholder': _('Acha wazi kutumia jina la profile')}),
+            'gender_override': forms.TextInput(attrs={'class': 'form-control', 'placeholder': _('Acha wazi kutumia gender ya persona')}),
+            'watermark_text': forms.TextInput(attrs={'class': 'form-control', 'placeholder': _('Mfano: AfyaSmart • VERIFIED')}),
             'style_theme': forms.Select(attrs={'class': 'form-select'}),
             'photo': forms.FileInput(attrs={'class': 'form-control', 'accept': 'image/*'}),
             'show_watermark': forms.CheckboxInput(attrs={'class': 'form-check-input'}),
@@ -65,7 +66,7 @@ class HealthCardForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['clear_public_password'].label = 'Ondoa password ya scan page'
+        self.fields['clear_public_password'].label = _('Ondoa password ya scan page')
 
     def clean(self):
         cleaned = super().clean()
@@ -74,9 +75,9 @@ class HealthCardForm(forms.ModelForm):
 
         if pwd or pwd2:
             if pwd != pwd2:
-                self.add_error('public_password_confirm', 'Password hazifanani.')
+                self.add_error('public_password_confirm', _('Password hazifanani.'))
             if len(pwd) < 4:
-                self.add_error('public_password', 'Password iwe angalau herufi 4.')
+                self.add_error('public_password', _('Password iwe angalau herufi 4.'))
 
         return cleaned
 

@@ -1,8 +1,10 @@
+{% load chats_media %}
+
 {% if post.media_items.count %}
     {% for media in post.media_items.all %}
     <div class="media-frame ratio-{{ post.media_ratio|default:'auto' }} shape-{{ post.media_shape|default:'rounded' }}" style="--focus-x: {{ post.media_focus_x|default:50 }}%; --focus-y: {{ post.media_focus_y|default:50 }}%;">
         {% if media.media_type == 'image' and media.image %}
-        <img src="{{ media.image.url }}" class="post-media" alt="post media">
+        <img src="{{ media.image|safe_media_url }}" class="post-media" alt="post media">
         {% elif media.media_type == 'video' and media.video %}
         <video class="post-media{% if autoplay_to_post %} js-feed-video{% endif %}" {% if autoplay_to_post %}muted loop playsinline preload="metadata" data-post-url="{{ post_url }}" role="link" tabindex="0" aria-label="Open post video"{% else %}controls playsinline preload="metadata"{% endif %}>
             <source src="{{ media.video.url }}">
@@ -13,7 +15,7 @@
 {% elif post.image or post.video %}
     <div class="media-frame ratio-{{ post.media_ratio|default:'auto' }} shape-{{ post.media_shape|default:'rounded' }}" style="--focus-x: {{ post.media_focus_x|default:50 }}%; --focus-y: {{ post.media_focus_y|default:50 }}%;">
         {% if post.image %}
-        <img src="{{ post.image.url }}" class="post-media" alt="post media">
+        <img src="{{ post.image|safe_media_url }}" class="post-media" alt="post media">
         {% elif post.video %}
         <video class="post-media{% if autoplay_to_post %} js-feed-video{% endif %}" {% if autoplay_to_post %}muted loop playsinline preload="metadata" data-post-url="{{ post_url }}" role="link" tabindex="0" aria-label="Open post video"{% else %}controls playsinline preload="metadata"{% endif %}>
             <source src="{{ post.video.url }}">

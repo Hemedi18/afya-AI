@@ -39,5 +39,3 @@ mobile_app/android/local.properties
 mobile_app/android/app/debug/
 mobile_app/android/app/profile/
 mobile_app/android/app/release/
-
-db.sqlite3

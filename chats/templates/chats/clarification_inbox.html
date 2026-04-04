@@ -1,4 +1,5 @@
 {% extends 'base.html' %}
+{% load i18n %}
 
 {% block content %}
 <style>
@@ -95,10 +96,10 @@
     <div class="clar-wrap">
         <div class="clar-head">
             <div>
-                <h4 class="fw-bold mb-1">Kikasha cha Ufafanuzi</h4>
-                <div class="clar-sub">Orodha ya maombi ya ufafanuzi kutoka jamii pamoja na majibu yake.</div>
+                <h4 class="fw-bold mb-1">{% trans "Kikasha cha Ufafanuzi" %}</h4>
+                <div class="clar-sub">{% trans "Orodha ya maombi ya ufafanuzi kutoka jamii pamoja na majibu yake." %}</div>
             </div>
-            <a href="{% url 'chats:feed' %}" class="btn btn-sm btn-outline-secondary rounded-pill">Rudi kwenye mtiririko</a>
+            <a href="{% url 'chats:feed' %}" class="btn btn-sm btn-outline-secondary rounded-pill">{% trans "Rudi kwenye mtiririko" %}</a>
         </div>
 
         {% for item in requests %}
@@ -114,7 +115,7 @@
                     </div>
                     <div>
                         <div class="fw-bold">{{ item.asker.username }}</div>
-                        <div class="clar-meta">{{ item.created_at|timesince }} zilizopita</div>
+                        <div class="clar-meta">{% blocktrans trimmed with time=item.created_at|timesince %}{{ time }} zilizopita{% endblocktrans %}</div>
                     </div>
                 </div>
                 <div class="d-flex flex-wrap gap-2 justify-content-end">
@@ -133,23 +134,23 @@
                     {% endif %}
                 </div>
                 <div>
-                    <div class="small fw-bold mb-0">Daktari aliyechaguliwa: Dr. {{ item.target_doctor.get_full_name|default:item.target_doctor.username }}</div>
+                    <div class="small fw-bold mb-0">{% blocktrans trimmed with doctor_name=item.target_doctor.get_full_name|default:item.target_doctor.username %}Daktari aliyechaguliwa: Dr. {{ doctor_name }}{% endblocktrans %}</div>
                     {% if item.target_doctor.doctor_profile %}<div class="clar-meta">{{ item.target_doctor.doctor_profile.specialization }}</div>{% endif %}
                 </div>
             </div>
             {% endif %}
 
             <div class="clar-related-box">
-                <div class="small text-muted mb-1">Maudhui lengwa</div>
+                <div class="small text-muted mb-1">{% trans "Maudhui lengwa" %}</div>
                 {% if item.post %}
                 <div class="small mb-1"><strong>Post #{{ item.post.id }}</strong> — {{ item.post.content|truncatewords:20 }}</div>
-                <a href="{% url 'chats:post_detail' item.post.id %}?clarification={{ item.id }}" class="small fw-semibold text-decoration-none">Fungua chapisho husika na ujibu huko</a>
+                <a href="{% url 'chats:post_detail' item.post.id %}?clarification={{ item.id }}" class="small fw-semibold text-decoration-none">{% trans "Fungua chapisho husika na ujibu huko" %}</a>
                 {% elif item.comment %}
                 <div class="small mb-1"><strong>Maoni #{{ item.comment.id }}</strong> — {{ item.comment.content|truncatewords:20 }}</div>
-                <span class="small fw-semibold text-muted">Hakiki ya maoni husika pekee (haiwezi kubonyezwa)</span>
+                <span class="small fw-semibold text-muted">{% trans "Hakiki ya maoni husika pekee (haiwezi kubonyezwa)" %}</span>
                 {% elif item.group %}
                 <div class="small mb-1"><strong>Kikundi #{{ item.group.id }}</strong> — {{ item.group.name }}</div>
-                <a href="{% url 'chats:group_detail' item.group.id %}" class="small fw-semibold text-decoration-none">Fungua kikundi husika</a>
+                <a href="{% url 'chats:group_detail' item.group.id %}" class="small fw-semibold text-decoration-none">{% trans "Fungua kikundi husika" %}</a>
                 {% endif %}
             </div>
 
@@ -157,20 +158,20 @@
 
             {% if item.response %}
             <div class="clar-response-box">
-                <div class="small fw-bold mb-1"><i class="bi bi-patch-check-fill"></i> Jibu</div>
+                <div class="small fw-bold mb-1"><i class="bi bi-patch-check-fill"></i> {% trans "Jibu" %}</div>
                 <div class="small mb-1">{{ item.response }}</div>
                 {% if item.responded_by %}<div class="clar-meta">— {{ item.responded_by.username }}</div>{% endif %}
             </div>
             {% else %}
             <form method="post" action="{% url 'chats:clarification_respond' item.id %}" class="clar-respond-form">
                 {% csrf_token %}
-                <textarea name="response" class="form-control mb-2" rows="3" placeholder="Andika ufafanuzi hapa..." required></textarea>
-                <button class="btn btn-primary rounded-pill px-4" type="submit">Jibu</button>
+                <textarea name="response" class="form-control mb-2" rows="3" placeholder="{% trans 'Andika ufafanuzi hapa...' %}" required></textarea>
+                <button class="btn btn-primary rounded-pill px-4" type="submit">{% trans "Jibu" %}</button>
             </form>
             {% endif %}
         </div>
         {% empty %}
-        <div class="text-muted text-center py-4">Hakuna maombi ya ufafanuzi kwa sasa.</div>
+        <div class="text-muted text-center py-4">{% trans "Hakuna maombi ya ufafanuzi kwa sasa." %}</div>
         {% endfor %}
     </div>
 </div>
