@@ -6,6 +6,7 @@ from collections import Counter
 
 from django.contrib import messages
 from django.contrib.auth.decorators import login_required
+from django.db.utils import OperationalError, ProgrammingError
 from django.http import JsonResponse
 from django.shortcuts import get_object_or_404, redirect, render
 from django.urls import reverse
@@ -124,10 +125,46 @@ def _build_selected_health_data(card: HealthCard):
 	return selected
 
 
+def _is_verified_doctor_or_admin(user):
+	if not user.is_authenticated:
+		return False
+	if user.is_superuser or user.is_staff:
+		return True
+	doctor_profile = getattr(user, 'doctor_profile', None)
+	return bool(doctor_profile and getattr(doctor_profile, 'verified', False))
+
+
+def _get_face_gate_state(request):
+	now_ts = int(timezone.now().timestamp())
+	verified_until = int(request.session.get('card_face_verified_until') or 0)
+	has_enrollment = False
+
+	try:
+		from machine_learning.models import FaceEnrollment
+		enrollment = FaceEnrollment.objects.filter(user=request.user, active=True).first()
+		has_enrollment = bool(enrollment and enrollment.embedding)
+	except (OperationalError, ProgrammingError, ModuleNotFoundError):
+		# Fail-open to avoid 500 when migrations/module are not available yet.
+		has_enrollment = False
+	except Exception:
+		has_enrollment = False
+
+	is_open = has_enrollment and verified_until >= now_ts
+	remaining_seconds = max(0, verified_until - now_ts)
+
+	return {
+		'is_open': is_open,
+		'has_enrollment': has_enrollment,
+		'verified_until': verified_until,
+		'remaining_seconds': remaining_seconds,
+	}
+
+
 @login_required
 def card_home(request):
 	card, _ = HealthCard.objects.get_or_create(user=request.user)
 	config, _ = PersonaReminderConfig.objects.get_or_create(user=request.user)
+	face_gate = _get_face_gate_state(request)
 
 	ensure_persona_update_notification(request.user)
 
@@ -141,6 +178,8 @@ def card_home(request):
 		'qr_image': qr_image,
 		'unread_notifications': unread_notifications,
 		'persona_config': config,
+		'face_gate': face_gate,
+		'can_face_lookup': _is_verified_doctor_or_admin(request.user),
 	})
 
 
@@ -148,8 +187,13 @@ def card_home(request):
 def card_details(request):
 	card, _ = HealthCard.objects.get_or_create(user=request.user)
 	config, _ = PersonaReminderConfig.objects.get_or_create(user=request.user)
+	face_gate = _get_face_gate_state(request)
 
 	if request.method == 'POST':
+		if not face_gate['is_open']:
+			messages.error(request, 'Kabla ya kutumia card features lazima uthibitishe uso kwanza.')
+			return redirect('card:home')
+
 		form = HealthCardForm(request.POST, request.FILES, instance=card)
 		config_form = PersonaReminderConfigForm(request.POST, instance=config)
 		if form.is_valid() and config_form.is_valid():
@@ -178,17 +222,25 @@ def card_details(request):
 		'form': form,
 		'config_form': config_form,
 		'card_obj': card,
+		'face_gate': face_gate,
 	})
 
 
 @login_required
 def card_notifications(request):
 	notifications = CardNotification.objects.filter(user=request.user)
+	face_gate = _get_face_gate_state(request)
 	if request.method == 'POST':
+		if not face_gate['is_open']:
+			messages.error(request, 'Kabla ya kutumia card features lazima uthibitishe uso kwanza.')
+			return redirect('card:home')
 		notifications.filter(is_read=False).update(is_read=True)
 		messages.success(request, 'Notifications zimewekwa kama zimesomwa.')
 		return redirect('card:notifications')
-	return render(request, 'card/notifications.html', {'notifications': notifications})
+	return render(request, 'card/notifications.html', {
+		'notifications': notifications,
+		'face_gate': face_gate,
+	})
 
 
 def public_profile(request, token):

@@ -136,6 +136,7 @@ INSTALLED_APPS = [
     'mobile_api',
     'medics',
     'diseases',
+    'machine_learning',
 
     # Third-party apps
 

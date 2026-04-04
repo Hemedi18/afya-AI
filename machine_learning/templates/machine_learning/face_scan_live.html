@@ -1,0 +1,687 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Live Face Scan" %}{% endblock %}
+
+{% block extra_head %}
+<style>
+/* ── wrapper ────────────────────────────────────────────────────── */
+.ls-wrap {
+  min-height: calc(100vh - 64px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+  background: radial-gradient(ellipse at 40% 20%, #1a0512 0%, #0a0a14 60%, #000 100%);
+}
+.ls-card {
+  width: 100%;
+  max-width: 440px;
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(220,38,38,.22);
+  border-radius: 28px;
+  padding: 1.4rem 1.3rem 1.5rem;
+  backdrop-filter: blur(14px);
+  box-shadow: 0 0 60px rgba(220,38,38,.12), 0 24px 60px rgba(0,0,0,.5);
+}
+
+/* ── scan frame ─────────────────────────────────────────────────── */
+.sf-wrap {
+  position: relative;
+  width: 100%;
+  max-width: 360px;
+  aspect-ratio: 1;
+  margin: 0 auto .9rem;
+  border-radius: 20px;
+  overflow: hidden;
+  background: #080810;
+}
+#sfVideo {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  object-fit: cover;
+  transform: scaleX(-1);   /* mirror for selfie feel */
+  border-radius: 20px;
+}
+#sfCanvas {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  transform: scaleX(-1);
+  z-index: 2;
+}
+.sf-silhouette {
+  position: absolute; inset: 0;
+  width: 100%; height: 100%;
+  pointer-events: none;
+  z-index: 3;
+}
+
+/* ── scan beam ──────────────────────────────────────────────────── */
+.sf-beam {
+  position: absolute;
+  left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, transparent, #dc2626 15%, #ff7070 50%, #dc2626 85%, transparent);
+  box-shadow: 0 0 22px 6px rgba(220,38,38,.65), 0 0 5px 1px rgba(255,120,120,.9);
+  z-index: 6;
+  animation: sfBeam 2.2s cubic-bezier(.4,0,.6,1) infinite;
+  pointer-events: none;
+  transition: background .5s, box-shadow .5s;
+}
+.sf-beam.good {
+  background: linear-gradient(90deg, transparent, #10b981 15%, #6ee7b7 50%, #10b981 85%, transparent);
+  box-shadow: 0 0 22px 6px rgba(16,185,129,.65), 0 0 5px 1px rgba(110,231,183,.9);
+}
+@keyframes sfBeam {
+  0%   { top:  6%; opacity: .95; }
+  47%  { top: 94%; opacity: .95; }
+  50%  { top: 94%; opacity: .3;  }
+  53%  { top:  6%; opacity: .3;  }
+  100% { top:  6%; opacity: .95; }
+}
+
+/* ── corner brackets ────────────────────────────────────────────── */
+.sf-corner {
+  position: absolute;
+  width: 30px; height: 30px;
+  border-color: #dc2626; border-style: solid;
+  z-index: 7;
+  transition: border-color .4s, box-shadow .4s;
+}
+.sf-corner.good { border-color: #10b981; box-shadow: 0 0 8px rgba(16,185,129,.7); }
+.c-tl { top: 10px; left: 10px; border-width: 3px 0 0 3px; border-radius: 5px 0 0 0; }
+.c-tr { top: 10px; right: 10px; border-width: 3px 3px 0 0; border-radius: 0 5px 0 0; }
+.c-bl { bottom: 10px; left: 10px; border-width: 0 0 3px 3px; border-radius: 0 0 0 5px; }
+.c-br { bottom: 10px; right: 10px; border-width: 0 3px 3px 0; border-radius: 0 0 5px 0; }
+
+/* ── captured face reveal ───────────────────────────────────────── */
+.sf-captured-overlay {
+  position: absolute; inset: 0;
+  display: flex; flex-direction: column;
+  align-items: center; justify-content: center;
+  background: rgba(16,185,129,.18);
+  border-radius: 20px;
+  z-index: 8;
+  opacity: 0; pointer-events: none;
+  transition: opacity .35s;
+}
+.sf-captured-overlay.visible { opacity: 1; }
+.sf-captured-img {
+  width: 56%; aspect-ratio: 1;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 4px solid #10b981;
+  box-shadow: 0 0 30px rgba(16,185,129,.7);
+  transform: scale(.5);
+  animation: imgPop .55s cubic-bezier(.36,.07,.19,.97) forwards;
+}
+@keyframes imgPop {
+  0%   { transform: scale(.5) translateY(20px); opacity: 0; }
+  70%  { transform: scale(1.1) translateY(-4px); opacity: 1; }
+  100% { transform: scale(1)   translateY(0);     opacity: 1; }
+}
+.sf-success-badge {
+  margin-top: .6rem;
+  background: rgba(16,185,129,.85);
+  color: #fff;
+  font-weight: 800; font-size: .8rem; letter-spacing: .06em;
+  padding: .3rem .8rem;
+  border-radius: 999px;
+  text-transform: uppercase;
+  animation: badgeSlide .4s .3s both;
+}
+@keyframes badgeSlide { from{opacity:0;transform:translateY(10px)} to{opacity:1;transform:translateY(0)} }
+
+/* ── progress ring ──────────────────────────────────────────────── */
+.sf-ring-wrap { display: flex; justify-content: center; margin-bottom: .55rem; }
+.sf-ring { width: 58px; height: 58px; transform: rotate(-90deg); }
+.sf-ring-bg   { fill: none; stroke: rgba(255,255,255,.08); stroke-width: 5; }
+.sf-ring-fill { fill: none; stroke: #dc2626; stroke-width: 5; stroke-linecap: round;
+                stroke-dasharray: 157; stroke-dashoffset: 157; transition: stroke-dashoffset .12s, stroke .4s; }
+.sf-ring-fill.good { stroke: #10b981; }
+
+/* ── status bar ─────────────────────────────────────────────────── */
+.sf-status {
+  text-align: center; font-weight: 600; font-size: .88rem;
+  min-height: 2.6rem;
+  display: flex; align-items: center; justify-content: center;
+  padding: .4rem .6rem;
+  border-radius: 12px;
+  margin-bottom: .8rem;
+  transition: background .3s, color .3s;
+}
+.sf-status.info    { color: #93c5fd; background: rgba(59,130,246,.1);  }
+.sf-status.warn    { color: #fcd34d; background: rgba(245,158,11,.1);  }
+.sf-status.ok      { color: #6ee7b7; background: rgba(16,185,129,.12); }
+.sf-status.err     { color: #fca5a5; background: rgba(220,38,38,.12);  }
+
+/* ── phase cards ────────────────────────────────────────────────── */
+.sf-phase { animation: fadeUp .3s ease-out; }
+@keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+
+/* ── loading dots ───────────────────────────────────────────────── */
+.ldots span {
+  display: inline-block; width: 8px; height: 8px; background: #dc2626;
+  border-radius: 50%; margin: 0 3px;
+  animation: ldBounce 1.2s infinite both;
+}
+.ldots span:nth-child(2){ animation-delay:.2s }
+.ldots span:nth-child(3){ animation-delay:.4s }
+@keyframes ldBounce{ 0%,80%,100%{transform:scale(.6);opacity:.4} 40%{transform:scale(1);opacity:1} }
+
+/* ── buttons ────────────────────────────────────────────────────── */
+.ls-btn {
+  width: 100%; padding: .75rem; border-radius: 16px;
+  font-weight: 700; font-size: .92rem; border: none; cursor: pointer;
+  transition: all .2s;
+}
+.ls-btn-red  { background: #dc2626; color: #fff; }
+.ls-btn-red:hover  { background: #b91c1c; transform: translateY(-2px); box-shadow: 0 6px 18px rgba(220,38,38,.4); }
+.ls-btn-dim  { background: rgba(255,255,255,.07); color: rgba(255,255,255,.65); border: 1px solid rgba(255,255,255,.1); }
+.ls-btn-dim:hover  { background: rgba(255,255,255,.12); }
+
+/* ── result icons ───────────────────────────────────────────────── */
+.result-icon { font-size: 3.6rem; animation: iconBounce .5s cubic-bezier(.36,.07,.19,.97); }
+@keyframes iconBounce { 0%{transform:scale(0) rotate(-20deg)} 70%{transform:scale(1.15) rotate(4deg)} 100%{transform:scale(1) rotate(0)} }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="ls-wrap">
+  <div class="ls-card">
+
+    <!-- header -->
+    <div class="d-flex justify-content-between align-items-center mb-3">
+      <h5 class="fw-bold mb-0 text-white fs-6">
+        <i class="bi bi-person-bounding-box text-danger me-2"></i>
+        {% if purpose == 'lookup' %}{% trans "Doctor/Admin Face Lookup" %}
+        {% elif purpose == 'enroll' %}{% trans "Hifadhi Uso (Enrollment)" %}
+        {% else %}{% trans "Thibitisha Uso" %}{% endif %}
+      </h5>
+      <a href="{{ next_url }}" class="btn btn-sm rounded-pill"
+         style="background:rgba(255,255,255,.08);color:rgba(255,255,255,.6);border:1px solid rgba(255,255,255,.12);">
+        <i class="bi bi-x-lg"></i>
+      </a>
+    </div>
+
+    <!-- ══ PHASE: LOADING ══════════════════════════════════════════════ -->
+    <div id="phaseLoad" class="sf-phase text-center py-3">
+      <div style="font-size:2.8rem;">🤖</div>
+      <div class="fw-semibold text-white mt-2 mb-1">{% trans "Inaandaa AI ya Kutambua Uso..." %}</div>
+      <div class="ldots mt-2"><span></span><span></span><span></span></div>
+      <div class="text-muted small mt-2" id="loadDetail">{% trans "Inapakua mifano..." %}</div>
+    </div>
+
+    <!-- ══ PHASE: SCANNING ════════════════════════════════════════════ -->
+    <div id="phaseScan" class="sf-phase" style="display:none;">
+
+      <!-- scan frame -->
+      <div class="sf-wrap" id="sfWrap">
+        <!-- human silhouette -->
+        <svg class="sf-silhouette" viewBox="0 0 360 360" xmlns="http://www.w3.org/2000/svg">
+          <ellipse cx="180" cy="152" rx="105" ry="132"
+                   fill="none" stroke="rgba(220,38,38,.3)" stroke-width="1.5" stroke-dasharray="9 5"/>
+          <ellipse cx="180" cy="98"  rx="58"  ry="67"
+                   fill="none" stroke="rgba(255,255,255,.13)" stroke-width="1.5"/>
+          <rect x="160" y="163" width="40" height="30" rx="9"
+                fill="none" stroke="rgba(255,255,255,.1)"  stroke-width="1.5"/>
+          <path d="M45 285 Q45 210 128 196 Q160 192 180 192 Q200 192 232 196 Q315 210 315 285"
+                fill="none" stroke="rgba(255,255,255,.1)"  stroke-width="1.5"/>
+        </svg>
+
+        <video id="sfVideo" autoplay muted playsinline></video>
+        <canvas id="sfCanvas"></canvas>
+
+        <div class="sf-beam"    id="sfBeam"></div>
+        <div class="sf-corner c-tl" id="ctlEl"></div>
+        <div class="sf-corner c-tr" id="ctrEl"></div>
+        <div class="sf-corner c-bl" id="cblEl"></div>
+        <div class="sf-corner c-br" id="cbrEl"></div>
+
+        <!-- captured-face reveal overlay -->
+        <div class="sf-captured-overlay" id="capturedOverlay">
+          <img id="capturedImg" src="" alt="" class="sf-captured-img"/>
+          <div class="sf-success-badge">✅ {% trans "Imescanniwa!" %}</div>
+        </div>
+      </div>
+
+      <!-- progress ring -->
+      <div class="sf-ring-wrap">
+        <svg class="sf-ring" viewBox="0 0 58 58">
+          <circle class="sf-ring-bg"   cx="29" cy="29" r="25"/>
+          <circle class="sf-ring-fill" cx="29" cy="29" r="25" id="ringFill"/>
+        </svg>
+      </div>
+
+      <!-- status -->
+      <div class="sf-status info" id="sfStatus">{% trans "Angalia kamera moja kwa moja..." %}</div>
+
+      <!-- manual capture fallback -->
+      <button class="ls-btn ls-btn-red" id="manualBtn" style="display:none;">
+        <i class="bi bi-camera-fill me-2"></i>{% trans "Chanua Sasa" %}
+      </button>
+    </div>
+
+    <!-- ══ PHASE: PROCESSING ══════════════════════════════════════════ -->
+    <div id="phaseProc" class="sf-phase text-center py-4" style="display:none;">
+      <div class="ldots mb-3"><span></span><span></span><span></span></div>
+      <div class="fw-semibold text-white">{% trans "Inachakata..." %}</div>
+      <div class="text-muted small mt-1" id="procMsg">{% trans "Inakagua liveness..." %}</div>
+    </div>
+
+    <!-- ══ PHASE: RESULT ═══════════════════════════════════════════════ -->
+    <div id="phaseResult" class="sf-phase text-center py-2" style="display:none;">
+      <div class="result-icon" id="rIcon">✅</div>
+      <div class="fw-bold text-white mt-2 mb-1 fs-6" id="rTitle"></div>
+      <div class="sf-status mt-1" id="rMsg"></div>
+      <div class="d-flex flex-column gap-2 mt-3">
+        <button class="ls-btn ls-btn-red"  id="rActionBtn"  style="display:none;"></button>
+        <button class="ls-btn ls-btn-dim"  id="rRetryBtn"   style="display:none;" onclick="retryScanning()">
+          <i class="bi bi-arrow-repeat me-2"></i>{% trans "Jaribu Tena" %}
+        </button>
+        <a href="{{ next_url }}" class="ls-btn ls-btn-dim text-decoration-none" id="rBackBtn" style="display:none;">
+          <i class="bi bi-arrow-left me-2"></i>{% trans "Rudi" %}
+        </a>
+      </div>
+    </div>
+
+    <!-- docs link -->
+    <div class="text-center mt-3">
+      <a href="{% url 'machine_learning:face_docs' %}" class="small text-muted text-decoration-none">
+        <i class="bi bi-shield-check me-1"></i>{% trans "Jinsi data yako inavyolindwa" %}
+      </a>
+    </div>
+  </div>
+</div>
+
+<!-- face-api.js (vladmandic fork – active maintenance) -->
+<script src="https://cdn.jsdelivr.net/npm/@vladmandic/face-api/dist/face-api.js"
+        onerror="onApiLoadFail()"></script>
+
+<script>
+(function () {
+'use strict';
+
+/* ── constants ── */
+const MODEL_URL       = 'https://cdn.jsdelivr.net/npm/@vladmandic/face-api/model';
+const PURPOSE         = '{{ purpose|escapejs }}';
+const NEXT_URL        = '{{ next_url|escapejs }}';
+const CSRF_TOKEN      = '{{ csrf_token }}';
+const API_URL         = '{% url "machine_learning:live_face_scan" %}';
+const REQ_GOOD_FRAMES = 45;   /* ~2 s at 22 fps detection */
+const CAPTURE_FRAMES  = 4;    /* frames to capture for liveness */
+const FRAME_INTERVAL  = 330;  /* ms between captured frames */
+const DETECT_INTERVAL = 80;   /* ms between detections */
+
+/* ── state ── */
+let video, canvas, ctx;
+let goodCount  = 0;
+let missCount  = 0;
+let capFrames  = [];
+let detectTmr  = null;
+let capturing  = false;
+let processing = false;
+
+/* ── DOM refs ── */
+const $ = id => document.getElementById(id);
+
+/* ── entry ─────────────────────────────────────────────────────── */
+async function init() {
+  video  = $('sfVideo');
+  canvas = $('sfCanvas');
+
+  try {
+    setLoad('{% trans "Inapakua TinyFaceDetector..." %}');
+    await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
+
+    setLoad('{% trans "Inapakua FaceLandmarks68Tiny..." %}');
+    await faceapi.nets.faceLandmark68TinyNet.loadFromUri(MODEL_URL);
+
+    setLoad('{% trans "Inaomba ruhusa ya kamera..." %}');
+    const stream = await navigator.mediaDevices.getUserMedia({
+      video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } }
+    });
+    video.srcObject = stream;
+    await new Promise(r => video.addEventListener('loadedmetadata', r, { once: true }));
+    canvas.width  = video.videoWidth;
+    canvas.height = video.videoHeight;
+    ctx = canvas.getContext('2d');
+
+    show('phaseLoad', false);
+    show('phaseScan', true);
+
+    /* show manual button after 9 s */
+    setTimeout(() => {
+      if (!capturing && !processing) show('manualBtn', true);
+    }, 9000);
+
+    startDetect();
+
+  } catch (err) {
+    if (err.name === 'NotAllowedError')
+      showError('cam_denied', '{% trans "Ruhusa ya kamera ilikataliwa. Ruhusu kamera katika mipangilio ya kivinjari." %}');
+    else if (err.name === 'NotFoundError')
+      showError('no_cam', '{% trans "Kamera haipatikani kwenye kifaa hiki." %}');
+    else
+      showError('load_fail', '{% trans "Imeshindikana kupakia AI models. Hakikisha uko mtandaoni kisha uburudishe ukurasa." %}');
+  }
+}
+
+function setLoad(msg) { const e = $('loadDetail'); if (e) e.textContent = msg; }
+
+/* ── detection loop ─────────────────────────────────────────────── */
+function startDetect() {
+  detectTmr = setInterval(detectFrame, DETECT_INTERVAL);
+}
+
+async function detectFrame() {
+  if (capturing || processing || !video.videoWidth) return;
+
+  let result;
+  try {
+    result = await faceapi
+      .detectSingleFace(video, new faceapi.TinyFaceDetectorOptions({ inputSize: 224, scoreThreshold: 0.38 }))
+      .withFaceLandmarks(true);
+  } catch { return; }
+
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  if (!result) {
+    missCount++;
+    goodCount = Math.max(0, goodCount - 3);
+    if (missCount > 6) setStatus('{% trans "Uso haujoonekana. Sogea karibu zaidi na kamera." %}', 'warn');
+    setProgress(0);
+    setBeamGood(false);
+    return;
+  }
+
+  missCount = 0;
+  const box   = result.detection.box;
+  const score = result.detection.score;
+  const lm    = result.landmarks;
+
+  /* face too small */
+  if (box.width / canvas.width < 0.18) {
+    goodCount = Math.max(0, goodCount - 1);
+    setStatus('{% trans "Uko mbali sana. Karibia kamera." %}', 'warn');
+    drawLm(lm, '#f59e0b', false);
+    setProgress(0); setBeamGood(false);
+    return;
+  }
+
+  /* face not centered */
+  const cx = (box.x + box.width  / 2) / canvas.width;
+  const cy = (box.y + box.height / 2) / canvas.height;
+  if (Math.abs(cx - 0.5) > 0.27 || Math.abs(cy - 0.5) > 0.3) {
+    goodCount = Math.max(0, goodCount - 1);
+    const hint = cx < 0.4 ? '{% trans "Sogea kulia kidogo" %}'
+               : cx > 0.6 ? '{% trans "Sogea kushoto kidogo" %}'
+               : cy < 0.3 ? '{% trans "Shuka kidogo" %}'
+               :             '{% trans "Panda kidogo" %}';
+    setStatus(hint + ' ↕', 'warn');
+    drawLm(lm, '#f59e0b', false);
+    setProgress(0); setBeamGood(false);
+    return;
+  }
+
+  /* mask / glasses → low confidence */
+  if (score < 0.52) {
+    goodCount = Math.max(0, goodCount - 1);
+    setStatus('{% trans "Uso unaonekana kidogo. Toa mask/miwani ukiweza, au ongeza mwanga." %}', 'warn');
+    drawLm(lm, '#f97316', false);
+    setProgress(goodCount / REQ_GOOD_FRAMES);
+    setBeamGood(false);
+    return;
+  }
+
+  /* GOOD frame */
+  goodCount++;
+  const ratio = goodCount / REQ_GOOD_FRAMES;
+  drawLm(lm, ratio > 0.5 ? '#10b981' : '#3b82f6', true);
+  drawBox(box, score);
+  setProgress(ratio);
+  setBeamGood(ratio > 0.4);
+  setCornersGood(ratio > 0.4);
+
+  if (goodCount < REQ_GOOD_FRAMES * 0.3)
+    setStatus('{% trans "Uso unaonekana. Simama bila kusogea..." %}', 'info');
+  else if (goodCount < REQ_GOOD_FRAMES * 0.7)
+    setStatus('{% trans "Vizuri! Endelea..." %}', 'info');
+  else
+    setStatus('{% trans "Karibu kukamilika..." %}', 'ok');
+
+  if (goodCount >= REQ_GOOD_FRAMES) doCapture();
+}
+
+/* ── drawing ─────────────────────────────────────────────────────── */
+function drawLm(landmarks, color, animated) {
+  const pts = landmarks.positions;
+  const t   = Date.now();
+  pts.forEach((pt, i) => {
+    const r = animated ? 2 + Math.sin(t * 0.007 + i * 0.35) * 1.4 : 2;
+    ctx.beginPath();
+    ctx.arc(pt.x, pt.y, r, 0, Math.PI * 2);
+    ctx.fillStyle = color;
+    ctx.globalAlpha = animated ? 0.55 + Math.sin(t * 0.005 + i * 0.28) * 0.35 : 0.65;
+    ctx.fill();
+  });
+  ctx.globalAlpha = 1;
+
+  if (!animated) return;
+  ctx.strokeStyle = color;
+  ctx.lineWidth   = 1;
+
+  /* left eye 36-41, right eye 42-47, mouth outer 48-59, nose bridge 27-30 */
+  [[36,42,true],[42,48,true],[48,60,true],[27,31,false]].forEach(([s,e,cl]) => {
+    ctx.globalAlpha = 0.22;
+    ctx.beginPath();
+    ctx.moveTo(pts[s].x, pts[s].y);
+    for (let i = s + 1; i < e; i++) ctx.lineTo(pts[i].x, pts[i].y);
+    if (cl) ctx.closePath();
+    ctx.stroke();
+  });
+  ctx.globalAlpha = 1;
+}
+
+function drawBox(box, score) {
+  ctx.strokeStyle  = score > 0.72 ? '#10b981' : '#3b82f6';
+  ctx.lineWidth    = 1.5;
+  ctx.globalAlpha  = 0.35;
+  ctx.strokeRect(box.x, box.y, box.width, box.height);
+  ctx.globalAlpha  = 1;
+}
+
+/* ── UI helpers ─────────────────────────────────────────────────── */
+function setProgress(ratio) {
+  const fill = $('ringFill'); if (!fill) return;
+  const circ = 157;
+  fill.style.strokeDashoffset = circ - Math.min(1, ratio) * circ;
+  fill.classList.toggle('good', ratio > 0.45);
+}
+
+function setStatus(msg, type) {
+  const el = $('sfStatus');
+  el.textContent = msg;
+  el.className   = 'sf-status ' + type;
+}
+
+function setBeamGood(good) {
+  $('sfBeam').classList.toggle('good', good);
+}
+
+function setCornersGood(good) {
+  ['ctlEl','ctrEl','cblEl','cbrEl'].forEach(id => {
+    $(id) && $(id).classList.toggle('good', good);
+  });
+}
+
+function show(id, visible) {
+  const el = $(id); if (!el) return;
+  el.style.display = visible ? 'block' : 'none';
+}
+
+/* ── capture ─────────────────────────────────────────────────────── */
+function doCapture() {
+  if (capturing) return;
+  capturing = true;
+  capFrames = [];
+  clearInterval(detectTmr);
+  setStatus('{% trans "Inachukua picha za liveness..." %}', 'ok');
+  grabFrame();
+}
+
+function grabFrame() {
+  const off = document.createElement('canvas');
+  off.width  = video.videoWidth;
+  off.height = video.videoHeight;
+  off.getContext('2d').drawImage(video, 0, 0);
+  capFrames.push(off.toDataURL('image/jpeg', 0.78));
+
+  if (capFrames.length < CAPTURE_FRAMES) {
+    setTimeout(grabFrame, FRAME_INTERVAL);
+  } else {
+    /* show captured-face overlay with best (middle) frame */
+    const mid = capFrames[Math.floor(capFrames.length / 2)];
+    const img = $('capturedImg');
+    if (img) { img.src = mid; }
+    $('capturedOverlay').classList.add('visible');
+
+    setTimeout(sendFrames, 700);
+  }
+}
+
+/* manual trigger */
+$('manualBtn') && $('manualBtn').addEventListener('click', () => {
+  if (!capturing && !processing) {
+    goodCount = REQ_GOOD_FRAMES;
+    doCapture();
+  }
+});
+
+/* ── send to backend ─────────────────────────────────────────────── */
+async function sendFrames() {
+  processing = true;
+
+  show('phaseScan', false);
+  show('phaseProc', true);
+
+  /* stop camera */
+  if (video.srcObject) video.srcObject.getTracks().forEach(t => t.stop());
+
+  let cycles = 0;
+  const procMsgs = [
+    '{% trans "Inakagua liveness..." %}',
+    '{% trans "Inachanganua uso..." %}',
+    '{% trans "Inafananisha na database..." %}',
+  ];
+  const procInterval = setInterval(() => {
+    const el = $('procMsg');
+    if (el) el.textContent = procMsgs[cycles % procMsgs.length];
+    cycles++;
+  }, 900);
+
+  try {
+    const resp = await fetch(API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'X-CSRFToken': CSRF_TOKEN },
+      body: JSON.stringify({ frames: capFrames, purpose: PURPOSE, next: NEXT_URL }),
+    });
+    clearInterval(procInterval);
+    showResult(await resp.json());
+  } catch {
+    clearInterval(procInterval);
+    showResult({ ok: false, error: 'network', message: '{% trans "Tatizo la mtandao. Jaribu tena." %}' });
+  }
+}
+
+/* ── show result ─────────────────────────────────────────────────── */
+function showResult(data) {
+  show('phaseProc', false);
+  show('phaseResult', true);
+
+  const iconMap = {
+    static_image:   '🖼️', match_failed: '❌', no_enrollment: '📋',
+    cam_denied:     '🚫', too_dark:    '🌑', too_bright:    '💡',
+    unstable:       '🌀', network:     '📡', load_fail:     '⚠️', no_card: '📄',
+  };
+
+  $('rIcon').textContent = data.ok ? '✅' : (iconMap[data.error] || '⚠️');
+
+  if (data.ok) {
+    $('rTitle').textContent = data.action === 'enrolled'
+      ? '{% trans "Uso Umehifadhiwa!" %}'
+      : (data.action === 'lookup'
+          ? '{% trans "Face Match Imepatikana!" %}'
+          : '{% trans "Uthibitisho Umefanikiwa!" %}');
+    $('rMsg').textContent  = data.message;
+    $('rMsg').className    = 'sf-status ok';
+
+    const ab = $('rActionBtn');
+    ab.textContent  = '{% trans "Endelea →" %}';
+    ab.style.display = 'block';
+    ab.onclick = () => window.location.href = data.next || NEXT_URL;
+
+    /* auto-redirect after 2.5 s */
+    setTimeout(() => { window.location.href = data.next || NEXT_URL; }, 2500);
+
+  } else {
+    $('rTitle').textContent = '{% trans "Imeshindwa" %}';
+    $('rMsg').textContent   = data.message;
+    $('rMsg').className     = 'sf-status err';
+
+    show('rRetryBtn', true);
+    show('rBackBtn',  true);
+
+    if (data.suggest_enroll && data.next_enroll) {
+      const ab = $('rActionBtn');
+      ab.textContent   = '{% trans "Enroll Uso Wako" %}';
+      ab.style.display = 'block';
+      ab.onclick = () => window.location.href = data.next_enroll;
+    }
+  }
+}
+
+/* ── retry ───────────────────────────────────────────────────────── */
+function retryScanning() {
+  goodCount  = 0; missCount = 0;
+  capFrames  = [];
+  capturing  = false; processing = false;
+
+  show('phaseResult', false);
+  show('phaseScan',   true);
+  $('capturedOverlay').classList.remove('visible');
+  $('sfBeam').classList.remove('good');
+  setCornersGood(false);
+  setProgress(0);
+  setBeamGood(false);
+
+  navigator.mediaDevices.getUserMedia({
+    video: { facingMode: 'user', width: { ideal: 640 }, height: { ideal: 480 } }
+  }).then(stream => {
+    video.srcObject = stream;
+    startDetect();
+    setTimeout(() => { if (!capturing && !processing) show('manualBtn', true); }, 9000);
+  }).catch(() => showError('cam_denied', '{% trans "Imeshindikana kuwasha kamera tena." %}'));
+}
+
+/* ── CDN fallback ────────────────────────────────────────────────── */
+window.onApiLoadFail = function () {
+  showError('load_fail', '{% trans "Imeshindikana kupakia maktaba ya AI. Angalia muunganiko wa mtandao." %}');
+};
+
+function showError(code, msg) {
+  show('phaseLoad', false);
+  show('phaseScan', false);
+  show('phaseProc', false);
+  showResult({ ok: false, error: code, message: msg });
+}
+
+/* ── kick off ────────────────────────────────────────────────────── */
+window.retryScanning = retryScanning;
+document.addEventListener('DOMContentLoaded', init);
+
+})();
+</script>
+{% endblock %}

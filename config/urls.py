@@ -49,6 +49,7 @@ urlpatterns += i18n_patterns(
     path('medics/', include('medics.urls')),
     path('diseases/', include('diseases.urls')),
     path('ai/', include('AI_brain.urls')),
+    path('ml/', include('machine_learning.urls')),
     path('offline/', include('offline_chat.urls')),
     path('users/', include('users.urls')),
 )

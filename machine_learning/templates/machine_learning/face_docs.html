@@ -1,0 +1,29 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Face Scan Safety Documentation" %}{% endblock %}
+
+{% block content %}
+<div class="container py-4" style="max-width: 900px;">
+  <div class="card-custom p-4">
+    <h4 class="fw-bold mb-3"><i class="bi bi-shield-lock me-2"></i>{% trans "Why Face Scan is Required for Card Emergency Features" %}</h4>
+    <p class="text-muted">{% trans "To protect health-card abuse and emergency misuse, card functionality is protected by a face verification step." %}</p>
+
+    <h6 class="fw-bold mt-3">{% trans "What is collected" %}</h6>
+    <ul>
+      <li>{% trans "A reference face image you upload" %}</li>
+      <li>{% trans "A numeric face embedding used only for matching" %}</li>
+      <li>{% trans "Verification logs (time, success/failure, confidence)" %}</li>
+    </ul>
+
+    <h6 class="fw-bold mt-3">{% trans "Who can scan others" %}</h6>
+    <ul>
+      <li>{% trans "Verified doctors" %}</li>
+      <li>{% trans "Admins" %}</li>
+    </ul>
+
+    <h6 class="fw-bold mt-3">{% trans "Purpose" %}</h6>
+    <p class="mb-0">{% trans "Emergency response and identity-safe card access. This reduces unauthorized card usage and protects sensitive health data." %}</p>
+  </div>
+</div>
+{% endblock %}

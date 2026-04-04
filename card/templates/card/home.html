@@ -117,6 +117,18 @@
 .anim-entry   { animation:fadeSlideUp .52s ease-out both; }
 .anim-delay-1 { animation-delay:.1s; }
 .anim-delay-2 { animation-delay:.22s; }
+
+.card-locked {
+  pointer-events: none;
+  user-select: none;
+  filter: grayscale(.2) blur(1px);
+  opacity: .55;
+}
+@keyframes scanPulse {
+  0%,100% { transform: scale(1); opacity: 1; }
+  50% { transform: scale(1.14); opacity: .78; }
+}
+.scan-pulse { animation: scanPulse 1.2s ease-in-out infinite; }
 </style>
 {% endblock %}
 
@@ -140,8 +152,23 @@
         <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-warning text-dark badge-pulse">{{ unread_notifications|length }}</span>
         {% endif %}
       </a>
+      {% if can_face_lookup %}
+      <a href="{% url 'machine_learning:face_scan_lookup' %}" class="btn btn-outline-primary rounded-pill btn-sm">
+        <i class="bi bi-person-bounding-box me-1"></i>{% trans "Face Scan Lookup" %}
+      </a>
+      {% endif %}
     </div>
   </div>
+
+  {% if not face_gate.is_open %}
+  <div class="alert alert-warning d-flex align-items-center gap-2 rounded-4 mb-3" role="alert">
+    <i class="bi bi-shield-lock fs-5 scan-pulse"></i>
+    <div>
+      {% trans "Kabla ya kutumia card features lazima ufanye face scan kwa dharura na usalama." %}
+      <a href="{% url 'machine_learning:face_docs' %}" class="ms-1">{% trans "See more" %}</a>
+    </div>
+  </div>
+  {% endif %}
 
   <div class="card-main-grid">
 
@@ -315,10 +342,80 @@
         </div>
       </div>
 
+      <!-- face scan security panel -->
+      <div class="card-custom p-3">
+        <h6 class="fw-bold mb-2 small">
+          <i class="bi bi-person-bounding-box me-1 {% if face_gate.is_open %}text-success{% else %}text-danger{% endif %}"></i>
+          {% trans "Usalama wa Face Scan" %}
+        </h6>
+        {% if face_gate.is_open %}
+        <div class="d-flex align-items-center gap-2 mb-2">
+          <span class="badge bg-success rounded-pill px-2 py-1">{% trans "Imethibitishwa" %}</span>
+          <span class="small text-muted">{% trans "Inabaki" %}: <strong id="fgTimer">…</strong></span>
+        </div>
+        {% else %}
+        <div class="small text-muted mb-2">
+          {% if face_gate.has_enrollment %}
+          {% trans "Muda wa uthibitisho umekwisha. Scan uso tena." %}
+          {% else %}
+          {% trans "Hujawahi fanya face scan. Enroll uso wako ili utumie card features." %}
+          {% endif %}
+        </div>
+        {% endif %}
+
+        <!-- Enroll / re-verify button opens modal -->
+        <button class="btn btn-sm {% if face_gate.is_open %}btn-outline-success{% else %}btn-danger{% endif %} rounded-pill w-100"
+                data-bs-toggle="modal" data-bs-target="#faceScanModal">
+          <i class="bi bi-camera-fill me-1 {% if not face_gate.is_open %}scan-pulse{% endif %}"></i>
+          {% if face_gate.has_enrollment %}{% trans "Thibitisha Uso" %}{% else %}{% trans "Enroll Uso" %}{% endif %}
+        </button>
+        <div class="text-center mt-2">
+          <a href="{% url 'machine_learning:face_docs' %}" class="small text-muted text-decoration-none"><i class="bi bi-info-circle me-1"></i>{% trans "Kwa nini inahitajika?" %}</a>
+        </div>
+      </div>
+
     </div><!-- /right -->
   </div><!-- /grid -->
 
 </div><!-- /shell -->
+
+<!-- Face Scan Modal -->
+<div class="modal fade" id="faceScanModal" tabindex="-1" aria-labelledby="faceScanModalLabel" aria-hidden="true">
+  <div class="modal-dialog modal-dialog-centered">
+    <div class="modal-content rounded-4" style="background:var(--card-bg);border:1px solid var(--line-soft);">
+      <div class="modal-header border-0 pb-0">
+        <h5 class="modal-title fw-bold" id="faceScanModalLabel">
+          <i class="bi bi-person-bounding-box text-danger me-2"></i>{% trans "Uthibitisho wa Uso" %}
+        </h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+        <p class="text-muted small mb-3">
+          {% trans "Mfumo huu wa face scan unalinda kadi yako wakati wa dharura. Picha inashughulikiwa kwenye seva yako tu." %}
+          <a href="{% url 'machine_learning:face_docs' %}" target="_blank" class="ms-1">{% trans "Soma zaidi" %}</a>
+        </p>
+
+        <div class="text-center mb-3">
+          <div id="scanIcon" style="font-size:3.5rem;line-height:1;" class="{% if not face_gate.is_open %}scan-pulse{% endif %}">
+            {% if face_gate.is_open %}✅{% else %}📷{% endif %}
+          </div>
+        </div>
+
+        <!-- Live scan link – no file upload -->
+        <a href="{% url 'machine_learning:live_face_scan' %}?next={% url 'card:home' %}{% if not face_gate.has_enrollment %}&purpose=enroll{% else %}&purpose=verify{% endif %}"
+           class="btn btn-danger rounded-pill w-100 py-3 fw-bold fs-6 mb-2">
+          <i class="bi bi-camera-video-fill me-2 {% if not face_gate.is_open %}scan-pulse{% endif %}"></i>
+          {% if face_gate.has_enrollment %}{% trans "Fungua Live Face Scan" %}{% else %}{% trans "Enroll Uso Sasa (Live Camera)" %}{% endif %}
+        </a>
+        <div class="text-center mt-1">
+          <span class="text-muted small">
+            <i class="bi bi-shield-check me-1 text-success"></i>{% trans "Scan moja kwa moja kupitia kamera – si picha iliyopakiwa." %}
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
 
 <script>
 (function () {
@@ -360,6 +457,24 @@
       if (!inner.classList.contains('flipped')) inner.style.transform = '';
     });
   }
+
+  /* face gate timer countdown */
+  var timerEl = document.getElementById('fgTimer');
+  var verifiedUntil = {{ face_gate.verified_until|default:0 }};
+  function updateTimer() {
+    if (!timerEl) return;
+    var remaining = verifiedUntil - Math.floor(Date.now() / 1000);
+    if (remaining <= 0) {
+      timerEl.textContent = '{% trans "Imekwisha" %}';
+      timerEl.style.color = 'var(--bs-danger, red)';
+      return;
+    }
+    var m = Math.floor(remaining / 60);
+    var s = remaining % 60;
+    timerEl.textContent = m + 'm ' + (s < 10 ? '0' : '') + s + 's';
+    setTimeout(updateTimer, 1000);
+  }
+  updateTimer();
 })();
 </script>
 {% endblock %}

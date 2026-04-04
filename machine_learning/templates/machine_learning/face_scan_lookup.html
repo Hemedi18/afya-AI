@@ -1,0 +1,44 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{% trans "Face Scan Lookup" %}{% endblock %}
+
+{% block content %}
+<div class="container py-4" style="max-width: 980px;">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+    <h4 class="fw-bold mb-0"><i class="bi bi-person-bounding-box me-2"></i>{% trans "Face Scan Lookup" %}</h4>
+    <div class="d-flex gap-2">
+      <a href="{% url 'machine_learning:live_face_scan' %}?purpose=lookup&next={% url 'machine_learning:face_scan_lookup' %}" class="btn btn-danger rounded-pill btn-sm">
+        <i class="bi bi-camera-video-fill me-1"></i>{% trans "Live Face Scan" %}
+      </a>
+      <a href="{% url 'machine_learning:face_docs' %}" class="btn btn-outline-secondary rounded-pill btn-sm">{% trans "See Documentation" %}</a>
+    </div>
+  </div>
+
+  <div class="card-custom p-4 mb-3">
+    <form method="post" enctype="multipart/form-data" class="row g-3 align-items-end">
+      {% csrf_token %}
+      <div class="col-md-8">
+        <label class="form-label fw-semibold">{% trans "Upload face image" %}</label>
+        <input type="file" name="face_probe" accept="image/*" class="form-control" required>
+      </div>
+      <div class="col-md-4 d-grid">
+        <button class="btn btn-danger rounded-pill" type="submit"><i class="bi bi-search me-1"></i>{% trans "Scan Face" %}</button>
+      </div>
+    </form>
+    {% if similarity is not None %}
+      <div class="small text-muted mt-2">{% trans "Last confidence" %}: {{ similarity|floatformat:2 }} (threshold {{ threshold|floatformat:2 }})</div>
+    {% endif %}
+  </div>
+
+  {% if matched_card and matched_payload %}
+  <div class="card-custom p-4">
+    <h6 class="fw-bold mb-2">{% trans "Matched User" %}: @{{ matched_card.user.username }}</h6>
+    <div class="small text-muted mb-3">{% trans "Card Number" %}: {{ matched_card.card_number }}</div>
+
+    <h6 class="fw-bold">{% trans "Selected Card Data" %}</h6>
+    <pre style="white-space: pre-wrap; background: color-mix(in srgb, var(--card-bg) 85%, transparent); border:1px solid var(--line-soft); border-radius:12px; padding:.8rem;">{{ matched_payload_pretty|default:matched_payload }}</pre>
+  </div>
+  {% endif %}
+</div>
+{% endblock %}

@@ -1708,6 +1708,13 @@
             <a href="{% url 'chats:feed' %}" class="afya-main-link d-none d-lg-inline-flex" data-nav-match="/social/"><i class="bi bi-people"></i><span>{% trans "Jamii" %}</span></a>
             <a href="{% url 'chats:inbox' %}" class="afya-main-link d-none d-lg-inline-flex" data-nav-match="/social/inbox/"><i class="bi bi-chat-dots"></i><span>{% trans "Soga" %}</span></a>
             <a href="{% url 'card:home' %}" class="afya-main-link d-none d-lg-inline-flex" data-nav-match="/card/"><i class="bi bi-credit-card-2-front"></i><span>Card</span></a>
+            {% url 'machine_learning:live_face_scan' as ml_live_face_scan_url %}
+            {% url 'machine_learning:face_scan_lookup' as ml_face_scan_lookup_url %}
+            {% if user.is_staff or user.is_superuser or is_verified_doctor %}
+            {% if ml_live_face_scan_url and ml_face_scan_lookup_url %}
+            <a href="{{ ml_live_face_scan_url }}?purpose=lookup&next={{ ml_face_scan_lookup_url }}" class="afya-main-link d-none d-lg-inline-flex" data-nav-match="/ml/face/"><i class="bi bi-person-bounding-box"></i><span>{% trans "Face Lookup" %}</span></a>
+            {% endif %}
+            {% endif %}
             <a href="{% url 'doctor:hub' %}" class="afya-main-link d-none d-lg-inline-flex" data-nav-match="/doctor/"><i class="bi bi-hospital"></i><span>{% trans "Madaktari" %}</span></a>
             {% if is_verified_doctor %}
             <a href="{% url 'doctor:patients' %}" class="afya-main-link d-none d-lg-inline-flex" data-nav-match="/doctor/patients/"><i class="bi bi-people-fill"></i><span>{% trans "Wagonjwa" %}</span></a>
@@ -1782,6 +1789,11 @@
                 <a href="{% url 'chats:feed' %}" class="afya-sub-mobile-link" data-nav-match="/social/"><i class="bi bi-people"></i><span>{% trans "Jamii" %}</span></a>
                 <a href="{% url 'chats:inbox' %}" class="afya-sub-mobile-link" data-nav-match="/social/inbox/"><i class="bi bi-chat-dots"></i><span>{% trans "Soga" %}</span></a>
                 <a href="{% url 'card:home' %}" class="afya-sub-mobile-link" data-nav-match="/card/"><i class="bi bi-credit-card-2-front"></i><span>{% trans "Kadi" %}</span></a>
+                {% if user.is_staff or user.is_superuser or is_verified_doctor %}
+                {% if ml_live_face_scan_url and ml_face_scan_lookup_url %}
+                <a href="{{ ml_live_face_scan_url }}?purpose=lookup&next={{ ml_face_scan_lookup_url }}" class="afya-sub-mobile-link" data-nav-match="/ml/face/"><i class="bi bi-person-bounding-box"></i><span>{% trans "Face Lookup" %}</span></a>
+                {% endif %}
+                {% endif %}
                 <a href="{% url 'doctor:hub' %}" class="afya-sub-mobile-link" data-nav-match="/doctor/"><i class="bi bi-hospital"></i><span>{% trans "Madaktari" %}</span></a>
                 {% if is_verified_doctor %}
                 <a href="{% url 'doctor:patients' %}" class="afya-sub-mobile-link" data-nav-match="/doctor/patients/"><i class="bi bi-people-fill"></i><span>{% trans "Wagonjwa" %}</span></a>
@@ -3002,20 +3014,7 @@
         });
     }
 
-    function setupMobileSubNavScrollState() {
-        const mobileSubNav = document.querySelector('nav.afya-mobile-sub-nav.d-lg-none');
-        if (!mobileSubNav) return;
-
-        const sync = () => {
-            const isMobile = window.matchMedia('(max-width: 991.98px)').matches;
-            const shouldHideHeader = isMobile && window.scrollY > 8;
-            document.body.classList.toggle('afya-mobile-scrolled', shouldHideHeader);
-        };
-
-        sync();
-        window.addEventListener('scroll', sync, { passive: true });
-        window.addEventListener('resize', sync);
-    }
+    // setupMobileSubNavScrollState removed: nav will always be visible, no bouncing/scroll hiding
 
     function setupGlobalConfirmModal() {
         const modalEl = document.getElementById('siteConfirmModal');
@@ -3159,7 +3158,7 @@
         setupAutoDismissAlerts();
         setupQuickAIWidget();
         setupGlobalConfirmModal();
-        setupMobileSubNavScrollState();
+        // setupMobileSubNavScrollState(); // removed to keep nav always visible
 
         const themeObserver = new MutationObserver(() => {
             syncMobileSystemBars(document.documentElement.getAttribute('data-theme') || 'light');
