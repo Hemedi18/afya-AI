@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% load i18n allauth account %}
+
+{% block title %}{% trans "Sign Up" %} - AfyaSmart{% endblock %}
+
+{% block content %}
+<div class="container" style="max-width:620px; padding-top: 2rem; padding-bottom: 2rem;">
+  <div class="card-custom p-4 p-md-5">
+    <h3 class="fw-bold text-center mb-3">{% trans "Jisajili" %}</h3>
+
+    <form method="post" action="{% url 'account_signup' %}">
+      {% csrf_token %}
+      {% if redirect_field_value %}
+      <input type="hidden" name="{{ redirect_field_name }}" value="{{ redirect_field_value }}">
+      {% endif %}
+      {{ form.as_p }}
+      <button type="submit" class="btn btn-danger w-100 rounded-pill">{% trans "Create Account" %}</button>
+    </form>
+
+    <p class="text-center small mt-3 mb-1">
+      <a href="{% url 'users:forgot_password' %}" class="text-decoration-none">{% trans "Forgot password?" %}</a>
+    </p>
+    <p class="text-center mt-0 mb-0">{% trans "Una akaunti tayari?" %} <a href="{% url 'account_login' %}">{% trans "Ingia" %}</a></p>
+  </div>
+</div>
+{% endblock %}
