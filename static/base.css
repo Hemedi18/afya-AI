@@ -350,6 +350,73 @@ main.container {
     -webkit-text-fill-color: transparent;
 }
 
+/* 8. Layout & Grid Systems (Diseases & Details) */
+.detail-shell {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px 20px 80px;
+    width: 95%;
+}
+
+.grid {
+    display: grid !important;
+    grid-template-columns: 1fr !important;
+    gap: 20px !important;
+    align-items: stretch;
+}
+
+@media (min-width: 768px) {
+    .grid { 
+        grid-template-columns: repeat(2, 1fr) !important; 
+    }
+}
+
+@media (min-width: 1024px) {
+    .grid { 
+        grid-template-columns: repeat(3, 1fr) !important; 
+    }
+}
+
+.detail-card {
+    background: #ffffff !important;
+    border-radius: 16px !important;
+    padding: 20px !important;
+    box-shadow: 0 8px 24px rgba(0,0,0,0.12) !important;
+    border: 1px solid rgba(0,0,0,0.1) !important;
+    transition: transform 0.3s ease;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+    overflow: hidden;
+}
+
+.detail-card h5 {
+    font-size: 1.1rem;
+    margin-bottom: 15px;
+    display: flex;
+    align-items: center;
+    border-bottom: 2px solid var(--soft-pink);
+    padding-bottom: 10px;
+    font-weight: 700;
+    color: var(--deep-berry);
+}
+
+.detail-card p, .detail-card li {
+    font-size: 0.92rem;
+    line-height: 1.5;
+}
+
+.detail-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.1);
+}
+
+.bg-danger-soft { background-color: rgba(201, 24, 74, 0.05); }
+.bg-primary-soft { background-color: rgba(13, 110, 253, 0.05); }
+.bg-success-soft { background-color: rgba(25, 135, 84, 0.05); }
+.x-small { font-size: 0.7rem; }
+
 @media (prefers-reduced-motion: reduce) {
     * { transition: none !important; animation: none !important; }
 }

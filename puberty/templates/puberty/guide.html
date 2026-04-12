@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'puberty/puberty.css' %}?v=20260405">
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="puberty-card p-4">
+        <h2 class="mb-3">{{ guide.title }}</h2>
+        {% if guide.image %}<img src="{{ guide.image.url }}" class="puberty-guide-img mb-3" alt="{{ guide.title }}">{% endif %}
+        <div class="mb-2 text-muted">{{ guide.description }}</div>
+        <div class="mb-3">{{ guide.content|linebreaks }}</div>
+        <a href="{% url 'puberty:guides' %}" class="btn btn-outline-primary">Back to Guides</a>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

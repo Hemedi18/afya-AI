@@ -4,42 +4,18 @@
 {% block title %}{{ item.name }} - AfyaSmart{% endblock %}
 
 {% block content %}
-<style>
-    .detail-shell { max-width: 960px; margin: 0 auto; padding: 1.25rem 1rem 6rem; }
-    .hero-card, .detail-card {
-        background: color-mix(in srgb, var(--card-bg) 94%, transparent);
-        border: 1px solid var(--line-soft);
-        border-radius: 24px;
-        box-shadow: 0 14px 34px rgba(0,0,0,.08);
-    }
-    .hero-card { padding: 1.35rem; margin-bottom: 1rem; }
-    .hero-card h2 { font-weight: 900; margin: 0; }
-    .hero-card p { color: var(--text-muted); margin: .45rem 0 0; }
-    .tag-row { display: flex; gap: .5rem; flex-wrap: wrap; margin-top: .9rem; }
-    .tag-pill { border-radius: 999px; padding: .38rem .7rem; border: 1px solid var(--line-soft); background: color-mix(in srgb, var(--card-bg) 90%, transparent); }
-    .grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 1rem; }
-    .detail-card { padding: 1rem; }
-    .detail-card h5 { font-weight: 800; margin-bottom: .55rem; }
-    .detail-card p { margin: 0; color: var(--text-muted); line-height: 1.7; }
-    .top-actions { display: flex; gap: .7rem; flex-wrap: wrap; margin-top: 1rem; }
-    @media (max-width: 767px) {
-        .grid { grid-template-columns: 1fr; }
-        .hero-card, .detail-card { background: var(--mobile-solid) !important; background-image: none !important; }
-    }
-</style>
-
 <div class="detail-shell">
-    <section class="hero-card">
-        <h2><i class="bi bi-virus me-2"></i>{{ item.name }}</h2>
-        <p>
+    <section class="card-custom welcome-card mb-4">
+        <h2 class="fw-bold mb-2 text-gradient"><i class="bi bi-virus me-2"></i>{{ item.name }}</h2>
+        <p class="mb-2">
             {% if item.definition %}
                 {{ item.definition }}
             {% else %}
                 {% trans 'Hakuna ufafanuzi wa ugonjwa huu kwa sasa.' %}
             {% endif %}
         </p>
-        <div class="tag-row">
-            <span class="tag-pill">
+        <div class="d-flex flex-wrap gap-2 align-items-center mt-3">
+            <span class="tag-pill bg-primary-soft">
                 <i class="bi bi-upc-scan me-1"></i>
                 {% if item.icd_code %}
                     {{ item.icd_code }}
@@ -48,15 +24,15 @@
                 {% endif %}
             </span>
         </div>
-        <div class="top-actions">
-            <a href="{% url 'diseases:browse' %}" class="btn btn-outline-danger"><i class="bi bi-arrow-left me-1"></i>{% trans 'Rudi kwenye magonjwa' %}</a>
-            <a href="{% url 'main:services' %}" class="btn btn-danger"><i class="bi bi-grid me-1"></i>{% trans 'Huduma nyingine' %}</a>
+        <div class="top-actions mt-4">
+            <a href="{% url 'diseases:browse' %}" class="btn btn-outline-danger btn-lg-mobile"><i class="bi bi-arrow-left me-1"></i>{% trans 'Rudi kwenye magonjwa' %}</a>
+            <a href="{% url 'main:services' %}" class="btn btn-danger btn-lg-mobile"><i class="bi bi-grid me-1"></i>{% trans 'Huduma nyingine' %}</a>
         </div>
     </section>
 
     <section class="grid">
         <article class="detail-card">
-            <h5>{% trans 'Dalili' %}</h5>
+            <h5><i class="bi bi-thermometer-half me-1"></i> {% trans 'Dalili' %}</h5>
             <p>
                 {% if item.symptoms %}
                     {{ item.symptoms }}
@@ -66,7 +42,7 @@
             </p>
         </article>
         <article class="detail-card">
-            <h5>{% trans 'Kinga' %}</h5>
+            <h5><i class="bi bi-shield-check me-1"></i> {% trans 'Kinga' %}</h5>
             <p>
                 {% if item.prevention %}
                     {{ item.prevention }}
@@ -76,7 +52,7 @@
             </p>
         </article>
         <article class="detail-card">
-            <h5>{% trans 'Matibabu ya msingi' %}</h5>
+            <h5><i class="bi bi-capsule-pill me-1"></i> {% trans 'Matibabu ya msingi' %}</h5>
             <p>
                 {% if item.treatment %}
                     {{ item.treatment }}
@@ -85,9 +61,9 @@
                 {% endif %}
             </p>
         </article>
-        <article class="detail-card">
-            <h5>{% trans 'Tahadhari' %}</h5>
-            <p>{% blocktrans trimmed %}Taarifa hizi ni kwa elimu tu. Kwa dalili kali, zinazoongezeka, au hali ya dharura tafadhali wasiliana na mtaalamu wa afya haraka.{% endblocktrans %}</p>
+        <article class="detail-card bg-danger-soft">
+            <h5><i class="bi bi-exclamation-triangle me-1"></i> {% trans 'Tahadhari' %}</h5>
+            <p class="x-small">{% blocktrans trimmed %}Taarifa hizi ni kwa elimu tu. Kwa dalili kali, zinazoongezeka, au hali ya dharura tafadhali wasiliana na mtaalamu wa afya haraka.{% endblocktrans %}</p>
         </article>
     </section>
 </div>

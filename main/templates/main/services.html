@@ -233,9 +233,15 @@
                             <i class="bi bi-box-arrow-up-right"></i> {% trans "Open Service" %}
                         </a>
                     {% else %}
-                        <button type="button" class="service-action coming js-coming-soon" data-service="{{ service.title }}">
-                            <i class="bi bi-tools"></i> {% trans "Coming Soon" %}
-                        </button>
+                        {% if service.title|lower == 'puberty' or service.slug == 'puberty' %}
+                            <a class="service-action" href="{% url 'puberty:dashboard' %}">
+                                <i class="bi bi-chat-dots"></i> {% trans "Open Service" %}
+                            </a>
+                        {% else %}
+                            <button type="button" class="service-action coming js-coming-soon" data-service="{{ service.title }}">
+                                <i class="bi bi-tools"></i> {% trans "Coming Soon" %}
+                            </button>
+                        {% endif %}
                     {% endif %}
                 </div>
             </article>

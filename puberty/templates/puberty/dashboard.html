@@ -1,0 +1,52 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'puberty/puberty.css' %}?v=20260405">
+<script src="{% static 'puberty/puberty.js' %}?v=20260405"></script>
+<div class="container puberty-dashboard">
+  <div class="row mb-4">
+    <div class="col-12">
+      <div class="puberty-card p-4 d-flex align-items-center">
+        <span class="puberty-icon"><i class="bi bi-person-circle"></i></span>
+        <div>
+          <h3 class="mb-1">Welcome, {{ user.first_name|default:user.username }}</h3>
+          <div class="text-muted">Your Puberty Stage: <strong>{{ profile.puberty_stage|default:'Not set' }}</strong></div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <div class="row g-4">
+    <div class="col-md-6">
+      <div class="puberty-card p-4">
+        <div class="puberty-section-title">Quick Actions</div>
+        <a href="{% url 'puberty:assessment' %}" class="btn btn-primary mb-2 w-100">Take Puberty Assessment</a>
+        <a href="{% url 'puberty:chat' %}" class="btn btn-outline-primary mb-2 w-100">Ask Puberty AI Assistant</a>
+        <a href="{% url 'puberty:guides' %}" class="btn btn-outline-secondary w-100">View Puberty Guides</a>
+      </div>
+      <div class="puberty-card p-4">
+        <div class="puberty-section-title">Tips for You</div>
+        {% for tip in tips %}
+          <div class="puberty-tip">{{ tip.title }}: {{ tip.content }}</div>
+        {% empty %}
+          <div class="text-muted">No tips available.</div>
+        {% endfor %}
+      </div>
+    </div>
+    <div class="col-md-6">
+      <div class="puberty-card p-4">
+        <div class="puberty-section-title">Recommended Guides</div>
+        {% for guide in guides %}
+          <div class="mb-3">
+            {% if guide.image %}<img src="{{ guide.image.url }}" class="puberty-guide-img" alt="{{ guide.title }}">{% endif %}
+            <div class="fw-bold">{{ guide.title }}</div>
+            <div class="small text-muted mb-1">{{ guide.description }}</div>
+            <a href="{% url 'puberty:guide' guide.id %}" class="btn btn-sm btn-outline-primary">Read More</a>
+          </div>
+        {% empty %}
+          <div class="text-muted">No guides available.</div>
+        {% endfor %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

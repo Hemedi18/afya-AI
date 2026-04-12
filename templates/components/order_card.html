@@ -1,0 +1,7 @@
+{# Scoped component for order card #}
+<div class="order-card">
+  <h6>Order #{{ order.id }}</h6>
+  <p>Status: <span class="badge bg-info">{{ order.status }}</span></p>
+  <p>Total: <strong>{{ order.total_price }}</strong></p>
+  <a href="{% url 'orders:order_detail' order.pk %}" class="btn btn-outline-secondary btn-sm">View</a>
+</div>

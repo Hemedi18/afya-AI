@@ -1,0 +1,18 @@
+{% comment %} Live Map Widget (Google Maps API ready, WebSocket data) {% endcomment %}
+<div class="live-map-widget" id="live-map-widget" data-agent-location="{{ agent_location|default:'' }}">
+  <!-- Google Maps API integration goes here -->
+  <div class="skeleton-loader" style="height:100%;"></div>
+</div>
+<script>
+  // WebSocket stub for live agent location updates
+  // Replace 'ws://localhost:8000/ws/delivery/agent/' with your Channels endpoint
+  const mapWidget = document.getElementById('live-map-widget');
+  if (mapWidget) {
+    const ws = new WebSocket('ws://localhost:8000/ws/delivery/agent/');
+    ws.onmessage = function(event) {
+      const data = JSON.parse(event.data);
+      // Update map with agent location (stub)
+      // e.g., update Google Maps marker
+    };
+  }
+</script>

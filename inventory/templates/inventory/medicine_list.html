@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<div class="container mt-4">
+    <style>
+        h2 { color: var(--text-main); }
+        .text-muted { color: var(--text-muted) !important; }
+    </style>
+    
+    <h2 class="mb-4">Available Medicines</h2>
+
+    <!-- Optionally, show AI suggestions for demo (e.g., trending medicines) -->
+    <div class="mb-4">
+      {% include "components/ai_medicine_suggestions.html" with suggestions=medicines|slice:':3' %}
+    </div>
+
+    <div class="row row-cols-1 row-cols-md-2 row-cols-lg-3 g-4">
+      {% for medicine in medicines %}
+        <div class="col">
+            {% include "components/_medicine_card.html" %}
+        </div>
+      {% empty %}
+        <p class="text-muted">No medicines found.</p>
+      {% endfor %}
+    </div>
+</div>
+{% endblock %}

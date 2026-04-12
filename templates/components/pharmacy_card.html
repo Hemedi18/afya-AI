@@ -1,0 +1,7 @@
+{# Scoped component for pharmacy card #}
+<div class="pharmacy-card">
+  <h5>{{ pharmacy.name }}</h5>
+  <p>{{ pharmacy.address }}, {{ pharmacy.city }}</p>
+  <p>{{ pharmacy.phone }}</p>
+  <a href="{% url 'pharmacy:detail' pharmacy.pk %}" class="btn btn-outline-primary btn-sm">Details</a>
+</div>

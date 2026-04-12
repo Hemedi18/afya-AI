@@ -5,7 +5,7 @@ from django.views import View
 from django.utils import timezone
 from collections import Counter
 
-from .services import generate_ai_text, transcribe_audio_file
+from .services import generate_ai_text, transcribe_audio_file, search_wikipedia, get_disease_info_from_external_apis
 from .diagnostic_ai import generate_diagnostic_questions as generate_ai_diagnostic_questions
 from .history_ai import build_user_history_context
 from .risk_engine import calculate_risk

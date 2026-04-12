@@ -1,0 +1,37 @@
+.ai-medicine-suggestions {
+  border: 1px solid #e0e0e0;
+  border-radius: 8px;
+  background: #f8fafd;
+  padding: 1rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.03);
+}
+.ai-medicine-suggestions h5 {
+  font-size: 1.1rem;
+  font-weight: 600;
+  margin-bottom: 0.7rem;
+}
+.ai-suggestions-list {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+.ai-suggestions-list li {
+  margin-bottom: 0.5rem;
+  display: flex;
+  flex-direction: column;
+}
+.ai-suggestion-meta {
+  font-size: 0.9em;
+  color: #888;
+}
+.ai-suggestion-empty {
+  color: #bbb;
+  font-style: italic;
+}
+@media (max-width: 600px) {
+  .ai-medicine-suggestions {
+    padding: 0.7rem;
+    font-size: 0.97em;
+  }
+}

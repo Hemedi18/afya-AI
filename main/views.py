@@ -343,8 +343,8 @@ def services(request):
             'image': 'https://images.unsplash.com/photo-1491438590914-bc09fcaaf77a?auto=format&fit=crop&w=1200&q=80',
             'icon': 'bi-person-hearts',
             'audience': _('Everyone'),
-            'is_live': False,
-            'url': None,
+            'is_live': True,
+            'url': 'puberty:dashboard',
         },
         {
             'title': _('Child Growth'),
@@ -352,8 +352,8 @@ def services(request):
             'image': 'https://images.unsplash.com/photo-1516627145497-ae6968895b74?auto=format&fit=crop&w=1200&q=80',
             'icon': 'bi-balloon-heart',
             'audience': _('Everyone'),
-            'is_live': False,
-            'url': None,
+            'is_live': True,
+            'url': 'child_growth:dashboard',
         },
     ]
 

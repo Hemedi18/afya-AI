@@ -1,0 +1,86 @@
+{% extends "base.html" %}
+{% load i18n %}
+
+{% block content %}
+<div class="container mt-4">
+    <style>
+        .card { background: var(--card-bg); border: 1px solid var(--line-soft); color: var(--text-main); }
+        .bg-light { background-color: color-mix(in srgb, var(--card-bg) 95%, black) !important; }
+        .text-muted { color: var(--text-muted) !important; }
+        h5, h6, p { color: var(--text-main); }
+    </style>
+    <div class="row">
+        <div class="col-md-8">
+            <div class="card shadow-sm border-0 mb-4">
+                <div class="card-header d-flex justify-content-between align-items-center" style="background: var(--primary); color: white;">
+                    <h5 class="mb-0">{% trans "Prescription Review" %} #{{ prescription.id }}</h5>
+                    <div>
+                        <a href="{{ prescription.file.url }}" download class="btn btn-sm btn-light me-2"><i class="bi bi-download"></i> Download</a>
+                        <span class="badge {% if prescription.status == 'pending' %}bg-warning text-dark{% elif prescription.status == 'approved' %}bg-success{% else %}bg-danger{% endif %}">
+                            {{ prescription.get_status_display }}
+                        </span>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row mb-4">
+                        <div class="col-sm-6">
+                            <p class="mb-1 text-muted small">{% trans "Patient" %}</p>
+                            <p class="fw-bold">{{ prescription.user.username }}</p>
+                        </div>
+                        <div class="col-sm-6 text-sm-end">
+                            <p class="mb-1 text-muted small">{% trans "Uploaded At" %}</p>
+                            <p class="fw-bold">{{ prescription.uploaded_at|date:"d M Y, H:i" }}</p>
+                        </div>
+                    </div>
+
+                    {% if prescription.notes %}
+                    <div class="alert alert-secondary border-0">
+                        <h6 class="fw-bold">{% trans "Verification Notes" %}</h6>
+                        <p class="mb-0 small">{{ prescription.notes }}</p>
+                    </div>
+                    {% endif %}
+
+                    <div class="mt-4 border rounded p-2 text-center bg-light">
+                        <h6 class="text-start fw-bold mb-3 px-2 pt-2">{% trans "Prescription Image/File" %}</h6>
+                        {% if prescription.file.url|lower|slice:"-4:" == ".pdf" %}
+                            <embed src="{{ prescription.file.url }}" type="application/pdf" width="100%" height="600px" />
+                        {% else %}
+                            <img src="{{ prescription.file.url }}" class="img-fluid rounded" style="max-height: 800px;" alt="Prescription Document">
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        {% if is_staff and prescription.status == 'pending' %}
+        <div class="col-md-4">
+            <div class="card shadow-sm border-0 sticky-top" style="top: 20px; z-index: 1020;">
+                <div class="card-header bg-primary text-white">
+                    <h5 class="mb-0">{% trans "Verification Decision" %}</h5>
+                </div>
+                <div class="card-body">
+                    <form method="post" action="{% url 'prescriptions:verify_prescription' prescription.pk %}">
+                        {% csrf_token %}
+                        <div class="mb-3">
+                            <label for="status" class="form-label fw-bold">{% trans "Action" %}</label>
+                            <select name="status" id="status" class="form-select" required>
+                                <option value="" selected disabled>{% trans "Select status..." %}</option>
+                                <option value="approved">{% trans "Approve (Verified)" %}</option>
+                                <option value="rejected">{% trans "Reject (Invalid/Expired)" %}</option>
+                            </select>
+                        </div>
+                        <div class="mb-3">
+                            <label for="notes" class="form-label fw-bold">{% trans "Add Notes" %}</label>
+                            <textarea name="notes" id="notes" class="form-control" rows="5" placeholder="{% trans 'Provide details for the customer...' %}"></textarea>
+                        </div>
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">{% trans "Save Decision" %}</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

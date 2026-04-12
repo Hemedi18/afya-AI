@@ -1,0 +1,16 @@
+{# Scoped component for AI-powered medicine suggestions #}
+<div class="ai-medicine-suggestions">
+  <h5>AI Medicine Suggestions</h5>
+  {% if suggestions %}
+    <ul class="ai-suggestions-list">
+      {% for med in suggestions %}
+        <li>
+          <a href="{% url 'inventory:medicine_detail' med.pk %}">{{ med.generic_name }}</a>
+          <span class="ai-suggestion-meta">{{ med.brand }} | {{ med.generic_name }}</span>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p class="ai-suggestion-empty">No suggestions available.</p>
+  {% endif %}
+</div>

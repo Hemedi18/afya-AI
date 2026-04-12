@@ -1,0 +1,16 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'orders/order.css' %}">
+<h2>Order Details</h2>
+<div>
+  {% include "components/order_card.html" with order=order %}
+  <h4>Items</h4>
+  <ul>
+    {% for item in order.items.all %}
+      <li>{{ item.medicine.name }} - {{ item.quantity }} x {{ item.price }} {{ item.currency }}</li>
+    {% endfor %}
+  </ul>
+  <p><strong>Total:</strong> {{ order.total_price }} {{ order.currency }}</p>
+</div>
+{% endblock %}

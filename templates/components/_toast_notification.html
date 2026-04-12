@@ -1,0 +1,14 @@
+<!-- Toast Notification (HTMX/Alpine.js) -->
+<div id="cart-toast" x-data="{ show: false, message: '' }" x-show="show" class="toast-notification" x-text="message" x-transition></div>
+<script>
+  document.addEventListener('htmx:afterSwap', (e) => {
+    if (e.detail.target.id === 'cart-toast') {
+      const toast = document.getElementById('cart-toast');
+      if (toast) {
+        toast.__x.$data.message = toast.textContent;
+        toast.__x.$data.show = true;
+        setTimeout(() => { toast.__x.$data.show = false; }, 2500);
+      }
+    }
+  });
+</script>

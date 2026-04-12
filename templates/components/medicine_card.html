@@ -1,0 +1,19 @@
+{# Scoped component for medicine card #}
+{% load static %}
+<div class="medicine-card">
+  {% if medicine.image %}
+    {% if 'http' in medicine.image.name %}
+      <img src="{{ medicine.image.name }}" alt="{{ medicine.name }}" class="img-fluid mb-2" style="max-height:120px;object-fit:cover;">
+    {% else %}
+      <img src="{{ medicine.image.url }}" alt="{{ medicine.name }}" class="img-fluid mb-2" style="max-height:120px;object-fit:cover;">
+    {% endif %}
+  {% else %}
+    <img src="{% static 'assests/afyafinalicon.jpg' %}" alt="Medicine Default" class="img-fluid mb-2" style="max-height:120px;object-fit:cover;">
+  {% endif %}
+  <h5>{{ medicine.generic_name }}</h5>
+  <p>{{ medicine.brand }} | {{ medicine.generic_name }}</p>
+  <p>{{ medicine.category }}</p>
+  <p>{% if medicine.requires_prescription %}<span class="badge bg-warning">Prescription Only</span>{% endif %}</p>
+  <a href="{% url 'inventory:medicine_detail' medicine.pk %}" class="btn btn-primary btn-sm">View</a>
+  <a href="{% url 'cart:cart_detail' %}" class="btn btn-outline-success btn-sm mt-2">Go to Cart</a>
+</div>

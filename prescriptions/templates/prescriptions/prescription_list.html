@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<h2>My Prescriptions</h2>
+<div>
+  {% if prescriptions %}
+    <ul class="list-group mb-3">
+      {% for prescription in prescriptions %}
+        <li class="list-group-item d-flex justify-content-between align-items-center">
+          <div>
+            <strong>Prescription #{{ prescription.id }}</strong><br>
+            <span class="text-muted small">Status: {{ prescription.status }}</span><br>
+            <span class="text-muted small">Uploaded: {{ prescription.uploaded_at }}</span>
+          </div>
+          <div class="d-flex gap-2">
+            <a href="{% url 'prescriptions:prescription_detail' prescription.id %}" class="btn btn-info btn-sm">View Details</a>
+            <!-- Add to Cart button (if prescription has items) -->
+            {% if prescription.items.all %}
+              <form method="post" action="{% url 'cart:cart_add' prescription.items.first.medicine.stocks.first.id %}">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-primary btn-sm">Add to Cart</button>
+              </form>
+            {% endif %}
+          </div>
+        </li>
+      {% endfor %}
+    </ul>
+  {% else %}
+    <p>You have no prescriptions yet.</p>
+  {% endif %}
+</div>
+{% endblock %}

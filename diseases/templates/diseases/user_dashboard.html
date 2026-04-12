@@ -1,0 +1,421 @@
+{% extends 'base.html' %}
+{% load i18n %}
+{% load static %}
+
+{% block title %}{% trans "Disease Management Dashboard" %}{% endblock %}
+
+{% block content %}
+<style>
+    .hero-disease { border-radius: 24px; background: linear-gradient(135deg,#fff 0%,#f0f7ff 100%); box-shadow: 0 18px 40px rgba(13,110,253,.08); position: relative; overflow: hidden; }
+    .metric-card { border: 0; border-radius: 20px; background: #fff; box-shadow: 0 8px 24px rgba(0,0,0,.05); transition: transform .22s ease; }
+    .metric-card:hover { transform: translateY(-3px); }
+    .metric-label { color: #888; font-size: .78rem; text-transform: uppercase; font-weight: 700; }
+    .metric-value { font-size: 1.6rem; font-weight: 800; color: #2d3436; }
+    .tip-card-lite { background: rgba(201, 24, 74, 0.05); border-radius: 18px; padding: 20px; border-left: 5px solid #c9184a; }
+    .history-item { border-radius: 14px; background: rgba(255,255,255,.8); border: 1px solid #eee; padding: 12px; margin-bottom: 10px; }
+
+    <style>
+    /* 1. Dashboard Entrance Animation */
+    .detail-shell {
+        animation: dashboardFadeIn 1s cubic-bezier(0.21, 0.91, 0.34, 1);
+    }
+
+    @keyframes dashboardFadeIn {
+        0% { opacity: 0; filter: blur(5px); transform: scale(0.98); }
+        100% { opacity: 1; filter: blur(0); transform: scale(1); }
+    }
+
+    /* 2. Advanced Grid Layout for Metrics */
+    .grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 20px;
+    }
+
+    /* 3. Metric Card - Glass & Glow */
+    .metric-card {
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        background: linear-gradient(145deg, #ffffff, #f8f9fa);
+        position: relative;
+        overflow: hidden;
+        z-index: 1;
+    }
+
+    .metric-card::before {
+        content: "";
+        position: absolute;
+        top: 0; left: 0; width: 4px; height: 100%;
+        background: #dc3545; /* Red accent for health */
+        transition: width 0.3s ease;
+        z-index: -1;
+        opacity: 0.1;
+    }
+
+    .metric-card:hover::before {
+        width: 100%;
+    }
+
+    /* 4. Hero Disease Section - Modern Gradient */
+    .hero-disease {
+        background: linear-gradient(135deg, #ffffff 0%, #eef2f7 100%);
+        border: 1px solid rgba(13, 110, 253, 0.1);
+        transition: all 0.4s ease;
+    }
+
+    .hero-disease:hover {
+        box-shadow: 0 25px 50px rgba(13, 110, 253, 0.12);
+        transform: translateY(-5px);
+    }
+
+    /* 5. AI Daily Tip Pulse */
+    .tip-card-lite {
+        position: relative;
+        background: rgba(220, 53, 69, 0.05);
+        border-radius: 20px;
+        transition: all 0.3s ease;
+    }
+
+    .tip-card-lite .bi-lightbulb-fill {
+        animation: bulbGlow 2s infinite alternate;
+    }
+
+    @keyframes bulbGlow {
+        from { filter: drop-shadow(0 0 2px #dc3545); transform: scale(1); }
+        to { filter: drop-shadow(0 0 10px #dc3545); transform: scale(1.1); }
+    }
+
+    /* 6. Chart Container Styling */
+    #diseaseTrendChart {
+        filter: drop-shadow(0 10px 10px rgba(201, 24, 74, 0.05));
+    }
+
+    /* 7. Disease List Cards - Staggered Entry */
+    .detail-card {
+        border: none;
+        background: #fff;
+        border-radius: 22px;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.03);
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        border: 1px solid transparent;
+    }
+
+    .detail-card:hover {
+        border-color: #dc3545;
+        background: #fffdfd;
+    }
+
+    /* 8. Modern Progress Bars */
+    .progress {
+        background-color: #f0f0f0;
+        overflow: visible;
+        border-radius: 10px;
+    }
+
+    .progress-bar {
+        border-radius: 10px;
+        position: relative;
+        overflow: visible;
+    }
+
+    .progress-bar::after {
+        content: "";
+        position: absolute;
+        right: 0; top: -5px;
+        width: 10px; height: 10px;
+        background: inherit;
+        border-radius: 50%;
+        box-shadow: 0 0 10px inherit;
+    }
+
+    /* 9. History Item - List Animation */
+    .history-item {
+        border-left: 3px solid transparent;
+        transition: all 0.2s ease;
+    }
+
+    .history-item:hover {
+        border-left-color: #dc3545;
+        background: #fff;
+        padding-left: 18px !important;
+        box-shadow: 0 5px 15px rgba(0,0,0,0.05);
+    }
+
+    /* 10. Modal Styling */
+    .modal-content {
+        backdrop-filter: blur(15px);
+        background: rgba(255, 255, 255, 0.95);
+        box-shadow: 0 30px 60px rgba(0,0,0,0.2);
+    }
+    /* Kulenga kadi za 'Magonjwa Yangu' pekee */
+    .grid.mb-5 .detail-card {
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        min-height: 220px; /* Inahakikisha kadi zote zina urefu sawa */
+        padding: 20px;
+        background: #ffffff;
+        border: 1px solid rgba(0,0,0,0.05);
+        border-radius: 20px;
+        transition: all 0.3s ease;
+    }
+
+    /* Mpangilio wa Button (Bottom Actions) */
+    .grid.mb-5 .top-actions {
+        display: flex;
+        gap: 10px; /* Nafasi kati ya button */
+        margin-top: auto; /* Inasukuma button chini kabisa ya kadi */
+        padding-top: 15px;
+    }
+
+    /* Kurekebisha Button zenyewe */
+    .grid.mb-5 .top-actions .btn {
+        flex: 1; /* Inafanya button zigawane nafasi sawa */
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 0.8rem;
+        font-weight: 600;
+        padding: 8px 5px;
+        border-radius: 12px;
+        white-space: nowrap; /* Inazuia maandishi yasivunjike mistari miwili */
+    }
+
+    /* Mitindo ya ziada kwa Badge na AI Insight */
+    .grid.mb-5 .badge {
+        font-size: 0.7rem;
+        padding: 5px 10px;
+    }
+
+    .grid.mb-5 .italic {
+        background: #f8faff !important;
+        border-radius: 12px !important;
+        padding: 10px !important;
+        margin-bottom: 15px;
+        color: #444;
+        line-height: 1.4;
+    }
+
+    /* Hover effect ya kadi */
+    .grid.mb-5 .detail-card:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 25px rgba(0,0,0,0.08);
+        border-color: rgba(201, 24, 74, 0.2);
+    }
+</style>
+
+
+<div class="detail-shell pb-5">
+    <!-- 1. Tips & Header -->
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <h2 class="fw-bold mb-0"><i class="bi bi-shield-pulse text-danger me-2"></i>{% trans "Health Dashboard" %}</h2>
+        <a href="{% url 'diseases:search' %}" class="btn btn-danger rounded-pill">
+            <i class="bi bi-plus-circle me-1"></i> {% trans "Sajili Ugonjwa" %}
+        </a>
+    </div>
+
+    <!-- 2. AI Daily Tip -->
+    <div class="tip-card-lite mb-4 reveal">
+        <div class="d-flex align-items-center gap-3">
+            <div class="fs-2 text-danger"><i class="bi bi-lightbulb-fill"></i></div>
+            <div>
+                <h6 class="fw-bold mb-1">Dokezo la Afya la Leo</h6>
+                <p class="mb-0 small">{{ daily_tip }}</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- 3. Metrics Row -->
+    <div class="grid">
+        <div class="metric-card p-3">
+            <div class="metric-label">Hali Zinazoendelea</div>
+            <div class="metric-value">{{ active_count }}</div>
+            <small class="text-success"><i class="bi bi-activity"></i> Monitoring Active</small>
+        </div>
+        <div class="metric-card p-3">
+            <div class="metric-label">Wastani wa Risk</div>
+            <div class="metric-value">{{ avg_risk }}%</div>
+            <div class="progress mt-2" style="height: 6px;">
+                <div class="progress-bar bg-danger" style="width: {{ avg_risk }}%"></div>
+            </div>
+        </div>
+        <div class="metric-card p-3">
+            <div class="metric-label">Logs za Wiki Hii</div>
+            <div class="metric-value">{{ recent_logs.count }}</div>
+            <small class="text-muted">Lengo: 7/7 Siku</small>
+        </div>
+        <div class="metric-card p-3">
+            <div class="metric-label">Ufuataji wa Dawa (Adherence)</div>
+            <div class="metric-value">{{ adherence_pct }}%</div>
+            <div class="progress mt-2" style="height: 6px;">
+                <div class="progress-bar bg-success" style="width: {{ adherence_pct }}%"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 4. Hero Analysis & Graph -->
+    <div class="row g-4 mt-2">
+        <div class="col-xl-8">
+            <div class="metric-card p-4 h-100 reveal">
+                <h6 class="fw-bold mb-3"><i class="bi bi-graph-up-arrow me-2 text-danger"></i>Mwelekeo wa Ukali wa Dalili (Trend)</h6>
+                <div style="height:300px;"><canvas id="diseaseTrendChart"></canvas></div>
+            </div>
+        </div>
+        <div class="col-xl-4">
+            <div class="hero-disease p-4 h-100 reveal">
+                <h5 class="fw-bold mb-3"><i class="bi bi-robot me-2"></i>AI Quick Analysis</h5>
+                <p class="small text-muted">Kulingana na log zako za karibuni, mfumo unaona mwelekeo wa utulivu.</p>
+                <hr>
+                {% if high_risk_detected %}
+                <div class="alert alert-danger border-0 rounded-4 py-3 mb-3">
+                    <h6 class="fw-bold mb-1"><i class="bi bi-exclamation-octagon-fill me-2"></i>HATARI KUBWA!</h6>
+                    <a href="tel:112" class="btn btn-danger w-100 rounded-pill mt-2 shadow"><i class="bi bi-telephone-fill me-2"></i>PIGA SIMU YA DHARURA</a>
+                </div>
+                {% endif %}
+                <div class="d-grid gap-2">
+                    <a href="{% url 'AI_brain:chat' %}" class="btn btn-primary rounded-pill btn-sm">Zungumza na AI</a>
+                    <a href="{% url 'diseases:search' %}" class="btn btn-outline-danger rounded-pill btn-sm">Library ya Magonjwa</a>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- 5. Disease Cards List -->
+    <h4 class="fw-bold mt-5 mb-3">Magonjwa Yangu</h4>
+    <div class="grid mb-5">
+        {% for ud in user_diseases %}
+        <div class="detail-card">
+            <div class="d-flex justify-content-between">
+                <h6 class="fw-bold text-danger mb-0">{{ ud.custom_name }}</h6>
+                <span class="badge rounded-pill bg-{% if ud.status == 'active' %}danger{% else %}success{% endif %}">
+                    {{ ud.get_status_display }}
+                </span>
+            </div>
+
+            {% if ud.last_ai_insight %}
+            <div class="p-2 bg-light rounded-3 mt-3 small italic" style="font-size: 0.75rem; border-left: 3px solid #0d6efd;">
+                <i class="bi bi-stars text-primary"></i> {{ ud.last_ai_insight }}
+            </div>
+            {% endif %}
+
+            <div class="top-actions mt-3">
+                <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#logModal{{ ud.id }}">
+                    <i class="bi bi-pencil-square"></i> Logi Leo
+                </button>
+                <a href="{% url 'diseases:timeline' ud.id %}" class="btn btn-sm btn-outline-secondary">
+                    <i class="bi bi-clock-history"></i> Timeline
+                </a>
+            </div>
+        </div>
+        {% empty %}
+        <div class="col-12 text-center p-5 bg-white rounded-4 border-dashed">
+            <i class="bi bi-clipboard2-pulse display-4 text-muted"></i>
+            <p class="mt-2 text-muted">Bado huna ugonjwa uliosajiliwa.</p>
+        </div>
+        {% endfor %}
+    </div>
+
+    <!-- 6. History Table & Myths -->
+    <div class="row g-4">
+        <div class="col-lg-7">
+            <div class="metric-card p-4">
+                <h6 class="fw-bold mb-3">Historia ya Kumbukumbu</h6>
+                {% for log in recent_logs %}
+                <div class="history-item">
+                    <div class="d-flex justify-content-between">
+                        <span class="fw-bold small">{{ log.user_disease.custom_name }}</span>
+                        <span class="badge bg-light text-dark">{{ log.date|date:"d M" }}</span>
+                    </div>
+                    <div class="x-small text-muted text-truncate mt-1">{{ log.symptoms_noted }}</div>
+                </div>
+                {% empty %}
+                <p class="small text-muted">Hakuna historia bado.</p>
+                {% endfor %}
+            </div>
+        </div>
+        <div class="col-lg-5">
+            <div class="metric-card p-4">
+                <h6 class="fw-bold mb-3">Myth vs Fact</h6>
+                <div class="d-grid gap-2">
+                    {% for card in myth_busting_cards %}
+                    <div class="p-2 border rounded-3 bg-light" style="font-size: 0.75rem;">
+                        <strong class="text-danger">{{ card.title }}</strong><br>
+                        <span>{{ card.fact }}</span>
+                    </div>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modals -->
+{% for ud in user_diseases %}
+<div class="modal fade" id="logModal{{ ud.id }}" tabindex="-1">
+    <div class="modal-dialog modal-dialog-centered">
+        <form action="{% url 'diseases:log_metrics' ud.id %}" method="POST" class="modal-content border-0 rounded-4">
+            {% csrf_token %}
+            <div class="modal-header border-0 pb-0">
+                <h5 class="modal-title fw-bold">Log ya {{ ud.custom_name }}</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <label class="form-label small fw-bold">Unajisikiaje Leo?</label>
+                <textarea name="symptoms" class="form-control rounded-3 mb-3" rows="2" placeholder="Andika dalili..." required></textarea>
+                
+                <div class="row g-2">
+                    <div class="col-6">
+                        <label class="x-small fw-bold">Temp (°C)</label>
+                        <input type="number" step="0.1" name="temperature" class="form-control form-control-sm">
+                    </div>
+                    <div class="col-6">
+                        <label class="x-small fw-bold">BP (Systolic)</label>
+                        <input type="number" name="bp_systolic" class="form-control form-control-sm">
+                    </div>
+                    <div class="col-12 mt-3">
+                        <label class="x-small fw-bold">Ukali wa Maumivu (1-10)</label>
+                        <input type="range" name="severity" min="1" max="10" class="form-range">
+                    </div>
+                </div>
+            </div>
+            <div class="modal-footer border-0">
+                <button type="submit" class="btn btn-danger w-100 rounded-pill py-2">Hifadhi Kumbukumbu</button>
+            </div>
+        </form>
+    </div>
+</div>
+{% endfor %}
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+<script>
+    const chartData = {{ chart_data_json|safe }};
+    const ctx = document.getElementById('diseaseTrendChart');
+    if (ctx) {
+        new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: chartData.labels,
+                datasets: [{
+                    label: 'Ukali (Severity)',
+                    data: chartData.severity,
+                    borderColor: '#c9184a',
+                    backgroundColor: 'rgba(201, 24, 74, 0.1)',
+                    fill: true,
+                    tension: 0.4
+                }, {
+                    label: 'Temp (°C)',
+                    data: chartData.temp,
+                    borderColor: '#0d6efd',
+                    borderDash: [5, 5],
+                    fill: false
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom' } },
+                scales: { y: { beginAtZero: true, max: 10 } }
+            }
+        });
+    }
+</script>
+{% endblock %}

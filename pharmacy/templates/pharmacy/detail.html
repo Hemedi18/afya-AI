@@ -1,0 +1,219 @@
+{% extends "base.html" %}
+{% load static %}
+{% load humanize %}
+
+{% block content %}
+
+<link rel="stylesheet" href="{% static 'pharmacy/pharmacy.css' %}?v=20260405">
+
+<div class="container py-4">
+
+<!-- User Quick Actions -->
+<div class="row mb-4">
+	<div class="col-md-12 d-flex flex-wrap gap-2">
+		<a href="{% url 'cart:cart_detail' %}" class="btn btn-outline-primary">🛒 My Cart</a>
+		<a href="{% url 'prescriptions:prescription_list' %}" class="btn btn-outline-secondary">💊 My Prescriptions</a>
+		<a href="{% url 'orders:order_list' %}" class="btn btn-outline-success">📦 My Orders</a>
+		<a href="{% url 'delivery:dashboard' %}" class="btn btn-outline-info">🚚 My Deliveries</a>
+	</div>
+</div>
+
+<!-- Pharmacy Header -->
+<div class="pharmacy-header">
+
+<div class="row">
+
+<div class="col-md-4">
+
+{% if pharmacy.image %}
+<img src="{{ pharmacy.image.url }}" class="img-fluid" alt="{{ pharmacy.name }}">
+{% else %}
+<img src="https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=400&q=80" class="img-fluid" alt="Default">
+{% endif %}
+
+</div>
+
+<div class="col-md-8">
+
+<h2 class="pharmacy-title">
+{{ pharmacy.name }}
+</h2>
+
+<div class="pharmacy-meta">
+
+<div class="meta-box">
+<strong>License</strong>
+<span>{{ pharmacy.license_number }}</span>
+</div>
+
+<div class="meta-box">
+<strong>Phone</strong>
+<span>{{ pharmacy.phone }}</span>
+</div>
+
+<div class="meta-box">
+<strong>Email</strong>
+<span>{{ pharmacy.email }}</span>
+</div>
+
+<div class="meta-box">
+<strong>Location</strong>
+<span>{{ pharmacy.city }}, {{ pharmacy.country }}</span>
+</div>
+
+<div class="meta-box">
+<strong>Verified</strong>
+<span>{{ pharmacy.is_verified|yesno:"Yes,No" }}</span>
+</div>
+
+<div class="meta-box">
+<strong>Joined</strong>
+<span>{{ pharmacy.created_at }}</span>
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+
+<!-- Search -->
+<div class="search-wrapper">
+	<form method="get" class="input-group">
+		<input 
+			type="text" 
+			name="q" 
+			class="form-control search-input"
+			placeholder="Search medicines..."
+			value="{{ query }}">
+		<button 
+			class="btn btn-primary search-btn"
+			type="submit">
+			Search
+		</button>
+	</form>
+</div>
+
+<!-- AI Medicine Suggestions Widget -->
+<link rel="stylesheet" href="{% static 'inventory/ai_medicine.css' %}?v=20260405">
+<div class="row mb-4">
+	<div class="col-12">
+		{% include "components/ai_medicine_suggestions.html" with suggestions=ai_suggestions %}
+	</div>
+</div>
+
+<!-- Medicines -->
+<div class="row">
+
+{% if stocks %}
+
+{% for stock in stocks %}
+
+<div class="col-lg-3 col-md-4 col-sm-6 mb-4">
+
+<div class="card medicine-card h-100">
+
+<div class="medicine-image">
+
+{% if stock.medicine.image %}
+<img src="{{ stock.medicine.image.url }}">
+{% else %}
+<img src="{% static 'assests/afyafinalicon.jpg' %}?v=20260405">
+{% endif %}
+
+	<!-- Add to Cart Button -->
+	<form method="post" action="{% url 'cart:cart_add' stock.id %}" class="mt-2">
+		{% csrf_token %}
+		<button type="submit" class="btn btn-sm btn-primary w-100">Add to Cart</button>
+	</form>
+
+</div>
+
+<div class="card-body">
+
+<h5 class="medicine-name">
+{{ stock.medicine.generic_name }}
+</h5>
+
+<p class="text-muted small">
+{{ stock.medicine.brand }} • {{ stock.medicine.generic_name }}
+</p>
+
+<div class="d-flex justify-content-between align-items-center mt-2">
+
+<span class="stock-badge">
+{{ stock.quantity }} in stock
+</span>
+
+<span class="price-box">
+{{ stock.price|intcomma }} TZS
+</span>
+
+</div>
+
+<a 
+href="{% url 'inventory:medicine_detail' stock.medicine.pk %}"
+class="btn btn-primary btn-sm mt-3 w-100">
+
+View Details
+
+</a>
+
+</div>
+
+</div>
+
+</div>
+
+{% endfor %}
+
+{% else %}
+
+<div class="col-12">
+
+<div class="empty-state">
+
+<h5>No medicines available</h5>
+
+</div>
+
+</div>
+
+{% endif %}
+
+<!-- Status Overview (Optional) -->
+<div class="row mt-5">
+	<div class="col-md-4">
+		<div class="card">
+			<div class="card-body">
+				<h6>🛒 Cart Status</h6>
+				<a href="{% url 'cart:cart_detail' %}">View your cart</a>
+			</div>
+		</div>
+	</div>
+	<div class="col-md-4">
+		<div class="card">
+			<div class="card-body">
+				<h6>💊 Recent Prescriptions</h6>
+				<a href="{% url 'prescriptions:prescription_list' %}">View prescriptions</a>
+			</div>
+		</div>
+	</div>
+	<div class="col-md-4">
+		<div class="card">
+			<div class="card-body">
+				<h6>🚚 Delivery Status</h6>
+				<a href="{% url 'delivery:dashboard' %}">Track deliveries</a>
+			</div>
+		</div>
+	</div>
+</div>
+
+</div>
+
+</div>
+
+{% endblock %}

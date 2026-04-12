@@ -1,0 +1,13 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'orders/order.css' %}">
+<h2>My Orders</h2>
+<div>
+  {% for order in orders %}
+    {% include "components/order_card.html" %}
+  {% empty %}
+    <p>No orders found.</p>
+  {% endfor %}
+</div>
+{% endblock %}

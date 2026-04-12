@@ -1,0 +1,307 @@
+{% extends 'base.html' %}
+{% load i18n %}
+
+{% block title %}{{ disease_info.disease_name_sw }} - AI Deep Dive{% endblock %}
+{% block extra_head %}
+    <style>
+
+.analysis-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 18px;
+}
+
+@media (min-width: 768px){
+    .analysis-grid {
+        grid-template-columns: repeat(2, 1fr);
+    }
+}
+
+@media (min-width: 1100px){
+    .analysis-grid {
+        grid-template-columns: repeat(3, 1fr);
+    }
+}
+
+.analysis-card {
+    background: #ffffff;
+    border-radius: 18px;
+    padding: 18px;
+    box-shadow: 0 8px 25px rgba(0,0,0,0.05);
+    transition: all .25s ease;
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+}
+
+.analysis-card:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 15px 35px rgba(0,0,0,0.08);
+}
+
+.analysis-card h5 {
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid #f1f1f1;
+    display: flex;
+    align-items: center;
+}
+
+.analysis-card p {
+    font-size: .9rem;
+    line-height: 1.5;
+    margin-bottom: 8px;
+}
+
+.analysis-card ul {
+    padding-left: 18px;
+    font-size: .9rem;
+}
+
+/* Soft Backgrounds */
+
+.bg-danger-soft {
+    background: #fff5f5;
+}
+
+.bg-success-soft {
+    background: #f4fff7;
+}
+
+.bg-primary-soft {
+    background: #f5f9ff;
+}
+
+/* Header Section */
+
+.detail-shell {
+    max-width: 1200px;
+    margin: auto;
+    padding: 20px 15px 90px;
+}
+
+.detail-shell h2 {
+    font-size: 1.4rem;
+}
+
+/* Image Styling */
+
+.analysis-card img {
+    border-radius: 12px;
+}
+
+/* Badge */
+
+.analysis-card .badge {
+    font-size: .7rem;
+    padding: 6px 10px;
+    border-radius: 20px;
+}
+
+/* Mobile spacing */
+
+@media(max-width:768px){
+
+.detail-shell{
+padding:15px 10px 90px;
+}
+
+.analysis-card{
+padding:15px;
+}
+
+.detail-shell h2{
+font-size:1.2rem;
+}
+
+}
+
+/* Alert Styling */
+
+.alert-info{
+border-radius:14px;
+border:none;
+background:#f3f8ff;
+}
+
+/* Button polish */
+
+.btn{
+font-weight:600;
+padding:7px 14px;
+}
+
+/* Professional card numbering */
+
+.analysis-card h5::before{
+content:"";
+width:4px;
+height:18px;
+background:#ff4d6d;
+border-radius:4px;
+margin-right:8px;
+}
+
+</style>
+{% endblock %}
+{% block content %}
+<div class="detail-shell container-fluid">
+    <div class="d-flex justify-content-between align-items-center mb-4 px-2">
+        <h2 class="fw-bold"><i class="bi bi-robot me-2"></i>AI Deep Dive Analysis</h2>
+        <div class="d-flex gap-2">
+            <form action="{% url 'diseases:add_disease' disease_id %}" method="POST">
+                {% csrf_token %}
+                <button type="submit" class="btn btn-danger rounded-pill shadow-sm">
+                    <i class="bi bi-plus-circle me-1"></i> {% trans "Save to My Profile" %}
+                </button>
+            </form>
+            <a href="{% url 'diseases:search' %}" class="btn btn-outline-secondary rounded-pill shadow-sm">
+                <i class="bi bi-search me-1"></i> {% trans "New Search" %}
+            </a>
+        </div>
+    </div>
+
+    <div class="analysis-grid">
+        <!-- 1. Basic Information -->
+        <div class="analysis-card border-top border-5 border-danger">
+            <h5 class="text-danger fw-bold"><i class="bi bi-info-square me-2"></i>1. Basic Information</h5>
+            
+            <div class="mb-3 overflow-hidden rounded-4 border bg-light text-center">
+                <img src="https://images.unsplash.com/photo-1530026405186-ed1f139313f8?auto=format&fit=crop&w=800&q=80" 
+                     class="img-fluid w-100" 
+                     style="max-height: 180px; object-fit: cover;"
+                     alt="{{ disease_info.disease_name_sw }} diagram">
+            </div>
+
+            <p><strong>{% trans "Jina" %}:</strong> {{ structured.basic_info.name_sw }}</p>
+            <p><strong>{% trans "Mfumo" %}:</strong> {{ structured.basic_info.body_system }}</p>
+            <div class="badge bg-warning text-dark mt-auto">{% trans "AI Risk" %}: {{ structured.basic_info.risk_level_ai }}</div>
+        </div>
+
+        <!-- 2. Description -->
+        <div class="analysis-card">
+            <h5 class="text-primary fw-bold"><i class="bi bi-journal-medical me-2"></i>2. Description</h5>
+            <p><strong>Maana:</strong> {{ structured.description.definition }}</p>
+            <hr>
+            <p class="small text-muted mb-0"><strong>Ufanyaji Kazi:</strong> {{ structured.description.mechanism }}</p>
+        </div>
+
+        <!-- 3. Causes -->
+        <div class="analysis-card bg-light">
+            <h5 class="fw-bold"><i class="bi bi-bug me-2"></i>3. Causes</h5>
+            <ul class="mb-0">
+                <li><strong>Vimelea:</strong> {{ structured.causes.bacterial|default:structured.causes.viral }}</li>
+                <li><strong>Nasaba:</strong> {{ structured.causes.genetic }}</li>
+                <li><strong>Maisha:</strong> {{ structured.causes.lifestyle }}</li>
+            </ul>
+        </div>
+
+        <!-- 4. Symptoms -->
+        <div class="analysis-card border-start border-danger border-4">
+            <h5 class="text-danger fw-bold"><i class="bi bi-thermometer-high me-2"></i>4. Symptoms</h5>
+            <p><strong>Dalili za Kawaida:</strong> {{ structured.symptoms.common }}</p>
+            <p class="text-danger"><strong>Dharura:</strong> {{ structured.symptoms.emergency }}</p>
+        </div>
+
+        <!-- 5. Risk Factors -->
+        <div class="analysis-card">
+            <h5 class="fw-bold"><i class="bi bi-person-exclamation me-2"></i>5. Risk Factors</h5>
+            <p>{{ structured.risk_factors|join:", " }}</p>
+        </div>
+
+        <!-- 6. Treatment Options -->
+        <div class="analysis-card">
+            <h5 class="text-success fw-bold"><i class="bi bi-hospital me-2"></i>6. Treatment Options</h5>
+            <p><strong>Dawa:</strong> {{ structured.treatment_options.medication }}</p>
+            <p><strong>Upasuaji/Tiba:</strong> {{ structured.treatment_options.surgery|default:structured.treatment_options.therapy }}</p>
+        </div>
+
+        <!-- 7. Common Medications -->
+        <div class="analysis-card bg-success-soft">
+            <h5 class="text-success fw-bold"><i class="bi bi-capsule-pill me-2"></i>7. Common Medications</h5>
+            <div class="bg-light p-2 rounded mt-2">
+                {% for med in structured.common_medications %}
+                    <div class="mb-2 border-bottom pb-1">
+                        <strong class="text-dark">{{ med.name }}</strong><br>
+                        <span class="x-small text-muted">{{ med.dosage }} | {{ med.frequency }}</span>
+                    </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- 8. Prevention -->
+        <div class="analysis-card shadow-sm">
+            <h5 class="text-success fw-bold"><i class="bi bi-shield-check me-2"></i>8. Prevention</h5>
+            <p><strong>Njia za Kuzuia:</strong> {{ structured.prevention.lifestyle }}</p>
+            <p><strong>Chanjo:</strong> {{ structured.prevention.vaccination|default:"Haijapatikana" }}</p>
+        </div>
+
+        <!-- 9. Complications -->
+        <div class="analysis-card">
+            <h5 class="text-dark fw-bold"><i class="bi bi-diagram-3 me-2"></i>9. Complications</h5>
+            <p class="text-muted">{{ structured.complications.organ_damage }}</p>
+            <p class="font-italic">{{ structured.complications.long_term }}</p>
+        </div>
+
+        <!-- 10. Emergency Signs -->
+        <div class="analysis-card bg-danger-soft">
+            <h5 class="text-danger fw-bold"><i class="bi bi-telephone-outbound me-2"></i>10. Emergency Signs</h5>
+            <div class="p-3 border border-danger rounded-3 bg-white">
+                <p class="fw-bold text-danger mb-0">{{ structured.emergency_signs.when_to_seek_doctor }}</p>
+            </div>
+        </div>
+
+        <!-- 11. Monitoring -->
+        <div class="analysis-card">
+            <h5 class="fw-bold"><i class="bi bi-activity me-2"></i>11. What to Track</h5>
+            <p>Fuatilia kila siku: {{ structured.monitoring.temp }}, {{ structured.monitoring.bp }}, {{ structured.monitoring.oxygen }}</p>
+        </div>
+
+        <!-- 12. AI Insights (Pro) -->
+        <div class="analysis-card bg-primary-soft">
+            <h5 class="text-primary fw-bold"><i class="bi bi-stars me-2"></i>12. AI Insights (Pro)</h5>
+            <div class="d-flex justify-content-between mb-3">
+                <span>Risk: {{ structured.ai_insights.risk_score }}%</span>
+                <span>Severity: {{ structured.ai_insights.severity_score }}/10</span>
+            </div>
+            <div class="p-2 bg-white rounded border">
+                <p class="mb-0 italic small">"{{ structured.ai_insights.alerts }}"</p>
+            </div>
+        </div>
+
+        <!-- 13. Clinical Info -->
+        <div class="analysis-card">
+            <h5 class="fw-bold"><i class="bi bi-microscope me-2"></i>13. Clinical Info</h5>
+            <p><strong>Vipimo:</strong> {{ structured.clinical_info.lab_tests }}</p>
+            <p><strong>Uchunguzi:</strong> {{ structured.clinical_info.physical_exam }}</p>
+        </div>
+
+        <!-- 14. Recovery Info -->
+        <div class="analysis-card">
+            <h5 class="fw-bold"><i class="bi bi-calendar-check me-2"></i>14. Recovery Info</h5>
+            <p><strong>Muda wa Kupona:</strong> {{ structured.recovery_info.time }}</p>
+            <p><strong>Usimamizi:</strong> {{ structured.recovery_info.management }}</p>
+        </div>
+
+        <!-- 15. Lifestyle Advice -->
+        <div class="analysis-card">
+            <h5 class="text-success fw-bold"><i class="bi bi-heart-pulse me-2"></i>15. Lifestyle Advice</h5>
+            <ul class="mb-0">
+                <li><strong>Diet:</strong> {{ structured.lifestyle_advice.diet }}</li>
+                <li><strong>Sleep:</strong> {{ structured.lifestyle_advice.sleep }}</li>
+            </ul>
+        </div>
+    </div>
+
+    <div class="alert alert-info mt-4" role="alert">
+        <div class="d-flex">
+            <i class="bi bi-info-circle-fill me-3 fs-4"></i>
+            <div>
+                <strong>Kumbuka:</strong> Maelezo haya yanazalishwa na AI kwa kutumia data kutoka Wikipedia na WHO. Muone daktari kwa tiba rasmi.
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

@@ -1,0 +1,25 @@
+/* Scoped cart styles */
+.cart-item-card {
+  border: 1px solid var(--line-soft, #e0e0e0);
+  border-radius: 12px;
+  padding: 1rem;
+  margin-bottom: 1rem;
+  background: var(--bs-light, #f8f9fa);
+  display: flex;
+  align-items: center;
+}
+.cart-item-card img {
+  width: 64px;
+  height: 64px;
+  object-fit: cover;
+  border-radius: 8px;
+  margin-right: 1rem;
+}
+.cart-item-details {
+  flex: 1;
+}
+.cart-item-actions {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}

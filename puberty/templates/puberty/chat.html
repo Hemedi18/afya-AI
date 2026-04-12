@@ -1,0 +1,25 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'puberty/puberty.css' %}?v=20260405">
+<div class="container py-4">
+  <div class="row justify-content-center">
+    <div class="col-md-8">
+      <div class="puberty-card p-4">
+        <h2 class="mb-3">Puberty AI Assistant</h2>
+        <form method="post" class="mb-3">
+          {% csrf_token %}
+          <div class="input-group">
+            <input type="text" name="question" class="form-control" placeholder="Ask a puberty question..." required>
+            <button class="btn btn-primary" type="submit">Ask</button>
+          </div>
+        </form>
+        {% if answer %}
+          <div class="alert alert-info mt-3">{{ answer }}</div>
+        {% endif %}
+        <div class="small text-muted mt-3">Powered by AI_brain</div>
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

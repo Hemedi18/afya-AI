@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'cart/cart.css' %}">
+<h2>My Cart</h2>
+<div>
+  {% for item in cart_items %}
+    {% include "components/medicine_card.html" with medicine=item.medicine %}
+  {% empty %}
+    <p>Your cart is empty.</p>
+  {% endfor %}
+</div>
+<a href="{% url 'orders:checkout' %}" class="btn btn-success mt-3">Proceed to Checkout</a>
+{% endblock %}

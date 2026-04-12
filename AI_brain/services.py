@@ -1,6 +1,10 @@
 from django.conf import settings
 from groq import Groq
 import requests
+import logging
+import json
+
+logger = logging.getLogger(__name__)
 
 try:
     import ollama
@@ -157,3 +161,108 @@ def ask_ai_brain(message_text: str) -> str:
             "na wasiliana na daktari kama maumivu ni makali."
         ),
     )
+
+
+def search_wikipedia(query: str, lang: str = 'en') -> tuple[str | None, str | None]:
+    """Searches Wikipedia for a given query and returns (title, summary)."""
+    url = f"https://{lang}.wikipedia.org/w/api.php"
+    search_params = {
+        "action": "query",
+        "format": "json",
+        "list": "search",
+        "srsearch": query,
+        "srlimit": 1
+    }
+    try:
+        response = requests.get(url, params=search_params, timeout=10)
+        response.raise_for_status()
+        data = response.json()
+        search_results = data.get("query", {}).get("search", [])
+
+        if search_results:
+            page_title = search_results[0]["title"]
+            content_params = {
+                "action": "query",
+                "format": "json",
+                "prop": "extracts",
+                "exintro": True,
+                "explaintext": True,
+                "titles": page_title,
+                "exsentences": 4
+            }
+            content_response = requests.get(url, params=content_params, timeout=10)
+            content_response.raise_for_status()
+            content_data = content_response.json()
+            pages = content_data.get("query", {}).get("pages", {})
+            page_id = next(iter(pages))
+            extract = pages[page_id].get("extract", "No summary found.")
+            return page_title, extract
+    except Exception as e:
+        logger.error(f"Wikipedia search error for {query}: {e}")
+    return None, None
+
+
+def get_disease_info_from_external_apis(user_query: str) -> dict:
+    """
+    Orchestrates the flow: AI name correction -> Wikipedia search -> AI Synthesis.
+    Returns structured disease information.
+    """
+    # Step 1: AI to get the formal English medical name for better API accuracy
+    correction_prompt = (
+        f"Toa jina la kitaalamu la ugonjwa huu kwa Kiingereza (Medical Name): '{user_query}'. "
+        "Andika jina pekee bila maelezo mengine."
+    )
+    formal_name = generate_ai_text(correction_prompt, user_query).strip().strip('.')
+
+    # Step 2: Search Wikipedia (often acts as a repository for WHO/CDC data)
+    wiki_title, wiki_summary = search_wikipedia(formal_name)
+    
+    # Step 3: Use AI to synthesize into the 15-point structure in JSON format
+    ai_synthesis_prompt = (
+        f"Wewe ni mtaalamu wa afya wa kiwango cha juu. Changanua ugonjwa huu: '{formal_name}'.\n"
+        f"Data ya ziada (Wikipedia): {wiki_summary or 'Hazijapatikana'}.\n\n"
+        "Tengeneza ripoti kamili kwa Kiswahili kwa kutumia mfumo wa JSON pekee wenye key hizi 15:\n"
+        "1. basic_info (name_sw, alt_names, category, body_system, severity, risk_level_ai)\n"
+        "2. description (definition, mechanism, impact)\n"
+        "3. causes (bacterial, viral, genetic, lifestyle, environmental)\n"
+        "4. symptoms (common, early, severe, emergency)\n"
+        "5. risk_factors (list items)\n"
+        "6. treatment_options (medication, lifestyle, therapy, surgery, home_care)\n"
+        "7. common_medications (list of dicts with: name, dosage, frequency, side_effects, warnings)\n"
+        "8. prevention (lifestyle, diet, exercise, vaccination, avoidance)\n"
+        "9. complications (long_term, organ_damage, disability, fatal_risk)\n"
+        "10. emergency_signs (when_to_seek_doctor)\n"
+        "11. monitoring (symptoms, pain, bp, sugar, temp, oxygen)\n"
+        "12. ai_insights (risk_score, severity_score, progression, alerts)\n"
+        "13. clinical_info (lab_tests, imaging, physical_exam)\n"
+        "14. recovery_info (time, chronic_vs_temp, management)\n"
+        "15. lifestyle_advice (diet, exercise, sleep)\n\n"
+        "Hakikisha majibu yote ni kwa Kiswahili sanifu na rahisi. Usitoe hofu."
+    )
+    
+    json_response = generate_ai_text(ai_synthesis_prompt, "{}")
+    
+    try:
+        # Safisha JSON kama kuna markdown backticks
+        if "```json" in json_response:
+            json_response = json_response.split("```json")[1].split("```")[0].strip()
+        elif "```" in json_response:
+            json_response = json_response.split("```")[1].split("```")[0].strip()
+            
+        structured_data = json.loads(json_response)
+    except Exception as e:
+        logger.error(f"Failed to parse AI JSON for disease {formal_name}: {e}")
+        structured_data = {}
+
+    # Fallback for display names if JSON failed
+    name_sw = structured_data.get('basic_info', {}).get('name_sw', user_query)
+    if not structured_data:
+        # In case of total failure, provide a minimal fallback
+        structured_data = {"error": "Mchakato wa AI umeshindwa. Tafadhali jaribu tena."}
+
+    return {
+        "disease_name_en": formal_name,
+        "disease_name_sw": name_sw,
+        "structured_data": structured_data,
+        "wikipedia_summary_en": wiki_summary or "Wikipedia data unavailable.",
+    }

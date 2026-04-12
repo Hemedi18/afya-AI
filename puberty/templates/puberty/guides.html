@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'puberty/puberty.css' %}?v=20260405">
+<div class="container py-4">
+  <h2 class="mb-4">Puberty Guides</h2>
+  <div class="row g-4">
+    {% for guide in guides %}
+      <div class="col-md-6 col-lg-4">
+        <div class="puberty-card p-3 h-100">
+          {% if guide.image %}<img src="{{ guide.image.url }}" class="puberty-guide-img mb-2" alt="{{ guide.title }}">{% endif %}
+          <div class="fw-bold mb-1">{{ guide.title }}</div>
+          <div class="small text-muted mb-2">{{ guide.description }}</div>
+          <a href="{% url 'puberty:guide' guide.id %}" class="btn btn-sm btn-outline-primary">Read More</a>
+        </div>
+      </div>
+    {% empty %}
+      <div class="col-12 text-muted">No guides available.</div>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}

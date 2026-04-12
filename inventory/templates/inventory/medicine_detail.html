@@ -1,0 +1,71 @@
+{% extends "base.html" %}
+{% load static %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'inventory/medicine.css' %}">
+<link rel="stylesheet" href="{% static 'inventory/ai_medicine.css' %}">
+<div class="medicine-detail">
+  <div class="row">
+    <div class="col-md-5">
+      {% if medicine.image %}
+        <img src="{{ medicine.image.url }}" class="img-fluid rounded mb-3" alt="{{ medicine.name }}">
+      {% else %}
+        <img src="https://images.unsplash.com/photo-1515378791036-0648a3ef77b2?auto=format&fit=crop&w=400&q=80" class="img-fluid rounded mb-3" alt="Medicine Default">
+      {% endif %}
+    </div>
+    <div class="col-md-7">
+      <h2>{{ medicine.name }}</h2>
+      <p><strong>Brand:</strong> {{ medicine.brand }}</p>
+      <p><strong>Generic Name:</strong> {{ medicine.generic_name }}</p>
+      <p><strong>Category:</strong> {{ medicine.category }}</p>
+      <p><strong>Manufacturer:</strong> {{ medicine.manufacturer }}</p>
+      <p><strong>Description:</strong> {{ medicine.description }}</p>
+      <p><strong>Requires Prescription:</strong> {{ medicine.requires_prescription|yesno:"Yes,No" }}</p>
+      <h4>Stock Levels</h4>
+      <ul>
+        {% for stock in medicine.stocks.all %}
+          <li>
+            <div class="d-flex align-items-center justify-content-between flex-wrap">
+              <div>
+                <strong>{{ stock.pharmacy.name }}</strong>: {{ stock.quantity }} in stock @ {{ stock.price }} TZS <br>
+                <span class="text-muted small">Batch: {{ stock.batch_number }}, Exp: {{ stock.expiry_date }}</span>
+              </div>
+              <form method="post" action="{% url 'cart:cart_add' stock.id %}" class="d-flex align-items-center ms-2">
+                {% csrf_token %}
+                <input type="number" name="quantity" value="1" min="1" max="{{ stock.quantity }}" class="form-control form-control-sm me-2" style="width:80px;">
+                <button type="submit" class="btn btn-success btn-sm">Add to Cart</button>
+              </form>
+            </div>
+          </li>
+        {% empty %}
+          <li>No stock available.</li>
+        {% endfor %}
+      </ul>
+    </div>
+  </div>
+
+  <!-- AI-powered Alternatives -->
+  <div class="row mt-4">
+    <div class="col-md-6">
+      <h5>AI: Alternative Medicines</h5>
+      {% include "components/ai_medicine_suggestions.html" with suggestions=alternatives %}
+    </div>
+    <div class="col-md-6">
+      <h5>AI: Cheaper Options</h5>
+      <div class="ai-medicine-suggestions">
+        {% if cheaper %}
+          <ul class="ai-suggestions-list">
+            {% for stock in cheaper %}
+              <li>
+                <a href="{% url 'inventory:medicine_detail' stock.medicine.pk %}">{{ stock.medicine.name }}</a>
+                <span class="ai-suggestion-meta">{{ stock.pharmacy.name }} &mdash; {{ stock.price }} TZS</span>
+              </li>
+            {% endfor %}
+          </ul>
+        {% else %}
+          <p class="ai-suggestion-empty">No cheaper options found.</p>
+        {% endif %}
+      </div>
+    </div>
+  </div>
+</div>
+{% endblock %}

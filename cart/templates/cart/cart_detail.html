@@ -1,0 +1,82 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load humanize %}
+
+{% block content %}
+<div class="container mt-4">
+    <style>
+        .cart-card { background: var(--card-bg); border: 1px solid var(--line-soft); border-radius: 16px; color: var(--text-main); }
+        .table { color: var(--text-main); }
+        .text-muted { color: var(--text-muted) !important; }
+    </style>
+    
+    <h2 class="mb-4">{% trans "Your Shopping Cart" %}</h2>
+    
+    <div class="row">
+        <div class="col-lg-8">
+            <div class="cart-card p-3 mb-4">
+                {% if items %}
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead>
+                            <tr class="text-muted small">
+                                <th>{% trans "Medicine" %}</th>
+                                <th>{% trans "Pharmacy" %}</th>
+                                <th>{% trans "Price" %}</th>
+                                <th>{% trans "Qty" %}</th>
+                                <th class="text-end">{% trans "Total" %}</th>
+                                <th></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for item in items %}
+                            <tr>
+                                <td>
+                                    <div class="fw-bold">{{ item.stock.medicine.generic_name }}</div>
+                                    <div class="small text-muted">{{ item.stock.medicine.brand }}</div>
+                                </td>
+                                <td><span class="badge bg-info text-dark">{{ item.stock.pharmacy.name }}</span></td>
+                                <td>{{ item.stock.price|intcomma }}</td>
+                                <td>{{ item.quantity }}</td>
+                                <td class="text-end fw-bold">{{ item.stock.price|add:0 }}</td> <!-- Note: Actual math done in View -->
+                                <td class="text-end">
+                                    <a href="{% url 'cart:cart_remove' item.id %}" class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></a>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+                {% else %}
+                <div class="text-center py-5">
+                    <i class="bi bi-cart-x fs-1 text-muted"></i>
+                    <p class="mt-2">{% trans "Your cart is empty" %}</p>
+                    <a href="{% url 'inventory:medicine_list' %}" class="btn btn-primary mt-3">{% trans "Browse Medicines" %}</a>
+                </div>
+                {% endif %}
+            </div>
+        </div>
+        
+        <div class="col-lg-4">
+            <div class="cart-card p-4">
+                <h5>{% trans "Order Summary" %}</h5>
+                <div class="d-flex justify-content-between my-3">
+                    <span>{% trans "Subtotal" %}</span>
+                    <span class="fw-bold fs-5 text-success">{{ total|intcomma }} TZS</span>
+                </div>
+                {% if requires_prescription %}
+                <div class="alert alert-warning small py-2">
+                    <i class="bi bi-info-circle"></i> {% trans "Contains items requiring a prescription." %}
+                </div>
+                {% endif %}
+                <div class="d-grid gap-2">
+                    <a href="{% url 'cart:checkout' %}" class="btn btn-primary {% if not items %}disabled{% endif %}">
+                        {% trans "Proceed to Checkout" %}
+                    </a>
+                    <a href="{% url 'inventory:medicine_list' %}" class="btn btn-outline-secondary">{% trans "Continue Shopping" %}</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

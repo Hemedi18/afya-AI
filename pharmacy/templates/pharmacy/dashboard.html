@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<link rel="stylesheet" href="{% static 'pharmacy/pharmacy.css' %}?v=20260405">
+
+<div class="pharmacy-dashboard">
+
+<!-- Hero Header -->
+<div class="dashboard-hero">
+
+<div class="container">
+
+<div class="row align-items-center">
+
+<div class="col-lg-6">
+
+<h1 class="hero-title">
+Find Trusted Pharmacies
+</h1>
+
+<p class="hero-subtitle">
+Order medicines from verified pharmacies near you
+</p>
+
+<div class="hero-search">
+
+<input type="text" 
+placeholder="Search pharmacies..."
+class="form-control hero-search-input">
+
+<button class="btn hero-search-btn">
+Search
+</button>
+
+</div>
+
+</div>
+
+<div class="col-lg-6 text-center d-none d-lg-block">
+
+<img 
+src="{% static 'pharmacy/medical-hero.svg' %}?v=20260405" 
+class="hero-image">
+
+</div>
+
+</div>
+
+</div>
+
+</div>
+
+<!-- Pharmacy Grid -->
+
+<div class="container py-5">
+
+<div class="row g-4">
+
+{% for pharmacy in pharmacies %}
+
+<div class="col-xl-3 col-lg-4 col-md-6">
+
+<div class="pharmacy-card">
+
+<div class="pharmacy-image">
+
+{% if pharmacy.image %}
+<img src="{{ pharmacy.image.url }}">
+{% else %}
+<img src="{% static 'default-pharmacy.png' %}?v=20260405">
+{% endif %}
+
+{% if pharmacy.is_verified %}
+<span class="verified-badge">
+✓ Verified
+</span>
+{% endif %}
+
+</div>
+
+<div class="pharmacy-body">
+
+<h5 class="pharmacy-name">
+{{ pharmacy.name }}
+</h5>
+
+<p class="pharmacy-location">
+ {{ pharmacy.city }}
+</p>
+
+<div class="pharmacy-features">
+
+<span class="feature">
+ Medicines
+</span>
+
+<span class="feature">
+ Delivery
+</span>
+
+<span class="feature">
+⭐ Trusted
+</span>
+
+</div>
+
+<a href="{% url 'pharmacy:detail' pharmacy.pk %}"
+class="btn view-btn">
+
+View Pharmacy
+
+</a>
+
+</div>
+
+</div>
+
+</div>
+
+{% empty %}
+
+<div class="col-12">
+
+<div class="empty-state">
+
+<h3>No Pharmacies Yet</h3>
+
+<p>Pharmacies will appear here once registered</p>
+
+</div>
+
+</div>
+
+{% endfor %}
+
+</div>
+
+</div>
+
+</div>
+
+{% endblock %}

@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block content %}
+<div class="alert alert-success mt-4">
+  Item added to cart successfully!
+</div>
+<a href="{% url 'cart:cart_detail' %}" class="btn btn-primary mt-3">Go to Cart</a>
+<a href="javascript:history.back()" class="btn btn-secondary mt-3">Continue Shopping</a>
+{% endblock %}

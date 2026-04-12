@@ -1661,7 +1661,7 @@
         <div class="heart-pulse"></div>
         <i class="bi bi-heart-fill heart-icon"></i>
     </div>
-    <div class="loading-text" id="loadingText">Inapakia...</div>
+    <div class="loading-text" id="loadingText">loading...</div>
 </div>
 
 <button type="button" class="pwa-install-fab" id="pwaInstallFab" aria-label="{% trans 'Pakua app' %}">
@@ -1708,6 +1708,8 @@
             <a href="{% url 'chats:feed' %}" class="afya-main-link d-none d-lg-inline-flex" data-nav-match="/social/"><i class="bi bi-people"></i><span>{% trans "Jamii" %}</span></a>
             <a href="{% url 'chats:inbox' %}" class="afya-main-link d-none d-lg-inline-flex" data-nav-match="/social/inbox/"><i class="bi bi-chat-dots"></i><span>{% trans "Soga" %}</span></a>
             <a href="{% url 'card:home' %}" class="afya-main-link d-none d-lg-inline-flex" data-nav-match="/card/"><i class="bi bi-credit-card-2-front"></i><span>Card</span></a>
+               <a href="{% url 'pharmacy:dashboard' %}" class="afya-main-link d-none d-lg-inline-flex" data-nav-match="/pharmacy/dashboard/"><i class="bi bi-shop"></i><span>{% trans "Pharmacy" %}</span></a>
+               {% comment %} <a href="{% url 'inventory:medicine_list' %}" class="afya-main-link d-none d-lg-inline-flex" data-nav-match="/medicines/"><i class="bi bi-capsule"></i><span>{% trans "Medicines" %}</span></a> {% endcomment %}
             {% url 'machine_learning:live_face_scan' as ml_live_face_scan_url %}
             {% url 'machine_learning:face_scan_lookup' as ml_face_scan_lookup_url %}
             {% if user.is_staff or user.is_superuser or is_verified_doctor %}
@@ -1789,6 +1791,8 @@
                 <a href="{% url 'chats:feed' %}" class="afya-sub-mobile-link" data-nav-match="/social/"><i class="bi bi-people"></i><span>{% trans "Jamii" %}</span></a>
                 <a href="{% url 'chats:inbox' %}" class="afya-sub-mobile-link" data-nav-match="/social/inbox/"><i class="bi bi-chat-dots"></i><span>{% trans "Soga" %}</span></a>
                 <a href="{% url 'card:home' %}" class="afya-sub-mobile-link" data-nav-match="/card/"><i class="bi bi-credit-card-2-front"></i><span>{% trans "Kadi" %}</span></a>
+                   <a href="{% url 'pharmacy:dashboard' %}" class="afya-sub-mobile-link" data-nav-match="/pharmacy/dashboard/"><i class="bi bi-shop"></i><span>{% trans "Pharmacy" %}</span></a>
+                   <a href="{% url 'inventory:medicine_list' %}" class="afya-sub-mobile-link" data-nav-match="/medicines/"><i class="bi bi-capsule"></i><span>{% trans "Medicines" %}</span></a>
                 {% if user.is_staff or user.is_superuser or is_verified_doctor %}
                 {% if ml_live_face_scan_url and ml_face_scan_lookup_url %}
                 <a href="{{ ml_live_face_scan_url }}?purpose=lookup&next={{ ml_face_scan_lookup_url }}" class="afya-sub-mobile-link" data-nav-match="/ml/face/"><i class="bi bi-person-bounding-box"></i><span>{% trans "Face Lookup" %}</span></a>
@@ -1839,6 +1843,8 @@
         </form>
         {% else %}
         <a href="{% url 'main:home' %}" class="afya-mobile-primary-link" data-nav-match="/" aria-label="{% trans 'Nyumbani' %}"><i class="bi bi-house-door"></i><span>{% trans "Nyumbani" %}</span></a>
+        <a href="{% url 'pharmacy:dashboard' %}" class="afya-mobile-primary-link" data-nav-match="/pharmacy/dashboard/" aria-label="{% trans 'Pharmacy' %}"><i class="bi bi-shop"></i><span>{% trans "Pharmacy" %}</span></a>
+        <a href="{% url 'inventory:medicine_list' %}" class="afya-mobile-primary-link" data-nav-match="/medicines/" aria-label="{% trans 'Medicines' %}"><i class="bi bi-capsule"></i><span>{% trans "Medicines" %}</span></a>
         <a href="{% url 'users:login' %}" class="afya-mobile-primary-link" data-nav-match="/users/login/" aria-label="{% trans 'Ingia' %}"><i class="bi bi-box-arrow-in-right"></i><span>{% trans "Ingia" %}</span></a>
         <a href="{% url 'users:register' %}" class="afya-mobile-primary-link" data-nav-match="/users/register/" aria-label="{% trans 'Jisajili' %}"><i class="bi bi-person-plus"></i><span>{% trans "Jisajili" %}</span></a>
         <a href="{% url 'main:about' %}" class="afya-mobile-primary-link" data-nav-match="/about/" aria-label="{% trans 'Kuhusu' %}"><i class="bi bi-info-circle"></i><span>{% trans "Kuhusu" %}</span></a>

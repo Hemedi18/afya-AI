@@ -64,6 +64,11 @@ if not DEBUG:
     X_FRAME_OPTIONS = 'DENY'
 # ───────────────────────────────────────────────────────────────────────────
 
+# ── Static files cache busting ─────────────────────────────────────────────
+# Ensures browsers always get the latest static files after updates
+if not DEBUG:
+    STATICFILES_STORAGE = 'django.contrib.staticfiles.storage.ManifestStaticFilesStorage'
+
 GROQ_API_KEY = os.getenv('GROQ_API_KEY')
 AI_PROVIDER = (os.getenv('AI_PROVIDER', 'groq') or 'groq').strip().lower()
 OPENROUTER_API_KEY = os.getenv('OPENROUTER_API_KEY')
@@ -137,6 +142,16 @@ INSTALLED_APPS = [
     'medics',
     'diseases',
     'machine_learning',
+    'pharmacy',
+    'inventory',
+    'cart',
+    'orders',
+    'prescriptions',
+    'delivery',
+
+    'puberty',
+    'child_growth',
+    'business',
 
     # Third-party apps
 
@@ -148,6 +163,7 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'django.contrib.humanize',
 ]
 
 if DJANGO_Q_AVAILABLE:
@@ -444,3 +460,10 @@ os.makedirs(FILE_UPLOAD_TEMP_DIR, exist_ok=True)
 
 MEDIA_URL = '/media/'
 MEDIA_ROOT = BASE_DIR / 'media'
+
+STATIC_ROOT = BASE_DIR / "staticfiles"
+
+STATICFILES_FINDERS = [
+    'django.contrib.staticfiles.finders.FileSystemFinder',
+    'django.contrib.staticfiles.finders.AppDirectoriesFinder',
+]

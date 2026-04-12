@@ -1464,6 +1464,56 @@
         }
         
         scrollThread();
+    
+            attachOptions.forEach(function (button) {
+            button.addEventListener('click', function () {
+                const type = button.dataset.attachType;
+                
+                if (type === 'image') imageInput.click();
+                if (type === 'document') documentInput.click();
+                if (type === 'audio') audioInput.click();
+                if (type === 'video') videoInput.click();
+                if (type === 'camera') startCamera();
+                if (type === 'voice') startVoice();
+
+                attachSheet.classList.remove('show');
+            });
+        });
+
+        imageInput.addEventListener('change', function () {
+            pushFiles(this.files);
+            this.value = '';
+        });
+
+        documentInput.addEventListener('change', function () {
+            pushFiles(this.files);
+            this.value = '';
+        });
+
+        audioInput.addEventListener('change', function () {
+            pushFiles(this.files);
+            this.value = '';
+        });
+
+        videoInput.addEventListener('change', function () {
+            pushFiles(this.files);
+            this.value = '';
+        });
+
+        captureBtn.addEventListener('click', function () {
+            captureCameraImage();
+        });
+
+        closeCameraBtn.addEventListener('click', function () {
+            stopCamera();
+        });
+
+        // Load stored history
+        renderStoredHistory();
+
+        // Focus input
+        input.focus();
+
     })();
 </script>
 {% endblock %}

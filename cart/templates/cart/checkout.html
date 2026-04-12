@@ -1,0 +1,60 @@
+{% extends "base.html" %}
+{% load i18n %}
+{% load humanize %}
+
+{% block content %}
+<div class="container mt-4" style="max-width: 800px;">
+    <style>
+        .checkout-card { background: var(--card-bg); border: 1px solid var(--line-soft); border-radius: 20px; color: var(--text-main); }
+        .form-label { font-weight: 700; color: var(--text-main); }
+        .form-control { background: color-mix(in srgb, var(--card-bg) 95%, black); border-color: var(--line-soft); color: var(--text-main); }
+        .form-control:focus { background: var(--card-bg); color: var(--text-main); }
+    </style>
+
+    <div class="checkout-card p-4 shadow-sm">
+        <h2 class="mb-4"><i class="bi bi-credit-card-2-front text-primary me-2"></i>{% trans "Complete Your Order" %}</h2>
+        
+        <form method="post" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            <div class="mb-4">
+                <label class="form-label">{{ form.shipping_address.label }}</label>
+                {{ form.shipping_address }}
+                {% if form.shipping_address.help_text %}
+                    <div class="form-text text-muted">{{ form.shipping_address.help_text }}</div>
+                {% endif %}
+            </div>
+
+            <div class="mb-4">
+                <label class="form-label">{{ form.prescription_file.label }}</label>
+                <div class="p-3 rounded border {% if requires_prescription %}border-warning bg-opacity-10 bg-warning{% else %}border-dashed{% endif %}">
+                    {{ form.prescription_file }}
+                    <div class="form-text mt-2">
+                        {% if requires_prescription %}
+                            <span class="text-danger fw-bold"><i class="bi bi-exclamation-triangle"></i> {% trans "Required for your selection." %}</span>
+                        {% else %}
+                            {% trans "Upload your doctor's note (JPG, PNG, or PDF)." %}
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+
+            <div class="border-top pt-4 mt-4">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <div>
+                        <h5 class="mb-0">{% trans "Total Payable" %}</h5>
+                        <small class="text-muted">{% trans "Including all pharmacy sub-orders" %}</small>
+                    </div>
+                    <div class="text-success fw-bold fs-3">{{ total_amount|intcomma }} TZS</div>
+                </div>
+                
+                <div class="d-grid gap-2">
+                    <button type="submit" class="btn btn-primary btn-lg py-3 fw-bold">
+                        <i class="bi bi-shield-check"></i> {% trans "Confirm and Place Order" %}
+                    </button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

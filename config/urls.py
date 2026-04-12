@@ -52,6 +52,14 @@ urlpatterns += i18n_patterns(
     path('ml/', include('machine_learning.urls')),
     path('offline/', include('offline_chat.urls')),
     path('users/', include('users.urls')),
+    path('pharmacy/', include('pharmacy.urls', namespace='pharmacy')),
+    path('medicines/', include('inventory.urls', namespace='inventory')),
+    path('cart/', include('cart.urls', namespace='cart')),
+    path('orders/', include('orders.urls', namespace='orders')),
+    path('delivery/', include('delivery.urls', namespace='delivery')),
+    path('prescriptions/', include('prescriptions.urls', namespace='prescriptions')),
+    path('puberty/', include('puberty.urls', namespace='puberty')),
+    path('child-growth/', include('child_growth.urls', namespace='child_growth')),
 )
 
 if settings.DEBUG:
